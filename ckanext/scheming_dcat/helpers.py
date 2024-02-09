@@ -516,3 +516,7 @@ def schemingdct_get_all_metadata(id):
         data['endpoint_type'] = 'dcat'
 
     return geospatial_metadata + linked_data
+
+@helper
+def schemingdct_get_default_lang():
+    return p.toolkit.config.get('ckan.locale_default', 'en')
