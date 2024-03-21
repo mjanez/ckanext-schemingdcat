@@ -1,0 +1,280 @@
+# Translations template for ckanext-schemingdcat.
+# Copyright (C) 2023 ORGANIZATION
+# This file is distributed under the same license as the ckanext-schemingdcat
+# project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2023.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: ckanext-schemingdcat 0.0.1\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2023-07-04 11:54+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.7.0\n"
+
+#: ckanext/schemingdcat/templates/group/read.html:13
+msgid "Relevance"
+msgstr ""
+
+#: ckanext/schemingdcat/templates/group/read.html:14
+msgid "Name ascending"
+msgstr ""
+
+#: ckanext/schemingdcat/templates/group/read.html:15
+msgid "Name descending"
+msgstr ""
+
+#: ckanext/schemingdcat/templates/group/read.html:16
+msgid "Last modified"
+msgstr ""
+
+#: ckanext/schemingdcat/templates/group/read.html:17
+msgid "Popular"
+msgstr ""
+
+#: ckanext/schemingdcat/templates/group/read.html:19
+msgid "Search datasets..."
+msgstr ""
+
+#: ckanext/schemingdcat/templates/organization/read.html:5
+#: ckanext/schemingdcat/templates/package/search.html:6
+msgid "Search config"
+msgstr ""
+
+#: ckanext/schemingdcat/templates/organization/read.html:15
+msgid "Close"
+msgstr ""
+
+#: ckanext/schemingdcat/templates/scheming/form_snippets/multiple_text.html:14
+msgid "Remove"
+msgstr ""
+
+#: ckanext/schemingdcat/templates/scheming/form_snippets/multiple_text.html:45
+msgid "Add"
+msgstr ""
+
+#: ckanext/schemingdcat/templates/scheming/package/resource_read.html:21
+msgid "Additional information"
+msgstr ""
+
+#: ckanext/schemingdcat/templates/scheming/package/resource_read.html:26
+msgid "Field"
+msgstr ""
+
+#: ckanext/schemingdcat/templates/scheming/package/resource_read.html:27
+msgid "Value"
+msgstr ""
+
+#: ckanext/schemingdcat/templates/scheming/package/resource_read.html:34
+msgid "Data last updated"
+msgstr ""
+
+#: ckanext/schemingdcat/templates/scheming/package/resource_read.html:35
+#: ckanext/schemingdcat/templates/scheming/package/resource_read.html:41
+#: ckanext/schemingdcat/templates/scheming/package/resource_read.html:47
+#: ckanext/schemingdcat/templates/scheming/package/resource_read.html:53
+#: ckanext/schemingdcat/templates/scheming/package/resource_read.html:65
+msgid "unknown"
+msgstr ""
+
+#: ckanext/schemingdcat/templates/scheming/package/resource_read.html:40
+msgid "Metadata last updated"
+msgstr ""
+
+#: ckanext/schemingdcat/templates/scheming/package/resource_read.html:46
+msgid "Created"
+msgstr ""
+
+#: ckanext/schemingdcat/templates/scheming/package/resource_read.html:52
+msgid "Format"
+msgstr ""
+
+#: ckanext/schemingdcat/templates/scheming/package/resource_read.html:58
+msgid "License"
+msgstr ""
+
+#: ckanext/schemingdcat/templates/scheming/package/resource_read.html:64
+msgid "Rights"
+msgstr ""
+
+#: ckanext/schemingdcat/templates/scheming/package/resource_read.html:68
+msgid "Coordinate Reference System"
+msgstr ""
+
+#: ckanext/schemingdcat/templates/scheming/package/snippets/additional_info.html:155
+msgid "Additional info"
+msgstr ""
+
+#: ckanext/schemingdcat/templates/scheming/package/snippets/additional_info.html:179
+msgid "Punto de contacto"
+msgstr ""
+
+#: ckanext/schemingdcat/templates/scheming/package/snippets/additional_info.html:207
+msgid "Spatial information"
+msgstr ""
+
+#: ckanext/schemingdcat/templates/scheming/package/snippets/additional_info.html:232
+msgid "Provenance"
+msgstr ""
+
+#: ckanext/schemingdcat/templates/scheming/package/snippets/additional_info.html:252
+msgid "Lineage"
+msgstr ""
+
+#: ckanext/schemingdcat/templates/scheming/package/snippets/additional_info.html:270
+msgid "Temporal extent"
+msgstr ""
+
+#: ckanext/schemingdcat/templates/scheming/package/snippets/additional_info.html:288
+msgid "More information"
+msgstr ""
+
+#: ckanext/schemingdcat/templates/scheming/package/snippets/additional_info.html:306
+msgid "Version"
+msgstr ""
+
+#: ckanext/schemingdcat/templates/scheming/package/snippets/additional_info.html:324
+msgid "State"
+msgstr ""
+
+#: ckanext/schemingdcat/templates/scheming/package/snippets/additional_info.html:333
+msgid "Organización responsable"
+msgstr ""
+
+#: ckanext/schemingdcat/templates/scheming/package/snippets/additional_info.html:338
+msgid "Publicador"
+msgstr ""
+
+#: ckanext/schemingdcat/templates/scheming/package/snippets/additional_info.html:356
+msgid "Author"
+msgstr ""
+
+#: ckanext/schemingdcat/templates/scheming/package/snippets/additional_info.html:374
+msgid "Maintainer"
+msgstr ""
+
+#: ckanext/schemingdcat/templates/snippets/schemingdcat_facet_list.html:51
+msgid "sort by name"
+msgstr ""
+
+#: ckanext/schemingdcat/templates/snippets/schemingdcat_facet_list.html:58
+msgid "sort by results"
+msgstr ""
+
+#: ckanext/schemingdcat/templates/snippets/schemingdcat_facet_list.html:111
+msgid "Show more {facet_type}"
+msgstr ""
+
+#: ckanext/schemingdcat/templates/snippets/schemingdcat_facet_list.html:114
+msgid "Display only the first {facet_type}"
+msgstr ""
+
+#: ckanext/schemingdcat/templates/snippets/schemingdcat_facet_list.html:118
+msgid "No {facet_type} matching your search"
+msgstr ""
+
+#: ckanext/schemingdcat/templates/snippets/facet_search_operator.html:53
+msgid "Criteria for selection"
+msgstr ""
+
+#: ckanext/schemingdcat/templates/snippets/facet_search_operator.html:56
+msgid "OR"
+msgstr ""
+
+#: ckanext/schemingdcat/templates/snippets/facet_search_operator.html:57
+msgid "AND"
+msgstr ""
+
+#: ckanext/schemingdcat/templates/package/read_base.html:4
+msgid "Linked Data"
+msgstr ""
+
+#: ckanext/schemingdcat/templates/package/read_base.html:5
+msgid "Geospatial Metadata"
+msgstr ""
+
+#: ckanext/schemingdcat/templates/schemingdcat/custom_data/snippets/custom_data_item.html:35
+msgid "Format definition"
+msgstr ""
+
+#: ckanext/schemingdcat/templates/schemingdcat/snippets/access_rights.html:7
+msgid "Access rights"
+msgstr ""
+
+#: ckanext/schemingdcat/templates/schemingdcat/snippets/access_rights.html:25
+msgid "No Access Rights provided"
+msgstr ""
+
+#: ckanext/schemingdcat/templates/schemingdcat/snippets/graphic_overview.html:4
+msgid "Graphic overview"
+msgstr ""
+
+#: ckanext/schemingdcat/templates/schemingdcat/snippets/schemingdcat_dataset_map_sidebar.html:17
+msgid "Dataset extent"
+msgstr ""
+
+#: ckanext/schemingdcat/templates/schemingdcat/snippets/schemingdcat_spatial_query.html:18
+msgid "Filter by location"
+msgstr ""
+
+#: ckanext/schemingdcat/templates/schemingdcat/snippets/schemingdcat_spatial_query.html:19
+msgid "Clear"
+msgstr ""
+
+#: ckanext/schemingdcat/templates/schemingdcat/display_snippets/last_update.html:3
+msgid "Show changelog"
+msgstr ""
+
+#: ckanext/schemingdcat/templates/schemingdcat/snippets/data_access_license.html:20
+msgid "Data Access and Licensing"
+msgstr ""
+
+#: ckanext/schemingdcat/templates/schemingdcat/snippets/data_access_license.html:38
+msgid "This {resource} is classified as"
+msgstr ""
+
+#: ckanext/schemingdcat/templates/schemingdcat/snippets/data_access_license.html:38
+msgid "under the Access to Information Classification Policy of the catalog"
+msgstr ""
+
+#: ckanext/schemingdcat/templates/schemingdcat/snippets/data_access_license.html:38
+msgid "Users outside the catalog cannot access this {resource}"
+msgstr ""
+
+#: ckanext/schemingdcat/templates/schemingdcat/snippets/schemingdcat_social.html:32
+msgid "Permalink"
+msgstr ""
+
+#: ckanext/schemingdcat/templates/schemingdcat/snippets/schemingdcat_social.html:33
+msgid "{resource} URI"
+msgstr ""
+
+#: ckanext/schemingdcat/templates/schemingdcat/snippets/package/snippets/download_metadata.html:32
+msgid "Geospatial data"
+msgstr ""
+
+#: ckanext/schemingdcat/templates/scheming/package/snippets/additional_info.html:77
+msgid "Basic information"
+msgstr ""
+
+#: ckanext/schemingdcat/templates/schemingdcat/snippets/package/snippets/metadata_info.html:5
+msgid "Metadata"
+msgstr ""
+
+#: ckanext/schemingdcat/templates/schemingdcat/snippets/package/snippets/metadata_info.html:5
+msgid "{metadata_format} Metadata"
+msgstr ""
+
+#: ckanext/schemingdcat/templates/schemingdcat/snippets/package/snippets/metadata_info.html:5
+msgid "{endpoint_type} Endpoint"
+msgstr ""
+
+#: ckanext/schemingdcat/templates/schemingdcat/snippets/package/snippets/resource_read.html:112
+msgid "Distribution metadata"
+msgstr ""
