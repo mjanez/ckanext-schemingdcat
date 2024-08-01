@@ -97,7 +97,7 @@
 {% endblock %}
 
 {% block byte_size %}
-    {% set field_name = _('Size') %}
+    {% set field_name ='size' %}
     {% set field = h.scheming_field_by_name(schema.resource_fields, 'size') %}
     <tr>
         <th scope="row">{{ h.scheming_language_text(field.label) }}</th>
