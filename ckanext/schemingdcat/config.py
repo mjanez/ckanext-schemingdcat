@@ -18,7 +18,10 @@ default_package_item_show_spatial = True
 show_metadata_templates_toolbar = True
 metadata_templates_search_identifier = 'schemingdcat_xls-template'
 mimetype_base_uri = 'http://www.iana.org/assignments/media-types'
-form_tabs_allowed = True
+slugify_pat = re.compile('[^a-zA-Z0-9]')
+# schemingdcat field_mapping extras prefix, e.g. custom_field = extras_custom_field
+field_mapping_extras_prefix = 'extras'
+field_mapping_extras_prefix_symbol = '_'
 
 # Default DCAT metadata configuration
 OGC2CKAN_HARVESTER_MD_CONFIG = {
@@ -146,6 +149,18 @@ OGC2CKAN_ISO_MD_ELEMENTS = {
 # loose definition of BCP47-like strings
 BCP_47_LANGUAGE = u'^[a-z]{2,8}(-[0-9a-zA-Z]{1,8})*$'
 
+DATASET_DEFAULT_SCHEMA = [
+    'id',
+    'type',
+    'isopen',
+    ]
+
+RESOURCE_DEFAULT_SCHEMA = [
+    'url',
+    'name',
+    ]
+
+
 DATE_FIELDS = [
     {'field_name': 'created', 'fallback': 'issued', 'default_value': None, 'override': True, 'dtype': str},
     {'field_name': 'issued', 'fallback': None, 'default_value': None, 'override': True, 'dtype': str},
@@ -259,10 +274,17 @@ ACCENT_MAP = str.maketrans({
     "ñ": "ñ",
 })
 
+# CKAN tags fields to be searched in the harvester
+AUX_TAG_FIELDS = [
+    'tag_string',
+    'keywords'
+]
+
 URL_FIELD_NAMES = {
         'dataset': 
             ['dcat_type', 'theme_es', 'language', 'topic', 'maintainer_url', 'tag_uri', 'contact_uri', 'contact_url', 'publisher_identifier', 'publisher_uri', 'publisher_url', 'publisher_type', 'maintainer_uri', 'maintainer_url', 'author_uri', 'author_url', 'conforms_to', 'theme', 'reference_system', 'spatial_uri', 'representation_type', 'license_id', 'access_rights', 'graphic_overview', 'frequency', 'hvd_category'],
         'resource':
             ['url', 'availability', 'mimetype', 'status', 'resource_relation', 'license', 'rights', 'conforms_to', 'reference_system']
     }
+
 EMAIL_FIELD_NAMES = ['publisher_email', 'maintainer_email', 'author_email', ]
