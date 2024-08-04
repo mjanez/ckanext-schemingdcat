@@ -4,11 +4,13 @@ about: "Datasets/Distributions: Adaptation for CKAN of the GeoDCAT-AP metadata s
 about_url: https://github.com/mjanez/ckanext-schemingdcat
 form_languages: ["es", "en"]
 required_language: "es"
-schema_version: 2.1
-schema_date: 2024-05-01
+schema_version: 2.2
+schema_date: 2024-08-01
 schema_name: geodcatap_es
 schema_title: GeoDCAT-AP (ES)
 schema_description: "Geospatial extension to the DCAT application profile for data portals in Europe (GeoDCAT-AP). It is adapted to the Spanish context and includes compatibility with the Technical Interoperability Standard (NTI-RISP), the open data profile for Spain: https://datos.gob.es/en/documentacion/guia-de-aplicacion-de-la-norma-tecnica-de-interoperabilidad-de-reutilizacion-de"
+schema_profile_version: 2.0.0
+schema_profile_url: https://semiceu.github.io/GeoDCAT-AP/releases/2.0.0/
 schema_form_groups:
   # Basic Info parties form_page (#1)
   - form_group_id: title
@@ -120,12 +122,21 @@ schema_form_groups:
     label:
       en: Resource locator
       es: Localizador del recurso
-    fa_icon: fa-link
+  - form_group_id: resource_access_service
+    label:
+      en: Data Service of the resource
+      es: Servicio de datos del recurso
+    fa_icon: fa-asterisk
+  - form_group_id: resource_distribution
+    label:
+      en: Information on resource distribution
+      es: Información de la distribución del recurso
+    fa_icon: fa-list-ul
   - form_group_id: resource_type
     label:
       en: Resource type information 
       es: Información del tipo de recurso
-    fa_icon: fa-file-code-o 
+    fa_icon: fa-file-code-o
   - form_group_id: resource_license_info
     label:
       en: License and restrictions
@@ -147,6 +158,7 @@ schema_form_tabs:
       en: Identification
       es: Identificación
     form_group_id:
+      - title
       - general_info
       - identification
       - notes
@@ -213,17 +225,8 @@ schema_form_tabs:
 #--Dataset (dcat:Dataset) fields--#
 dataset_fields:
 
-#--Basic info--#
-- start_form_page:
-    title: 
-      en: Basic Info
-      es: Identificación
-    description: 
-      en: Basic metadata identification and reference information.
-      es: Información básica de identificación y referencia de los metadatos.
-
 # Dataset title translated (M)
-  field_name: title_translated
+- field_name: title_translated
   label: 
     en: Dataset title
     es: Título del conjunto de datos
@@ -258,7 +261,7 @@ dataset_fields:
     es: 'ckanext-schemingdcat <a href="https://github.com/mjanez/ckanext-schemingdcat?tab=readme-ov-file#remote-google-sheetonedrive-excel-metadata-upload-harvester" target="_blank" rel="noopener noreferrer">cosechador de ficheros remotos Google Sheet/Onedrive Excel/a>'
   form_group_id: general_info
 
-# Non-spatial Dataset
+# Non-spatial Dataset (Hidden field, based on dcat_type)
 - field_name: dataset_scope
   label:
     en: Scope of the data
@@ -1189,17 +1192,8 @@ dataset_fields:
   form_placeholder: http://www.example.com
   form_group_id: contact
 
-#--Responsible party--#
-- start_form_page:
-    title: 
-      en: Responsible party
-      es: Responsable
-    description: 
-      en: Organization(s) responsible for the creation, management, maintenance and distribution of datasets.
-      es: Organización(es) responsable(s) de la creación, gestión, mantenimiento y distribución de los conjuntos de datos.
-
-# Publisher name (M)
-  field_name: publisher_name
+# GeoDCAT-AP: https://semiceu.github.io/GeoDCAT-AP/releases/3.0.0/#responsible-party-and-metadata-point-of-contact---dataset-responsible-party-and-metadata-point-of-contact
+- field_name: publisher_name
   label:
     en: Name of the publisher
     es: Nombre del publicador
@@ -1326,6 +1320,15 @@ dataset_fields:
     es: "Persona u organización responsable de mantener o actualizar un conjunto de datos."
   form_group_id: maintainer
 
+# Maintainer name (O). Fallback, CKAN using maintainer in basic package schema: https://github.com/ckan/ckan/blob/f2d47c8f87bc5f224ebff93b23d0f6fda8fb81b4/ckan/model/package.py#L36-L57
+- field_name: maintainer_name
+  label:
+    en: Name of the dataset maintainer
+    es: Nombre del mantenedor
+  validators: if_empty_same_as(maintainer) unicode_safe
+  preset: hide_fallback
+  form_group_id: maintainer
+
 # Maintainer Identifier (O)
 - field_name: maintainer_uri
   label:
@@ -1374,6 +1377,15 @@ dataset_fields:
     es: "Persona u organización creadora o productora de un conjunto de datos"
   form_group_id: author
 
+# Author name (O). Fallback, CKAN using author in basic package schema: https://github.com/ckan/ckan/blob/f2d47c8f87bc5f224ebff93b23d0f6fda8fb81b4/ckan/model/package.py#L36-L57
+- field_name: author_name
+  label:
+    en: Name of the dataset author
+    es: Nombre del mantenedor
+  validators: if_empty_same_as(author) unicode_safe
+  preset: hide_fallback
+  form_group_id: author
+
 # Author Identifier (O)
 - field_name: author_uri
   label:
@@ -1410,17 +1422,8 @@ dataset_fields:
     es: Esta propiedad se refiere a una página web que actúa como página principal del publicador. URL
   form_group_id: author
 
-#--Quality--#
-- start_form_page:
-    title: 
-      en: Quality
-      es: Calidad
-    description: 
-      en: Data quality information.
-      es: Información sobre calidad de los datos.
-
 # Other identifier (O))
-  field_name: alternate_identifier
+- field_name: alternate_identifier
   label: 
     en: Other identifier
     es: Identificador alternativo
@@ -1472,6 +1475,19 @@ dataset_fields:
     en: 'URI(s) of the Metadata profile used'
     es: 'URI(s) del perfil de Metadatos utilizado'
   form_group_id: standards
+
+# Applicable legislation (M)
+- field_name: applicable_legislation
+  label: 
+    en: Applicable legislation 
+    es: Legislación aplicable
+  preset: multiple_text_links
+  display_property: dcatap:applicableLegislation
+  form_placeholder: 'http://data.europa.eu/eli/reg_impl/2023/138/oj'
+  help_text:
+    en: 'The legislation that mandates the creation or management of the resource.'
+    es: 'La legislación que ordena la creación o gestión del recurso.'
+  form_group_id: standards 
 
 # Temporal start (O)
 - field_name: temporal_start
@@ -1670,6 +1686,19 @@ dataset_fields:
     es: 'URI que identifica al recurso relacionado. Se pueden incluir tantas propiedades como referencias se conozcan.'
   form_group_id: lineage
 
+# Related resources (O)
+- field_name: is_referenced_by
+  label: 
+    en: Is referenced by
+    es: Es referenciado por
+  preset: multiple_text_links
+  display_property: dct:isReferencedBy
+  form_placeholder: 'http://example.org/catalog/dataset/ejemplo'
+  help_text: 
+    en: 'A related resource, such as a publication, that references, cites, or otherwise points to the dataset.'
+    es: 'Un recurso relacionado, como una publicación, que referencia, cita o de otro modo apunta al conjunto de datos.'
+  form_group_id: lineage
+
 # Purpose (O)
 - field_name: purpose
   label:
@@ -1697,20 +1726,19 @@ dataset_fields:
   form_group_id: standards
 
 ##TODO: temporal_resolution
-## ISO 8601: http://www.google.com/url?q=http://www.w3.org/TR/xmlschema11-2/%23duration&sa=D&source=editors&ust=1677159514756434&usg=AOvVaw3Xyh6wn0UVcwFCy3-_9P8i
+## Add codelist or validator to check ISO 8601: http://www.google.com/url?q=http://www.w3.org/TR/xmlschema11-2/%23duration&sa=D&source=editors&ust=1677159514756434&usg=AOvVaw3Xyh6wn0UVcwFCy3-_9P8i
+- field_name: temporal_resolution
+  label:
+    en: Temporal resolution
+    es: Resolución Temporal
+  help_text:
+    en: 'Minimum time period resolvable in the dataset,<a href="http://www.w3.org/TR/xmlschema11-2/%23duration&sa=D&source=editors&ust=1677159514756434&" target="_blank" rel="noopener">[ISO 8601]</a>.'
+    es: 'Período de tiempo mínimo resoluble en el conjunto de datos, ISO 8601., <a href="http://www.w3.org/TR/xmlschema11-2/%23duration&sa=D&source=editors&ust=1677159514756434&" target="_blank" rel="noopener">[ISO 8601]</a>.'
+  form_group_id: standards
 
-
-#--Spatial--#
-- start_form_page:
-    title: 
-      en: Spatial info
-      es: Espacial
-    description: 
-      en: Spatial capabilities information.
-      es: Información sobre las capacidades espaciales.
-
-# INSPIRE Themes (M)
-  field_name: theme
+# NTI-RISP Theme (M)
+## Taxonomy [NTI-RISP Annex IV](http://www.boe.es/eli/es/res/2013/02/19/(4)/con#aniv)
+- field_name: theme
   label:
     en: INSPIRE Themes
     es: Temas INSPIRE
@@ -2609,17 +2637,8 @@ dataset_fields:
     es: Especifique la resolución espacial como distancia en metros
   form_group_id: inspire
 
-#--License--#
-- start_form_page:
-    title: 
-      en: License info
-      es: Licencia
-    description: 
-      en: Information on licenses and restrictions on use and access.
-      es: Información sobre licencias y restricciones de uso y acceso.
-
 # License URI (M)
-  field_name: license_id
+- field_name: license_id
   label: 
     en: License
     es: Licencia
@@ -2727,12 +2746,72 @@ resource_fields:
 # Access URL (M)
 - field_name: url
   label:
-    en: Access URL
-    es: URL de acceso
+    en: URL
+    es: URL
   preset: resource_url_upload
-  display_property: dcat:accessURL
   display_snippet: schemingdcat/display_snippets/link.html
   form_group_id: resource_url
+
+# Access URL (M). Hide, falls back to the standard resource url field
+- field_name: access_url
+  label:
+    en: Access URL
+    es: URL de acceso
+  validators: if_empty_same_as(url) unicode_safe
+  form_snippet: null
+  display_property: dcat:accessURL
+  display_snippet: schemingdcat/display_snippets/link.html
+  help_text:
+    en: 'URL that gives access to the dataset (defaults to the standard resource URL).'
+    es: 'URL que da acceso al conjunto de datos (por defecto es la URL de recursos estándar).'
+  form_group_id: resource_url
+
+# Access URL (M). Falls back to the standard resource url field
+- field_name: download_url
+  label:
+    en: Download URL
+    es: URL de descarga
+  validators: if_empty_same_as(url) unicode_safe
+  display_property: dcat:downloadURL
+  display_snippet: schemingdcat/display_snippets/link.html
+  help_text:
+    en: 'URL that provides a direct link to a downloadable file (defaults to the standard resource URL).'
+    es: 'URL que proporciona un enlace directo a un archivo descargable (por defecto es la URL de recursos estándar).'
+  form_group_id: resource_url
+
+# Access services (O). Dictionariy.
+- field_name: access_services
+  label: Access services
+  display_property: dcat:downloadURL
+  repeating_label: Access service
+  repeating_subfields:
+    - field_name: uri
+      label:
+        en: Access service URI
+        es: URI del servicio de acceso
+    - field_name: title
+      label:
+        en: Access service title
+        es: Título del servicio de acceso
+    - field_name: endpoint_description
+      label:
+        en: Endpoint description
+        es: Descripción del punto final
+    - field_name: endpoint_url
+      label:
+        en: Endpoint URL
+        es: URL del punto final
+      preset: multiple_text
+    - field_name: serves_dataset
+      label:
+        en: Serves dataset
+        es: Sirve los conjuntos de datos
+      preset: multiple_text
+      validators: ignore_missing scheming_multiple_text
+  help_text:
+    en: 'A data service that gives access to the resource.'
+    es: 'Un servicio de datos que da acceso al recurso.'
+  form_group_id: resource_access_service
 
 #FIX: Resource title (M) -- name_translated field dont work
 - field_name: name
@@ -2773,6 +2852,30 @@ resource_fields:
     es: Fecha de última modificación
   display_property: dct:modified
   preset: date_modified
+  form_group_id: resource_identification
+
+# Resource character encoding (C)
+- field_name: hash
+  label:
+    en: Hash
+    es: Hash
+  display_property: spdx:checksumValue
+  form_placeholder: 4304cf2e751e6053c90b1804c89c0ebb758f395a
+  help_text:
+    en: 'Checksum of the downloaded file.'
+    es: 'Suma de comprobación del fichero descargado.'
+  form_group_id: resource_identification
+
+# Resource character encoding (C)
+- field_name: hash_algorithm
+  label:
+    en: Hash Algorithm
+    es: Algoritmo Hash
+  display_property: spdx:Checksum
+  form_placeholder: http://spdx.org/rdf/terms#checksumAlgorithm_sha1
+  help_text:
+    en: 'Algorithm used to calculate to checksum.'
+    es: 'Algoritmo utilizado para calcular la suma de comprobación.'
   form_group_id: resource_identification
 
 # Resource status (O)
@@ -2818,7 +2921,7 @@ resource_fields:
     es: Formato
   preset: resource_format_autocomplete
   display_property: dct:format
-  form_group_id: resource_type
+  form_group_id: resource_distribution
 
 # Media type (O)
 - field_name: mimetype
@@ -2832,7 +2935,33 @@ resource_fields:
     en: 'This property refers to the media type of the Distribution as defined in the official <a href="http://www.iana.org/assignments/media-types/media-types.xhtml" target="_blank" rel="noopener">register of media types</a> (IANA)'
     es: 'Esta propiedad se refiere al tipo de medio de la Distribución tal y como se define en el <a href="http://www.iana.org/assignments/media-types/media-types.xhtml" target="_blank" rel="noopener">registro oficial de tipos de medios</a> (IANA)'
   help_allow_html: True
-  form_group_id: resource_type
+  form_group_id: resource_distribution
+
+# Compress format (O)
+- field_name: compress_format
+  label:
+    en: Compress format
+    es: Formato comprimido
+  display_snippet: schemingdcat/display_snippets/link.html
+  display_property: dcat:compressFormat
+  form_placeholder: http://www.iana.org/assignments/media-types/application/gzip
+  help_text:
+    en: 'The format of the file in which the data is contained in a compressed form.'
+    es: 'Formato del archivo en el que los datos están contenidos de forma comprimida.'
+  form_group_id: resource_distribution
+
+# Package format (O)
+- field_name: package_format
+  label:
+    en: Package format
+    es: Formato del paquete
+  display_snippet: schemingdcat/display_snippets/link.html
+  display_property: dcat:packageFormat
+  form_placeholder: http://publications.europa.eu/resource/authority/file-type/TAR
+  help_text:
+    en: 'The format of the file in which one or more data files are grouped together.'
+    es: 'Formato del fichero en el que se agrupan uno o varios ficheros de datos.'
+  form_group_id: resource_distribution
 
 # Resource status (O)
 - field_name: status
@@ -2877,6 +3006,19 @@ resource_fields:
     en: 'Character encoding in ISO-19115 metadata is specified with a code list that can be mapped to the corresponding codes in <a href="https://www.iana.org/assignments/character-sets" target="_blank" rel="noopener">[IANA-CHARSETS]</a>'
     es: 'La codificación de caracteres en los metadatos ISO-19115 se especifica con una lista de códigos que puede asignarse a los códigos correspondientes en <a href="https://www.iana.org/assignments/character-sets" target="_blank" rel="noopener">[IANA-CHARSETS]</a>.'
   help_allow_html: True
+  form_group_id: resource_type
+
+# Byte size (O)
+- field_name: size
+  label:
+    en: Byte size
+    es: Tamaño en bytes
+  form_placeholder: 305000
+  preset: file_size
+  display_property: dcat:byteSize
+  help_text:
+    en: 'Integer value.'
+    es: 'Valor entero.'
   form_group_id: resource_type
 
 # Resource language (M)
@@ -3038,19 +3180,6 @@ resource_fields:
     value: http://publications.europa.eu/resource/authority/language/GLE
   form_group_id: resource_identification
 
-# Byte size (O)
-- field_name: size
-  label:
-    en: Byte size
-    es: Tamaño en bytes
-  form_placeholder: 305000
-  preset: file_size
-  display_property: dcat:byteSize
-  help_text:
-    en: 'Integer value.'
-    es: 'Valor entero.'
-  form_group_id: resource_type
-
 # Additional format information (O)
 ##TODO: To profiles.py
 - field_name: resource_relation
@@ -3062,6 +3191,19 @@ resource_fields:
   help_text:
     en: 'Link(s) related to the format, where the format, the scheme used for its representation or other technical information on how to access the documents or information resources is indicated.'
     es: 'Enlace(s) relacionado(s) con el formato, en dónde se indica el formato, el esquema utilizado para su representación u otra información técnica sobre cómo acceder a los documentos o recursos de información.'
+  form_group_id: resource_lineage
+
+# Additional format information (O)
+- field_name: documentation
+  label: 
+    en: Documentation
+    es: Documentación
+  preset: multiple_text_raws_ordered
+  validators: ignore_missing scheming_multiple_text
+  form_placeholder: 'https://example.org/some-doc.html'
+  help_text:
+    en: 'A page or document about this resource.'
+    es: 'Una página o documento sobre este recurso.'
   form_group_id: resource_lineage
 
 # Resource License (R)
@@ -3142,6 +3284,19 @@ resource_fields:
   help_text:
     en: 'Specification (e.g. OGC). URLs'
     es: 'Especificaciones (e.g. OGC). URLs'
+  form_group_id: resource_standards 
+
+# Applicable legislation (M)
+- field_name: applicable_legislation
+  label: 
+    en: Applicable legislation 
+    es: Legislación aplicable
+  preset: multiple_text_links
+  display_property: dcatap:applicableLegislation
+  form_placeholder: 'http://data.europa.eu/eli/reg_impl/2023/138/oj'
+  help_text:
+    en: 'The legislation that mandates the creation or management of the resource.'
+    es: 'La legislación que ordena la creación o gestión del recurso.'
   form_group_id: resource_standards 
 
 # Coordinate Reference System (C)
