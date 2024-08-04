@@ -97,12 +97,23 @@
 {% endblock %}
 
 {% block byte_size %}
-    {% set field_name = _('Size') %}
+    {% set field_name ='size' %}
     {% set field = h.scheming_field_by_name(schema.resource_fields, 'size') %}
     <tr>
         <th scope="row">{{ h.scheming_language_text(field.label) }}</th>
         <td>
             {{ h.localised_filesize(res[field_name]) }}
+        </td>
+    </tr>
+{% endblock %}
+
+{% block download_url %}
+    {% set field_name ='download_url' %}
+    {% set field = h.scheming_field_by_name(schema.resource_fields, 'download_url') %}
+    <tr>
+        <th scope="row">{{ h.scheming_language_text(field.label) }}</th>
+        <td>
+            {{ h.link_to(res[field_name], res[field_name], target='_blank') }}
         </td>
     </tr>
 {% endblock %}

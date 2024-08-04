@@ -20,11 +20,12 @@
     'language',
     'mimetype',
     'reference_system',
-    'size'
+    'size',
+    'download_url'
     ]
   %}
 
-{%  set schema = h.schemingdcat_get_dataset_schema(dataset_type) %}
+{%  set schema = h.schemingdcat_get_cached_schema(dataset_type) %}
 
 {% block resource_actions_inner %}
   {% block action_manage %}

@@ -7,11 +7,13 @@
   {% set _class = _class or 'link-list' %}
   {% set link_schema_list = data[field.field_name] %}
 
-  {%  set choices = [] %}
-  {%  for c in h.scheming_field_choices(field) %}
-    {%  do choices.append(
-      (c.value, h.scheming_language_text(c.label))) %}
-  {%  endfor %}
+  {% set choices = [] %}
+  {% set field_choices = h.scheming_field_choices(field) %}
+  {% if field_choices %}
+    {% for c in field_choices %}
+      {% do choices.append((c.value, h.scheming_language_text(c.label))) %}
+    {% endfor %}
+  {% endif %}
 
   {% set filtered_choices = [] %}
   {% for val, label in choices %}
@@ -23,14 +25,14 @@
   {% block link_schema_list %}
       {% if filtered_choices|length > 1 %}
         <ul class="{{ _class }}">
-        {%  for val, label in filtered_choices %}
+        {% for val, label in filtered_choices %}
             <li>
               <a class="{% block link_schema_list_item_class %}{{ val }}{% endblock %}" href="{{ val }}">{{ label }}</a>
             </li>
         {% endfor %}
         </ul>
       {% else %}
-        {%  for val, label in filtered_choices %}
+        {% for val, label in filtered_choices %}
             <a class="{{ val }}" href="{{ val }}">{{ label }}</a>
         {% endfor %}
       {% endif %}

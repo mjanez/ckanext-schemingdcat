@@ -1107,8 +1107,11 @@ class SchemingDCATHarvester(HarvesterBase):
                     translated_fields["dataset_fields"].append(local_field_name)
     
                     if isinstance(remote_field_name, dict):
+                        local_field_value = package_dict.get(local_field_name, {})
+                        if not isinstance(local_field_value, dict):
+                            local_field_value = {}
                         package_dict[local_field_name] = {
-                            lang: package_dict.get(name, package_dict.get(local_field_name, {}).get(lang))
+                            lang: package_dict.get(name, local_field_value.get(lang))
                             for lang, name in remote_field_name.items()
                         }
                         if local_field_name.endswith('_translated'):

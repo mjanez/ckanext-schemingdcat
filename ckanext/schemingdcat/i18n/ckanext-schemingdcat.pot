@@ -1036,6 +1036,18 @@ msgstr ""
 msgid "\"*\" means any character"
 msgstr ""
 
+# ckanext/schemingdcat/templates/package/snippets/package_form.html
+msgid "Next"
+msgstr ""
+
+# ckanext/schemingdcat/templates/package/snippets/package_form.html
+msgid "Add Data"
+msgstr ""
+
+# ckanext/schemingdcat/templates/package/snippets/package_form.html
+msgid "There are required fields in this category"
+msgstr ""
+
 # Themes (NTI-RISP) - Schema field_name: theme_es
 msgid "ciencia-tecnologia"
 msgstr ""
