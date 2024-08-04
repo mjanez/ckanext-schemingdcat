@@ -50,11 +50,22 @@ DEFAULT_LANG = None
 @lru_cache(maxsize=None)
 def get_scheming_dataset_schemas():
     """
-    Retrieves the dataset schemas using the scheming_dataset_schemas function.
-    Caches the result using the LRU cache decorator for efficient retrieval.
-    """
-    return scheming_dataset_schemas()
+    Fetches the dataset schemas using the scheming_dataset_schemas function.
 
+    This function attempts to retrieve the dataset schemas. If a KeyError is encountered,
+    it logs the error and returns an empty dictionary.
+
+    Returns:
+        dict: The dataset schemas if successfully retrieved, otherwise an empty dictionary.
+
+    Raises:
+        KeyError: If there is an issue accessing the dataset schemas.
+    """
+    try:
+        return scheming_dataset_schemas()
+    except KeyError as e:
+        log.error('KeyError encountered while fetching dataset schemas: %s', e)
+        return {}
 
 def helper(fn):
     """Collect helper functions into the ckanext.schemingdcat.all_helpers dictionary.
@@ -72,15 +83,22 @@ def helper(fn):
 @helper
 def schemingdcat_get_schema_names():
     """
-    Get the names of all the schemas defined for the Scheming DCAT extension.
+    Get the `schema_name` of all the schemas loaded.
 
     Returns:
         list: A list of schema names.
     """
-    schemas = get_scheming_dataset_schemas()
+    return [schema["schema_name"] for schema in sdct_config.schemas.values()]
 
-    return [schema["schema_name"] for schema in schemas.values()]
+@helper
+def schemingdcat_get_schema_dataset_types():
+    """
+    Get the `dataset_type` of all the schemas loaded.
 
+    Returns:
+        list: A list of schema names.
+    """
+    return [schema["dataset_type"] for schema in sdct_config.schemas.values()]
 
 @helper
 def schemingdcat_default_facet_search_operator():
@@ -139,6 +157,25 @@ def schemingdcat_organization_name(org_id):
         )
     return org_name
 
+@helper
+def schemingdcat_default_organization_name():
+    """Return the name of the first available organization as a default.
+
+    Returns:
+        str: The name of the first available organization, or None if no organizations are available.
+    """
+    default_org_name = None
+    try:
+        organizations = ckan_helpers.organizations_available()
+        if organizations:
+            default_org_name = organizations[0]["name"]
+        else:
+            log.warning("No organizations available to set as default.")
+    except Exception as e:
+        log.error(
+            "Exception while trying to find the default organization name: {0}".format(e)
+        )
+    return default_org_name
 
 @helper
 def schemingdcat_get_facet_label(facet):
@@ -912,7 +949,31 @@ def parse_json(value, default_value=None):
         return value
 
 @helper
+def get_langs():
+    """
+    Retrieve the list of language priorities from the CKAN configuration.
+
+    This function fetches the 'ckan.locales_offered' configuration setting,
+    splits it by spaces, and returns the resulting list of language codes.
+
+    Returns:
+        list: A list of language codes as strings.
+    """
+    language_priorities = p.toolkit.config.get('ckan.locales_offered', '').split()
+    return language_priorities
+
+@helper
 def schemingdcat_get_default_lang():
+    """
+    Retrieve the default language for the CKAN instance.
+
+    This function checks if the global variable `DEFAULT_LANG` is set. If not,
+    it fetches the default language from the CKAN configuration using the 
+    'ckan.locale_default' setting. If the setting is not found, it defaults to 'en'.
+
+    Returns:
+        str: The default language code.
+    """
     global DEFAULT_LANG
     if DEFAULT_LANG is None:
         DEFAULT_LANG = p.toolkit.config.get("ckan.locale_default", "en")
@@ -1199,6 +1260,20 @@ def schemingdcat_get_dataset_schema(schema_type="dataset"):
         {}, {"type": schema_type}
     )   
 
+@lru_cache(maxsize=100)
+@helper
+def schemingdcat_get_cached_schema(dataset_type="dataset"):
+    """
+    Retrieves the schema for the dataset instance and caches it using the LRU cache decorator for efficient retrieval.
+
+    Args:
+        dataset_type (str, optional): The type of schema to retrieve. Defaults to 'dataset'.
+
+    Returns:
+        dict: The schema of the dataset instance.
+    """
+    return sdct_config.schemas.get(dataset_type, {})
+
 @helper
 def schemingdcat_get_schema_form_groups(entity_type=None, object_type=None, schema=None):
     """
@@ -1350,3 +1425,121 @@ def schemingdcat_check_valid_url(url):
         return all([result.scheme, result.netloc])
     except ValueError:
         return False
+
+# schemingdcat form tabs
+@helper
+def schemingdcat_get_form_tabs():
+    """
+    """
+    return sdct_config.form_tabs
+
+@helper
+def schemingdcat_get_form_groups():
+    """
+    """
+    return sdct_config.form_groups
+
+@helper
+def schemingdcat_get_dataset_type_form_tabs(dataset_type='dataset'):
+    """
+    """    
+    if sdct_config.form_tabs:
+        form_tabs = sdct_config.form_tabs[dataset_type]
+    else:
+        log.warning('sdct_config.form_tabs is None')
+        form_tabs = []
+    return form_tabs
+
+@helper
+def schemingdcat_get_dataset_type_form_groups(dataset_type='dataset'):
+    """
+    """
+    if sdct_config.form_groups:
+        form_groups = sdct_config.form_groups[dataset_type]
+    else:
+        log.warning('sdct_config.form_groups is None')
+        form_groups = []
+    return form_groups
+
+@helper
+def schemingdcat_form_tabs_allowed():
+    """
+    Returns a boolean value indicating whether form tabs are allowed in the current configuration.
+
+    Returns:
+        bool: True if form tabs are allowed, False otherwise.
+    """
+    return sdct_config.form_tabs_allowed
+
+@helper
+def schemingdcat_get_required_form_groups(schema, tab_type='dataset_fields'):
+    required_form_groups = {}
+    fields = schema.get(tab_type, {})
+    
+    for field in fields:
+        if field.get('required'):
+            form_group_id = field.get('form_group_id')
+            if form_group_id:
+                required_form_groups[form_group_id] = True
+    
+    log.debug('required_form_groups: %s', required_form_groups)
+    
+    return required_form_groups
+
+@helper
+def schemingdcat_form_tabs_grouping(schema, tab_type='dataset_fields', schema_tabs_prop='schema_form_tabs', dataset_type='dataset'):
+    """
+    Generates a list of dictionaries containing information about form tabs, including their labels and fields.
+    Ensures that form_tab names are unique and that each tab has at least one label.
+
+    Args:
+        schema (dict): A dictionary containing the schema definition with a key 'schema_form_tabs'.
+        tab_type (str): The type of tabs to filter by. Defaults to 'dataset_fields'.
+        dataset_type (str): The type of dataset to filter by. Defaults to 'dataset'.
+
+    Returns:
+        list: A list of dictionaries with tab information, including labels and fields, filtered by the specified type.
+    """
+    if sdct_config.form_tabs_grouping is not None and tab_type in sdct_config.form_tabs_grouping:
+        return sdct_config.form_tabs_grouping[tab_type]
+    else:
+        form_groups = {}
+        for category in sdct_config.form_groups.values():
+            form_groups.update({group['form_group_id']: group for group in category})
+                
+        tabs = [
+            tab for tab in schema.get(schema_tabs_prop, [])
+            if tab.get('tab_type') == tab_type
+        ]
+        
+        required_form_groups = schemingdcat_get_required_form_groups(schema, tab_type)
+        
+        for tab in tabs:
+            form_group_ids = tab.get('form_group_id')
+            if isinstance(form_group_ids, list):
+                tab['form_group_id'] = [form_groups[form_group_id] for form_group_id in form_group_ids if form_group_id in form_groups]
+                tab['required_form_group_id'] = [form_group_id for form_group_id in form_group_ids if form_group_id in required_form_groups]
+            else:
+                if form_group_ids in form_groups:
+                    tab['form_group_id'] = form_groups[form_group_ids]
+                if form_group_ids in required_form_groups:
+                    tab['required_form_group_id'] = form_group_ids
+            
+        if sdct_config.form_tabs_grouping is None:
+            sdct_config.form_tabs_grouping = {}
+        
+        sdct_config.form_tabs_grouping[tab_type] = tabs
+        return tabs
+
+@helper
+def schemingdcat_slugify(s):
+    """
+    Removes all non-alphanumeric characters from the input string.
+
+    Args:
+        s (str): The input string to be slugified.
+
+    Returns:
+        str: The slugified string with only alphanumeric characters.
+    """
+    return sdct_config.slugify_pat.sub('', s)

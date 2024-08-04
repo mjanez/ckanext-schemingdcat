@@ -22,6 +22,12 @@ slugify_pat = re.compile('[^a-zA-Z0-9]')
 # schemingdcat field_mapping extras prefix, e.g. custom_field = extras_custom_field
 field_mapping_extras_prefix = 'extras'
 field_mapping_extras_prefix_symbol = '_'
+# dict of local schemas dicts
+schemas = {}
+form_tabs_allowed = True
+form_tabs = {}
+form_tabs_grouping = None
+form_groups = {}
 
 # Default DCAT metadata configuration
 OGC2CKAN_HARVESTER_MD_CONFIG = {
@@ -287,3 +293,38 @@ URL_FIELD_NAMES = {
             ['url', 'availability', 'mimetype', 'status', 'resource_relation', 'license', 'rights', 'conforms_to', 'reference_system']
     }
 EMAIL_FIELD_NAMES = ['publisher_email', 'maintainer_email', 'author_email', ]
+
+SCHEMINGDCAT_SCHEMA_LEGACY_FIELDS = {
+        'version': '2.2',
+        'description': 'Field names mapping between scheming schemas',
+        'field_names': [
+            {
+                'field_name': 'spatial_coverage',
+                'legacy_field_name': 'spatial',
+            },
+            {
+                'field_name': 'bbox',
+                'legacy_field_name': 'spatial',
+            },
+            {
+                'field_name': 'temporal_coverage',
+                'legacy_field_name': 'temporal',
+            },
+            {
+                'field_name': 'contact',
+                'legacy_field_name': 'contact',
+            },
+            {
+                'field_name': 'author',
+                'legacy_field_name': 'author',
+            },
+            {
+                'field_name': 'publisher',
+                'legacy_field_name': 'publisher',
+            },
+            {
+                'field_name': 'maintainer',
+                'legacy_field_name': 'maintainer',
+            },
+        ],
+    }

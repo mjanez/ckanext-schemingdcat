@@ -1,16 +1,23 @@
 from ckan.common import config
 import ckan.logic as logic
-from ckanext.schemingdcat import config as sdct_config
+from ckan import plugins as p
 import logging
 import os
 import inspect
 import json
 import hashlib
 from threading import Lock
-from ckanext.dcat.utils import CONTENT_TYPES
+
 import yaml
 from yaml.loader import SafeLoader
 from pathlib import Path
+
+from ckanext.dcat.utils import CONTENT_TYPES
+from ckanext.scheming.helpers import (
+    scheming_dataset_schemas,
+)
+
+from ckanext.schemingdcat import config as sdct_config
 
 try:
     from paste.reloader import watch_file
@@ -18,6 +25,7 @@ except ImportError:
     watch_file = None
 
 log = logging.getLogger(__name__)
+
 
 _facets_dict = None
 _public_dirs = None
@@ -119,6 +127,11 @@ def init_config():
     sdct_config.linkeddata_links = _load_yaml('linkeddata_links.yaml')
     sdct_config.geometadata_links = _load_yaml('geometadata_links.yaml')
     sdct_config.endpoints = _load_yaml(sdct_config.endpoints_yaml)
+    
+    # Cache scheming schemas of local instance
+    sdct_config.schemas = _get_schemas()
+    sdct_config.form_tabs = set_schema_form_tabs()
+    sdct_config.form_groups = set_schema_form_groups()
 
 def is_yaml(file):
     """Check if a file has a YAML extension.
@@ -183,7 +196,6 @@ def _load_default_yaml(file):
         dict: A dictionary containing the data from the YAML file, or an empty dictionary if the file cannot be loaded.
     """
     source_path = Path(__file__).resolve(True)
-    log.debug('source_path: %s', source_path)
     return _load_yaml_file(source_path.parent.joinpath('codelists', file))
 
 def _load_yaml_file(path):
@@ -288,3 +300,76 @@ def parse_json(value, default_value=None):
             # we want a string here.
             return str(value)
         return value
+    
+def _get_schemas():
+    """
+    Fetches the dataset schemas using the scheming_dataset_schemas function.
+
+    This function attempts to retrieve the dataset schemas. If a KeyError is encountered,
+    it logs the error and returns an empty dictionary.
+
+    Returns:
+        dict: The dataset schemas if successfully retrieved, otherwise an empty dictionary.
+
+    Raises:
+        KeyError: If there is an issue accessing the dataset schemas.
+    """
+    try:
+        return scheming_dataset_schemas()
+    except KeyError as e:
+        log.error('KeyError encountered while fetching dataset schemas: %s', e)
+        return {}
+    
+def set_schema_form_tabs():
+    """
+    Sets the schema form tabs for each dataset type in the `sdct_config.schemas`.
+
+    This function iterates over the schemas defined in `sdct_config.schemas` and sets the corresponding
+    form tabs in `sdct_config.form_tabs`. If a schema does not have `schema_form_tabs`, it sets the form tab to None.
+    Logs warnings and errors as appropriate.
+
+    Raises:
+        KeyError: If there is an issue accessing the schema form tabs.
+    """
+    if not sdct_config.schemas:
+        log.warning('sdct_config.schemas is empty, no local scheming.dataset_schemas loaded.')
+        return
+
+    form_tabs = {}
+
+    for dataset_type, schema in sdct_config.schemas.items():
+        try:
+            form_tabs[dataset_type] = schema.get('schema_form_tabs', None)
+        except p.toolkit.ObjectNotFound:
+            pass
+        except KeyError as e:
+            log.error('KeyError encountered while setting schema form tabs for dataset_type: %s, error: %s', dataset_type, e)
+            
+    return form_tabs     
+
+def set_schema_form_groups():
+    """
+    Sets the schema form groups for each dataset type in the `sdct_config.schemas`.
+
+    This function iterates over the schemas defined in `sdct_config.schemas` and sets the corresponding
+    form tabs in `sdct_config.form_groups`. If a schema does not have `schema_form_groups`, it sets the form tab to None.
+    Logs warnings and errors as appropriate.
+
+    Raises:
+        KeyError: If there is an issue accessing the schema form tabs.
+    """
+    if not sdct_config.schemas:
+        log.warning('sdct_config.schemas is empty, no local scheming.dataset_schemas loaded.')
+        return
+
+    form_groups = {}
+
+    for dataset_type, schema in sdct_config.schemas.items():
+        try:
+            form_groups[dataset_type] = schema.get('schema_form_groups', None)
+        except p.toolkit.ObjectNotFound:
+            pass
+        except KeyError as e:
+            log.error('KeyError encountered while setting schema form tabs for dataset_type: %s, error: %s', dataset_type, e)
+            
+    return form_groups     

@@ -8,7 +8,7 @@
 
 {% block publisher_info %}
   {% if pkg_dict.contact_name %}
-  {% set dataset_fields = h.schemingdcat_get_dataset_schema(dataset_type).dataset_fields %}
+  {% set dataset_fields = h.schemingdcat_get_cached_schema(dataset_type).dataset_fields %}
   {% set field_spatial_uri = h.scheming_field_by_name(dataset_fields, 'spatial_uri') %}
   {% set field_publisher_type = h.scheming_field_by_name(dataset_fields, 'publisher_type') %}
   {% set default_spatial_uri = {

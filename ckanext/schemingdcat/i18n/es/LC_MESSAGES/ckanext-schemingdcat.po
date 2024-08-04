@@ -1037,6 +1037,18 @@ msgstr "Para recuperarlas, utilice un identificador que incluya lo siguiente"
 msgid "\"*\" means any character"
 msgstr "\"*\" se refiere a cualquier carácter"
 
+# ckanext/schemingdcat/templates/package/snippets/package_form.html
+msgid "Next"
+msgstr "Siguiente"
+
+# ckanext/schemingdcat/templates/package/snippets/package_form.html
+msgid "Add Data"
+msgstr "Añadir Datos"
+
+# ckanext/schemingdcat/templates/package/snippets/package_form.html
+msgid "There are required fields in this category"
+msgstr "Esta categoría contiene campos obligatorios"
+
 # Themes (NTI-RISP) - Schema field_name: theme_es
 msgid "ciencia-tecnologia"
 msgstr "Ciencia y tecnología"
