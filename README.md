@@ -11,7 +11,7 @@
 </p>
 
 ## Overview
-This CKAN extension provides functions and templates specifically designed to extend `ckanext-scheming` and includes DCAT and Harvest enhancements to adapt CKAN Schema to [GeoDCAT-AP](./ckanext/schemingdcat/schemas/geodcatap/geodcatap_dataset.yaml).
+This CKAN extension provides functions and templates specifically designed to extend `ckanext-scheming` and includes DCAT and Harvest enhancements to adapt CKAN Schema to [GeoDCAT-AP](./ckanext/schemingdcat/schemas/geodcat_ap/es_geodcat_ap_2.yaml).
 
 > [!WARNING] 
 > Requires [mjanez/ckanext-dcat](https://github.com/mjanez/ckanext-dcat), [ckan/ckanext-scheming](https://github.com/ckan/ckanext-scheming) and [ckan/ckanext-spatial](https://github.com/ckan/ckanext-spatial) to work properly.
@@ -90,16 +90,16 @@ To use custom schemas in `ckanext-scheming`:
 
   ```ini
   # module-path:file to schemas being used
-  scheming.dataset_schemas = ckanext.schemingdcat:schemas/geodcatap/geodcatap_dataset.yaml
-  scheming.group_schemas = ckanext.schemingdcat:schemas/geodcatap/geodcatap_group.json
-  scheming.organization_schemas = ckanext.schemingdcat:schemas/geodcatap/geodcatap_org.json
+  scheming.dataset_schemas = ckanext.schemingdcat:schemas/geodcat_ap/es_geodcat_ap_2.yaml
+  scheming.group_schemas = ckanext.schemingdcat:schemas/geodcat_ap/es_geodcat_ap_group.json
+  scheming.organization_schemas = ckanext.schemingdcat:schemas/geodcat_ap/es_geodcat_ap_org.json
 
   #   URLs may also be used, e.g:
   #
   # scheming.dataset_schemas = http://example.com/spatialx_schema.yaml
 
   #   Preset files may be included as well. The default preset setting is:
-  scheming.presets = ckanext.schemingdcat:schemas/geodcatap/geodcatap_presets.json
+  scheming.presets = ckanext.schemingdcat:schemas/default_presets.json
 
   #   The is_fallback setting may be changed as well. Defaults to false:
   scheming.dataset_fallback = false
@@ -215,7 +215,7 @@ This two last settings are not mandatory. You can omit one or both (or set them 
 	Ckan needs to "fix" multivalued fields to be able to recover values correctly for faceting, so this step must be done in order to use faceting with multivalued fields. 
 
 ### Icons
-Icons for each field option in the [`scheming file`](ckanext/schemingdcat/schemas/geodcatap/geodcatap_datasets.yaml) can be set in multiple ways:
+Icons for each field option in the [`scheming file`](ckanext/schemingdcat/schemas/geodcat_ap/es_geodcat_ap_2.yaml) can be set in multiple ways:
 
 - Set a root directory path for icons for each field using the `icons_dir` key in the scheming file.
 - If `icons_dir` is not defined, the directory path is guessed starting from the value provided for the `schemingdcat.icons_dir` parameter in the CKAN config file, adding the name of the field as an additional step to the path (`public/images/icons/{field_name`).
@@ -252,7 +252,7 @@ We've made several improvements to our schema to provide a better metadata and m
 For more details on these enhancements check [Form Groups documentation](#form-groups), please refer to the schema files in [`ckanext/schemingdcat/schemas`](ckanext/schemingdcat/schemas).
 
 ### GeoDCAT-AP (ES)
-[`schemas/geodcatp_es`](/ckanext/schemingdcat/schemas/geodcatap_es/geodcatap_es_dataset.yaml) with specific extensions for spatial data and [GeoDCAT-AP](https://github.com/SEMICeu/GeoDCAT-AP)/[INSPIRE](https://github.com/INSPIRE-MIF/technical-guidelines) metadata [profiles](https://en.wikipedia.org/wiki/Geospatial_metadata). 
+[`schemas/geodcat_ap/es_geodcat_ap`](/ckanext/schemingdcat/schemas/geodcat_ap/es_geodcat_ap_2.yaml) with specific extensions for spatial data and [GeoDCAT-AP](https://github.com/SEMICeu/GeoDCAT-AP)/[INSPIRE](https://github.com/INSPIRE-MIF/technical-guidelines) metadata [profiles](https://en.wikipedia.org/wiki/Geospatial_metadata). 
 
 > [!NOTE] 
 > RDF to CKAN dataset mapping: [GeoDCAT-AP (ES) to CKAN](ckanext/schemingdcat/schemas/README.md#geodcat-ap-es)
@@ -266,13 +266,13 @@ on: [DCAT](https://www.w3.org/TR/vocab-dcat-3/).
 > RDF to CKAN dataset mapping: [DCAT to CKAN](ckanext/schemingdcat/schemas/README.md#dcat)
 
 ### DCAT-AP (EU)
-[`schemas/dcatap`](/ckanext/schemingdcat/schemas/dcatap/dcatap_dataset.yaml) based on: [DCAT-AP](https://op.europa.eu/en/web/eu-vocabularies/dcat-ap) for the european context.
+[`schemas/dcat_ap/eu_dcat_ap`](/ckanext/schemingdcat/schemas/dcat_ap/eu_dcat_ap.yaml) based on: [DCAT-AP](https://op.europa.eu/en/web/eu-vocabularies/dcat-ap) for the european context.
 
 > [!NOTE] 
 > RDF to CKAN dataset mapping: [DCAT-AP (EU) to CKAN](ckanext/schemingdcat/schemas/README.md#dcat-ap-eu)
 
 ### GeoDCAT-AP (EU)
-[`schemas/geodcatap`](/ckanext/schemingdcat/schemas/geodcatap/geodcatap_dataset.yaml) based on: [GeoDCAT-AP](https://github.com/SEMICeu/GeoDCAT-AP) for the european context.
+[`schemas/geodcat_ap/eu_geodcat_ap`](/ckanext/schemingdcat/schemas/geodcat_ap/eu_geodcat_ap.yaml) based on: [GeoDCAT-AP](https://github.com/SEMICeu/GeoDCAT-AP) for the european context.
 
 > [!NOTE] 
 > RDF to CKAN dataset mapping: [GeoDCAT-AP (EU) to CKAN](ckanext/schemingdcat/schemas/README.md#geodcat-ap-eu)
@@ -761,6 +761,13 @@ Here are some examples of configuration files:
 >    },
 > ...
 >```
+
+##TODO: CLI
+The `ckan schemingdcat` command offers utilites:
+
+    ckan schemingdcat create-inspire-tags -l es
+
+    ckan schemingdcat download-rdf-eu-vocabs
 
 ## Running the Tests
 To run the tests:

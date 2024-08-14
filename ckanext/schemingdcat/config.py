@@ -293,38 +293,3 @@ URL_FIELD_NAMES = {
             ['url', 'availability', 'mimetype', 'status', 'resource_relation', 'license', 'rights', 'conforms_to', 'reference_system']
     }
 EMAIL_FIELD_NAMES = ['publisher_email', 'maintainer_email', 'author_email', ]
-
-SCHEMINGDCAT_SCHEMA_LEGACY_FIELDS = {
-        'version': '2.2',
-        'description': 'Field names mapping between scheming schemas',
-        'field_names': [
-            {
-                'field_name': 'spatial_coverage',
-                'legacy_field_name': 'spatial',
-            },
-            {
-                'field_name': 'bbox',
-                'legacy_field_name': 'spatial',
-            },
-            {
-                'field_name': 'temporal_coverage',
-                'legacy_field_name': 'temporal',
-            },
-            {
-                'field_name': 'contact',
-                'legacy_field_name': 'contact',
-            },
-            {
-                'field_name': 'author',
-                'legacy_field_name': 'author',
-            },
-            {
-                'field_name': 'publisher',
-                'legacy_field_name': 'publisher',
-            },
-            {
-                'field_name': 'maintainer',
-                'legacy_field_name': 'maintainer',
-            },
-        ],
-    }

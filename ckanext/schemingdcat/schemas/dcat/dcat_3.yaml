@@ -1,14 +1,16 @@
 scheming_version: 2
 dataset_type: dataset
-about: "Datasets/Distributions: Adaptation for CKAN of the DCAT-AP vocabulary (https://semiceu.github.io/DCAT-AP/releases/3.0.0/). European context (EU27)" 
+about: "Datasets/Distributions: Adaptation for CKAN of the Data Catalog Vocabulary (DCAT) - Version 3 (https://www.w3.org/TR/vocab-dcat-3/)." 
 about_url: https://github.com/mjanez/ckanext-schemingdcat
 form_languages: ["en", "es"]
 required_language: "en"
-schema_version: 2.1
-schema_date: 2024-05-01
-schema_name: dcatap
-schema_title: DCAT-AP
-schema_description: DCAT Application profile for data portals in Europe (DCAT-AP)
+schema_version: 2.3
+schema_date: 2024-08-01
+schema_name: dcat_3
+schema_title: DCAT
+schema_description: Data Catalog Vocabulary (DCAT)
+schema_profile_version: 3.0.0
+schema_profile_url: https://www.w3.org/TR/vocab-dcat-3/
 schema_form_groups:
   # Basic Info parties form_page (#1)
   - form_group_id: title
@@ -964,11 +966,11 @@ dataset_fields:
   help_allow_html: True
   form_group_id: standards
 
-# Lineage statement (M)
+# Provenance statement (M)
 - field_name: provenance
   label: 
-    en: Lineage statement
-    es: Declaración de linaje
+    en: Provenance  statement
+    es: Declaración de procedencia
   preset: schemingdcat_fluent_markdown
   display_property: dct:provenance
   form_placeholder:
@@ -1175,20 +1177,6 @@ dataset_fields:
   help_text:
     en: 'URI identifying the related resource. You can include as many properties as you know of references.'
     es: 'URI que identifica al recurso relacionado. Se pueden incluir tantas propiedades como referencias se conozcan.'
-  form_group_id: lineage
-
-# Purpose (O)
-- field_name: purpose
-  label:
-    en: Purpose
-    es: Propósito
-  form_placeholder: 'Environment management.'
-  preset: schemingdcat_fluent_text
-  help_text: 
-    en: 'Summary of the intentions for which the dataset was developed (ISO 19115).'
-    es: 'Resumen de las intenciones para las que se desarrolló el conjunto de datos (ISO 19115).'
-    form_languages: ["en", "es"]
-  form_group_id: purpose
 
 # Character encoding (C)
 - field_name: encoding
