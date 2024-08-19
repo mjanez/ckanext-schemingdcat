@@ -106,11 +106,12 @@ class SchemingDCATCKANHarvester(SchemingDCATHarvester):
                         f'schema should be one of: {", ".join(self._supported_schemas)}. Current dataset schema: {self._local_schema_name}'
                     )
                 else:
-                    raise ValueError(
-                        f"Config schema should match the local schema: '{self._local_schema_name}'. "
-                        f"Check the remote schema with CKAN API: {{ckan_site_url}}/api/3/action/scheming_dataset_schema_show?type=dataset, "
-                        f"or specify the local schema, and the harvester will try to map the fields."
-                    )
+                    if self._local_schema_name.lower().strip() != schema.lower().strip():
+                        raise ValueError(
+                            f"Config 'schema': {schema} should match the local schema: '{self._local_schema_name}'. "
+                            f"Check the remote schema with CKAN API: {{ckan_site_url}}/api/3/action/scheming_dataset_schema_show?type=dataset, "
+                            f"or specify the local schema '{self._local_schema_name}', and the harvester will try to map the fields."
+                        )
 
             config = json.dumps({**config_obj, "schema": schema.lower().strip()})
 
@@ -123,6 +124,18 @@ class SchemingDCATCKANHarvester(SchemingDCATHarvester):
             config_obj["allow_harvest_datasets"], bool
         ):
             config = json.dumps({**config_obj, "allow_harvest_datasets": False})
+
+        # Check if 'allow_private_datasets' is not in the config_obj or is not a boolean
+        if "allow_private_datasets" in config_obj:
+            if "api_key" in config_obj:
+                if not isinstance(config_obj["allow_private_datasets"], bool):
+                    config = json.dumps({**config_obj, "allow_private_datasets": False})
+            else:
+                raise ValueError(
+                    "'api_key' is needed to using 'allow_private_datasets'"
+                )
+        else:
+            config = json.dumps({**config_obj, "allow_private_datasets": False})
 
         # Check remote_orgs and remote_groups == only_local, if not, put
         # remote_orgs and remote_groups to only_local
@@ -376,7 +389,12 @@ class SchemingDCATCKANHarvester(SchemingDCATHarvester):
         #   they will harvested the next time anyway. When datasets are added,
         #   we are at risk of seeing datasets twice in the paging, so we detect
         #   and remove any duplicates.
+        params["include_private"] = False
         params["sort"] = "id asc"
+        
+        if self.config.get("allow_private_datasets", False):
+            params["include_private"] = True   
+        
         if fq_terms:
             params["fq"] = " ".join(fq_terms)
 
