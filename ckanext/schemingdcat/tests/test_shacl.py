@@ -67,8 +67,9 @@ def graph_from_dataset(dataset_key):
         if not file_name.startswith("ckan/"):
             file_name = "ckan/" + file_name
         dataset_dict = json.loads(get_file_contents(file_name))
-        
-        log.debug(json.dumps(dataset_dict, indent=2))
+       
+        # Log the dataset_dict
+        log.info(f"Generated dataset_dict: {json.dumps(dataset_dict, indent=2)}")
         
         dataset = call_action("package_create", **dataset_dict)
 

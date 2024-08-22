@@ -38,14 +38,13 @@
         "en": "Some version notes.",
         "es": "Notas sobre la versión."
     },
-    "access_rights": "Statement about access rights",
+    "access_rights": "http://inspire.ec.europa.eu/metadata-codelist/LimitationsOnPublicAccess/noLimitations",
     "alternate_identifier":"alt-id-1",
     "theme": [
-        "https://example.org/uri/theme1",
-        "https://example.org/uri/theme2",
-        "https://example.org/uri/theme3"
+        "http://inspire.ec.europa.eu/theme/hb",
+        "http://inspire.ec.europa.eu/theme/am"
     ],
-    "language": "es",
+    "language": "http://publications.europa.eu/resource/authority/language/SPA",
     "documentation": [
         "https://example.org/some-doc.html"
     ],
@@ -67,6 +66,8 @@
         "http://data.europa.eu/eli/reg_impl/2023/138/oj_alt"
     ],
     "encoding": "UTF-8",
+    "contact_name": "Contact 1",
+    "contact_email": "contact1@example.org",
     "contact": [
         {
             "name": "Contact 1",
@@ -103,6 +104,7 @@
     "temporal_resolution": "PT15M",
     "reference_system": "http://www.opengis.net/def/crs/EPSG/0/25830",
     "representation_type": "http://inspire.ec.europa.eu/metadata-codelist/SpatialRepresentationType/vector",
+    "topic": "http://inspire.ec.europa.eu/metadata-codelist/TopicCategory/biota",
     "spatial_coverage": [
         {
             "geom": {
@@ -197,9 +199,12 @@
                 "Standard 2",
                 "Standard 3"
             ],
-            "language": "es",
+            "documentation": [
+                "https://example.org/some-doc.html"
+            ],
+            "language": "http://publications.europa.eu/resource/authority/language/SPA",
             "provenance": "Sample provenance.",
-            "relation": "https://example.com/related/resource",
+            "resource_relation": "https://example.com/related/resource",
             "access_services": [
                 {
                     "title": "Access Service 1",

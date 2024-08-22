@@ -59,11 +59,11 @@
         },
         {
             "key": "theme",
-            "value": "[\"https://example.org/uri/theme1\",\"https://example.org/uri/theme2\",\"https://example.org/uri/theme3\"]"
+            "value": "[\"http://inspire.ec.europa.eu/theme/hb\",\"http://inspire.ec.europa.eu/theme/am\"]"
         },
         {
             "key": "language",
-            "value": "[\"en\",\"ca\",\"es\"]"
+            "value": "http://publications.europa.eu/resource/authority/language/SPA"
         },
         {
             "key": "documentation",
