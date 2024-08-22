@@ -772,17 +772,16 @@ class EuDCATAPProfile(SchemingDCATRDFProfile):
 
             # Access Rights
             # DCAT-AP: http://publications.europa.eu/en/web/eu-vocabularies/at-dataset/-/resource/dataset/access-right
-            access_rights_value = self._get_dataset_value(distribution, "rights")
-            
-            if access_rights_value:
-                if "authority/access-right" in access_rights_value:
-                    g.add((distribution, DCT.accessRights, URIRef(access_rights_value)))
-                else:
-                    g.remove((distribution, DCT.accessRights, URIRef(access_rights_value)))
-                    g.add((distribution, DCT.accessRights, URIRef(eu_dcat_ap_default_values["rights"])))
+            rights_value = self._get_resource_value(resource_dict, 'rights')
+            if rights_value and 'authority/access-right' in rights_value:
+                rights_uri = URIRef(rights_value)
             else:
-                g.add((distribution, DCT.accessRights, URIRef(eu_dcat_ap_default_values["rights"])))
-
+                rights_uri = URIRef(eu_dcat_ap_default_values['access_rights'])
+            
+            if rights_value:
+                g.remove((distribution, DCT.rights, URIRef(rights_value)))
+            g.add((distribution, DCT.rights, rights_uri))
+            
             # Numbers
             if resource_dict.get("size"):
                 try:
