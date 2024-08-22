@@ -1,5 +1,6 @@
 import json
 import os
+import logging
 
 from rdflib import URIRef
 from pyshacl import validate
@@ -10,6 +11,8 @@ from ckan.tests.helpers import call_action
 from ckanext.dcat.processors import RDFSerializer
 from ckanext.dcat.tests.utils import get_file_contents
 
+
+log = logging.getLogger(__name__)
 
 generated_graphs = {}
 
@@ -64,6 +67,9 @@ def graph_from_dataset(dataset_key):
         if not file_name.startswith("ckan/"):
             file_name = "ckan/" + file_name
         dataset_dict = json.loads(get_file_contents(file_name))
+        
+        log.debug(json.dumps(dataset_dict, indent=2))
+        
         dataset = call_action("package_create", **dataset_dict)
 
         s = RDFSerializer()

@@ -87,7 +87,7 @@
         }
     ],
     "author": "Test Author",
-    "author_name": "Test Author.",
+    "author_name": "Test Author",
     "author_uri": "https://example.org/org/SOME_ORG",
     "maintainer": "Test Maintainer",
     "maintainer_email": "maintainer@example.org",
