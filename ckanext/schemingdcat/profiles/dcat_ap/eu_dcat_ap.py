@@ -365,10 +365,15 @@ class EuDCATAPProfile(SchemingDCATRDFProfile):
 
         # Access Rights
         # DCAT-AP: http://publications.europa.eu/en/web/eu-vocabularies/at-dataset/-/resource/dataset/access-right
-        if self._get_dataset_value(dataset_dict, "access_rights") and "authority/access-right" in self._get_dataset_value(dataset_dict, "access_rights"):
-                g.add((dataset_ref, DCT.accessRights, URIRef(self._get_dataset_value(dataset_dict, "access_rights"))))
+        access_rights_value = self._get_dataset_value(dataset_dict, "access_rights")
+        
+        if access_rights_value:
+            if "authority/access-right" in access_rights_value:
+                g.add((dataset_ref, DCT.accessRights, URIRef(access_rights_value)))
+            else:
+                g.remove((dataset_ref, DCT.accessRights, URIRef(access_rights_value)))
+                g.add((dataset_ref, DCT.accessRights, URIRef(eu_dcat_ap_default_values["access_rights"])))
         else:
-            g.remove((dataset_ref, DCT.accessRights, URIRef(self._get_dataset_value(dataset_dict, "access_rights"))))
             g.add((dataset_ref, DCT.accessRights, URIRef(eu_dcat_ap_default_values["access_rights"])))
             
         # Tags
@@ -765,15 +770,18 @@ class EuDCATAPProfile(SchemingDCATRDFProfile):
 
             self._add_date_triples_from_dict(resource_dict, distribution, items)
 
+            # Access Rights
             # DCAT-AP: http://publications.europa.eu/en/web/eu-vocabularies/at-dataset/-/resource/dataset/access-right
-            access_rights = self._get_resource_value(resource_dict, 'rights')
-            if access_rights and 'authority/access-right' in access_rights:
-                access_rights_uri = URIRef(access_rights)
-            else:
-                access_rights_uri = URIRef(eu_dcat_ap_default_values['access_rights'])
+            access_rights_value = self._get_dataset_value(distribution, "rights")
             
-            g.remove((distribution, DCT.rights, URIRef(access_rights)))
-            g.add((distribution, DCT.rights, access_rights_uri))
+            if access_rights_value:
+                if "authority/access-right" in access_rights_value:
+                    g.add((distribution, DCT.accessRights, URIRef(access_rights_value)))
+                else:
+                    g.remove((distribution, DCT.accessRights, URIRef(access_rights_value)))
+                    g.add((distribution, DCT.accessRights, URIRef(eu_dcat_ap_default_values["rights"])))
+            else:
+                g.add((distribution, DCT.accessRights, URIRef(eu_dcat_ap_default_values["rights"])))
 
             # Numbers
             if resource_dict.get("size"):
