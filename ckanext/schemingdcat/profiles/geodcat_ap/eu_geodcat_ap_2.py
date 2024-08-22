@@ -55,6 +55,7 @@ class EuGeoDCATAP2Profile(EuDCATAP2Profile):
             ("metadata_profile", DCT.conformsTo),
             ("inspire_id", ADMS.identifier),
             ("lineage_source", DCT.source),
+            ("reference", DCAT.relation),
         ):
             values = self._object_value_list(dataset_ref, predicate)
             if values:
@@ -63,6 +64,7 @@ class EuGeoDCATAP2Profile(EuDCATAP2Profile):
         # Basic fields
         for key, predicate in (
             ("topic", DCAT.keyword, None),
+            ("representation_type", ADMS.representionTechnique, None),
         ):
             value = self._object_value(dataset_ref, predicate)
             if value:
@@ -136,12 +138,14 @@ class EuGeoDCATAP2Profile(EuDCATAP2Profile):
             ("metadata_profile", DCT.conformsTo, None, URIRef),
             ("inspire_id", ADMS.identifier, None, URIRefOrLiteral),
             ("lineage_source", DCT.source, None, Literal),
+            ("reference", DCAT.relation, None, URIRefOrLiteral),
         ]
         self._add_list_triples_from_dict(dataset_dict, dataset_ref, items)
 
         # Basic fields without translating fields
         basic_items = [
             ("topic", DCAT.keyword, None, URIRefOrLiteral),
+            ("representation_type", ADMS.representionTechnique, None, URIRefOrLiteral),
         ]
         
         # Filtrar los campos básicos para excluir los que ya están en los campos traducidos
