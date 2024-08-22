@@ -177,7 +177,7 @@ def test_validate_dcat_ap_2_legacy_graph_shapes_recommended():
 )
 def test_validate_dcat_ap_2_graph_shapes_range():
 
-    graph = graph_from_dataset("ckan_full_dataset_dcat_ap_2_vocabularies")
+    graph = graph_from_dataset("dcat_ap_2_vocabularies_dataset")
 
     # dcat-ap_2.1.1_shacl_range.ttl: constraints concerning object range
     path = _get_shacl_file_path("range", "2.1.1")
