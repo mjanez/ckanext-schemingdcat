@@ -93,7 +93,7 @@ def _results_count(results_graph):
 
 
 @pytest.mark.usefixtures("with_plugins", "clean_db")
-@pytest.mark.ckan_config("ckan.plugins", "dcat schemingdcat_datasets schemingdcat")
+@pytest.mark.ckan_config("ckan.plugins", "dcat schemingdcat_datasets schemingdcat fluent")
 @pytest.mark.ckan_config(
     "scheming.dataset_schemas", "ckanext.schemingdcat:schemas/geodcat_ap/eu_geodcat_ap_2.yaml"
 )
@@ -117,7 +117,7 @@ def test_validate_dcat_ap_2_graph_shapes():
 
 
 @pytest.mark.usefixtures("with_plugins", "clean_db")
-@pytest.mark.ckan_config("ckan.plugins", "dcat schemingdcat_datasets schemingdcat")
+@pytest.mark.ckan_config("ckan.plugins", "dcat schemingdcat_datasets schemingdcat fluent")
 @pytest.mark.ckan_config(
     "scheming.dataset_schemas", "ckanext.schemingdcat:schemas/geodcat_ap/eu_geodcat_ap_2.yaml"
 )
@@ -141,7 +141,7 @@ def test_validate_dcat_ap_2_graph_shapes_recommended():
 
 
 @pytest.mark.usefixtures("with_plugins", "clean_db")
-@pytest.mark.ckan_config("ckan.plugins", "dcat schemingdcat_datasets schemingdcat")
+@pytest.mark.ckan_config("ckan.plugins", "dcat schemingdcat_datasets schemingdcat fluent")
 @pytest.mark.ckan_config("ckanext.dcat.rdf.profiles", "eu_dcat_ap_2")
 def test_validate_dcat_ap_2_legacy_graph_shapes():
 
@@ -156,7 +156,7 @@ def test_validate_dcat_ap_2_legacy_graph_shapes():
 
 
 @pytest.mark.usefixtures("with_plugins", "clean_db")
-@pytest.mark.ckan_config("ckan.plugins", "dcat schemingdcat_datasets schemingdcat")
+@pytest.mark.ckan_config("ckan.plugins", "dcat schemingdcat_datasets schemingdcat fluent")
 @pytest.mark.ckan_config("ckanext.dcat.rdf.profiles", "eu_dcat_ap_2")
 def test_validate_dcat_ap_2_legacy_graph_shapes_recommended():
 
@@ -171,7 +171,7 @@ def test_validate_dcat_ap_2_legacy_graph_shapes_recommended():
 
 
 @pytest.mark.usefixtures("with_plugins", "clean_db")
-@pytest.mark.ckan_config("ckan.plugins", "dcat schemingdcat_datasets schemingdcat")
+@pytest.mark.ckan_config("ckan.plugins", "dcat schemingdcat_datasets schemingdcat fluent")
 @pytest.mark.ckan_config(
     "scheming.dataset_schemas", "ckanext.schemingdcat:schemas/geodcat_ap/eu_geodcat_ap_2.yaml"
 )
