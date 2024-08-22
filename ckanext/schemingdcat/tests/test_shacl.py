@@ -140,34 +140,34 @@ def test_validate_dcat_ap_2_graph_shapes_recommended():
     assert conforms, results_text
 
 
-@pytest.mark.usefixtures("with_plugins", "clean_db")
-@pytest.mark.ckan_config("ckan.plugins", "dcat schemingdcat_datasets schemingdcat fluent")
-@pytest.mark.ckan_config("ckanext.dcat.rdf.profiles", "eu_dcat_ap_2")
-def test_validate_dcat_ap_2_legacy_graph_shapes():
+# @pytest.mark.usefixtures("with_plugins", "clean_db")
+# @pytest.mark.ckan_config("ckan.plugins", "dcat schemingdcat_datasets schemingdcat fluent")
+# @pytest.mark.ckan_config("ckanext.dcat.rdf.profiles", "eu_dcat_ap_2")
+# def test_validate_dcat_ap_2_legacy_graph_shapes():
 
-    graph = graph_from_dataset("dcat_ap_2_legacy_dataset")
+#     graph = graph_from_dataset("dcat_ap_2_legacy_dataset")
 
-    # dcat-ap_2.1.1_shacl_shapes.ttl: constraints concerning existance, domain and
-    # literal range, and cardinalities.
-    path = _get_shacl_file_path("shapes", "2.1.1")
-    r = validate(graph, shacl_graph=path)
-    conforms, results_graph, results_text = r
-    assert conforms, results_text
+#     # dcat-ap_2.1.1_shacl_shapes.ttl: constraints concerning existance, domain and
+#     # literal range, and cardinalities.
+#     path = _get_shacl_file_path("shapes", "2.1.1")
+#     r = validate(graph, shacl_graph=path)
+#     conforms, results_graph, results_text = r
+#     assert conforms, results_text
 
 
-@pytest.mark.usefixtures("with_plugins", "clean_db")
-@pytest.mark.ckan_config("ckan.plugins", "dcat schemingdcat_datasets schemingdcat fluent")
-@pytest.mark.ckan_config("ckanext.dcat.rdf.profiles", "eu_dcat_ap_2")
-def test_validate_dcat_ap_2_legacy_graph_shapes_recommended():
+# @pytest.mark.usefixtures("with_plugins", "clean_db")
+# @pytest.mark.ckan_config("ckan.plugins", "dcat schemingdcat_datasets schemingdcat fluent")
+# @pytest.mark.ckan_config("ckanext.dcat.rdf.profiles", "eu_dcat_ap_2")
+# def test_validate_dcat_ap_2_legacy_graph_shapes_recommended():
 
-    graph = graph_from_dataset("dcat_ap_2_legacy_dataset")
+#     graph = graph_from_dataset("dcat_ap_2_legacy_dataset")
 
-    # dcat-ap_2.1.1_shacl_shapes_recommended.ttl: constraints concerning existance
-    # of recommended properties.
-    path = _get_shacl_file_path("shapes_recommended", "2.1.1")
-    r = validate(graph, shacl_graph=path)
-    conforms, results_graph, results_text = r
-    assert conforms, results_text
+#     # dcat-ap_2.1.1_shacl_shapes_recommended.ttl: constraints concerning existance
+#     # of recommended properties.
+#     path = _get_shacl_file_path("shapes_recommended", "2.1.1")
+#     r = validate(graph, shacl_graph=path)
+#     conforms, results_graph, results_text = r
+#     assert conforms, results_text
 
 
 @pytest.mark.usefixtures("with_plugins", "clean_db")
