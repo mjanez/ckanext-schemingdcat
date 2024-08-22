@@ -7,6 +7,8 @@ import inspect
 import json
 import hashlib
 from threading import Lock
+import warnings
+from functools import wraps
 
 import yaml
 from yaml.loader import SafeLoader
@@ -35,6 +37,16 @@ _dirs_hash = []
 _facets_dict_lock = Lock()
 _public_dirs_lock = Lock()
 
+
+def deprecated(func):
+    """This is a decorator which can be used to mark functions as deprecated.
+    It will result in a warning being emitted when the function is used."""
+    @wraps(func)
+    def new_func(*args, **kwargs):
+        warnings.warn(f"Call to deprecated function {func.__name__}. This function will be removed in future versions.",
+                      category=DeprecationWarning, stacklevel=2)
+        return func(*args, **kwargs)
+    return new_func
 
 def get_facets_dict():
     """Get the labels for all fields defined in the scheming file.
