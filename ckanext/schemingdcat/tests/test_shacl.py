@@ -208,14 +208,4 @@ def test_validate_dcat_ap_2_graph_shapes_range():
         "Value does not have class dcat:Dataset",
     ]
 
-    unexpected_failures = set(failures) - set(known_failures)
-    
-    if unexpected_failures:
-        error_message = (
-            f"Validation Report\n"
-            f"Conforms: {conforms}\n"
-            f"Unexpected Failures ({len(unexpected_failures)}):\n"
-            f"{results_text}\n"
-            f"Failures: {unexpected_failures}"
-        )
-        pytest.fail(error_message)
+    assert set(failures) - set(known_failures) == set(), results_text
