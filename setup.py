@@ -38,6 +38,19 @@ setup(
         schemingdcat_xls_harvester=ckanext.schemingdcat.harvesters:SchemingDCATXLSHarvester
         schemingdcat_ows_harvester=ckanext.schemingdcat.harvesters:SchemingDCATOWSHarvester
 
+        [ckan.rdf.profiles]
+        # Custom compatibilty profile meant to add support for ckanext-scheming
+        eu_dcat_ap_scheming=ckanext.schemingdcat.profiles:EuDCATAPSchemingDCATProfile
+        
+        # EU | European DCAT-AP/GeoDCAT-AP profiles
+        eu_dcat_ap_2=ckanext.schemingdcat.profiles:EuDCATAP2Profile
+        eu_geodcat_ap_2=ckanext.schemingdcat.profiles:EuGeoDCATAP2Profile
+        eu_geodcat_ap_3=ckanext.schemingdcat.profiles:EuGeoDCATAP3Profile
+        
+        # ES | Spanish NTI-RISP/DCAT profiles
+        es_dcat=ckanext.schemingdcat.profiles:EsNTIRISPProfile
+        es_dcat_ap_2=ckanext.schemingdcat.profiles:EsDCATAP2Profile  
+
         [babel.extractors]
         ckan = ckan.lib.extract:extract_ckan
     ''',
