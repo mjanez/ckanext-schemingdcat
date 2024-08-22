@@ -368,6 +368,7 @@ class EuDCATAPProfile(SchemingDCATRDFProfile):
         if self._get_dataset_value(dataset_dict, "access_rights") and "authority/access-right" in self._get_dataset_value(dataset_dict, "access_rights"):
                 g.add((dataset_ref, DCT.accessRights, URIRef(self._get_dataset_value(dataset_dict, "access_rights"))))
         else:
+            g.remove((dataset_ref, DCT.accessRights, URIRef(self._get_dataset_value(dataset_dict, "access_rights"))))
             g.add((dataset_ref, DCT.accessRights, URIRef(eu_dcat_ap_default_values["access_rights"])))
             
         # Tags
@@ -770,6 +771,8 @@ class EuDCATAPProfile(SchemingDCATRDFProfile):
                 access_rights_uri = URIRef(access_rights)
             else:
                 access_rights_uri = URIRef(eu_dcat_ap_default_values['access_rights'])
+            
+            g.remove((distribution, DCT.rights, URIRef(access_rights)))
             g.add((distribution, DCT.rights, access_rights_uri))
 
             # Numbers
