@@ -1,7 +1,15 @@
 {
     "name": "test-dataset-shacl",
     "title": "Test DCAT dataset",
-    "notes": "Lorem ipsum",
+    "title_translated": {
+        "en": "Test DCAT dataset",
+        "es": "Test del conjunto de datos DCAT"
+    },
+    "notes": "Sample description.",
+    "notes_translated": {
+        "en": "Sample description.",
+        "es": "Descripción de ejemplo."
+    },
     "url": "http://example.org/ds1",
     "version": "1.0b",
     "tags": [
@@ -15,25 +23,29 @@
     "issued": "2024-05-01",
     "modified": "2024-05-05",
     "identifier": "xx-some-dataset-id-yy",
-    "frequency": "http://publications.europa.eu/resource/authority/frequency/MONTHLY",
-    "provenance": "https://example.org/some-provenance-statement.html",
-    "dcat_type": "http://purl.org/dc/dcmitype/Dataset",
-    "version_notes": "Some version notes",
-    "access_rights": "http://publications.europa.eu/resource/authority/access-right/PUBLIC",
-    "alternate_identifier": [
-        "https://org1.example.org/datasets/alt-id-1",
-        "https://org2.example.org/datasets/alt-id-2"
+    "frequency": "http://publications.europa.eu/resource/authority/frequency/UPDATE_CONT",
+    "provenance": {
+        "en": "Sample provenance.",
+        "es": "Procedencia de ejemplo."
+    },
+    "dcat_type": "http://inspire.ec.europa.eu/metadata-codelist/ResourceType/dataset",
+    "hvd_category": "http://data.europa.eu/bna/c_ac64a52d",
+    "metadata_profile": [
+        "http://semiceu.github.io/GeoDCAT-AP/releases/2.0.0",
+        "http://inspire.ec.europa.eu/document-tags/metadata"
     ],
+    "version_notes": {
+        "en": "Some version notes.",
+        "es": "Notas sobre la versión."
+    },
+    "access_rights": "http://publications.europa.eu/resource/authority/access-right/PUBLIC",
+    "alternate_identifier": "https://org1.example.org/datasets/alt-id-1",
     "theme": [
         "https://example.org/uri/theme1",
         "https://example.org/uri/theme2",
         "https://example.org/uri/theme3"
     ],
-    "language": [
-        "http://publications.europa.eu/resource/authority/language/ENG",
-        "http://publications.europa.eu/resource/authority/language/SPA",
-        "http://publications.europa.eu/resource/authority/language/CAT"
-    ],
+    "language": "http://publications.europa.eu/resource/authority/language/SPA",
     "documentation": [
         "https://example.org/some-doc.html"
     ],
@@ -45,18 +57,25 @@
         "https://doi.org/10.1038/sdata.2018.22",
         "test_isreferencedby"
     ],
+    "reference": [
+        "https://doi.org/10.1038/sdata.2018.22",
+        "test_isreferencedby"
+    ],
     "applicable_legislation": [
         "http://data.europa.eu/eli/reg_impl/2023/138/oj",
         "http://data.europa.eu/eli/reg_impl/2023/138/oj_alt"
     ],
+    "encoding": "UTF-8",
     "contact": [
         {
             "name": "Contact 1",
-            "email": "contact1@example.org"
+            "email": "contact1@example.org",
+            "role": "http://inspire.ec.europa.eu/metadata-codelist/ResponsiblePartyRole/principalInvestigator"
         },
         {
             "name": "Contact 2",
-            "email": "contact2@example.org"
+            "email": "contact2@example.org",
+            "role": "http://id.loc.gov/vocabulary/relators/mdc"
         }
     ],
     "publisher": [
@@ -64,9 +83,16 @@
             "name": "Test Publisher",
             "email": "publisher@example.org",
             "url": "https://example.org",
-            "type": "http://publications.europa.eu/resource/authority/corporate-body-classification/CB_INT"
+            "type": "http://purl.org/adms/publishertype/NationalAuthority"
         }
     ],
+    "author": "Test Author",
+    "author_name": "Test Author.",
+    "author_uri": "https://example.org/org/SOME_ORG",
+    "maintainer": "Test Maintainer",
+    "maintainer_email": "maintainer@example.org",
+    "maintainer_name": "Test Maintainer",
+    "maintainer_uri": "https://example.org/org/SOME_ORG",
     "temporal_coverage": [
         {
             "start": "1905-03-01",
@@ -74,6 +100,8 @@
         }
     ],
     "temporal_resolution": "PT15M",
+    "reference_system": "http://www.opengis.net/def/crs/EPSG/0/25830",
+    "representation_type": "http://inspire.ec.europa.eu/metadata-codelist/SpatialRepresentationType/vector",
     "spatial_coverage": [
         {
             "geom": {
@@ -103,8 +131,8 @@
                     ]
                 ]
             },
-            "text": "Tarragona",
-            "uri": "https://sws.geonames.org/6361390/",
+            "text": "Spain",
+            "uri": "http://datos.gob.es/recurso/sector-publico/territorio/Pais/España",
             "bbox": {
                 "type": "Polygon",
                 "coordinates": [
@@ -166,11 +194,9 @@
                 "https://joinup.ec.europa.eu/collection/semic-support-centre/solution/dcat-application-profile-data-portals-europe/release/211",
                 "https://joinup.ec.europa.eu/collection/semic-support-centre/solution/dcat-application-profile-data-portals-europe/release/210"
             ],
-            "language": [
-                "http://publications.europa.eu/resource/authority/language/ENG",
-                "http://publications.europa.eu/resource/authority/language/SPA",
-                "http://publications.europa.eu/resource/authority/language/CAT"
-            ],
+            "language": "http://publications.europa.eu/resource/authority/language/SPA",
+            "provenance": "Sample provenance.",
+            "relation": "https://example.com/related/resource",
             "access_services": [
                 {
                     "title": "Access Service 1",

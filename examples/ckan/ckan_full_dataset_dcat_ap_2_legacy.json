@@ -1,7 +1,15 @@
 {
     "name": "test-dataset-shacl",
     "title": "Test DCAT dataset",
-    "notes": "Lorem ipsum",
+    "title_translated": {
+        "en": "Test DCAT dataset",
+        "es": "Test del conjunto de datos DCAT"
+    },
+    "notes": "Sample description.",
+    "notes_translated": {
+        "en": "Sample description.",
+        "es": "Descripción de ejemplo."
+    },
     "url": "http://example.org/ds1",
     "version": "1.0b",
     "tags": [
@@ -98,6 +106,30 @@
             "value": "public_body"
         },
         {
+            "key": "author",
+            "value": "Test Author"
+        },
+        {
+            "key": "author_name",
+            "value": "Test Author"
+        },
+        {
+            "key": "author_email",
+            "value": "author@example.org"
+        },
+        {
+            "key": "maintainer",
+            "value": "Test Maintainer"
+        },
+        {
+            "key": "maintainer_name",
+            "value": "Test Maintainer"
+        },
+        {
+            "key": "maintainer_email",
+            "value": "maintainer@example.org"
+        },
+        {
             "key": "temporal_start",
             "value": "1905-03-01"
         },
@@ -140,9 +172,14 @@
             "description": "Some description",
             "url": "https://example.com/data.csv",
             "format": "CSV",
+            "encoding": "UTF-8",
+            "alternate_identifier": "xx-some-dataset-id-yy_csv",
             "availability": "http://publications.europa.eu/resource/authority/planned-availability/EXPERIMENTAL",
             "compress_format": "http://www.iana.org/assignments/media-types/application/gzip",
             "package_format": "http://publications.europa.eu/resource/authority/file-type/TAR",
+            "conforms_to": [
+                "https://www.example.com/standard/1"
+            ],
             "size": 12323,
             "hash": "4304cf2e751e6053c90b1804c89c0ebb758f395a",
             "hash_algorithm": "http://spdx.org/rdf/terms#checksumAlgorithm_sha1",
@@ -152,8 +189,10 @@
             "issued": "2024-05-01T01:20:33",
             "modified": "2024-05-05T09:33:20",
             "license": "http://creativecommons.org/licenses/by/3.0/",
-            "rights": "Some stament about rights",
-            "language": "[\"en\",\"ca\",\"es\"]",
+            "rights": "http://inspire.ec.europa.eu/metadata-codelist/LimitationsOnPublicAccess/noLimitations",
+            "language": "http://publications.europa.eu/resource/authority/language/SPA",
+            "provenance": "Sample provenance.",
+            "relation": "https://example.com/related/resource",
             "access_services": "[{\"title\": \"Access Service 1\", \"endpoint_description\": \"https://example.org/endpoint_description\", \"endpoint_url\": [\"https://example.org/access_service/1\", \"https://example.org/access_service/2\"], \"serves_dataset\": [\"https://example.org/dataset/1\", \"https://example.org/dataset/2\"]}]"
         }
     ]
