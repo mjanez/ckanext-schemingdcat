@@ -9,7 +9,7 @@ import pytest
 from ckan.tests.helpers import call_action
 
 from ckanext.dcat.processors import RDFSerializer
-from ckanext.dcat.tests.utils import get_file_contents
+from ckanext.schemingdcat.tests.utils import get_file_contents
 
 
 log = logging.getLogger(__name__)
@@ -69,7 +69,7 @@ def graph_from_dataset(dataset_key):
         dataset_dict = json.loads(get_file_contents(file_name))
        
         # Log the dataset_dict
-        log.info(f"Generated dataset_dict: {json.dumps(dataset_dict, indent=2)}")
+        #log.info(f"Generated dataset_dict: {json.dumps(dataset_dict, indent=2)}")
         
         dataset = call_action("package_create", **dataset_dict)
 
