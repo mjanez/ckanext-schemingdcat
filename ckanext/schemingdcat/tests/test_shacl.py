@@ -37,7 +37,8 @@ def _get_shacl_file_path(shacl_type, version):
     shacl_type = shacl_type.strip('_').replace('shacl_', '', 1)
     
     file_name = f"dcat-ap_{version}_shacl_{shacl_type}.ttl"
-    return os.path.join(os.path.dirname(__file__), "shacl", file_name)
+
+    return os.path.join(os.path.dirname(__file__), "shacl", version, file_name)
 
 def graph_from_dataset(dataset_key):
     """
