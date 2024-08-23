@@ -536,6 +536,7 @@ class SchemingDCATHarvester(HarvesterBase):
     
         def apply_field_mapping(d, mapping):
             new_dict = {}
+            #TODO: If not field_mapping, items() fails.
             for local_field, remote_info in mapping.items():
                 if 'field_name' in remote_info:
                     remote_field = remote_info['field_name']
