@@ -692,7 +692,6 @@ class EuDCATAPProfile(SchemingDCATRDFProfile):
             self._add_list_triples_from_dict(resource_dict, distribution, items)
 
             # Set default license for distribution if needed and available
-
             if resource_license_fallback and not (distribution, DCT.license, None) in g:
                 g.add(
                     (
@@ -701,6 +700,7 @@ class EuDCATAPProfile(SchemingDCATRDFProfile):
                         URIRefOrLiteral(resource_license_fallback),
                     )
                 )
+
             # TODO: add an actual field to manage this
             if (distribution, DCT.license, None) in g:
                 g.add(
