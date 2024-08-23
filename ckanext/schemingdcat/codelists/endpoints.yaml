@@ -1,49 +1,49 @@
 catalog_endpoints:
-  - name: euro_dcat_ap_2_rdf
+  - name: eu_dcat_ap_2_rdf
     display_name: RDF DCAT-AP
     type: lod
     format: rdf
-    image_display_url: /images/icons/endpoints/euro_dcat_ap_2.svg
+    image_display_url: /images/icons/endpoints/eu_dcat_ap.svg
     endpoint_icon: /images/endpoints/catalog-rdf-eu.png
     fa_icon: fa-share-alt
     description: RDF DCAT-AP Endpoint for european data portals.
-    profile: euro_dcat_ap_2
+    profile: eu_dcat_ap_2,eu_dcat_ap_scheming
     profile_label: DCAT-AP
     version: null
 
-  - name: euro_dcat_ap_2_jsonld
+  - name: eu_dcat_ap_2_jsonld
     display_name: JSON-LD DCAT-AP
     type: lod
     format: jsonld
-    image_display_url: /images/icons/endpoints/euro_dcat_ap_2.svg
+    image_display_url: /images/icons/endpoints/eu_dcat_ap.svg
     endpoint_icon: /images/endpoints/catalog-jsonld-eu.png
     fa_icon: fa-share-alt
     description: RDF DCAT-AP Endpoint for european data portals.
-    profile: euro_dcat_ap_2
+    profile: eu_dcat_ap_2,eu_dcat_ap_scheming
     profile_label: DCAT-AP
     version: null
 
-  - name: spain_dcat_rdf
+  - name: es_dcat_rdf
     display_name: RDF NTI-RISP
     type: lod
     format: rdf
-    image_display_url: /images/icons/endpoints/spain_dcat.svg
+    image_display_url: /images/icons/endpoints/es_dcat.svg
     endpoint_icon: /images/endpoints/catalog-rdf-es.png
     fa_icon: fa-share-alt
     description: RDF NTI-RISP Endpoint for spanish data portals.
-    profile: spain_dcat
+    profile: es_dcat
     profile_label: NTI-RISP
     version: null
 
-  - name: spain_dcat_jsonld
+  - name: es_dcat_jsonld
     display_name: JSON-LD NTI-RISP
     type: lod
     format: jsonld
-    image_display_url: /images/icons/endpoints/spain_dcat.svg
+    image_display_url: /images/icons/endpoints/es_dcat.svg
     endpoint_icon: /images/endpoints/catalog-jsonld-es.png
     fa_icon: fa-share-alt
     description: JSON-LD NTI-RISP Endpoint for spanish data portals.
-    profile: spain_dcat
+    profile: es_dcat
     profile_label: NTI-RISP
     version: null
 
@@ -55,7 +55,7 @@ catalog_endpoints:
     endpoint_icon: /images/endpoints/catalog-csw-eu.png
     fa_icon: fa-globe
     description: OGC-INSPIRE Endpoint for spatial metadata.
-    profile: spain_dcat
+    profile: csw
     profile_label: INSPIRE
     version: 2.0.2
 
@@ -67,7 +67,7 @@ catalog_endpoints:
     endpoint_icon: /images/endpoints/catalog-csw-eu.png
     fa_icon: fa-globe
     description: OGC-INSPIRE Endpoint for spatial metadata.
-    profile: spain_dcat
+    profile: csw
     profile_label: INSPIRE
     version: 3.0.0
 
