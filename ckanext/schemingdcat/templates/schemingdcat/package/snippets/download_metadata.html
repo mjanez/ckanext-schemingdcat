@@ -43,7 +43,7 @@
                 {% endif %}
                 
                 {% for profile in profiles %}
-                    {% if profile.profile == 'euro_dcat_ap_2' or (pkg.theme_es and profile.profile == 'spain_dcat') %}
+                    {% if 'eu_dcat_ap_2'in profile.profile or (pkg.theme_es and 'es_dcat' in profile.profile) %}
                         <li class="dropdown-header" title="{{ _('RDF DCAT Endpoint') }}"><i class="fa fa-share-alt"></i> {{ profile.profile_label }} - {{ _('Linked Data') }}</li>
             
                         {% for link in linked_data_links %}
@@ -51,7 +51,7 @@
                                 {% set url = h.url_for(link.endpoint, profiles=profile.profile, **link.endpoint_data) %}
                                 {% set format_label = '<strong>' + link.format + '</strong>' %}
                                 <li>
-                                    <a href="{{ url }}" target="_blank">
+                                    <a href="{{ h.schemingdcat_url_unquote(url) }}" target="_blank">
                                         <span class="metadata-download_info_label">{{ _('{metadata_format} Metadata').format(metadata_format=format_label|safe) }}</span>
                                     </a>
                                 </li>

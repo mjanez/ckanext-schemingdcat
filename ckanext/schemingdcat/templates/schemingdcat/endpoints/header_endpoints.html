@@ -29,7 +29,7 @@
     {% set endpoint_title = _('{endpoint_type} Endpoint').format(endpoint_type=endpoint_type|safe) %}
     {% set endpoint_url = h.get_header_endpoint_url(endpoint, site_protocol_and_host) %}
     <li>
-        <a href="{{ endpoint_url }}" target="_blank" rel="noopener noreferrer" title="{{ endpoint_title }}">
+        <a href="{{ h.schemingdcat_url_unquote(endpoint_url) }}" target="_blank" rel="noopener noreferrer" title="{{ endpoint_title }}">
             <img class="endpoint-image" src="{{ endpoint_icon }}" alt="{{ endpoint.display_name }}">
         </a>
     </li>

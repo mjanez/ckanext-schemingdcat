@@ -53,7 +53,7 @@
     {% elif endpoint.type == 'sparql' %}
         {% set endpoint_url = h.url_for('/sparql') %}
     {% endif %}
-    <a class="tag endpoints_index" target="_blank" rel="noopener noreferrer" href="{{ endpoint_url }}"><i class="fa {{ endpoint_icon }}"> </i> {{ endpoint_title }} <img src="{{ format_img }}" alt="{{ endpoint.display_name }}"></a>
+    <a class="tag endpoints_index" target="_blank" rel="noopener noreferrer" href="{{ h.schemingdcat_url_unquote(endpoint_url) }}"><i class="fa {{ endpoint_icon }}"> </i> {{ endpoint_title }} <img src="{{ format_img }}" alt="{{ endpoint.display_name }}"></a>
 {% endmacro %}
 
 {% set endpoints = h.schemingdcat_get_catalog_endpoints() %}

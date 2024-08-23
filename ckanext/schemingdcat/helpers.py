@@ -12,7 +12,7 @@ from pathlib import Path
 from functools import lru_cache
 import datetime
 import typing
-from urllib.parse import urlparse
+from urllib.parse import urlparse, unquote
 from urllib.error import URLError
 
 from six.moves.urllib.parse import urlencode
@@ -642,6 +642,19 @@ def schemingdcat_prettify_url(url):
         return url
 
 @helper
+def schemingdcat_url_unquote(url):
+    """
+    Decodes a URL, replacing %xx escapes with their single-character equivalent.
+
+    Args:
+        url (str): The URL to decode.
+
+    Returns:
+        str: The decoded URL.
+    """
+    return unquote(url)
+
+@helper
 def schemingdcat_prettify_url_name(url):
     """
     Prettifies a URL name by extracting the last segment and cleaning it.
@@ -654,6 +667,10 @@ def schemingdcat_prettify_url_name(url):
     """
     if url is None:
         return url
+
+    # Convert url to str if it is bytes
+    if isinstance(url, bytes):
+        url = url.decode('utf-8')
 
     if url in prettify_cache:
         return prettify_cache[url]
@@ -1481,8 +1498,6 @@ def schemingdcat_get_required_form_groups(schema, tab_type='dataset_fields'):
             form_group_id = field.get('form_group_id')
             if form_group_id:
                 required_form_groups[form_group_id] = True
-    
-    log.debug('required_form_groups: %s', required_form_groups)
     
     return required_form_groups
 
