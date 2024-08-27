@@ -1,11 +1,16 @@
 .ropeproject
 node_modules
+**/node_modules/
 bower_components
 .vscode
+.idea
+*.log
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
+*.pyc
+.pytest_cache
 
 # C extensions
 *.so
