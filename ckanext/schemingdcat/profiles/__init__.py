@@ -6,6 +6,7 @@ from .dcat.es_dcat import EsNTIRISPProfile
 
 # DCAT-AP Profiles
 from .dcat_ap.eu_dcat_ap_2 import EuDCATAP2Profile
+from .dcat_ap.eu_dcat_ap_3 import EuDCATAP3Profile
 from .dcat_ap.es_dcat_ap_2 import EsDCATAP2Profile
 
 # GeoDCAT-AP Profiles
@@ -19,6 +20,7 @@ __all__ = [
     
     # DCAT-AP profiles
     'EuDCATAP2Profile',
+    'EuDCATAP3Profile',
     
     # GeoDCAT-AP profiles
     'EuGeoDCATAP2Profile',

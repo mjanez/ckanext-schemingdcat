@@ -17,13 +17,18 @@ from ckanext.schemingdcat.profiles.base import (
 from ckanext.schemingdcat.profiles.dcat_ap.eu_dcat_ap_2 import EuDCATAP2Profile
 from ckanext.schemingdcat.profiles.dcat_config import (
     # Vocabs
-    ADMS,
-    DCT,
+    RDF,
     DCAT,
     DCATAP,
     GEODCATAP,
     VCARD,
+    DCT,
+    XSD,
+    SCHEMA,
+    RDFS,
+    ADMS,
     CNT,
+    ELI,
     # Default values
     metadata_field_names,
     eu_geodcat_ap_default_values,
@@ -45,8 +50,43 @@ class EuGeoDCATAP2Profile(EuDCATAP2Profile):
 
     def parse_dataset(self, dataset_dict, dataset_ref):
 
-        # call super method
-        super(EuGeoDCATAP2Profile, self).parse_dataset(dataset_dict, dataset_ref)
+        # Call base method for common properties
+        dataset_dict = self._parse_dataset_base(dataset_dict, dataset_ref)
+
+        # DCAT AP v2 properties also applied to higher versions
+        dataset_dict = self._parse_dataset_v2(dataset_dict, dataset_ref)
+
+        # GeoDCAT-AP 2 properties
+        dataset_dict = self._parse_dataset_geodcat_ap_v2(dataset_dict, dataset_ref)
+
+        return dataset_dict
+
+    def graph_from_dataset(self, dataset_dict, dataset_ref):
+
+        # Call base method for common properties
+        self._graph_from_dataset_base(dataset_dict, dataset_ref)
+
+        # DCAT AP v2 properties also applied to higher versions
+        self._graph_from_dataset_v2(dataset_dict, dataset_ref)
+
+        # DCAT AP v2 specific properties
+        self._graph_from_dataset_v2_only(dataset_dict, dataset_ref)
+        
+        # GeoDCAT-AP 2 properties
+        self._graph_from_dataset_geodcat_ap_v2(dataset_dict, dataset_ref)
+
+    def graph_from_catalog(self, catalog_dict, catalog_ref):
+        
+        # Call base method for common properties
+        self._graph_from_catalog_base(catalog_dict, catalog_ref)
+        
+        # GeoDCAT-AP 2 Catalog properties
+        self._graph_from_catalog_geodcat_ap_v2(catalog_dict, catalog_ref)
+
+    def _parse_dataset_geodcat_ap_v2(self, dataset_dict, dataset_ref):
+
+        # Call base super method for common properties
+        super().parse_dataset(dataset_dict, dataset_ref)
 
         #  Lists
         for key, predicate, in (
@@ -103,12 +143,11 @@ class EuGeoDCATAP2Profile(EuDCATAP2Profile):
 
         return dataset_dict
 
-    def graph_from_dataset(self, dataset_dict, dataset_ref):
+    def _graph_from_dataset_geodcat_ap_v2(self, dataset_dict, dataset_ref):
+        """
+        CKAN -> DCAT properties carried forward to higher GeoDCAT-AP versions
+        """
 
-        # call super method
-        super(EuGeoDCATAP2Profile, self).graph_from_dataset(
-            dataset_dict, dataset_ref
-        )
 
         # INSPIRE roles. https://semiceu.github.io/GeoDCAT-AP/releases/3.0.0/#responsible-party-and-metadata-point-of-contact---dataset-responsible-party-and-metadata-point-of-contact
         
@@ -153,12 +192,11 @@ class EuGeoDCATAP2Profile(EuDCATAP2Profile):
         
         self._add_triples_from_dict(dataset_dict, dataset_ref, filtered_basic_items)
 
-    def graph_from_catalog(self, catalog_dict, catalog_ref):
-
-        # call super method
-        super(EuGeoDCATAP2Profile, self).graph_from_catalog(
-            catalog_dict, catalog_ref
-        )
+    def _graph_from_catalog_geodcat_ap_v2(self, catalog_dict, catalog_ref):
+        """
+        CKAN -> DCAT Catalog properties carried forward to higher GeoDCAT-AP versions
+        """
+        pass
     
     def _add_role(self, dataset_dict, uri_key, role_value=None, role_key=None):
         """

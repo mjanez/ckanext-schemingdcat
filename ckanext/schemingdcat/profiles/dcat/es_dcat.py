@@ -16,15 +16,17 @@ from ckanext.schemingdcat.profiles.base import (
 from ckanext.schemingdcat.profiles.dcat_ap.eu_dcat_ap import EuDCATAPProfile
 from ckanext.schemingdcat.profiles.dcat_config import (
     # Vocabs
-    DC,
     RDF,
-    SCHEMA,
-    RDFS,
     DCAT,
     DCATAP,
+    DC,
     DCT,
-    FOAF,
+    XSD,
+    SCHEMA,
+    RDFS,
+    ADMS,
     CNT,
+    FOAF,
     # Default values
     default_translated_fields,
     es_dcat_default_values, 
@@ -55,6 +57,34 @@ class EsNTIRISPProfile(EuDCATAPProfile):
     """
 
     def parse_dataset(self, dataset_dict, dataset_ref):
+
+        # Call base method for common properties
+        dataset_dict = self._parse_dataset_base(dataset_dict, dataset_ref)
+
+        # NTI-RISP properties also applied to higher versions
+        dataset_dict = self._parse_dataset_nti_risp(dataset_dict, dataset_ref)
+
+        return dataset_dict
+
+    def graph_from_dataset(self, dataset_dict, dataset_ref):
+
+        # Call base method for common properties
+        self._graph_from_dataset_base(dataset_dict, dataset_ref)
+
+        # NTI-RISP properties also applied to higher versions
+        self._graph_from_dataset_nti_risp(dataset_dict, dataset_ref)
+
+        # NTI-RISP specific properties
+        self._graph_from_dataset_nti_risp_only(dataset_dict, dataset_ref)
+
+    def graph_from_catalog(self, catalog_dict, catalog_ref):
+
+        self._graph_from_catalog_base(catalog_dict, catalog_ref)
+        
+        # NTI-RISP catalog properties
+        self._graph_from_catalog_nti_risp(catalog_dict, catalog_ref)
+
+    def _parse_dataset_nti_risp(self, dataset_dict, dataset_ref):
         """
         Parses a CKAN dataset dictionary and generates an RDF graph.
 
@@ -65,8 +95,8 @@ class EsNTIRISPProfile(EuDCATAPProfile):
         Returns:
             dict: The updated dataset dictionary with the RDF metadata.
         """
-        # call super method
-        super(EsNTIRISPProfile, self).parse_dataset(dataset_dict, dataset_ref)
+        # Call base super method for common properties
+        super().parse_dataset(dataset_dict, dataset_ref)
 
         # Lists
         for key, predicate in (
@@ -150,16 +180,9 @@ class EsNTIRISPProfile(EuDCATAPProfile):
 
         return dataset_dict
 
-    def graph_from_dataset(self, dataset_dict, dataset_ref):
+    def _graph_from_dataset_nti_risp(self, dataset_dict, dataset_ref):
         """
-        Generates an RDF graph from a dataset dictionary.
-
-        Args:
-            dataset_dict (dict): The dictionary containing the dataset metadata.
-            dataset_ref (URIRef): The URI of the dataset in the RDF graph.
-
-        Returns:
-            None
+        CKAN -> DCAT properties carried forward to higher NTI-RISP versions
         """
         
         # Namespaces
@@ -289,17 +312,17 @@ class EsNTIRISPProfile(EuDCATAPProfile):
 
             # Format/Mimetype - Formato de la distribución
             self._distribution_format(resource_dict, distribution)
-    
-    def graph_from_catalog(self, catalog_dict, catalog_ref):
+
+
+    def _graph_from_dataset_nti_risp_only(self, dataset_dict, dataset_ref):
         """
-        Adds the metadata of a CKAN catalog to the RDF graph.
+        CKAN -> DCAT v2 specific properties (not applied to higher versions)
+        """
+        pass
 
-        Args:
-            catalog_dict (dict): A dictionary containing the metadata of the catalog.
-            catalog_ref (URIRef): The URI of the catalog in the RDF graph.
-
-        Returns:
-            None
+    def _graph_from_catalog_nti_risp(self, catalog_dict, catalog_ref):
+        """
+        NTI-RISP Catalog properties
         """
         g = self.g
 
