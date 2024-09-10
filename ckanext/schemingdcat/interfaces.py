@@ -149,7 +149,7 @@ class ISchemingDCATHarvester(Interface):
                               temp data. Such dict will be passed back in the
                               ``after_update`` call.
         """
-        pass
+        return None
 
     def after_update(self, harvest_object, package_dict, harvester_tmp_dict):
         """
