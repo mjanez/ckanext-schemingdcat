@@ -149,7 +149,7 @@ class EuGeoDCATAP2Profile(EuDCATAP2Profile):
         """
 
 
-        # INSPIRE roles. https://semiceu.github.io/GeoDCAT-AP/releases/3.0.0/#responsible-party-and-metadata-point-of-contact---dataset-responsible-party-and-metadata-point-of-contact
+        # INSPIRE roles. https://semiceu.github.io/GeoDCAT-AP/releases/3.0.0#responsible-party-and-metadata-point-of-contact---dataset-responsible-party-and-metadata-point-of-contact
         
         # Contact Point
         if any([

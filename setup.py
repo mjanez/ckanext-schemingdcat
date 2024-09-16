@@ -44,6 +44,7 @@ setup(
         
         # EU | European DCAT-AP/GeoDCAT-AP profiles
         eu_dcat_ap_2=ckanext.schemingdcat.profiles:EuDCATAP2Profile
+        eu_dcat_ap_3=ckanext.schemingdcat.profiles:EuDCATAP3Profile
         eu_geodcat_ap_2=ckanext.schemingdcat.profiles:EuGeoDCATAP2Profile
         eu_geodcat_ap_3=ckanext.schemingdcat.profiles:EuGeoDCATAP3Profile
         

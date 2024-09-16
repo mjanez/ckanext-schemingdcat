@@ -51,7 +51,7 @@
         },
         {
             "key": "access_rights",
-            "value": "Statement about access rights"
+            "value": "http://inspire.ec.europa.eu/metadata-codelist/LimitationsOnPublicAccess/noLimitation"
         },
         {
             "key": "alternate_identifier",
