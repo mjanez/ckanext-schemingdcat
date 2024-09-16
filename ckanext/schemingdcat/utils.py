@@ -31,8 +31,8 @@ log = logging.getLogger(__name__)
 
 _facets_dict = None
 _public_dirs = None
-_files_hash = []
-_dirs_hash = []
+_dirs_hash = set()
+_files_hash = set()
 
 _facets_dict_lock = Lock()
 _public_dirs_lock = Lock()
@@ -71,7 +71,20 @@ def get_facets_dict():
                 for item in schema['resource_fields']:
                     _facets_dict[item['field_name']] = item['label']
 
+    #log.debug('_facets_dict: %s', _facets_dict)
+
     return _facets_dict
+
+def normalize_paths(paths):
+    """Normalize a list of paths to remove redundancies like '..'.
+
+    Args:
+        paths (list): List of paths to normalize.
+
+    Returns:
+        list: List of normalized paths.
+    """
+    return [os.path.normpath(path) for path in paths]
 
 def get_public_dirs():
     """Get the list of public directories specified in the configuration file.
@@ -84,9 +97,39 @@ def get_public_dirs():
     if not _public_dirs:
         with _public_dirs_lock:
             if not _public_dirs:
-                _public_dirs = config.get('extra_public_paths', '').split(',')
+                # CKAN 2.10 workaround
+                _public_dirs = config.get('plugin_public_paths', '')
+
+                # Add extra_template_paths if it exists
+                extra_template_paths = config.get('extra_template_paths', '')
+                if extra_template_paths:
+                    _public_dirs.extend(extra_template_paths)
 
     return _public_dirs
+
+def public_path_exists(path, check_func, cache):
+    """Check if a path exists in the public directories specified in the configuration file.
+
+    Args:
+        path (str): The path to check.
+        check_func (function): The function to use for checking (os.path.isfile or os.path.isdir).
+        cache (set): The cache to use for storing path hashes.
+
+    Returns:
+        bool: True if the path exists in one of the public directories, False otherwise.
+    """
+    path_hash = hashlib.sha512(path.encode('utf-8')).hexdigest()
+
+    if path_hash in cache:
+        return True
+
+    public_dirs = normalize_paths(get_public_dirs())
+    if any(check_func(os.path.join(public_dir, path)) for public_dir in public_dirs):
+        cache.add(path_hash)
+        return True
+
+
+    return False
 
 def public_file_exists(path):
     """Check if a file exists in the public directories specified in the configuration file.
@@ -97,20 +140,7 @@ def public_file_exists(path):
     Returns:
         bool: True if the file exists in one of the public directories, False otherwise.
     """
-    #log.debug("Check if exists: {0}".format(path))
-    file_hash = hashlib.sha512(path.encode('utf-8')).hexdigest()
-
-    if file_hash in _files_hash:
-        return True
-
-    public_dirs = get_public_dirs()
-    for i in range(len(public_dirs)):
-        public_path = os.path.join(public_dirs[i], path)
-        if os.path.isfile(public_path):
-            _files_hash.append(file_hash)
-            return True
-
-    return False
+    return public_path_exists(path, os.path.isfile, _files_hash)
 
 def public_dir_exists(path):
     """Check if a directory exists in the public directories specified in the configuration file.
@@ -121,19 +151,7 @@ def public_dir_exists(path):
     Returns:
         bool: True if the directory exists in one of the public directories, False otherwise.
     """
-    dir_hash = hashlib.sha512(path.encode('utf-8')).hexdigest()
-
-    if dir_hash in _dirs_hash:
-        return True
-
-    public_dirs = get_public_dirs()
-    for i in range(len(public_dirs)):
-        public_path = os.path.join(public_dirs[i], path)
-        if os.path.isdir(public_path):
-            _dirs_hash.append(dir_hash)
-            return True
-
-    return False
+    return public_path_exists(path, os.path.isdir, _dirs_hash)
 
 def init_config():
     sdct_config.linkeddata_links = _load_yaml('linkeddata_links.yaml')
@@ -312,7 +330,7 @@ def parse_json(value, default_value=None):
             # we want a string here.
             return str(value)
         return value
-    
+
 def _get_schemas():
     """
     Fetches the dataset schemas using the scheming_dataset_schemas function.

@@ -111,8 +111,6 @@ class PackageController():
 
         # Flatten repeating subfields
         data_dict = self.flatten_repeating_subfields(data_dict)
-
-        log.debug('before_dataset_index data_dict: %s', data_dict)
         
         return data_dict
     
@@ -168,7 +166,6 @@ class PackageController():
                 if all(not item.strip() for item in value if isinstance(item, str)):
                     keys_to_remove.append(key)
 
-        log.debug('keys_to_remove: %s', keys_to_remove)
         for key in keys_to_remove:
             data_dict.pop(key, None)
 
