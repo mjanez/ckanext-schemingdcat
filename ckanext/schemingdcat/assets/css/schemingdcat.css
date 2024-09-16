@@ -3028,11 +3028,20 @@ input#lang-r:checked ~ div .example-r {
   color: #a8a6a3;
   text-decoration: none;
   display: block;
+  white-space: nowrap; /* prevents text from being wrapped on multiple lines */
+  overflow: hidden; /* Hide text overflow */
+  text-overflow: ellipsis; /* Add ellipses if text is too long */
 }
 
 .nav-item.dropdown .dropdown-menu a:hover {
-  background-color:transparent;
+  background-color: transparent;
   color: #003164;
+}
+
+/* Make sure the list items behave like blocks */
+.nav-item.dropdown .dropdown-menu li {
+  display: block;
+  width: 100%;
 }
 
 /* CKAN 2.10 */
