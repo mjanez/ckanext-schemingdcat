@@ -1,4 +1,4 @@
-{% set tags = h.get_facet_items_dict('tags', c.search_facets, limit=6
+{% set tags = h.get_facet_items_dict('tags', search_facets, limit=6
 
 ) %}
 {% set placeholder = _('E.g. environment') %}
@@ -8,7 +8,7 @@
 <div class="module module-search module-narrow module-shallow box">
   <form class="module-content search-form" method="get" action="{% url_for 'dataset.search' %}">
     {{ h.csrf_input() if 'csrf_input' in h }}
-    <h3 class="heading-layout2">{{ heading_title }}</h3>
+    <h3 class="sdct-about-heading">{{ heading_title|truncate(60) }}</h3>
     <div class="search-input form-group search-giant">
       <input aria-label="{% block header_site_search_label %}{{ _('Search datasets') }}{% endblock %}" id="field-main-search" type="text" class="form-control" name="q" value="" autocomplete="off" placeholder="{% block search_placeholder %}{{ placeholder }}{% endblock %}" />
       <button type="submit" aria-labelledby="search-label">
@@ -16,11 +16,11 @@
         <span class="sr-only" id="search-label">{{ _('Search') }}</span>
       </button>
     </div>
-  </form>
-  <div class="tags">
-    <h3>{{ _('Popular tags') }}</h3>
-    {% for tag in tags %}
-      <a class="tag" href="{% url_for 'dataset.search', tags=tag.name %}">{{ _(tag.display_name)|truncate(22) }}</a>
-    {% endfor %}
+    <div class="tags index_tags">
+      <h3>{{ _('Popular tags') }}</h3>
+      {% for tag in tags %}
+        <a class="tag" href="{% url_for 'dataset.search', tags=tag.name %}">{{ _(tag.display_name)|truncate(22) }}</a>
+      {% endfor %}
+    </div>
   </div>
-</div>
+  </form>
