@@ -27,7 +27,7 @@ The following tables shows the mapping between the RDF DCAT model and the CKAN d
 > [`ckanext-scheming`](https://github.com/ckan/ckanext-scheming#common-schema-keys) common schema types.
 
 ## GeoDCAT-AP (ES)
-This is a [**custom schema**](geodcat_ap/es_geodcat_ap_2.yaml) with specific extensions for spatial data and [GeoDCAT-AP](https://github.com/SEMICeu/GeoDCAT-AP)/[INSPIRE](https://github.com/INSPIRE-MIF/technical-guidelines) metadata [profiles](https://en.wikipedia.org/wiki/Geospatial_metadata). 
+This is a [**custom schema**](geodcat_ap/es_geodcat_ap_full.yaml) with specific extensions for spatial data and [GeoDCAT-AP](https://github.com/SEMICeu/GeoDCAT-AP)/[INSPIRE](https://github.com/INSPIRE-MIF/technical-guidelines) metadata [profiles](https://en.wikipedia.org/wiki/Geospatial_metadata). 
 
   - [Datasets](#datasets)
   - [Distributions/Resources](#distributions)
@@ -127,7 +127,7 @@ This is a [**custom schema**](geodcat_ap/es_geodcat_ap_2.yaml) with specific ext
 | dcat:Distribution | ?                     | Resource                     | Lineage process steps (O)                 | -                                                                                                                          | -                                                                            | -                                                          | -                                       | -                                                                        | lineage_process_steps | 0.*              |
 
 ## DCAT 
-[`schemas/dcat`](dcat/dcat_3.yaml) based
+[`schemas/dcat`](dcat/dcat_full.yaml) based
 on: [DCAT](https://www.w3.org/TR/vocab-dcat-3/).
 
   - [Datasets](#datasets-1)
@@ -141,7 +141,7 @@ TODO
 
 
 ## DCAT-AP (EU)
-[`schemas/dcat_ap`](dcat_ap/eu_dcat_ap_2.1.yaml) based on: [DCAT-AP](https://op.europa.eu/en/web/eu-vocabularies/dcat-ap) for the european context.
+[`schemas/dcat_ap`](dcat_ap/eu_dcat_ap_full.yaml) based on: [DCAT-AP](https://op.europa.eu/en/web/eu-vocabularies/dcat-ap) for the european context.
 
   - [Datasets](#datasets-2)
   - [Distributions/Resources](#distributions-2)
@@ -154,7 +154,7 @@ TODO
 
 
 ## GeoDCAT-AP (EU)
-[`schemas/geodcat_ap`](geodcat_ap/eu_geodcat_ap_2.yaml) based on: [GeoDCAT-AP](https://github.com/SEMICeu/GeoDCAT-AP) for the european context.
+[`schemas/geodcat_ap`](geodcat_ap/es_geodcat_ap_full.yaml) based on: [GeoDCAT-AP](https://github.com/SEMICeu/GeoDCAT-AP) for the european context.
 
   - [Datasets](#datasets-3)
   - [Distributions/Resources](#distributions-3)

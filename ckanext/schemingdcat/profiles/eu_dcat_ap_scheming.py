@@ -200,6 +200,14 @@ class EuDCATAPSchemingDCATProfile(SchemingDCATRDFProfile):
                 value_modifier=self._add_mailto,
             )
 
+            self._add_triple_from_dict(
+                publisher,
+                publisher_ref,
+                DCT.identifier,
+                "identifier",
+                _type=URIRefOrLiteral
+            )
+
         temporal = dataset_dict.get("temporal_coverage")
         if (
             isinstance(temporal, list)

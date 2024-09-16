@@ -1,16 +1,16 @@
 scheming_version: 2
 dataset_type: dataset
-about: "Datasets/Distributions: Adaptation for CKAN of the GeoDCAT-AP metadata schema extended (2.0.0) with ISO-19115 (INSPIRE) mandatory elements. Spanish context NTI-RISP: http://www.boe.es/eli/es/res/2013/02/19/(4)/con"
+about: "Datasets/Distributions: Adaptation for CKAN of the GeoDCAT-AP metadata schema extended (3.0.0) with ISO-19115 (INSPIRE) mandatory elements. Spanish context NTI-RISP: http://www.boe.es/eli/es/res/2013/02/19/(4)/con"
 about_url: https://github.com/mjanez/ckanext-schemingdcat
 form_languages: ["es", "en"]
 required_language: "es"
-schema_version: 2.3
+schema_version: 3.0
 schema_date: 2024-08-01
-schema_name: es_geodcat_ap_2
+schema_name: es_geodcat_ap_full
 schema_title: GeoDCAT-AP (ES)
 schema_description: "Geospatial extension to the DCAT application profile for data portals in Europe (GeoDCAT-AP). It is adapted to the Spanish context and includes compatibility with the Technical Interoperability Standard (NTI-RISP), the open data profile for Spain: https://datos.gob.es/en/documentacion/guia-de-aplicacion-de-la-norma-tecnica-de-interoperabilidad-de-reutilizacion-de"
-schema_profile_version: 2.0.0
-schema_profile_url: https://semiceu.github.io/GeoDCAT-AP/releases/2.0.0/
+schema_profile_version: 3.0.0
+schema_profile_url: https://semiceu.github.io/GeoDCAT-AP/releases/3.0.0
 schema_form_groups:
   # Basic Info parties form_page (#1)
   - form_group_id: title
@@ -58,18 +58,18 @@ schema_form_groups:
     label:
       en: Author information
       es: Información del autor
-    fa_icon: fa-pencil-square-o
+    fa_icon: fa-pencil-square
   # Quality form_page (#3)
   - form_group_id: standards
     label:
       en: Standards compliance
       es: Adecuación a estándares
-    fa_icon: fa-check-square-o
+    fa_icon: fa-check-square
   - form_group_id: temporal_info
     label:
       en: Timing
       es: Información temporal
-    fa_icon: fa-clock-o  
+    fa_icon: fa-clock  
   - form_group_id: lineage
     label:
       en: Provenance information
@@ -136,7 +136,7 @@ schema_form_groups:
     label:
       en: Resource type information 
       es: Información del tipo de recurso
-    fa_icon: fa-file-code-o
+    fa_icon: fa-file-code
   - form_group_id: resource_license_info
     label:
       en: License and restrictions
@@ -151,7 +151,7 @@ schema_form_groups:
     label:
       en: Standards compliance
       es: Adecuación a estándares
-    fa_icon: fa-check-square-o
+    fa_icon: fa-check-square
   - form_group_id: resource_relations
     label:
       en: Related resources
@@ -1062,10 +1062,6 @@ dataset_fields:
       es: Maltés
     value: http://publications.europa.eu/resource/authority/language/MLT
   - label:
-      en: Polish
-      es: Polaco
-    value: http://publications.europa.eu/resource/authority/language/POL
-  - label:
       en: Romanian
       es: Rumano
     value: http://publications.europa.eu/resource/authority/language/ROM
@@ -1262,7 +1258,7 @@ dataset_fields:
   form_placeholder: http://www.example.com
   form_group_id: contact
 
-# GeoDCAT-AP: https://semiceu.github.io/GeoDCAT-AP/releases/3.0.0/#responsible-party-and-metadata-point-of-contact---dataset-responsible-party-and-metadata-point-of-contact
+# GeoDCAT-AP: https://semiceu.github.io/GeoDCAT-AP/releases/3.0.0#responsible-party-and-metadata-point-of-contact---dataset-responsible-party-and-metadata-point-of-contact
 - field_name: contact_role
   label:
     en: Metadata contact point role
@@ -1380,7 +1376,7 @@ dataset_fields:
   form_group_id: contact
 
 
-# GeoDCAT-AP: https://semiceu.github.io/GeoDCAT-AP/releases/3.0.0/#responsible-party-and-metadata-point-of-contact---dataset-responsible-party-and-metadata-point-of-contact
+# GeoDCAT-AP: https://semiceu.github.io/GeoDCAT-AP/releases/3.0.0#responsible-party-and-metadata-point-of-contact---dataset-responsible-party-and-metadata-point-of-contact
 - field_name: publisher_name
   label:
     en: Name of the publisher
@@ -1735,7 +1731,7 @@ dataset_fields:
   required: False
   display_property: dct:conformsTo
   preset: multiple_metadata_profiles
-  form_placeholder: 'http://semiceu.github.io/GeoDCAT-AP/releases/2.0.0'
+  form_placeholder: 'http://semiceu.github.io/GeoDCAT-AP/releases/3.0.0'
   help_text:
     en: 'URI(s) of the Metadata profile used'
     es: 'URI(s) del perfil de Metadatos utilizado'
@@ -3528,10 +3524,6 @@ resource_fields:
       en: Maltese
       es: Maltés
     value: http://publications.europa.eu/resource/authority/language/MLT
-  - label:
-      en: Polish
-      es: Polaco
-    value: http://publications.europa.eu/resource/authority/language/POL
   - label:
       en: Romanian
       es: Rumano

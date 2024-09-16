@@ -1,12 +1,12 @@
 scheming_version: 2
-dataset_type: dataset
+dataset_type: document
 about: "Datasets/Distributions: Adaptation for CKAN of the Data Catalog Vocabulary (DCAT) - Version 3 (https://www.w3.org/TR/vocab-dcat-3/)." 
 about_url: https://github.com/mjanez/ckanext-schemingdcat
 form_languages: ["en", "es"]
 required_language: "en"
-schema_version: 2.3
+schema_version: 3.0
 schema_date: 2024-08-01
-schema_name: dcat_3
+schema_name: document
 schema_title: DCAT
 schema_description: Data Catalog Vocabulary (DCAT)
 schema_profile_version: 3.0.0
@@ -58,18 +58,18 @@ schema_form_groups:
     label:
       en: Author information
       es: Información del autor
-    fa_icon: fa-pencil-square-o
+    fa_icon: fa-pencil-square
   # Quality form_page (#3)
   - form_group_id: standards
     label:
       en: Standards compliance
       es: Adecuación a estándares
-    fa_icon: fa-check-square-o
+    fa_icon: fa-check-square
   - form_group_id: temporal_info
     label:
       en: Timing
       es: Información temporal
-    fa_icon: fa-clock-o  
+    fa_icon: fa-clock  
   - form_group_id: lineage
     label:
       en: Provenance information
@@ -127,7 +127,7 @@ schema_form_groups:
     label:
       en: Resource type information 
       es: Información del tipo de recurso
-    fa_icon: fa-file-code-o 
+    fa_icon: fa-file-code 
   - form_group_id: resource_license_info
     label:
       en: License and restrictions
@@ -142,7 +142,7 @@ schema_form_groups:
     label:
       en: Standards compliance
       es: Adecuación a estándares
-    fa_icon: fa-check-square-o
+    fa_icon: fa-check-square
 
 ### Codes in Schema
 # (M): Mandatory
@@ -599,10 +599,6 @@ dataset_fields:
       en: Maltese
       es: Maltés
     value: http://publications.europa.eu/resource/authority/language/MLT
-  - label:
-      en: Polish
-      es: Polaco
-    value: http://publications.europa.eu/resource/authority/language/POL
   - label:
       en: Romanian
       es: Rumano
@@ -1868,10 +1864,6 @@ resource_fields:
       en: Maltese
       es: Maltés
     value: http://publications.europa.eu/resource/authority/language/MLT
-  - label:
-      en: Polish
-      es: Polaco
-    value: http://publications.europa.eu/resource/authority/language/POL
   - label:
       en: Romanian
       es: Rumano
