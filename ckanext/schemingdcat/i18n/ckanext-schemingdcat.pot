@@ -1000,6 +1000,14 @@ msgid_plural "Featured datasets"
 msgstr[0] ""
 msgstr[1] ""
 
+#: ckanext/schemingdcat/templates/home/snippets/about_portal.html
+msgid "Explore and use Open Data"
+msgstr ""
+
+#: ckanext/schemingdcat/templates/home/snippets/about_themes.html
+msgid "Theme categories"
+msgstr ""
+
 # ckanext/schemingdcat/templates/schemingdcat/metadata_templates/header_metadata_templates.html
 msgid "Metadata template"
 msgstr ""
@@ -1234,4 +1242,110 @@ msgid "Non-spatial datasets"
 msgstr ""
 
 msgid "Spatial datasets"
+msgstr ""
+
+msgid "Spatial dataset"
+msgstr ""
+
+# INSPIRE Themes - Schema field_name: theme
+msgid "mf"
+msgstr ""
+
+msgid "ac"
+msgstr ""
+
+msgid "lc"
+msgstr ""
+
+msgid "ad"
+msgstr ""
+
+msgid "pd"
+msgstr ""
+
+msgid "sd"
+msgstr ""
+
+msgid "bu"
+msgstr ""
+
+msgid "el"
+msgstr ""
+
+msgid "ge"
+msgstr ""
+
+msgid "hy"
+msgstr ""
+
+msgid "hb"
+msgstr ""
+
+msgid "af"
+msgstr ""
+
+msgid "ef"
+msgstr ""
+
+msgid "pf"
+msgstr ""
+
+msgid "ps"
+msgstr ""
+
+msgid "gn"
+msgstr ""
+
+msgid "oi"
+msgstr ""
+
+msgid "cp"
+msgstr ""
+
+msgid "of"
+msgstr ""
+
+msgid "er"
+msgstr ""
+
+msgid "mr"
+msgstr ""
+
+msgid "tn"
+msgstr ""
+
+msgid "br"
+msgstr ""
+
+msgid "sr"
+msgstr ""
+
+msgid "hh"
+msgstr ""
+
+msgid "us"
+msgstr ""
+
+msgid "gg"
+msgstr ""
+
+msgid "rs"
+msgstr ""
+
+msgid "so"
+msgstr ""
+
+msgid "au"
+msgstr ""
+
+msgid "su"
+msgstr ""
+
+msgid "lu"
+msgstr ""
+
+msgid "nz"
+msgstr ""
+
+msgid "am"
 msgstr ""

@@ -989,6 +989,14 @@ msgid_plural "Featured datasets"
 msgstr[0] "Featured dataset"
 msgstr[1] "Featured datasets"
 
+#: ckanext/schemingdcat/templates/home/snippets/about_portal.html
+msgid "Explore and use Open Data"
+msgstr "Explore and use Open Data"
+
+#: ckanext/schemingdcat/templates/home/snippets/about_themes.html
+msgid "Theme categories"
+msgstr "Theme categories"
+
 # ckanext/schemingdcat/templates/schemingdcat/metadata_templates/header_metadata_templates.html
 msgid "Metadata template"
 msgstr "Metadata template"
@@ -1224,3 +1232,109 @@ msgstr "Non-spatial datasets"
 
 msgid "Spatial datasets"
 msgstr "Spatial datasets"
+
+msgid "Spatial dataset"
+msgstr "Spatial dataset"
+
+# INSPIRE Themes - Schema field_name: theme
+msgid "mf"
+msgstr "Meteorological geographical features"
+
+msgid "ac"
+msgstr "Atmospheric conditions"
+
+msgid "lc"
+msgstr "Land Cover"
+
+msgid "ad"
+msgstr "Addresses"
+
+msgid "pd"
+msgstr "Population distribution — demography"
+
+msgid "sd"
+msgstr "Species distribution"
+
+msgid "bu"
+msgstr "Buildings"
+
+msgid "el"
+msgstr "Elevations"
+
+msgid "ge"
+msgstr "Geology"
+
+msgid "hy"
+msgstr "Hydrography"
+
+msgid "hb"
+msgstr "Habitats and Biotopes"
+
+msgid "af"
+msgstr "Agricultural and aquaculture facilities"
+
+msgid "ef"
+msgstr "Environmental Monitoring Facilities"
+
+msgid "pf"
+msgstr "Production and Industrial Facilities"
+
+msgid "ps"
+msgstr "Protected sites"
+
+msgid "gn"
+msgstr "Geographical names"
+
+msgid "oi"
+msgstr "Orthoimagery"
+
+msgid "cp"
+msgstr "Cadastral parcels"
+
+msgid "of"
+msgstr "Oceanographic Geographical Features"
+
+msgid "er"
+msgstr "Energy resources"
+
+msgid "mr"
+msgstr "Mineral resources"
+
+msgid "tn"
+msgstr "Transport networks"
+
+msgid "br"
+msgstr "Bio-geographical regions"
+
+msgid "sr"
+msgstr "Sea regions"
+
+msgid "hh"
+msgstr "Human health and safety"
+
+msgid "us"
+msgstr "Utility and governmental services"
+
+msgid "gg"
+msgstr "Geographical Grid Systems"
+
+msgid "rs"
+msgstr "Coordinate reference systems"
+
+msgid "so"
+msgstr "Soil"
+
+msgid "au"
+msgstr "Administrative units"
+
+msgid "su"
+msgstr "Statistical units"
+
+msgid "lu"
+msgstr "Land use"
+
+msgid "nz"
+msgstr "Natural risk zones"
+
+msgid "am"
+msgstr "Area management/restriction/regulation zones and reporting units"

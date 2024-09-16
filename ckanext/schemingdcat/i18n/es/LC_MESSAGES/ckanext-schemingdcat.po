@@ -1001,6 +1001,14 @@ msgid_plural "Featured datasets"
 msgstr[0] "Conjunto de datos destacado"
 msgstr[1] "Conjuntos de datos destacados"
 
+#: ckanext/schemingdcat/templates/home/snippets/about_portal.html
+msgid "Explore and use Open Data"
+msgstr "Explora y utiliza datos abiertos"
+
+#: ckanext/schemingdcat/templates/home/snippets/about_themes.html
+msgid "Theme categories"
+msgstr "Categorías temáticas"
+
 # ckanext/schemingdcat/templates/schemingdcat/metadata_templates/header_metadata_templates.html
 msgid "Metadata template"
 msgstr "Plantilla de metadatos"
@@ -1236,3 +1244,109 @@ msgstr "Conjuntos de datos no espaciales"
 
 msgid "Spatial datasets"
 msgstr "Conjuntos de datos espaciales"
+
+msgid "Spatial dataset"
+msgstr "Conjunto de datos espaciales"
+
+# INSPIRE Themes - Schema field_name: theme
+msgid "mf"
+msgstr "Aspectos geográficos de carácter meteorológico"
+
+msgid "ac"
+msgstr "Condiciones atmosféricas"
+
+msgid "lc"
+msgstr "Cubierta terrestre"
+
+msgid "ad"
+msgstr "Direcciones"
+
+msgid "pd"
+msgstr "Distribución de la población - demografía"
+
+msgid "sd"
+msgstr "Distribución de las especies"
+
+msgid "bu"
+msgstr "Edificios"
+
+msgid "el"
+msgstr "Elevaciones"
+
+msgid "ge"
+msgstr "Geología"
+
+msgid "hy"
+msgstr "Hidrografía"
+
+msgid "hb"
+msgstr "Hábitats y biotopos"
+
+msgid "af"
+msgstr "Instalaciones agrícolas y de acuicultura"
+
+msgid "ef"
+msgstr "Instalaciones de observación del medio ambiente"
+
+msgid "pf"
+msgstr "Instalaciones de producción e industriales"
+
+msgid "ps"
+msgstr "Lugares protegidos"
+
+msgid "gn"
+msgstr "Nombres geográficos"
+
+msgid "oi"
+msgstr "Ortoimágenes"
+
+msgid "cp"
+msgstr "Parcelas catastrales"
+
+msgid "of"
+msgstr "Rasgos geográficos oceanográficos"
+
+msgid "er"
+msgstr "Recursos energéticos"
+
+msgid "mr"
+msgstr "Recursos minerales"
+
+msgid "tn"
+msgstr "Redes de transporte"
+
+msgid "br"
+msgstr "Regiones biogeográficas"
+
+msgid "sr"
+msgstr "Regiones marinas"
+
+msgid "hh"
+msgstr "Salud y seguridad humanas"
+
+msgid "us"
+msgstr "Servicios de utilidad pública y estatales"
+
+msgid "gg"
+msgstr "Sistema de cuadrículas geográficas"
+
+msgid "rs"
+msgstr "Sistemas de coordenadas de referencia"
+
+msgid "so"
+msgstr "Suelo"
+
+msgid "au"
+msgstr "Unidades administrativas"
+
+msgid "su"
+msgstr "Unidades estadísticas"
+
+msgid "lu"
+msgstr "Uso del suelo"
+
+msgid "nz"
+msgstr "Zonas de riesgos naturales"
+
+msgid "am"
+msgstr "Zonas sujetas a ordenación, a restricciones o reglamentaciones y unidades de notificación"
