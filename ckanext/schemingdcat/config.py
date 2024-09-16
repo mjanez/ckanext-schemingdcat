@@ -5,8 +5,6 @@ import re
 default_facet_operator = 'OR'
 icons_dir = 'images/icons'
 default_locale = 'en'
-organization_custom_facets = False
-group_custom_facets = False
 debug = False
 linkeddata_links = None
 geometadata_links = None
@@ -18,6 +16,7 @@ default_package_item_show_spatial = True
 show_metadata_templates_toolbar = True
 metadata_templates_search_identifier = 'schemingdcat_xls-template'
 mimetype_base_uri = 'http://www.iana.org/assignments/media-types'
+root_path = None
 slugify_pat = re.compile('[^a-zA-Z0-9]')
 # schemingdcat field_mapping extras prefix, e.g. custom_field = extras_custom_field
 field_mapping_extras_prefix = 'extras'
@@ -28,6 +27,17 @@ form_tabs_allowed = True
 form_tabs = {}
 form_tabs_grouping = None
 form_groups = {}
+# About stats
+open_data_statistics = {}
+theme_stats = {}
+# Custom facets
+dataset_custom_facets = {}
+organization_custom_facets = False
+group_custom_facets = False
+# Footer info
+social_github = 'https://github.com/mjanez/ckanext-schemingdcat'
+social_x = 'https://x.com/ckanproject'
+social_linkedin = 'https://www.linkedin.com/company/ckanproject'
 
 # Default DCAT metadata configuration
 OGC2CKAN_HARVESTER_MD_CONFIG = {
@@ -154,6 +164,12 @@ OGC2CKAN_ISO_MD_ELEMENTS = {
 
 # loose definition of BCP47-like strings
 BCP_47_LANGUAGE = u'^[a-z]{2,8}(-[0-9a-zA-Z]{1,8})*$'
+
+INSPIRE_DCAT_TYPES = [
+    'http://inspire.ec.europa.eu/metadata-codelist/ResourceType/dataset',
+    'http://inspire.ec.europa.eu/metadata-codelist/ResourceType/series',
+    'http://inspire.ec.europa.eu/metadata-codelist/ResourceType/service'
+]
 
 DATASET_DEFAULT_SCHEMA = [
     'id',

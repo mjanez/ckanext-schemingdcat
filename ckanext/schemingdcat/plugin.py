@@ -14,7 +14,7 @@ import ckanext.schemingdcat.config as sdct_config
 from ckanext.schemingdcat.faceted import Faceted
 from ckanext.schemingdcat.utils import init_config
 from ckanext.schemingdcat.package_controller import PackageController
-from ckanext.schemingdcat import helpers, validators, logic, blueprint
+from ckanext.schemingdcat import helpers, validators, logic, blueprint, subscriptions
 
 import logging
 
@@ -32,6 +32,7 @@ class SchemingDCATPlugin(
     plugins.implements(plugins.IValidators)
     plugins.implements(plugins.IBlueprint)
     plugins.implements(plugins.IClick)
+    plugins.implements(plugins.ISignal)
 
     # IConfigurer
     def update_config(self, config_):
@@ -99,8 +100,31 @@ class SchemingDCATPlugin(
             "schemingdcat.geometadata_base_uri", "/csw"
         )
 
+        # Social accounts
+        sdct_config.social_github = helpers.schemingdcat_check_valid_url(
+            config_.get(
+            "schemingdcat.social_github"
+            ) 
+        ) or sdct_config.social_github
+        
+        sdct_config.social_x = helpers.schemingdcat_check_valid_url(
+            config_.get(
+            "schemingdcat.social_x"
+            ) 
+        ) or sdct_config.social_x
+        
+        sdct_config.social_linkedin = helpers.schemingdcat_check_valid_url(
+            config_.get(
+            "schemingdcat.social_linkedin"
+            ) 
+        ) or sdct_config.social_linkedin
+
         # Load yamls config files
         init_config()
+
+        # Update the site statistics
+        log.debug('Init Open Data site statistics')
+        helpers.schemingdcat_update_open_data_statistics()
 
         # configure Faceted class (parent of this)
         self.facet_load_config(config_.get("schemingdcat.facet_list", "").split())
@@ -119,6 +143,10 @@ class SchemingDCATPlugin(
     # IClick
     def get_commands(self):
         return cli.get_commands()
+
+    # ISignal
+    def get_signal_subscriptions(self):
+        return subscriptions.get_subscriptions()
 
 class SchemingDCATDatasetsPlugin(SchemingDatasetsPlugin):
     plugins.implements(plugins.IConfigurer)
