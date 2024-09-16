@@ -6,7 +6,7 @@
   {% set resource_name = _('Dataset') %}
   {% set access_rights_label = h.scheming_choices_label(access_rights_choices, pkg_dict.access_rights) %}
   {% set access_rights_fa_icon = 'fa fa-lock' if 'nolimitations' not in pkg_dict.access_rights.lower() else 'fa fa-unlock' %}
-  {% set license_fa_icon = 'fa fa-copyright' if not pkg_dict.isopen else 'fa fa-creative-commons' %}
+  {% set license_fa_icon = 'fa fa-copyright' if not pkg_dict.isopen else 'fab fa-creative-commons' %}
   {% set default_access_rights_url = 'http://inspire.ec.europa.eu/metadata-codelist/LimitationsOnPublicAccess/noLimitations' %}
   
   {% set access_rights_url = pkg_dict.access_rights|default(default_access_rights_url) %}

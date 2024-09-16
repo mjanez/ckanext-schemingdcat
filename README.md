@@ -12,7 +12,7 @@
 </p>
 
 ## Overview
-This CKAN extension provides functions and templates specifically designed to extend `ckanext-scheming` and `ckanext-dcat` and includes RDF profiles and Harvest enhancements to adapt CKAN Schema to multiple metadata profiles as: [GeoDCAT-AP](./ckanext/schemingdcat/schemas/geodcat_ap/eu_geodcat_ap_2.yaml) or [DCAT-AP](./ckanext/schemingdcat/schemas/dcat_ap/eu_dcat_ap_2.1.yaml).
+This CKAN extension provides functions and templates specifically designed to extend `ckanext-scheming` and `ckanext-dcat` and includes RDF profiles and Harvest enhancements to adapt CKAN Schema to multiple metadata profiles as: [GeoDCAT-AP](./ckanext/schemingdcat/schemas/geodcat_ap/es_geodcat_ap_full.yaml) or [DCAT-AP](./ckanext/schemingdcat/schemas/dcat_ap/eu_dcat_ap_full.yaml).
 
 > [!WARNING] 
 > Requires [mjanez/ckanext-dcat](https://github.com/mjanez/ckanext-dcat) (newer releases) or [ckan/ckanext-dcat](https://github.com/ckan/ckanext-dcat) (stables), [ckan/ckanext-scheming](https://github.com/ckan/ckanext-scheming) and [ckan/ckanext-spatial](https://github.com/ckan/ckanext-spatial) to work properly. Also, if you want to use custom schemas with multilingualism, it is necessary to use ckanext-fluent. There is a version with corrections: [mjanez/ckanext-fluent](https://github.com/mjanez/ckanext-fluent)
@@ -35,7 +35,17 @@ Enhancements:
 - LOD/OGC Endpoints based on avalaible profiles (DCAT) and CSW capabilities with [`mjanez/ckan-pycsw`](https://github.com/mjanez/ckanext-pycsw).
 
 ## Requirements
-This plugin is compatible with CKAN 2.9 or later and needs the following plugins to work properly:
+### Compatibility
+Compatibility with core CKAN versions:
+
+| CKAN version | Compatible?                                                                 |
+|--------------|-----------------------------------------------------------------------------|
+| 2.8          | ❌ No (>= Python 3)                                                          |
+| 2.9          | ✅ Yes (<= [`v3.2.2`](https://github.com/mjanez/ckanext-schemingdcat/releases/tag/v3.2.2)) |
+| 2.10         | ✅ Yes (>= [`v4.0.0`](https://github.com/mjanez/ckanext-schemingdcat/releases/tag/v4.0.0)) |
+
+### Plugins
+This plugin needs the following plugins to work properly:
 
   ```sh
   # Install latest stable release of:
@@ -95,7 +105,7 @@ To use custom schemas in `ckanext-scheming`:
 
   ```ini
   # module-path:file to schemas being used
-  scheming.dataset_schemas = ckanext.schemingdcat:schemas/geodcat_ap/es_geodcat_ap_2.yaml
+  scheming.dataset_schemas = ckanext.schemingdcat:schemas/geodcat_ap/es_geodcat_ap_full.yaml
   scheming.group_schemas = ckanext.schemingdcat:schemas/geodcat_ap/es_geodcat_ap_group.json
   scheming.organization_schemas = ckanext.schemingdcat:schemas/geodcat_ap/es_geodcat_ap_org.json
 
@@ -220,7 +230,7 @@ This two last settings are not mandatory. You can omit one or both (or set them 
 	Ckan needs to "fix" multivalued fields to be able to recover values correctly for faceting, so this step must be done in order to use faceting with multivalued fields. 
 
 ### Icons
-Icons for each field option in the [`scheming file`](ckanext/schemingdcat/schemas/geodcat_ap/es_geodcat_ap_2.yaml) can be set in multiple ways:
+Icons for each field option in the [`scheming file`](ckanext/schemingdcat/schemas/geodcat_ap/es_geodcat_ap_full.yaml) can be set in multiple ways:
 
 - Set a root directory path for icons for each field using the `icons_dir` key in the scheming file.
 - If `icons_dir` is not defined, the directory path is guessed starting from the value provided for the `schemingdcat.icons_dir` parameter in the CKAN config file, adding the name of the field as an additional step to the path (`public/images/icons/{field_name`).
@@ -257,7 +267,7 @@ We've made several improvements to our schema to provide a better metadata and m
 For more details on these enhancements check [Form Groups documentation](#form-groups), please refer to the schema files in [`ckanext/schemingdcat/schemas`](ckanext/schemingdcat/schemas).
 
 ### GeoDCAT-AP (ES)
-[`schemas/geodcat_ap/es_geodcat_ap`](/ckanext/schemingdcat/schemas/geodcat_ap/es_geodcat_ap_2.yaml) with specific extensions for spatial data and [GeoDCAT-AP](https://github.com/SEMICeu/GeoDCAT-AP)/[INSPIRE](https://github.com/INSPIRE-MIF/technical-guidelines) metadata [profiles](https://en.wikipedia.org/wiki/Geospatial_metadata). 
+[`schemas/geodcat_ap/es_geodcat_ap_full`](/ckanext/schemingdcat/schemas/geodcat_ap/es_geodcat_ap_full.yaml) with specific extensions for spatial data and [GeoDCAT-AP](https://github.com/SEMICeu/GeoDCAT-AP)/[INSPIRE](https://github.com/INSPIRE-MIF/technical-guidelines) metadata [profiles](https://en.wikipedia.org/wiki/Geospatial_metadata). 
 
 > [!NOTE] 
 > RDF to CKAN dataset mapping: [GeoDCAT-AP (ES) to CKAN](ckanext/schemingdcat/schemas/README.md#geodcat-ap-es)
@@ -779,14 +789,14 @@ The `ckan schemingdcat` command offers utilites:
 This plugin also contains a custom [`ckanext-dcat` profiles](./ckanext/schemingdcat/profiles) to serialize a CKAN dataset to a:
 
 **European context**:
-* [DCAT-AP v2.1.1](https://semiceu.github.io/DCAT-AP/releases/2.1.1/) (default): `eu_dcat_ap_2`
-* [GeoDCAT-AP v2.0.0](https://semiceu.github.io/GeoDCAT-AP/releases/2.0.0/): `eu_geodcat_ap_2`
-* [GeoDCAT-AP v3.0.0](https://semiceu.github.io/GeoDCAT-AP/releases/3.0.0/): `eu_geodcat_ap_3`
+* [DCAT-AP v2.1.1](https://semiceu.github.io/DCAT-AP/releases/2.1.1) (default): `eu_dcat_ap_2`
+* [GeoDCAT-AP v2.0.0](https://semiceu.github.io/GeoDCAT-AP/releases/2.0.0): `eu_geodcat_ap_2`
+* [GeoDCAT-AP v3.0.0](https://semiceu.github.io/GeoDCAT-AP/releases/3.0.0): `eu_geodcat_ap_3`
 
 **Spanish context**:
 * Spain [NTI-RISP v1.0.0](https://datos.gob.es/es/documentacion/normativa-de-ambito-nacional): `es_dcat`
-* Spain [DCAT-AP v2.1.1](https://semiceu.github.io/DCAT-AP/releases/2.1.1/): `es_dcat_ap_2`
-* Spain [GeoDCAT-AP v2.0.0](https://semiceu.github.io/GeoDCAT-AP/releases/2.0.0/): `es_geodcat_ap_2`
+* Spain [DCAT-AP v2.1.1](https://semiceu.github.io/DCAT-AP/releases/2.1.1): `es_dcat_ap_2`
+* Spain [GeoDCAT-AP v2.0.0](https://semiceu.github.io/GeoDCAT-AP/releases/2.0.0): `es_geodcat_ap_2`
 
 To define which profiles to use you can:
 

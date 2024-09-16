@@ -23,7 +23,7 @@
   {% endif %}
 
   <section class="module module-narrow module-shallow publisher_info">
-    <h2 class="module-heading"><i class="fa fa-address-book-o"></i> {{ _('Publicador') }}</h2>
+    <h2 class="module-heading"><i class="fa fa-address-book"></i> {{ _('Publicador') }}</h2>
     <section class="module-content">
       {% set icons_dir = h.schemingdcat_get_icons_dir(field_spatial_uri) %}
       {% if icons_dir %}
@@ -50,7 +50,7 @@
           {% endif %}
 
           {% if pkg_dict.publisher_identifier %}
-            {{ publisher_item('fa fa-user-circle-o', pkg_dict.publisher_identifier, 26, h.schemingdcat_prettify_url_name(pkg_dict.publisher_identifier)) }}
+            {{ publisher_item('fa fa-user-circle', pkg_dict.publisher_identifier, 26, h.schemingdcat_prettify_url_name(pkg_dict.publisher_identifier)) }}
           {% endif %}
 
           {% if pkg_dict.publisher_type %}
