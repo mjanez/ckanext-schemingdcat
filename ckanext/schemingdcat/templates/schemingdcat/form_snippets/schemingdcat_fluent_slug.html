@@ -16,9 +16,9 @@
 {%- set domain = h.url_for(object_type + read_endpoint, id='', qualified=true) -%}
 {%- set domain = domain|replace("http://", "")|replace("https://", "") -%}
 {%- set attrs = {
-    'data-module': 'slug-preview-slug',
-    'data-module-prefix': domain,
-    'data-module-placeholder': module_placeholder } -%}
+    'data-bs-module': 'slug-preview-slug',
+    'data-bs-module-prefix': domain,
+    'data-bs-module-placeholder': module_placeholder } -%}
 
 {{ form.prepend(
     field.field_name,
