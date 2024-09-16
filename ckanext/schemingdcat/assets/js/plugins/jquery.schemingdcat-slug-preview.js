@@ -1,3 +1,27 @@
+/* Creates a new preview element for a slug field that displays an example of
+ * what the slug will look like. Also provides an edit button to toggle back
+ * to the original form element. If a slug preview already exists in the parent
+ * container, a new one will not be created.
+ *
+ * options - An object of plugin options (defaults to slugPreview.defaults).
+ *           prefix: An optional prefix to apply before the slug field.
+ *           placeholder: Optional placeholder when there is no slug.
+ *           i18n: Provide alternative translations for the plugin string.
+ *           template: Provide alternative markup for the plugin.
+ *
+ * Examples
+ *
+ *   var previews = jQuery('[name=slug]').slugPreview({
+ *     prefix: 'example.com/resource/',
+ *     placeholder: '<id>',
+ *     i18n: {edit: 'éditer'}
+ *   });
+ *   // previews === preview objects.
+ *   // previews.end() === [name=slug] objects.
+ *
+ * Returns the newly created collection of preview elements, or the existing
+ * ones if they already exist.
+ */
 (function ($, window) {
     var escape = $.url.escape;
 
@@ -59,13 +83,5 @@
     };
 
     $.fn.slugPreview = slugPreview;
-
-    // Add CSRF token to AJAX requests
-    $(document).ajaxSend(function(event, xhr, settings) {
-        var csrf_value = $('meta[name=_csrf_token]').attr('content');
-        if (!settings.crossDomain) {
-            xhr.setRequestHeader('X-CSRFToken', csrf_value);
-        }
-    });
 
 })(this.jQuery, this);
