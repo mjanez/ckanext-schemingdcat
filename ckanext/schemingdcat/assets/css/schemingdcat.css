@@ -1333,6 +1333,7 @@ img.item_image {
 
 .form-actions {
   overflow: hidden;
+  padding: 0 1.5rem 0 1.5rem;
 }
 
 .form-actions .action-info {
@@ -3081,7 +3082,7 @@ input#lang-r:checked ~ div .example-r {
 .masthead .main-navbar.collapse.navbar-collapse > ul.navbar-nav > li:hover > a,
 .masthead .main-navbar.collapse.navbar-collapse > ul.navbar-nav > li:focus > a,
 .masthead .main-navbar.collapse.navbar-collapse > ul.navbar-nav > li.active > a {
-  border-radius: 0.3rem;
+  border-radius: 0 0 0.3rem 0.3rem;
   color: #2f88a3;
   background-color: transparent; 
   border-bottom: 5px solid #2f88a3;
@@ -3166,4 +3167,87 @@ input#lang-r:checked ~ div .example-r {
   text-align: center;
   white-space: nowrap;
   vertical-align: baseline;
+}
+
+/* Activity */
+.activity .item .icon {
+  background-color: #999999;
+}
+.activity .item.failure .icon {
+  background-color: #B95252;
+}
+.activity .item.success .icon {
+  background-color: #69A67A;
+}
+.activity .item.added-tag .icon {
+  background-color: #6995a6;
+}
+.activity .item.changed-group .icon {
+  background-color: #767DCE;
+}
+.activity .item.changed-package .icon {
+  background-color: #8c76ce;
+}
+.activity .item.changed-package_extra .icon {
+  background-color: #769ace;
+}
+.activity .item.changed-resource .icon {
+  background-color: #aa76ce;
+}
+.activity .item.changed-user .icon {
+  background-color: #76b8ce;
+}
+.activity .item.changed-organization .icon {
+  background-color: #699fa6;
+}
+.activity .item.deleted-group .icon {
+  background-color: #B95252;
+}
+.activity .item.deleted-package .icon {
+  background-color: #b97452;
+}
+.activity .item.deleted-package_extra .icon {
+  background-color: #b95274;
+}
+.activity .item.deleted-resource .icon {
+  background-color: #b99752;
+}
+.activity .item.deleted-organization .icon {
+  background-color: #b95297;
+}
+.activity .item.new-group .icon {
+  background-color: #69A67A;
+}
+.activity .item.new-package .icon {
+  background-color: #69a68e;
+}
+.activity .item.new-package_extra .icon {
+  background-color: #6ca669;
+}
+.activity .item.new-resource .icon {
+  background-color: #81a669;
+}
+.activity .item.new-user .icon {
+  background-color: #69a6a3;
+}
+.activity .item.new-organization .icon {
+  background-color: #81a669;
+}
+.activity .item.removed-tag .icon {
+  background-color: #b95297;
+}
+.activity .item.deleted-related-item .icon {
+  background-color: #b9b952;
+}
+.activity .item.follow-dataset .icon {
+  background-color: #767DCE;
+}
+.activity .item.follow-user .icon {
+  background-color: #8c76ce;
+}
+.activity .item.new-related-item .icon {
+  background-color: #95a669;
+}
+.activity .item.follow-group .icon {
+  background-color: #8ba669;
 }

@@ -20,12 +20,27 @@ $(document).ready(function() {
     // Move forward
     $("#next-tab").on('click', function(e) {
         e.preventDefault();
-        var $activeTab = $('.dataset-form .nav > .active');
-        var $nextTab = $activeTab.next('li');
+        var $activeTab = $('.tabs_container .nav-item .nav-link.active').closest('.nav-item');
+        var $nextTab = $activeTab.next('.nav-item');
 
         if ($nextTab.length > 0) {
-            $nextTab.find('a').tab('show'); // Use .tab('show') to activate the next tab
-            window.scrollTo(0, $nextTab.offset().top);
+            $activeTab.find('.nav-link').removeClass('active');
+            $nextTab.find('.nav-link').addClass('active');
+            $nextTab.find('a.nav-link').tab('show'); // Use .tab('show') to activate the next tab
+
+            // Hide all form group lists and show the one for the next tab
+            $('.form-group-list').hide();
+            $nextTab.find('.form-group-list').show();
+
+            // Scroll to the corresponding content
+            var targetTabId = $nextTab.find('a.nav-link').attr('href');
+            $('html, body').animate({
+                scrollTop: $(targetTabId).offset().top
+            }, 700, function() {
+                // Update the active tab pane after scroll animation completes
+                $('.tab-pane').removeClass('active show');
+                $(targetTabId).addClass('active show');
+            });
         }
 
         // Check if the next tab is the last tab
@@ -47,7 +62,11 @@ $(document).ready(function() {
         var targetTabId = $(this).attr('href');
         $('html, body').animate({
             scrollTop: $(targetTabId).offset().top
-        }, 500);
+        }, 800, function() {
+            // Update the active tab pane after scroll animation completes
+            $('.tab-pane').removeClass('active show');
+            $(targetTabId).addClass('active show');
+        });
 
         // Show the next button if not on the last tab
         var $clickedTab = $(this).parent('li');
@@ -80,7 +99,11 @@ $(document).ready(function() {
         // Scroll to the form group
         $('html, body').animate({
             scrollTop: $(targetId).offset().top
-        }, 500);
+        }, 700, function() {
+            // Update the active tab pane after scroll animation completes
+            $('.tab-pane').removeClass('active show');
+            $(targetTabId).addClass('active show');
+        });
 
         // Show the next button if not on the last tab
         var $clickedTab = $('a[href="#' + targetTabId + '"]').parent('li');
