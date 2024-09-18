@@ -41,6 +41,6 @@ def stats_changed(sender: str, **kwargs: Any):
     """
     try:
         schemingdcat_update_open_data_statistics()
-        log.debug(f"schemingdcat subscription -> [{sender}]. Update Open Data site statistics")
+        log.debug(f"[{sender}] -> Update Open Data site statistics")
     except Exception as e:
         log.error(f"Failed to Update Open Data site statistics: {e}")

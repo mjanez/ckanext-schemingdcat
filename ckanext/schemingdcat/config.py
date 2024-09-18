@@ -28,8 +28,17 @@ form_tabs = {}
 form_tabs_grouping = None
 form_groups = {}
 # About stats
-open_data_statistics = {}
-theme_stats = {}
+open_data_statistics = {
+        'dataset_count': 0,
+        'distribution_count': 0,
+        'group_count': 0,
+        'organization_count': 0,
+        'tag_count': 0,
+        'spatial_dataset_count': 0,
+        'endpoints_count': 0,
+        'themes_stats': []
+    }
+themes_stats = {}
 # Custom facets
 dataset_custom_facets = {}
 organization_custom_facets = False

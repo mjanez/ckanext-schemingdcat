@@ -49,7 +49,7 @@ all_helpers = {}
 prettify_cache = {}
 DEFAULT_LANG = None
 
-@lru_cache(maxsize=None)
+@lru_cache(maxsize=16)
 def get_scheming_dataset_schemas():
     """
     Fetches the dataset schemas using the scheming_dataset_schemas function.
@@ -1390,7 +1390,7 @@ def schemingdcat_parse_localised_date(date_=None):
     else:
         return date_.strftime('%Y-%m-%d')
 
-@lru_cache(maxsize=None)
+@lru_cache(maxsize=16)
 @helper
 def schemingdcat_get_dataset_schema(schema_type="dataset"):
     """
@@ -1538,9 +1538,8 @@ def get_spatial_datasets(count=10):
     
     return result['results']
 
-@lru_cache(maxsize=None)
 @helper
-def get_theme_datasets(field='theme', count=10, ):
+def get_theme_datasets(field='theme', count=10):
     """
     This helper function retrieves a specified number of featured datasets from the CKAN instance. 
     It uses the 'package_search' action of the CKAN logic layer to perform a search with specific parameters.
@@ -1561,7 +1560,7 @@ def get_theme_datasets(field='theme', count=10, ):
     
     return result['results']
 
-@lru_cache(maxsize=None)
+@lru_cache(maxsize=16)
 @helper
 def get_unique_themes():
     """
@@ -1587,7 +1586,7 @@ def get_unique_themes():
     # Return the unique values as a list
     return list(unique_values)
 
-@lru_cache(maxsize=None)
+@lru_cache(maxsize=16)
 @helper
 def get_header_endpoint_url(endpoint, site_protocol_and_host):
     url_for = ckan_helpers.url_for

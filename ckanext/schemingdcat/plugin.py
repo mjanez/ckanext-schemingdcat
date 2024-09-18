@@ -1,3 +1,4 @@
+import sys
 import logging
 
 from ckan.common import json
@@ -133,8 +134,14 @@ class SchemingDCATPlugin(
         init_config()
 
         # Update the site statistics
-        log.debug('Init Open Data site statistics')
-        helpers.schemingdcat_update_open_data_statistics()
+        # Check whether we are running a database initialization or upgrade command.
+        # If so, we should skip the statistics update to avoid potential conflicts.
+        args = sys.argv
+        if 'db' in args and ('init' in args or 'upgrade' in args):
+            log.warning('Skipping Open Data site stats update due to db init or upgrade.')
+        else:
+            log.debug('Initializing Open Data site statistics')
+            helpers.schemingdcat_update_open_data_statistics()
 
         # configure Faceted class (parent of this)
         self.facet_load_config(config_.get("schemingdcat.facet_list", "").split())
