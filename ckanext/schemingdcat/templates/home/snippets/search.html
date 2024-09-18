@@ -16,7 +16,7 @@
         <span class="sr-only" id="search-label">{{ _('Search') }}</span>
       </button>
     </div>
-    <div class="tags index_tags">
+    <div class="tags index_tags tag-container">
       <h3>{{ _('Popular tags') }}</h3>
       {% for tag in tags %}
         <a class="tag" href="{% url_for 'dataset.search', tags=tag.name %}">{{ _(tag.display_name)|truncate(22) }}</a>

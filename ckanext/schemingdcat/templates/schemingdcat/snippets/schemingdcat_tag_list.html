@@ -11,12 +11,14 @@
 
   {% set _class = _class or 'tag-list' %}
   {% block tag_list %}
+  <div class="tag-container">
     <ul class="{{ _class }}">
       {% for tag in tags %}
-        <li>
-          <a class="{% block tag_list_item_class %}tag{% endblock %}" href="{% url_for 'dataset.search', tags=tag.name %}" title="{{ tag.display_name }}"> {{ _(tag.display_name)|truncate(22) }}</a>
-        </li>
+          <li>
+            <a class="{% block tag_list_item_class %}tag{% endblock %}" href="{% url_for 'dataset.search', tags=tag.name %}" title="{{ tag.display_name }}"> {{ _(tag.display_name)|truncate(22) }}</a>
+          </li>
       {% endfor %}
     </ul>
+  </div>
   {% endblock %}
   
