@@ -111,7 +111,10 @@ class PackageController():
 
         # Flatten repeating subfields
         data_dict = self.flatten_repeating_subfields(data_dict)
-        
+
+        # Convert dict fields to JSON strings to avoid errors in Solr 9
+        data_dict = self._before_index_dump_dicts(data_dict)
+
         return data_dict
     
     def convert_stringified_lists(self, data_dict):
@@ -217,6 +220,35 @@ class PackageController():
                 data_dict.update(flattened_values)
                 data_dict.pop(field['field_name'], None)
     
+        return data_dict
+
+    def _before_index_dump_dicts(self, data_dict):
+        """
+        Converts dict fields in the data dictionary to JSON strings.
+    
+        This function is necessary to ensure that all fields in the data dictionary
+        can be indexed by Solr. Solr cannot directly index fields of type dict, 
+        which can lead to errors such as "missing required field" even when the 
+        field is present in the data dictionary. By converting dict fields to JSON 
+        strings, we ensure that the data is in a format that Solr can handle.
+    
+        This issue (https://github.com/ckan/ckan/issues/8423) has been observed in CKAN versions 2.10.4 and Solr 9, where 
+        attempts to upload resources to the Datastore resulted in errors due to 
+        the presence of dict fields in the data dictionary. The solution involves 
+        transforming these fields into strings before indexing, as discussed in 
+        the following issues:
+        - CKAN - Custom plugin/theme error datastore using fluent presets https://github.com/ckan/ckan/issues/7750
+        - Solr error: missing required field https://github.com/ckan/ckan/issues/7730
+    
+        Args:
+            data_dict (dict): The data dictionary to be processed.
+    
+        Returns:
+            dict: The processed data dictionary with dict fields as JSON strings.
+        """
+        for key, value in data_dict.items():
+            if isinstance(value, dict):
+                data_dict[key] = json.dumps(value)
         return data_dict
 
     # CKAN < 2.10
