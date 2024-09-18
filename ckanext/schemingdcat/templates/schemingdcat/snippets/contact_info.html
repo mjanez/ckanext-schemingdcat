@@ -23,7 +23,7 @@
 
     <section class="module module-narrow module-shallow contact_info">
       <h2 class="module-heading"><i class="fa fa-info-circle"></i> {{ _('Punto de contacto') }}</h2>
-      <section class="module-content">
+      <section class="module-content module_package_info">
         {% set icons_dir = h.schemingdcat_get_icons_dir(field_spatial_uri) %}
         {% if icons_dir %}
           {% set icon = h.schemingdcat_get_icon(h.schemingdcat_get_choice_item(field_spatial_uri, spatial_uri), icons_dir, None) %}
