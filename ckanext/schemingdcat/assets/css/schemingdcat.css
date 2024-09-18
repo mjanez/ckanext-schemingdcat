@@ -1655,8 +1655,9 @@ img.item_image {
 .index_tags {
   display: flex;
   flex-wrap: wrap;
-  justify-content: space-between; 
+  justify-content: space-between;
   width: 100%; 
+}
 
 .index_tags .tag {
   margin: 3px;
@@ -1669,9 +1670,8 @@ img.item_image {
   vertical-align: middle;
   flex: 1 1 auto; 
   text-align: center; 
-  max-width: calc(33.33% - 6px); 
+  max-width: calc(33.33% - 6px);
 }
-
 .tag-list {
   display: flex;
   flex-wrap: wrap;
