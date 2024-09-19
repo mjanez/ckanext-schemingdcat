@@ -96,7 +96,7 @@ def _results_count(results_graph):
 @pytest.mark.usefixtures("with_plugins", "clean_db")
 @pytest.mark.ckan_config("ckan.plugins", "dcat harvest schemingdcat_datasets schemingdcat fluent")
 @pytest.mark.ckan_config(
-    "scheming.dataset_schemas", "ckanext.schemingdcat:schemas/geodcat_ap/eu_geodcat_ap_2.yaml"
+    "scheming.dataset_schemas", "ckanext.schemingdcat:schemas/geodcat_ap/es_geodcat_ap_full.yaml"
 )
 @pytest.mark.ckan_config(
     "scheming.presets",
@@ -120,7 +120,7 @@ def test_validate_dcat_ap_2_graph_shapes():
 @pytest.mark.usefixtures("with_plugins", "clean_db")
 @pytest.mark.ckan_config("ckan.plugins", "dcat harvest schemingdcat_datasets schemingdcat fluent")
 @pytest.mark.ckan_config(
-    "scheming.dataset_schemas", "ckanext.schemingdcat:schemas/geodcat_ap/eu_geodcat_ap_2.yaml"
+    "scheming.dataset_schemas", "ckanext.schemingdcat:schemas/geodcat_ap/es_geodcat_ap_full.yaml"
 )
 @pytest.mark.ckan_config(
     "scheming.presets",
@@ -174,7 +174,7 @@ def test_validate_dcat_ap_2_graph_shapes_recommended():
 @pytest.mark.usefixtures("with_plugins", "clean_db")
 @pytest.mark.ckan_config("ckan.plugins", "dcat harvest schemingdcat_datasets schemingdcat fluent")
 @pytest.mark.ckan_config(
-    "scheming.dataset_schemas", "ckanext.schemingdcat:schemas/geodcat_ap/eu_geodcat_ap_2.yaml"
+    "scheming.dataset_schemas", "ckanext.schemingdcat:schemas/geodcat_ap/es_geodcat_ap_full.yaml"
 )
 @pytest.mark.ckan_config(
     "scheming.presets",
