@@ -1,6 +1,54 @@
 # Changelog
 
-## [Unreleased](https://github.com/ckan/ckanext-dcat/compare/v3.2.1...HEAD)
+## [Unreleased](https://github.com/ckan/ckanext-dcat/compare/v4.0.0...HEAD)
+
+## [v4.0.0](https://github.com/mjanez/ckanext-schemingdcat/compare/v4.0.0...v3.2.2) - 2024-09-18
+* Fix search and index to ensure proper functionality by @mjanez in https://github.com/mjanez/ckanext-schemingdcat/commit/c294495
+* Improve profiles and add DCAT-AP/GeoDCAT-AP 3 by @mjanez in https://github.com/mjanez/ckanext-schemingdcat/commit/7fb647a
+* Bug - CKAN 2.10 - Fix request.args() #41 by @mjanez
+* Develop feature/form-tabs #87 by @mjanez
+* DCAT - Custom DCAT-AP/GeoDCAT-AP (ES/EU) profiles in schemingdcat #93 by @mjanez
+* Schema - Transform contact, publisher, author and maintainer to list of dicts (repeating subfields) #95 by @mjanez
+* Enhanced DCAT-AP profiles to ensure MQA DCAT-AP compliance #99 by @mjanez
+* Feature - Fix tests #22 by @mjanez
+* Improve schemas to align names with ckanext-dcat by @mjanez in https://github.com/mjanez/ckanext-schemingdcat/commit/0d6559b
+* Improve profiles and add DCAT-AP 3 by @mjanez in https://github.com/mjanez/ckanext-schemingdcat/commit/8cb65ff
+* Improve general UI, Home by @mjanez in https://github.com/mjanez/ckanext-schemingdcat/commit/4810b07
+* Update package/resource forms to Tabs by @mjanez in https://github.com/mjanez/ckanext-schemingdcat/commit/ef76bb3
+* Improve i18n and icons by @mjanez in https://github.com/mjanez/ckanext-schemingdcat/commit/4dca2e4
+* Fix and improve templates for CKAN 2.10 by @mjanez in https://github.com/mjanez/ckanext-schemingdcat/commit/c7aabef
+* Fix fa icons for license/social templates by @mjanez in https://github.com/mjanez/ckanext-schemingdcat/commit/f358203
+* Fix before_update by @mjanez in https://github.com/mjanez/ckanext-schemingdcat/commit/7c303d9
+* Improve package_item.html template by @mjanez in https://github.com/mjanez/ckanext-schemingdcat/commit/fdf55e8
+* Improve base admin config template by @mjanez in https://github.com/mjanez/ckanext-schemingdcat/commit/a344aec
+* Update configuration and add stats init to plugin by @mjanez in https://github.com/mjanez/ckanext-schemingdcat/commit/006078e
+* Refactor code to remove debug logging statements by @mjanez in https://github.com/mjanez/ckanext-schemingdcat/commit/3da105a
+* Refactor download metadata template and improve metadata profiles by @mjanez in https://github.com/mjanez/ckanext-schemingdcat/commit/6954453
+* Improve metadata_info and profile badges by @mjanez in https://github.com/mjanez/ckanext-schemingdcat/commit/0ffa59e
+* Refactor new_source_form.html to use Bootstrap 5 data attributes by @mjanez in https://github.com/mjanez/ckanext-schemingdcat/commit/c4d131b
+* Add docs and templates for harvesters by @mjanez in https://github.com/mjanez/ckanext-schemingdcat/commit/e136909
+* Add xls_template_config by @mjanez in https://github.com/mjanez/ckanext-schemingdcat/commit/69e04f3
+* Improve style to improve header language selector dropdown menu by @mjanez in https://github.com/mjanez/ckanext-schemingdcat/commit/66dc66d
+* New DCAT-AP/GeoDCAT-AP Schemas and DCAT Profiles & Form tabs for datasets/resources #97 by @mjanez
+* Fix tabs slug-preview and dataset-map by @mjanez in https://github.com/mjanez/ckanext-schemingdcat/commit/1af58e1
+* Fix Solr indexing by converting dict fields to JSON strings by @mjanez in https://github.com/mjanez/ckanext-schemingdcat/commit/fb8abf6
+* Update open data stats: Skip statistics update during DB initialization by @mjanez in https://github.com/mjanez/ckanext-schemingdcat/commit/e3bb1ee
+* Improve form tabs by @mjanez in https://github.com/mjanez/ckanext-schemingdcat/commit/0cbb625
+* Fix package snippets by @mjanez in https://github.com/mjanez/ckanext-schemingdcat/commit/448113e
+* Fix organization create/edit button bugs by @mjanez in https://github.com/mjanez/ckanext-schemingdcat/commit/4b10208
+* Fix spatial_query snippet bugs by @mjanez in https://github.com/mjanez/ckanext-schemingdcat/commit/3026467
+* Fix xloader logs styles for 2.10 by @mjanez in https://github.com/mjanez/ckanext-schemingdcat/commit/2c02458
+* Fix tags containers by @mjanez in https://github.com/mjanez/ckanext-schemingdcat/commit/50945d0
+* Improve datastore/data api and downloads templates by @mjanez
+
+## [v3.2.2](https://github.com/mjanez/ckanext-schemingdcat/compare/v3.2.2...v3.2.1) - 2024-08-28
+* Feature/ckan harvester improve by @mjanez in https://github.com/mjanez/ckanext-schemingdcat/pull/86
+* Update v3.2.2 by @mjanez in https://github.com/mjanez/ckanext-schemingdcat/pull/85
+* Fix bug when schemingdcat.endpoints_yaml is None by @mjanez in https://github.com/mjanez/ckanext-schemingdcat/pull/89
+* Feature/ckan harvester improve by @mjanez in https://github.com/mjanez/ckanext-schemingdcat/pull/90
+* Fix harvester by @mjanez in https://github.com/mjanez/ckanext-schemingdcat/pull/91
+* Add allow_private_datasets to ckan harvester by @mjanez in https://github.com/mjanez/ckanext-schemingdcat/pull/98
+* Fixed bugs with localised_filesize snippet 43cc8b025e6e7574dad952b1a6b680a4a66dbcff
 
 ## [v3.2.0](https://github.com/mjanez/ckanext-schemingdcat/compare/v3.2.1...v3.2.0) - 2024-05-17
 * Enhance harvester, field mapping validation lib and harvest templates #81

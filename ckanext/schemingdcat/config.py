@@ -38,7 +38,6 @@ open_data_statistics = {
         'endpoints_count': 0,
         'themes_stats': []
     }
-themes_stats = {}
 # Custom facets
 dataset_custom_facets = {}
 organization_custom_facets = False
