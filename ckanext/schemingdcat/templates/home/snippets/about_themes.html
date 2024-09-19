@@ -29,14 +29,15 @@
 {% endmacro %}
 
 {% set themes_stats = h.schemingdcat_get_open_data_statistics().themes_stats %}
-
-<div class="sct-about-themes">
-    <div class="sct-about-h4-container">
-      <h3 class="sct-about-h4">{{ _('Theme categories') }}</h3>
+{% if themes_stats %}
+    <div class="sct-about-themes">
+        <div class="sct-about-h4-container">
+        <h3 class="sct-about-h4">{{ _('Theme categories') }}</h3>
+        </div>
+        <div class="sct-about-themes-card-container">
+            {% for theme in themes_stats %}
+                {{ render_svg_card(theme.icon, theme.label, theme.count, h.url_for('dataset.search'), theme.field_name, theme.value) }}
+            {% endfor %}
+        </div>
     </div>
-    <div class="sct-about-themes-card-container">
-        {% for theme in themes_stats %}
-            {{ render_svg_card(theme.icon, theme.label, theme.count, h.url_for('dataset.search'), theme.field_name, theme.value) }}
-        {% endfor %}
-    </div>
-</div>
+{% endif %}
