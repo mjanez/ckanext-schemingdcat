@@ -1338,7 +1338,6 @@ img.item_image {
 
 .form-actions {
   overflow: hidden;
-  padding: 0 1.5rem 0 1.5rem;
 }
 
 .form-actions .action-info {
@@ -3406,12 +3405,20 @@ input#lang-r:checked ~ div .example-r {
   color: #238636;
 }
 
+.quote-tip.note strong {
+  color: #238636;
+}
+
 .note {
   border-left: 4px solid #0366d6;
   background-color: #e7f3ff;
 }
 
 .note .quote-alert-title {
+  color: #0366d6;
+}
+
+.quote-alert.note strong {
   color: #0366d6;
 }
 
@@ -3424,6 +3431,10 @@ input#lang-r:checked ~ div .example-r {
   color: #c9a926;
 }
 
+.quote-alert.warning strong {
+  color: #c9a926;
+}
+
 .caution {
   border-left: 4px solid #f85149;
   background-color: #f9e1e0;
@@ -3433,11 +3444,19 @@ input#lang-r:checked ~ div .example-r {
   color: #f85149;
 }
 
+.quote-alert.caution strong {
+  color: #f85149; 
+}
+
 .important {
   border-left: 4px solid #8957e5;
   background-color: #ffeef0;
 }
 
 .important .quote-alert-title {
+  color: #8957e5;
+}
+
+.quote-alert.important strong {
   color: #8957e5;
 }

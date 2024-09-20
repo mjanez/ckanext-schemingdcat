@@ -86,6 +86,21 @@
         {{ _('This can be used for custom CSS on a CKAN site.') }}
         </p>
       {% endblock %}
+
+      {% set docs_url = "http://docs.ckan.org/en/{0}/sysadmin-guide.html".format(g.ckan_doc_version) %}
+
+      {% block admin_tip %}
+      {% set quote_content %}
+        {% trans %}
+          For guidance on configuration options, see the CKAN 
+        {% endtrans %}
+        <a href="{{ docs_url }}" target="_blank" rel="noreferrer">
+          {% trans %}sysadmin guide{% endtrans %}
+        </a>.
+      {% endset %}
+      {% snippet "schemingdcat/snippets/quote_alerts.html", alert_type='tip', content=quote_content %}
+    {% endblock %}
+
     </div>
   </div>
 {% endblock %}

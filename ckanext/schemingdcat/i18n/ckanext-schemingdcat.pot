@@ -351,10 +351,34 @@ msgstr ""
 msgid "This is for choosing a predefined layout for the modules that appear on your homepage."
 msgstr ""
 
-#: ckanext/schemingdcat/templates/admin/config.html
+#: ckanext/schemingdcat/templates/admin/index.html
 msgid ""
-"  <p>As a sysadmin user you have full control over this CKAN instance. Proceed with care!</p>\n"
-"  <p>For guidance on using sysadmin features, see the CKAN <a href=\"{{ docs_url }}\" target=\"_blank\" rel=\"noreferrer\">sysadmin guide</a></p>"
+"<p>As a sysadmin user you have full control over this CKAN instance. Proceed with care!</p>\n"
+"<p>For guidance on using sysadmin features, see the CKAN <a href=\"{{ docs_url }}\" target=\"_blank\" rel=\"noreferrer\">sysadmin guide</a></p>"
+msgstr ""
+
+#: ckanext/schemingdcat/templates/admin/index.html
+msgid "<p>A sysadmin user can access and edit any organizations, view and change user details, and permanently delete datasets. You should carefully consider who has access to a sysadmin account on your CKAN system.</p>"
+msgstr ""
+
+#: ckanext/schemingdcat/templates/admin/index.html
+msgid "For guidance on using sysadmin features, see the CKAN"
+msgstr ""
+
+#: ckanext/schemingdcat/templates/admin/index.html
+msgid "sysadmin guide"
+msgstr ""
+
+#: ckanext/schemingdcat/templates/admin/index.html
+msgid "As a sysadmin user you have full control over this CKAN instance. <strong>Proceed with care!</strong>"
+msgstr ""
+
+#: ckanext/schemingdcat/templates/admin/index.html
+msgid "Current Sysadmins"
+msgstr ""
+
+#: ckanext/schemingdcat/templates/admin/index.html
+msgid "Promote user to Sysadmin"
 msgstr ""
 
 # ckanext-harvest
