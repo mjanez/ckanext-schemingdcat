@@ -14,12 +14,12 @@
 
   {{ h.csrf_input() if 'csrf_input' in h }}
 
-  {{ form.input('title', id='field-title', label=_('Title'), placeholder=_('eg. A descriptive title'), value=data.title, error=errors.title, classes=['control-full'], attrs={'data-bs-module': 'slug-preview-target'}) }}
+  {{ form.input('title', id='field-title', label=_('Title'), placeholder=_('eg. A descriptive title'), value=data.title, error=errors.title, classes=['control-full'], attrs={'data-module': 'slug-preview-target'}) }}
 
   {% set prefix = 'harvest' %}
   {% set domain = h.url_for('{0}.read'.format(c.dataset_type), id='', qualified=true) %}
   {% set domain = domain|replace("http://", "")|replace("https://", "") %}
-  {% set attrs = {'data-bs-module': 'slug-preview-slug', 'data-bs-module-prefix': domain, 'data-bs-module-placeholder': '<harvest-source>'} %}
+  {% set attrs = {'data-module': 'slug-preview-slug', 'data-module-prefix': domain, 'data-module-placeholder': '<harvest-source>'} %}
 
   {{ form.prepend('name', id='field-name', label=_('Name'), prepend=prefix, placeholder=_('eg. my-dataset'), value=data.name, error=errors.name, attrs=attrs) }}
 
