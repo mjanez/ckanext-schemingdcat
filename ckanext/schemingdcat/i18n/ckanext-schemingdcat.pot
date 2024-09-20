@@ -351,6 +351,12 @@ msgstr ""
 msgid "This is for choosing a predefined layout for the modules that appear on your homepage."
 msgstr ""
 
+#: ckanext/schemingdcat/templates/admin/config.html
+msgid ""
+"  <p>As a sysadmin user you have full control over this CKAN instance. Proceed with care!</p>\n"
+"  <p>For guidance on using sysadmin features, see the CKAN <a href=\"{{ docs_url }}\" target=\"_blank\" rel=\"noreferrer\">sysadmin guide</a></p>"
+msgstr ""
+
 # ckanext-harvest
 #: ckanext/harvest/helpers.py:70
 msgid "title"
@@ -926,6 +932,14 @@ msgstr ""
 msgid "Query example (results containing 'medio-ambiente')"
 msgstr ""
 
+#: ckanext/schemingdcat/templates/ajax_snippets/scd_api_info.html
+msgid "A simple request to the data API using Python."
+msgstr ""
+
+#: ckanext/schemingdcat/templates/ajax_snippets/scd_api_info.html
+msgid "Further information in the <a href=\"http://docs.ckan.org/en/latest/maintaining/datastore.html\" target=\"_blank\">main CKAN Data API and DataStore documentation</a>."
+msgstr ""
+
 #: ckanext/schemingdcat/templates/schemingdcat/endpoints/index.html
 msgid "What are Endpoints?"
 msgstr ""
@@ -1348,4 +1362,21 @@ msgid "nz"
 msgstr ""
 
 msgid "am"
+msgstr ""
+
+# Quote alerts
+# ckanext/schemingdcat/templates/schemingdcat/snippets/quote_alerts.html
+msgid "Tip"
+msgstr ""
+
+msgid "Note"
+msgstr ""
+
+msgid "Warning"
+msgstr ""
+
+msgid "Caution"
+msgstr ""
+
+msgid "Important"
 msgstr ""

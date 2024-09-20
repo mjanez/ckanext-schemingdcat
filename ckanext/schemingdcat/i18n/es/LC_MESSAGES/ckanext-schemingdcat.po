@@ -363,6 +363,14 @@ msgstr "Esto se puede utilizar para añadir CSS personalizado en un sitio CKAN"
 msgid "This is for choosing a predefined layout for the modules that appear on your homepage."
 msgstr "Permite elegir un diseño predefinido para los módulos que aparecen en la página de inicio."
 
+#: ckanext/schemingdcat/templates/admin/config.html
+msgid ""
+"  <p>As a sysadmin user you have full control over this CKAN instance. Proceed with care!</p>\n"
+"  <p>For guidance on using sysadmin features, see the CKAN <a href=\"{{ docs_url }}\" target=\"_blank\" rel=\"noreferrer\">sysadmin guide</a></p>"
+msgstr ""
+"  <p>Como administrador del sistema tiene control total sobre esta instancia de CKAN. Proceda con cuidado</p>\n"
+"  <p>Para obtener orientación sobre el uso de las funciones de administrador del sistema, consulte la <a href=\"{{ docs_url }}\" target=\"_blank\" rel=\"noreferrer\">guía del administrador del sistema</a></p>"
+
 #: ckanext/schemingdcat/templates/header.html:5
 msgid "Harvest metadata"
 msgstr "Cosechar metadatos"
@@ -931,6 +939,14 @@ msgstr "(Librería <a href=\"{{ url }}\">ckanapi</a>)"
 msgid "Query example (results containing 'medio-ambiente')"
 msgstr "Consulta ejemplo (resultados que contienen 'medio-ambiente')"
 
+#: ckanext/schemingdcat/templates/ajax_snippets/scd_api_info.html
+msgid "A simple request to the data API using Python."
+msgstr "Una simple petición a la API de datos utilizando Python."
+
+#: ckanext/schemingdcat/templates/ajax_snippets/scd_api_info.html
+msgid "Further information in the <a href=\"http://docs.ckan.org/en/latest/maintaining/datastore.html\" target=\"_blank\">main CKAN Data API and DataStore documentation</a>."
+msgstr "Más información en la <a href=\"http://docs.ckan.org/en/latest/maintaining/datastore.html\" target=\"_blank\">documentación principal de la API de datos de CKAN y DataStore</a>."
+
 #: ckanext/schemingdcat/templates/schemingdcat/endpoints/index.html
 msgid "What are Endpoints?"
 msgstr "¿Qué son los Endpoints?"
@@ -1350,3 +1366,20 @@ msgstr "Zonas de riesgos naturales"
 
 msgid "am"
 msgstr "Zonas sujetas a ordenación, a restricciones o reglamentaciones y unidades de notificación"
+
+# Quote alerts
+# ckanext/schemingdcat/templates/schemingdcat/snippets/quote_alerts.html
+msgid "Tip"
+msgstr "Consejo"
+
+msgid "Note"
+msgstr "Nota"
+
+msgid "Warning"
+msgstr "Advertencia"
+
+msgid "Caution"
+msgstr "Precaución"
+
+msgid "Important"
+msgstr "Importante"

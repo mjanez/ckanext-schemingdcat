@@ -2111,6 +2111,14 @@ a.endpoints_index:hover {
 }
 
 /* Code CSS */
+pre.ft-syntax-highlight code {
+  padding: 0; /* Reset padding */
+  font-size: inherit; /* Reset font size */
+  color: inherit; /* Reset color */
+  background-color: inherit; /* Reset background color */
+  border-radius: 0; /* Reset border radius */
+}
+
 code {
   padding: 2px 4px;
   font-size: 11px;
@@ -2140,7 +2148,7 @@ code {
   font-size: 0.875rem;
   color: #333333;
   text-align: left;
-  background-color: #fff;
+  background-color: #e9f0f3;
   border: 0;
   border-radius: 0;
   overflow-anchor: none;
@@ -3363,4 +3371,73 @@ input#lang-r:checked ~ div .example-r {
 /* contact info */
 .module_package_info {
   padding-top: 10px !important;
+}
+
+/* Common Quote Alert Styles */
+.quote-alert {
+  padding: 10px;
+  margin: 10px 0;
+  border-radius: 4px;
+}
+
+.quote-alert-title {
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  margin-bottom: 5px;
+}
+
+.quote-alert-title i {
+  margin-right: 5px;
+  font-size: 1.2em; /* Aumenta el tamaño del icono */
+}
+
+.quote-alert-content {
+  text-align: justify;
+}
+
+/* Specific Quote Types */
+.tip {
+  border-left: 4px solid #238636;
+  background-color: #e7f3ff;
+}
+
+.tip .quote-alert-title {
+  color: #238636;
+}
+
+.note {
+  border-left: 4px solid #0366d6;
+  background-color: #e7f3ff;
+}
+
+.note .quote-alert-title {
+  color: #0366d6;
+}
+
+.warning {
+  border-left: 4px solid #c9a926;
+  background-color: #ffeef0;
+}
+
+.warning .quote-alert-title {
+  color: #c9a926;
+}
+
+.caution {
+  border-left: 4px solid #f85149;
+  background-color: #f9e1e0;
+}
+
+.caution .quote-alert-title {
+  color: #f85149;
+}
+
+.important {
+  border-left: 4px solid #8957e5;
+  background-color: #ffeef0;
+}
+
+.important .quote-alert-title {
+  color: #8957e5;
 }
