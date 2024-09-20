@@ -112,23 +112,17 @@ class SchemingDCATPlugin(
         )
 
         # Social accounts
-        sdct_config.social_github = helpers.schemingdcat_check_valid_url(
-            config_.get(
-            "schemingdcat.social_github"
-            ) 
-        ) or sdct_config.social_github
+        sdct_config.social_github = config_.get(
+                "schemingdcat.social_github", sdct_config.social_github
+            ) or sdct_config.social_github
         
-        sdct_config.social_x = helpers.schemingdcat_check_valid_url(
-            config_.get(
-            "schemingdcat.social_x"
-            ) 
-        ) or sdct_config.social_x
-        
-        sdct_config.social_linkedin = helpers.schemingdcat_check_valid_url(
-            config_.get(
-            "schemingdcat.social_linkedin"
-            ) 
-        ) or sdct_config.social_linkedin
+        sdct_config.social_linkedin = config_.get(
+                "schemingdcat.social_linkedin", sdct_config.social_linkedin
+            ) or sdct_config.social_linkedin
+
+        sdct_config.social_x = config_.get(
+                "schemingdcat.social_x", sdct_config.social_x
+            ) or sdct_config.social_x
 
         # Load yamls config files
         init_config()
