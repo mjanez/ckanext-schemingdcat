@@ -964,6 +964,10 @@ msgstr ""
 msgid "Further information in the <a href=\"http://docs.ckan.org/en/latest/maintaining/datastore.html\" target=\"_blank\">main CKAN Data API and DataStore documentation</a>."
 msgstr ""
 
+#: ckanext/schemingdcat/templates/ajax_snippets
+msgid "Example"
+msgstr ""
+
 #: ckanext/schemingdcat/templates/schemingdcat/endpoints/index.html
 msgid "What are Endpoints?"
 msgstr ""

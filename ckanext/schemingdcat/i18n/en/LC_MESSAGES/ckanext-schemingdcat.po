@@ -966,6 +966,10 @@ msgstr "A simple request to the data API using Python."
 msgid "Further information in the <a href=\"http://docs.ckan.org/en/latest/maintaining/datastore.html\" target=\"_blank\">main CKAN Data API and DataStore documentation</a>."
 msgstr "Further information in the <a href=\"http://docs.ckan.org/en/latest/maintaining/datastore.html\" target=\"_blank\">main CKAN Data API and DataStore documentation</a>."
 
+#: ckanext/schemingdcat/templates/ajax_snippets
+msgid "Example"
+msgstr "Example"
+
 #: ckanext/schemingdcat/templates/schemingdcat/endpoints/index.html
 msgid "What are Endpoints?"
 msgstr "What are Endpoints?"
