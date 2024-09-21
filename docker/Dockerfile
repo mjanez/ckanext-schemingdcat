@@ -1,6 +1,6 @@
 FROM ghcr.io/mjanez/ckan-spatial-test:2.10.5
 
-ENV CKAN_VERSION_MAYOR=ckan-2.9
+ENV CKAN_VERSION_MAYOR=ckan-2.10
 ENV APP_DIR=/srv/app
 ENV CKAN_DIR=${APP_DIR}/src/ckan
 ENV TZ=UTC
