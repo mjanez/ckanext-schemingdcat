@@ -20,7 +20,7 @@ This CKAN extension provides functions and templates specifically designed to ex
 > [!TIP]
 > It is **recommended to use with:** [`ckan-docker`](https://github.com/mjanez/ckan-docker) deployment or only use [`ckan-pycsw`](https://github.com/mjanez/ckan-pycsw) to deploy a CSW Catalog.
 
-![image](https://github.com/mjanez/ckanext-schemingdcat/assets/96422458/6b3d6fd4-7119-4307-8be7-5e17d41292fe)
+![image](https://github.com/mjanez/ckanext-schemingdcat/raw/main/doc/img/schemingdcat_home.png)
 
 Enhancements:
 - Custom schemas for `ckanext-scheming` in the plugin like [CKAN GeoDCAT-AP custom schemas](ckanext/schemingdcat/schemas#readme)
