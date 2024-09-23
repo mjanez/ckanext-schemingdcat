@@ -1,51 +1,87 @@
 catalog_endpoints:
-  - name: euro_dcat_ap_2_rdf
-    display_name: RDF DCAT-AP
+  - name: eu_dcat_ap_2_rdf
+    display_name: RDF DCAT-AP 2
     type: lod
     format: rdf
-    image_display_url: /images/icons/endpoints/euro_dcat_ap_2.svg
+    image_display_url: /images/icons/endpoints/eu_dcat_ap.svg
     endpoint_icon: /images/endpoints/catalog-rdf-eu.png
     fa_icon: fa-share-alt
-    description: RDF DCAT-AP Endpoint for european data portals.
-    profile: euro_dcat_ap_2
-    profile_label: DCAT-AP
-    version: null
+    description: RDF DCAT-AP 2.1.1 Endpoint for european data portals.
+    profile: eu_dcat_ap_2,eu_dcat_ap_scheming
+    profile_label: DCAT-AP 2
+    profile_label_order: 1
+    profile_info_url: https://joinup.ec.europa.eu/collection/semic-support-centre/solution/dcat-application-profile-data-portals-europe
+    version: 2.1.1
 
-  - name: euro_dcat_ap_2_jsonld
-    display_name: JSON-LD DCAT-AP
+  - name: eu_dcat_ap_3_rdf
+    display_name: RDF DCAT-AP 3
+    type: lod
+    format: rdf
+    image_display_url: /images/icons/endpoints/eu_dcat_ap.svg
+    endpoint_icon: /images/endpoints/catalog-rdf-eu.png
+    fa_icon: fa-share-alt
+    description: RDF DCAT-AP 3.0.0 Endpoint for european data portals.
+    profile: eu_dcat_ap_3,eu_dcat_ap_scheming
+    profile_label: DCAT-AP 3
+    profile_label_order: 1
+    profile_info_url: https://joinup.ec.europa.eu/collection/semic-support-centre/solution/dcat-application-profile-data-portals-europe
+    version: 3.0.0
+
+  - name: eu_dcat_ap_2_jsonld
+    display_name: JSON-LD DCAT-AP 2
     type: lod
     format: jsonld
-    image_display_url: /images/icons/endpoints/euro_dcat_ap_2.svg
+    image_display_url: /images/icons/endpoints/eu_dcat_ap.svg
     endpoint_icon: /images/endpoints/catalog-jsonld-eu.png
     fa_icon: fa-share-alt
-    description: RDF DCAT-AP Endpoint for european data portals.
-    profile: euro_dcat_ap_2
-    profile_label: DCAT-AP
-    version: null
+    description: RDF DCAT-AP 2.1.1 Endpoint for european data portals.
+    profile: eu_dcat_ap_2,eu_dcat_ap_scheming
+    profile_label: DCAT-AP 2
+    profile_label_order: 2
+    profile_info_url: https://joinup.ec.europa.eu/collection/semic-support-centre/solution/dcat-application-profile-data-portals-europe
+    version: 2.1.1
 
-  - name: spain_dcat_rdf
+  - name: eu_dcat_ap_3_jsonld
+    display_name: JSON-LD DCAT-AP 3
+    type: lod
+    format: jsonld
+    image_display_url: /images/icons/endpoints/eu_dcat_ap.svg
+    endpoint_icon: /images/endpoints/catalog-jsonld-eu.png
+    fa_icon: fa-share-alt
+    description: RDF DCAT-AP 3.0.0 Endpoint for european data portals.
+    profile: eu_dcat_ap_3,eu_dcat_ap_scheming
+    profile_label: DCAT-AP 3
+    profile_label_order: 2
+    profile_info_url: https://joinup.ec.europa.eu/collection/semic-support-centre/solution/dcat-application-profile-data-portals-europe
+    version: 3.0.0
+
+  - name: es_dcat_rdf
     display_name: RDF NTI-RISP
     type: lod
     format: rdf
-    image_display_url: /images/icons/endpoints/spain_dcat.svg
+    image_display_url: /images/icons/endpoints/es_dcat.svg
     endpoint_icon: /images/endpoints/catalog-rdf-es.png
     fa_icon: fa-share-alt
     description: RDF NTI-RISP Endpoint for spanish data portals.
-    profile: spain_dcat
+    profile: es_dcat
     profile_label: NTI-RISP
-    version: null
+    profile_label_order: 3
+    profile_info_url: https://datos.gob.es/es/documentacion/guia-de-aplicacion-de-la-norma-tecnica-de-interoperabilidad-de-reutilizacion-de
+    version: 1.0
 
-  - name: spain_dcat_jsonld
+  - name: es_dcat_jsonld
     display_name: JSON-LD NTI-RISP
     type: lod
     format: jsonld
-    image_display_url: /images/icons/endpoints/spain_dcat.svg
+    image_display_url: /images/icons/endpoints/es_dcat.svg
     endpoint_icon: /images/endpoints/catalog-jsonld-es.png
     fa_icon: fa-share-alt
     description: JSON-LD NTI-RISP Endpoint for spanish data portals.
-    profile: spain_dcat
+    profile: es_dcat
     profile_label: NTI-RISP
-    version: null
+    profile_label_order: 3
+    profile_info_url: https://datos.gob.es/es/documentacion/guia-de-aplicacion-de-la-norma-tecnica-de-interoperabilidad-de-reutilizacion-de
+    version: 1.0
 
   - name: csw_inspire
     display_name: CSW INSPIRE 2.0.2
@@ -55,8 +91,10 @@ catalog_endpoints:
     endpoint_icon: /images/endpoints/catalog-csw-eu.png
     fa_icon: fa-globe
     description: OGC-INSPIRE Endpoint for spatial metadata.
-    profile: spain_dcat
+    profile: csw
     profile_label: INSPIRE
+    profile_label_order: 0
+    profile_info_url: https://inspire.ec.europa.eu/metadata/6541
     version: 2.0.2
 
   - name: csw_inspire
@@ -67,8 +105,10 @@ catalog_endpoints:
     endpoint_icon: /images/endpoints/catalog-csw-eu.png
     fa_icon: fa-globe
     description: OGC-INSPIRE Endpoint for spatial metadata.
-    profile: spain_dcat
+    profile: csw
     profile_label: INSPIRE
+    profile_label_order: 0
+    profile_info_url: https://inspire.ec.europa.eu/metadata/6541
     version: 3.0.0
 
   - name: sparql
@@ -81,7 +121,9 @@ catalog_endpoints:
     description: SPARQL Endpoint for querying RDF data.
     profile: sparql
     profile_label: SPARQL
-    version: null
+    profile_label_order: 5
+    profile_info_url: https://wwwhttps://www.w3.org/TR/2013/REC-sparql11-protocol-20130321/.w3.org/TR/sparql11-overview/
+    version: 1.1
 
   - name: ckan
     display_name: CKAN API
@@ -93,4 +135,6 @@ catalog_endpoints:
     description: CKAN’s Action API is a powerful RPC-style API.
     profile: ckan
     profile_label: CKAN-API
+    profile_label_order: 4
+    profile_info_url: https://docs.ckan.org/en/latest/api/index.html
     version: 3

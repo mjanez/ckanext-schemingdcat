@@ -54,6 +54,13 @@
       }
     },
     {
+      "preset_name": "valid_url_dependent_fields",
+      "values": {
+        "validators": "ignore_missing schemingdcat_valid_url schemingdcat_fill_dependent_fields",
+        "display_snippet": "schemingdcat/display_snippets/link.html"
+      }
+    },
+    {
       "preset_name": "dataset_organization",
       "values": {
         "validators": "owner_org_validator unicode_safe",
@@ -99,6 +106,22 @@
       }
     },
     {
+      "preset_name": "select_not_empty",
+      "values": {
+        "form_snippet": "select.html",
+        "display_snippet": "select.html",
+        "validators": "not_empty scheming_required scheming_choices"
+      }
+    },
+    {
+      "preset_name": "select_dependent_fields",
+      "values": {
+        "form_snippet": "select.html",
+        "display_snippet": "select.html",
+        "validators": "scheming_required scheming_choices schemingdcat_fill_dependent_fields"
+      }
+    },
+    {
       "preset_name": "multiple_checkbox",
       "values": {
         "form_snippet": "multiple_checkbox.html",
@@ -141,6 +164,23 @@
         "validators": "scheming_required isodate convert_to_json_if_date"
       }
     },
+    {
+      "preset_name": "date_dependent_fields",
+      "values": {
+        "form_snippet": "date.html",
+        "display_snippet": "schemingdcat/display_snippets/date_localised.html",
+        "validators": "scheming_required isodate convert_to_json_if_date schemingdcat_fill_dependent_fields"
+      }
+    },
+    {
+      "preset_name": "date_dcatap",
+      "values": {
+        "form_snippet": "date.html",
+        "display_snippet": "schemingdcat/display_snippets/date_localised.html",
+        "validators": "ignore_missing isodate convert_to_json_if_date"
+      }
+    },
+
     {
       "preset_name": "date_modified",
       "values": {
@@ -204,6 +244,14 @@
         "form_snippet": "schemingdcat/form_snippets/select_spatial_uri.html",
         "display_snippet": "schemingdcat/display_snippets/select_spatial_icon.html",
         "validators": "ignore_missing"
+      }
+    },
+    {
+      "preset_name": "select_spatial_icon_dependent_fields",
+      "values": {
+        "form_snippet": "schemingdcat/form_snippets/select_spatial_uri.html",
+        "display_snippet": "schemingdcat/display_snippets/select_spatial_icon.html",
+        "validators": "ignore_missing schemingdcat_fill_spatial_uri_dependent_fields"
       }
     },
     {
@@ -272,6 +320,23 @@
         "display_snippet": "schemingdcat/display_snippets/spatial_json.html",
         "validators": "schemingdcat_spatial_uri_validator ignore_missing schemingdcat_valid_json_object"
       }
+    },
+    {
+      "preset_name": "spatial_dependent_fields",
+      "values": {
+        "form_snippet": "json.html",
+        "display_snippet": "schemingdcat/display_snippets/spatial_json.html",
+        "validators": "schemingdcat_spatial_uri_validator ignore_missing schemingdcat_valid_json_object schemingdcat_fill_spatial_dependent_fields"
+      }
+    },
+
+    {
+      "preset_name": "hide_spatial_coverage",
+          "values": {
+            "form_snippet": null,
+            "display_snippet": null,
+            "validators": "schemingdcat_spatial_coverage_validator"
+          }
     },
     {
       "preset_name": "schemingdcat_identifier",
@@ -381,6 +446,13 @@
       }
     },
     {
+      "preset_name": "hide_fallback",
+          "values": {
+            "form_snippet": null,
+            "display_snippet": null
+          }
+    },
+    {
       "preset_name": "file_size",
       "values": {
         "validators": "default(0) natural_number_validator",
@@ -392,6 +464,13 @@
       "preset_name": "schemingdcat_valid_email",
       "values": {
         "validators": "ignore_missing schemingdcat_valid_email",
+        "display_snippet": "email.html"
+      }
+    },
+    {
+      "preset_name": "schemingdcat_valid_email_dependent_fields",
+      "values": {
+        "validators": "ignore_missing schemingdcat_valid_email schemingdcat_fill_dependent_fields",
         "display_snippet": "email.html"
       }
     }

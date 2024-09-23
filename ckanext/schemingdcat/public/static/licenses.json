@@ -69,9 +69,9 @@
         "url": "https://creativecommons.org/publicdomain/zero/1.0/"
     },
     {
-        "domain_content": "False",
-        "domain_data": "False",
-        "domain_software": "False",
+        "domain_content": false,
+        "domain_data": false,
+        "domain_software": false,
         "family": "",
         "id": "cc-by",
         "maintainer": "",

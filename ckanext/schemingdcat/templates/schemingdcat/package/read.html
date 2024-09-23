@@ -1,13 +1,13 @@
 {% extends "package/read_base.html" %}
 
-{%- set schema = h.schemingdcat_get_dataset_schema(dataset_type) -%}
+{%- set schema = h.schemingdcat_get_cached_schema(dataset_type) -%}
 
 {% block primary_content_inner %}
   {{ super() }}
   {% block package_description %}
     <div class="dataset-badges">
       {% if pkg.private %}
-        <span class="dataset-private badge pull-left">
+        <span class="dataset-private badge pull-left badge-package">
           <i class="fa fa-lock"></i>
           {{ _('Private') }}
         </span>

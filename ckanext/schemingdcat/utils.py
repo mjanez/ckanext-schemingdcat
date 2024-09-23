@@ -1,16 +1,25 @@
 from ckan.common import config
 import ckan.logic as logic
-from ckanext.schemingdcat import config as sdct_config
+from ckan import plugins as p
 import logging
 import os
 import inspect
 import json
 import hashlib
 from threading import Lock
-from ckanext.dcat.utils import CONTENT_TYPES
+import warnings
+from functools import wraps
+
 import yaml
 from yaml.loader import SafeLoader
 from pathlib import Path
+
+from ckanext.dcat.utils import CONTENT_TYPES
+from ckanext.scheming.helpers import (
+    scheming_dataset_schemas,
+)
+
+from ckanext.schemingdcat import config as sdct_config
 
 try:
     from paste.reloader import watch_file
@@ -19,14 +28,25 @@ except ImportError:
 
 log = logging.getLogger(__name__)
 
+
 _facets_dict = None
 _public_dirs = None
-_files_hash = []
-_dirs_hash = []
+_dirs_hash = set()
+_files_hash = set()
 
 _facets_dict_lock = Lock()
 _public_dirs_lock = Lock()
 
+
+def deprecated(func):
+    """This is a decorator which can be used to mark functions as deprecated.
+    It will result in a warning being emitted when the function is used."""
+    @wraps(func)
+    def new_func(*args, **kwargs):
+        warnings.warn(f"Call to deprecated function {func.__name__}. This function will be removed in future versions.",
+                      category=DeprecationWarning, stacklevel=2)
+        return func(*args, **kwargs)
+    return new_func
 
 def get_facets_dict():
     """Get the labels for all fields defined in the scheming file.
@@ -51,7 +71,20 @@ def get_facets_dict():
                 for item in schema['resource_fields']:
                     _facets_dict[item['field_name']] = item['label']
 
+    #log.debug('_facets_dict: %s', _facets_dict)
+
     return _facets_dict
+
+def normalize_paths(paths):
+    """Normalize a list of paths to remove redundancies like '..'.
+
+    Args:
+        paths (list): List of paths to normalize.
+
+    Returns:
+        list: List of normalized paths.
+    """
+    return [os.path.normpath(path) for path in paths]
 
 def get_public_dirs():
     """Get the list of public directories specified in the configuration file.
@@ -64,9 +97,39 @@ def get_public_dirs():
     if not _public_dirs:
         with _public_dirs_lock:
             if not _public_dirs:
-                _public_dirs = config.get('extra_public_paths', '').split(',')
+                # CKAN 2.10 workaround
+                _public_dirs = config.get('plugin_public_paths', '')
+
+                # Add extra_template_paths if it exists
+                extra_template_paths = config.get('extra_template_paths', '')
+                if extra_template_paths:
+                    _public_dirs.extend(extra_template_paths)
 
     return _public_dirs
+
+def public_path_exists(path, check_func, cache):
+    """Check if a path exists in the public directories specified in the configuration file.
+
+    Args:
+        path (str): The path to check.
+        check_func (function): The function to use for checking (os.path.isfile or os.path.isdir).
+        cache (set): The cache to use for storing path hashes.
+
+    Returns:
+        bool: True if the path exists in one of the public directories, False otherwise.
+    """
+    path_hash = hashlib.sha512(path.encode('utf-8')).hexdigest()
+
+    if path_hash in cache:
+        return True
+
+    public_dirs = normalize_paths(get_public_dirs())
+    if any(check_func(os.path.join(public_dir, path)) for public_dir in public_dirs):
+        cache.add(path_hash)
+        return True
+
+
+    return False
 
 def public_file_exists(path):
     """Check if a file exists in the public directories specified in the configuration file.
@@ -77,20 +140,7 @@ def public_file_exists(path):
     Returns:
         bool: True if the file exists in one of the public directories, False otherwise.
     """
-    #log.debug("Check if exists: {0}".format(path))
-    file_hash = hashlib.sha512(path.encode('utf-8')).hexdigest()
-
-    if file_hash in _files_hash:
-        return True
-
-    public_dirs = get_public_dirs()
-    for i in range(len(public_dirs)):
-        public_path = os.path.join(public_dirs[i], path)
-        if os.path.isfile(public_path):
-            _files_hash.append(file_hash)
-            return True
-
-    return False
+    return public_path_exists(path, os.path.isfile, _files_hash)
 
 def public_dir_exists(path):
     """Check if a directory exists in the public directories specified in the configuration file.
@@ -101,24 +151,17 @@ def public_dir_exists(path):
     Returns:
         bool: True if the directory exists in one of the public directories, False otherwise.
     """
-    dir_hash = hashlib.sha512(path.encode('utf-8')).hexdigest()
-
-    if dir_hash in _dirs_hash:
-        return True
-
-    public_dirs = get_public_dirs()
-    for i in range(len(public_dirs)):
-        public_path = os.path.join(public_dirs[i], path)
-        if os.path.isdir(public_path):
-            _dirs_hash.append(dir_hash)
-            return True
-
-    return False
+    return public_path_exists(path, os.path.isdir, _dirs_hash)
 
 def init_config():
     sdct_config.linkeddata_links = _load_yaml('linkeddata_links.yaml')
     sdct_config.geometadata_links = _load_yaml('geometadata_links.yaml')
     sdct_config.endpoints = _load_yaml(sdct_config.endpoints_yaml)
+    
+    # Cache scheming schemas of local instance
+    sdct_config.schemas = _get_schemas()
+    sdct_config.form_tabs = set_schema_form_tabs()
+    sdct_config.form_groups = set_schema_form_groups()
 
 def is_yaml(file):
     """Check if a file has a YAML extension.
@@ -183,7 +226,6 @@ def _load_default_yaml(file):
         dict: A dictionary containing the data from the YAML file, or an empty dictionary if the file cannot be loaded.
     """
     source_path = Path(__file__).resolve(True)
-    log.debug('source_path: %s', source_path)
     return _load_yaml_file(source_path.parent.joinpath('codelists', file))
 
 def _load_yaml_file(path):
@@ -288,3 +330,76 @@ def parse_json(value, default_value=None):
             # we want a string here.
             return str(value)
         return value
+
+def _get_schemas():
+    """
+    Fetches the dataset schemas using the scheming_dataset_schemas function.
+
+    This function attempts to retrieve the dataset schemas. If a KeyError is encountered,
+    it logs the error and returns an empty dictionary.
+
+    Returns:
+        dict: The dataset schemas if successfully retrieved, otherwise an empty dictionary.
+
+    Raises:
+        KeyError: If there is an issue accessing the dataset schemas.
+    """
+    try:
+        return scheming_dataset_schemas()
+    except KeyError as e:
+        log.error('KeyError encountered while fetching dataset schemas: %s', e)
+        return {}
+    
+def set_schema_form_tabs():
+    """
+    Sets the schema form tabs for each dataset type in the `sdct_config.schemas`.
+
+    This function iterates over the schemas defined in `sdct_config.schemas` and sets the corresponding
+    form tabs in `sdct_config.form_tabs`. If a schema does not have `schema_form_tabs`, it sets the form tab to None.
+    Logs warnings and errors as appropriate.
+
+    Raises:
+        KeyError: If there is an issue accessing the schema form tabs.
+    """
+    if not sdct_config.schemas:
+        log.warning('sdct_config.schemas is empty, no local scheming.dataset_schemas loaded.')
+        return
+
+    form_tabs = {}
+
+    for dataset_type, schema in sdct_config.schemas.items():
+        try:
+            form_tabs[dataset_type] = schema.get('schema_form_tabs', None)
+        except p.toolkit.ObjectNotFound:
+            pass
+        except KeyError as e:
+            log.error('KeyError encountered while setting schema form tabs for dataset_type: %s, error: %s', dataset_type, e)
+            
+    return form_tabs     
+
+def set_schema_form_groups():
+    """
+    Sets the schema form groups for each dataset type in the `sdct_config.schemas`.
+
+    This function iterates over the schemas defined in `sdct_config.schemas` and sets the corresponding
+    form tabs in `sdct_config.form_groups`. If a schema does not have `schema_form_groups`, it sets the form tab to None.
+    Logs warnings and errors as appropriate.
+
+    Raises:
+        KeyError: If there is an issue accessing the schema form tabs.
+    """
+    if not sdct_config.schemas:
+        log.warning('sdct_config.schemas is empty, no local scheming.dataset_schemas loaded.')
+        return
+
+    form_groups = {}
+
+    for dataset_type, schema in sdct_config.schemas.items():
+        try:
+            form_groups[dataset_type] = schema.get('schema_form_groups', None)
+        except p.toolkit.ObjectNotFound:
+            pass
+        except KeyError as e:
+            log.error('KeyError encountered while setting schema form tabs for dataset_type: %s, error: %s', dataset_type, e)
+            
+    return form_groups     

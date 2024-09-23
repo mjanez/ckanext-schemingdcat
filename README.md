@@ -7,50 +7,66 @@
     <a href="#configuration">Configuration</a> •
     <a href="#schemas">Schemas</a> •
     <a href="#harvesters">Harvesters</a> •
-    <a href="#running-the-tests">Running the Tests</a>
+    <a href="#dcat-profiles">DCAT Profiles</a> •
+    <a href="#running-the-tests">Running the Tests</a> •
+    <a href="#development">Development</a>
 </p>
 
 ## Overview
-This CKAN extension provides functions and templates specifically designed to extend `ckanext-scheming` and includes DCAT and Harvest enhancements to adapt CKAN Schema to [GeoDCAT-AP](./ckanext/schemingdcat/schemas/geodcatap/geodcatap_dataset.yaml).
+This CKAN extension provides functions and templates specifically designed to extend `ckanext-scheming` and `ckanext-dcat` and includes RDF profiles and Harvest enhancements to adapt CKAN Schema to multiple metadata profiles as: [GeoDCAT-AP](./ckanext/schemingdcat/schemas/geodcat_ap/es_geodcat_ap_full.yaml) or [DCAT-AP](./ckanext/schemingdcat/schemas/dcat_ap/eu_dcat_ap_full.yaml).
 
 > [!WARNING] 
-> Requires [mjanez/ckanext-dcat](https://github.com/mjanez/ckanext-dcat), [ckan/ckanext-scheming](https://github.com/ckan/ckanext-scheming) and [ckan/ckanext-spatial](https://github.com/ckan/ckanext-spatial) to work properly.
-
+> Requires [mjanez/ckanext-dcat](https://github.com/mjanez/ckanext-dcat) (newer releases) or [ckan/ckanext-dcat](https://github.com/ckan/ckanext-dcat) (stables), [ckan/ckanext-scheming](https://github.com/ckan/ckanext-scheming) and [ckan/ckanext-spatial](https://github.com/ckan/ckanext-spatial) to work properly. Also, if you want to use custom schemas with multilingualism, it is necessary to use ckanext-fluent. There is a version with corrections: [mjanez/ckanext-fluent](https://github.com/mjanez/ckanext-fluent)
 > [!TIP]
 > It is **recommended to use with:** [`ckan-docker`](https://github.com/mjanez/ckan-docker) deployment or only use [`ckan-pycsw`](https://github.com/mjanez/ckan-pycsw) to deploy a CSW Catalog.
 
 ![image](https://github.com/mjanez/ckanext-schemingdcat/assets/96422458/6b3d6fd4-7119-4307-8be7-5e17d41292fe)
 
 Enhancements:
-- Could use schemas for `ckanext-scheming` in the plugin like [CKAN GeoDCAT-AP custom schemas](ckanext/schemingdcat/schemas#readme)
+- Custom schemas for `ckanext-scheming` in the plugin like [CKAN GeoDCAT-AP custom schemas](ckanext/schemingdcat/schemas#readme)
+- [`ckanext-dcat` profiles](#dcat-profiles) for RDF serialization according to profiles such as DCAT, DCAT-AP, GeoDCAT-AP and in the Spanish context, NTI-RISP.
+- Improve metadata management forms to include tabs that make it easier to search metadata categories and simplify metadata editing.
 - Improve the search functionality in CKAN for custom schemas. It uses the fields defined in a scheming file to provide a set of tools to use these fields for scheming, and a way to include icons in their labels when displaying them. More info: [`ckanext-schemingdcat`](https://github.com/mjanez/ckanext-schemingdcat)
 - Add improved harvesters for custom metadata schemas integrated with `ckanext-harvest` in CKAN using [`mjanez/ckan-ogc`](https://github.com/mjanez/ckan-ogc).
 - Add Metadata downloads for Linked Open Data formats ([`mjanez/ckanext-dcat`](https://github.com/mjanez/ckanext-dcat)) and Geospatial Metadata (ISO 19139, Dublin Core, etc. with [`mjanez/ckan-pycsw`](https://github.com/mjanez/ckanext-pycsw))
 - Add custom i18n translations to `datasets`, `groups`, `organizations` in schemas, e.g: [GeoDCAT-AP (ES)](#geodcat-ap-es).[^1]
 - Add a set of useful helpers and templates to be used with Metadata Schemas.
-- [Update the base theme](#new-theme) of CKAN to use with the enhancements of this extension.
+- [Update the base theme](#new-theme) of CKAN to use with the enhancements of this extension, now using Tabs instead of older `stages`.
 - Modern UI inspired on [`datopian/ckanext-datopian`](https://github.com/datopian/ckanext-datopian).
 - LOD/OGC Endpoints based on avalaible profiles (DCAT) and CSW capabilities with [`mjanez/ckan-pycsw`](https://github.com/mjanez/ckanext-pycsw).
 
 ## Requirements
-This plugin is compatible with CKAN 2.9 or later and needs the following plugins to work properly:
+### Compatibility
+Compatibility with core CKAN versions:
+
+| CKAN version | Compatible?                                                                 |
+|--------------|-----------------------------------------------------------------------------|
+| 2.8          | ❌ No (>= Python 3)                                                          |
+| 2.9          | ✅ Yes (<= [`v3.2.2`](https://github.com/mjanez/ckanext-schemingdcat/releases/tag/v3.2.2)) |
+| 2.10         | ✅ Yes (>= [`v4.0.0`](https://github.com/mjanez/ckanext-schemingdcat/releases/tag/v4.0.0)) |
+
+### Plugins
+This plugin needs the following plugins to work properly:
 
   ```sh
   # Install latest stable release of:
   ## ckan/ckanext-scheming: https://github.com/ckan/ckanext-scheming/tags (e.g. release-3.0.0)
   pip install -e git+https://github.com/ckan/ckanext-scheming.git@release-3.0.0#egg=ckanext-scheming
 
-  ## mjanez/ckanext-dcat: https://github.com/mjanez/ckanext-dcat/tags (e.g. 1.2.0-geodcatap)
-  pip install -e git+https://github.com/mjanez/ckanext-dcat.git@1.2.0-geodcatap#egg=ckanext-dcat
+  ## mjanez/ckanext-dcat: https://github.com/mjanez/ckanext-dcat/tags (e.g. 1.8.0)
+  pip install -e git+https://github.com/mjanez/ckanext-dcat.git@1.8.0#egg=ckanext-dcat
   pip install -r https://raw.githubusercontent.com/mjanez/ckanext-dcat/master/requirements.txt
 
-  ## ckan/ckckanext-spatial: https://github.com/ckan/ckanext-spatial/tags (e.g. v2.1.1)
+  ## ckan/ckanext-spatial: https://github.com/ckan/ckanext-spatial/tags (e.g. v2.1.1)
   pip install -e git++https://github.com/ckan/ckanext-spatial.git@v2.1.1/#egg=ckanext-spatial#egg=ckanext-spatial
   pip install -r https://raw.githubusercontent.com/ckan/ckanext-spatial/v2.1.1/requirements.txt
 
-  ## ckan/ckckanext-harvest: https://github.com/ckan/ckanext-harvest/tags (e.g. v1.5.6)
+  ## ckan/ckanext-harvest: https://github.com/ckan/ckanext-harvest/tags (e.g. v1.5.6)
   pip install -e git++https://github.com/ckan/ckanext-harvest.git@v1.5.6#egg=ckanext-spatial
   pip install -r https://raw.githubusercontent.com/ckan/ckanext-harvest/v1.5.6/requirements.txt
+
+  ## ckan/ckanext-fluent: https://github.com/mjanez/ckanext-fluen/tags (e.g. v1.0.1)
+  pip install -e git++https://github.com/mjanez/ckanext-fluent.git@v1.0.1#egg=ckanext-fluent
   ```
 
 ## Installation
@@ -90,16 +106,16 @@ To use custom schemas in `ckanext-scheming`:
 
   ```ini
   # module-path:file to schemas being used
-  scheming.dataset_schemas = ckanext.schemingdcat:schemas/geodcatap/geodcatap_dataset.yaml
-  scheming.group_schemas = ckanext.schemingdcat:schemas/geodcatap/geodcatap_group.json
-  scheming.organization_schemas = ckanext.schemingdcat:schemas/geodcatap/geodcatap_org.json
+  scheming.dataset_schemas = ckanext.schemingdcat:schemas/geodcat_ap/es_geodcat_ap_full.yaml
+  scheming.group_schemas = ckanext.schemingdcat:schemas/geodcat_ap/es_geodcat_ap_group.json
+  scheming.organization_schemas = ckanext.schemingdcat:schemas/geodcat_ap/es_geodcat_ap_org.json
 
   #   URLs may also be used, e.g:
   #
   # scheming.dataset_schemas = http://example.com/spatialx_schema.yaml
 
   #   Preset files may be included as well. The default preset setting is:
-  scheming.presets = ckanext.schemingdcat:schemas/geodcatap/geodcatap_presets.json
+  scheming.presets = ckanext.schemingdcat:schemas/default_presets.json
 
   #   The is_fallback setting may be changed as well. Defaults to false:
   scheming.dataset_fallback = false
@@ -119,13 +135,13 @@ Examples:
 
 * LOD endpoint: A Linked Open Data endpoint is a DCAT endpoint that provides access to RDF data. More information about the catalogue endpoint, how to use the endpoint, (e.g. `https://{ckan-instance-host}/catalog.{format}?[page={page}]&[modified_since={date}]&[profiles={profile1},{profile2}]&[q={query}]&[fq={filter query}]`, and more at [`ckanext-dcat`](https://github.com/mjanez/ckanext-dcat?tab=readme-ov-file#catalog-endpoint)
     ```yaml
-      - name: euro_dcat_ap_2_rdf
+      - name: eu_dcat_ap_2_rdf
         display_name: RDF DCAT-AP
         type: lod
         format: rdf
-        image_display_url: /images/icons/endpoints/euro_dcat_ap_2.svg
+        image_display_url: /images/icons/endpoints/eu_dcat_ap_2.svg
         description: RDF DCAT-AP Endpoint for european data portals.
-        profile: euro_dcat_ap_2
+        profile: eu_dcat_ap_2
         profile_label: DCAT-AP
         version: null
     ```
@@ -138,7 +154,7 @@ Examples:
         format: xml
         image_display_url: /images/icons/endpoints/csw_inspire.svg
         description: OGC-INSPIRE Endpoint for spatial metadata.
-        profile: spain_dcat
+        profile: es_dcat
         profile_label: INSPIRE
         version: 2.0.2
     ```
@@ -215,7 +231,7 @@ This two last settings are not mandatory. You can omit one or both (or set them 
 	Ckan needs to "fix" multivalued fields to be able to recover values correctly for faceting, so this step must be done in order to use faceting with multivalued fields. 
 
 ### Icons
-Icons for each field option in the [`scheming file`](ckanext/schemingdcat/schemas/geodcatap/geodcatap_datasets.yaml) can be set in multiple ways:
+Icons for each field option in the [`scheming file`](ckanext/schemingdcat/schemas/geodcat_ap/es_geodcat_ap_full.yaml) can be set in multiple ways:
 
 - Set a root directory path for icons for each field using the `icons_dir` key in the scheming file.
 - If `icons_dir` is not defined, the directory path is guessed starting from the value provided for the `schemingdcat.icons_dir` parameter in the CKAN config file, adding the name of the field as an additional step to the path (`public/images/icons/{field_name`).
@@ -227,14 +243,27 @@ Icons for each field option in the [`scheming file`](ckanext/schemingdcat/schema
 ## New theme
 Update the base theme of CKAN to use with the enhancements of this extension.
 
-![image](https://github.com/mjanez/ckanext-schemingdcat/assets/96422458/97b91bdc-b1ec-402a-9750-cfe30ca3201b)
-![image](https://github.com/mjanez/ckanext-schemingdcat/assets/96422458/48b63c9e-1ab2-4504-b991-2ac63a8875c8)
-![image](https://github.com/mjanez/ckanext-schemingdcat/assets/96422458/213def6f-5d4c-4786-9d5b-24fed010d307)
 
+**Improved home statistics**:
+![image](./doc/img/schemingdcat_home.png)
+
+**Catalog endpoints** `/endpoints`:
+![image](./doc/img/schemingdcat_endpoints.png)
+
+**Search**:
 ![screenshot 1695622478](https://github.com/mjanez/ckanext-schemingdcat/assets/96422458/bb522849-1319-49cd-ab93-5c3fa5784587)
+
+**Dataset - Metadata info** `/dataset/{sample-dataset}`:
 ![screenshot 1695622650](https://github.com/mjanez/ckanext-schemingdcat/assets/96422458/7244f9c2-416d-4489-aee8-41cf91ae25a5)
 ![image](https://github.com/mjanez/ckanext-schemingdcat/assets/96422458/5325df04-0ee7-48c3-a924-c8875fc8e2ad)
+
+**Dataset - Form tabs**:
+![image](./doc/img/schemingdcat_form-tabs.png)
+
+**Organizations** `/organization/{sample-org}`:
 ![screenshot 1695622687](https://github.com/mjanez/ckanext-schemingdcat/assets/96422458/054ff4e5-56a3-4683-9492-1aa0659ee536)
+
+**Groups** `/group/{sample-group}`:
 ![screenshot 1695622719](https://github.com/mjanez/ckanext-schemingdcat/assets/96422458/1ecb14c9-9946-4802-8e02-7a51e2911226)
 
 ## Schemas
@@ -252,7 +281,7 @@ We've made several improvements to our schema to provide a better metadata and m
 For more details on these enhancements check [Form Groups documentation](#form-groups), please refer to the schema files in [`ckanext/schemingdcat/schemas`](ckanext/schemingdcat/schemas).
 
 ### GeoDCAT-AP (ES)
-[`schemas/geodcatp_es`](/ckanext/schemingdcat/schemas/geodcatap_es/geodcatap_es_dataset.yaml) with specific extensions for spatial data and [GeoDCAT-AP](https://github.com/SEMICeu/GeoDCAT-AP)/[INSPIRE](https://github.com/INSPIRE-MIF/technical-guidelines) metadata [profiles](https://en.wikipedia.org/wiki/Geospatial_metadata). 
+[`schemas/geodcat_ap/es_geodcat_ap_full`](/ckanext/schemingdcat/schemas/geodcat_ap/es_geodcat_ap_full.yaml) with specific extensions for spatial data and [GeoDCAT-AP](https://github.com/SEMICeu/GeoDCAT-AP)/[INSPIRE](https://github.com/INSPIRE-MIF/technical-guidelines) metadata [profiles](https://en.wikipedia.org/wiki/Geospatial_metadata). 
 
 > [!NOTE] 
 > RDF to CKAN dataset mapping: [GeoDCAT-AP (ES) to CKAN](ckanext/schemingdcat/schemas/README.md#geodcat-ap-es)
@@ -266,13 +295,13 @@ on: [DCAT](https://www.w3.org/TR/vocab-dcat-3/).
 > RDF to CKAN dataset mapping: [DCAT to CKAN](ckanext/schemingdcat/schemas/README.md#dcat)
 
 ### DCAT-AP (EU)
-[`schemas/dcatap`](/ckanext/schemingdcat/schemas/dcatap/dcatap_dataset.yaml) based on: [DCAT-AP](https://op.europa.eu/en/web/eu-vocabularies/dcat-ap) for the european context.
+[`schemas/dcat_ap/eu_dcat_ap`](/ckanext/schemingdcat/schemas/dcat_ap/eu_dcat_ap.yaml) based on: [DCAT-AP](https://op.europa.eu/en/web/eu-vocabularies/dcat-ap) for the european context.
 
 > [!NOTE] 
 > RDF to CKAN dataset mapping: [DCAT-AP (EU) to CKAN](ckanext/schemingdcat/schemas/README.md#dcat-ap-eu)
 
 ### GeoDCAT-AP (EU)
-[`schemas/geodcatap`](/ckanext/schemingdcat/schemas/geodcatap/geodcatap_dataset.yaml) based on: [GeoDCAT-AP](https://github.com/SEMICeu/GeoDCAT-AP) for the european context.
+[`schemas/geodcat_ap/eu_geodcat_ap`](/ckanext/schemingdcat/schemas/geodcat_ap/eu_geodcat_ap.yaml) based on: [GeoDCAT-AP](https://github.com/SEMICeu/GeoDCAT-AP) for the european context.
 
 > [!NOTE] 
 > RDF to CKAN dataset mapping: [GeoDCAT-AP (EU) to CKAN](ckanext/schemingdcat/schemas/README.md#geodcat-ap-eu)
@@ -762,9 +791,155 @@ Here are some examples of configuration files:
 > ...
 >```
 
+##TODO: CLI
+The `ckan schemingdcat` command offers utilites:
+
+    ckan schemingdcat create-inspire-tags -l es
+
+    ckan schemingdcat download-rdf-eu-vocabs
+
+
+## DCAT Profiles
+This plugin also contains a custom [`ckanext-dcat` profiles](./ckanext/schemingdcat/profiles) to serialize a CKAN dataset to a:
+
+**European context**:
+* [DCAT-AP v2.1.1](https://semiceu.github.io/DCAT-AP/releases/2.1.1) (default): `eu_dcat_ap_2`
+* [GeoDCAT-AP v2.0.0](https://semiceu.github.io/GeoDCAT-AP/releases/2.0.0): `eu_geodcat_ap_2`
+* [GeoDCAT-AP v3.0.0](https://semiceu.github.io/GeoDCAT-AP/releases/3.0.0): `eu_geodcat_ap_3`
+
+**Spanish context**:
+* Spain [NTI-RISP v1.0.0](https://datos.gob.es/es/documentacion/normativa-de-ambito-nacional): `es_dcat`
+* Spain [DCAT-AP v2.1.1](https://semiceu.github.io/DCAT-AP/releases/2.1.1): `es_dcat_ap_2`
+* Spain [GeoDCAT-AP v2.0.0](https://semiceu.github.io/GeoDCAT-AP/releases/2.0.0): `es_geodcat_ap_2`
+
+To define which profiles to use you can:
+
+1. Set the `ckanext.dcat.rdf.profiles` configuration option on your CKAN configuration file:
+
+    ckanext.dcat.rdf.profiles = eu_dcat_ap_2 es_dcat eu_geodcat_ap_2
+
+2. When initializing a parser or serializer class, pass the profiles to be used as a parameter, eg:
+
+```python
+
+   parser = RDFParser(profiles=['eu_dcat_ap_2', 'es_dcat', 'eu_geodcat_ap_2'])
+
+   serializer = RDFSerializer(profiles=['eu_dcat_ap_2', 'es_dcat', 'eu_geodcat_ap_2'])
+```
+
+Note that in both cases the order in which you define them is important, as it will be the one that the profiles will be run on.
+
+### Multilingual RDF support
+To add multilingual values from CKAN to RDF, the [`SchemingDCATRDFProfile` method `_object_value](./ckanext/schemingdcat/profiles/base.py)` can be called with optional parameter `multilang=true` (defaults to `false`)). 
+If `_object_value` is called with the `multilang=true`-parameter, but no language-attribute is found, the value will be added as Literal with the default language (en).
+
+>[!TIP]
+> The custom `ckanext-dcat` profiles have multi-language compatibility, see the ckanext-dcat documentation for more information on [writing custom profiles](https://github.com/ckan/ckanext-dcat?tab=readme-ov-file#writing-custom-profiles).
+
+Example RDF:
+```xml
+<dct:title xml:lang="en">Dataset Title (EN)</dct:title>
+<dct:title xml:lang="de">Dataset Title (DE)</dct:title>
+<dct:title xml:lang="fr">Dataset Title (FR)</dct:title>
+```
+```json
+{
+    "title":
+        {
+            "en": "Dataset Title (EN)",
+            "de": "Dataset Title (DE)",
+            "fr": "Dataset Title (FR)"
+        }
+}
+```
+
+Example with missing language in RDF:
+```xml
+<dct:title>Dataset Title</dct:title>
+```
+```json
+{
+    "title":
+        {
+            "en": "Dataset Title"
+        }
+}
+```
+
 ## Running the Tests
 To run the tests:
 
     pytest --ckan-ini=test.ini ckanext/schemingdcat/tests
 
+
+### Run tests quickly with Docker Compose
+This repository includes a Docker Compose configuration to simplify running tests. The CKAN image is built using the Dockerfile located in the `docker/` directory.
+
+To test against the CKAN version you want to use, proceed as follows
+
+1. Build the necessary Docker images. This step ensures that all dependencies and configurations are correctly set up.
+   ```shell
+   docker compose build
+   ```
+
+3. After building the images, you can run the tests. The Docker Compose configuration mounts the root of the repository into the CKAN container as a volume. This means that any changes you make to the code will be reflected inside the container without needing to rebuild the image, unless you modify the extension's dependencies.
+   ```shell
+   docker compose up
+   ```
+
+
 [^1]: An improvement to [`ckanext-fluent`] (https://github.com/ckan/ckanext-fluent) to allow more versatility in multilingual schema creation and metadata validation.
+
+## Development
+### Update Internationalization (i18n) Files
+To compile a `.po` file to a `.mo` file in the terminal, you can use the `msgfmt` tool, which is part of the `gettext` package. Here are the steps to do it:
+
+### Steps to Compile `.po` File to `.mo` File.
+
+1. **Install `gettext` (if not already installed)**:
+   - On most Linux distributions, you can install `gettext` using your system's package manager. For example, in Debian/Ubuntu:
+
+   ```sh
+   sudo apt-get install gettext
+   ```
+
+   In Fedora:
+
+   ````sh
+   sudo dnf install gettext
+   ```
+
+2. **Compile the `.po` file to `.mo`**:
+   - Use the `msgfmt` command to compile the `.po` file to `.mo`. **Make sure you are in the directory where your `.po` file is located or provide the full path to the file.**
+
+   ```sh
+   msgfmt -o ckanext-schemingdcat.mo ckanext-schemingdcat.po
+   ```
+
+   - This command will generate a `ckanext-schemingdcat.mo` file in the same directory as the `.po` file.
+
+### Complete Example
+
+Let's assume your `.po` file is located in the `i18n/en/LC_MESSAGES/` directory inside your project. Here are the complete commands:
+
+1. 1. **Navigate to the Project Directory**:
+
+   ```sh
+   cd /path/to/your/project
+   ```
+
+2. **Navigate to the Directory Containing the `.po`** File:
+
+   ````sh
+   cd i18n/en/LC_MESSAGES/
+   ```
+
+3. **Compile the `.po` file to `.mo`**:
+
+   ````sh
+   msgfmt -o ckanext-schemingdcat.mo ckanext-schemingdcat.po
+   ```
+
+### Verification
+
+1. **Verify that the `.mo` file has been generated in the browser.

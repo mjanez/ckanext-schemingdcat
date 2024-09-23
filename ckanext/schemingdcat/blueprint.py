@@ -7,6 +7,7 @@ from flask import Blueprint
 from ckan.plugins.toolkit import render, g
 
 import ckanext.schemingdcat.utils as sdct_utils
+from ckanext.schemingdcat.utils import deprecated
 import ckanext.schemingdcat.helpers as sdct_helpers
 
 from logging import getLogger
@@ -30,7 +31,9 @@ schemingdcat.add_url_rule("/endpoints/", view_func=endpoints, endpoint="endpoint
 
 schemingdcat.add_url_rule("/metadata-templates/", view_func=metadata_templates, endpoint="metadata_templates", strict_slashes=False)
 
+
 @schemingdcat.route(u'/dataset/linked_data/<id>')
+@deprecated
 def index(id):
     context = {
         u'model': model,
@@ -47,7 +50,7 @@ def index(id):
         pkg = context[u'package']
         schema = get_action(u'package_show')(context, data_dict)
     except (logic.NotFound, logic.NotAuthorized):
-        return base.abort(404, _(u'Dataset {dataset} not found').format({dataset:id}))
+        return base.abort(404, _(u'Dataset {dataset} not found').format(dataset=id))
 
     return render('schemingdcat/custom_data/index.html',extra_vars={
             u'pkg_dict': pkg_dict,
@@ -55,7 +58,13 @@ def index(id):
             u'data_list': sdct_utils.get_linked_data(id),
         })
 
+from flask import g, render_template as render
+from ckan import model, logic
+from ckan.lib.base import abort
+from ckan.plugins.toolkit import get_action, _
+
 @schemingdcat.route(u'/dataset/geospatial_metadata/<id>')
+@deprecated
 def geospatial_metadata(id):
     context = {
         u'model': model,
@@ -71,10 +80,10 @@ def geospatial_metadata(id):
         pkg_dict = get_action(u'package_show')(context, data_dict)
         pkg = context[u'package']
     except (logic.NotFound, logic.NotAuthorized):
-        return base.abort(404, _(u'Dataset {dataset} not found').format({dataset:id}))
+        return base.abort(404, _(u'Dataset {dataset} not found').format(dataset=id))
 
-    return render('schemingdcat/custom_data/index.html',extra_vars={
-            u'pkg_dict': pkg_dict,
-            u'id': id,
-            u'data_list': sdct_utils.get_geospatial_metadata(),
-        })
+    return render('schemingdcat/custom_data/index.html', extra_vars={
+        u'pkg_dict': pkg_dict,
+        u'id': id,
+        u'data_list': sdct_utils.get_geospatial_metadata(),
+    })

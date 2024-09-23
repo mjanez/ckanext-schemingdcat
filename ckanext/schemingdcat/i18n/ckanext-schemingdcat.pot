@@ -351,6 +351,36 @@ msgstr ""
 msgid "This is for choosing a predefined layout for the modules that appear on your homepage."
 msgstr ""
 
+#: ckanext/schemingdcat/templates/admin/index.html
+msgid ""
+"<p>As a sysadmin user you have full control over this CKAN instance. Proceed with care!</p>\n"
+"<p>For guidance on using sysadmin features, see the CKAN <a href=\"{{ docs_url }}\" target=\"_blank\" rel=\"noreferrer\">sysadmin guide</a></p>"
+msgstr ""
+
+#: ckanext/schemingdcat/templates/admin/index.html
+msgid "<p>A sysadmin user can access and edit any organizations, view and change user details, and permanently delete datasets. You should carefully consider who has access to a sysadmin account on your CKAN system.</p>"
+msgstr ""
+
+#: ckanext/schemingdcat/templates/admin/index.html
+msgid "For guidance on using sysadmin features, see the CKAN"
+msgstr ""
+
+#: ckanext/schemingdcat/templates/admin/index.html
+msgid "sysadmin guide"
+msgstr ""
+
+#: ckanext/schemingdcat/templates/admin/index.html
+msgid "As a sysadmin user you have full control over this CKAN instance. <strong>Proceed with care!</strong>"
+msgstr ""
+
+#: ckanext/schemingdcat/templates/admin/index.html
+msgid "Current Sysadmins"
+msgstr ""
+
+#: ckanext/schemingdcat/templates/admin/index.html
+msgid "Promote user to Sysadmin"
+msgstr ""
+
 # ckanext-harvest
 #: ckanext/harvest/helpers.py:70
 msgid "title"
@@ -926,6 +956,18 @@ msgstr ""
 msgid "Query example (results containing 'medio-ambiente')"
 msgstr ""
 
+#: ckanext/schemingdcat/templates/ajax_snippets/scd_api_info.html
+msgid "A simple request to the data API using Python."
+msgstr ""
+
+#: ckanext/schemingdcat/templates/ajax_snippets/scd_api_info.html
+msgid "Further information in the <a href=\"http://docs.ckan.org/en/latest/maintaining/datastore.html\" target=\"_blank\">main CKAN Data API and DataStore documentation</a>."
+msgstr ""
+
+#: ckanext/schemingdcat/templates/ajax_snippets
+msgid "Example"
+msgstr ""
+
 #: ckanext/schemingdcat/templates/schemingdcat/endpoints/index.html
 msgid "What are Endpoints?"
 msgstr ""
@@ -1000,6 +1042,14 @@ msgid_plural "Featured datasets"
 msgstr[0] ""
 msgstr[1] ""
 
+#: ckanext/schemingdcat/templates/home/snippets/about_portal.html
+msgid "Explore and use Open Data"
+msgstr ""
+
+#: ckanext/schemingdcat/templates/home/snippets/about_themes.html
+msgid "Theme categories"
+msgstr ""
+
 # ckanext/schemingdcat/templates/schemingdcat/metadata_templates/header_metadata_templates.html
 msgid "Metadata template"
 msgstr ""
@@ -1034,6 +1084,18 @@ msgstr ""
 
 # ckanext/schemingdcat/templates/schemingdcat/metadata_templates/header_metadata_templates.html
 msgid "\"*\" means any character"
+msgstr ""
+
+# ckanext/schemingdcat/templates/package/snippets/package_form.html
+msgid "Next"
+msgstr ""
+
+# ckanext/schemingdcat/templates/package/snippets/package_form.html
+msgid "Add Data"
+msgstr ""
+
+# ckanext/schemingdcat/templates/package/snippets/package_form.html
+msgid "There are required fields in this category"
 msgstr ""
 
 # Themes (NTI-RISP) - Schema field_name: theme_es
@@ -1222,4 +1284,127 @@ msgid "Non-spatial datasets"
 msgstr ""
 
 msgid "Spatial datasets"
+msgstr ""
+
+msgid "Spatial dataset"
+msgstr ""
+
+# INSPIRE Themes - Schema field_name: theme
+msgid "mf"
+msgstr ""
+
+msgid "ac"
+msgstr ""
+
+msgid "lc"
+msgstr ""
+
+msgid "ad"
+msgstr ""
+
+msgid "pd"
+msgstr ""
+
+msgid "sd"
+msgstr ""
+
+msgid "bu"
+msgstr ""
+
+msgid "el"
+msgstr ""
+
+msgid "ge"
+msgstr ""
+
+msgid "hy"
+msgstr ""
+
+msgid "hb"
+msgstr ""
+
+msgid "af"
+msgstr ""
+
+msgid "ef"
+msgstr ""
+
+msgid "pf"
+msgstr ""
+
+msgid "ps"
+msgstr ""
+
+msgid "gn"
+msgstr ""
+
+msgid "oi"
+msgstr ""
+
+msgid "cp"
+msgstr ""
+
+msgid "of"
+msgstr ""
+
+msgid "er"
+msgstr ""
+
+msgid "mr"
+msgstr ""
+
+msgid "tn"
+msgstr ""
+
+msgid "br"
+msgstr ""
+
+msgid "sr"
+msgstr ""
+
+msgid "hh"
+msgstr ""
+
+msgid "us"
+msgstr ""
+
+msgid "gg"
+msgstr ""
+
+msgid "rs"
+msgstr ""
+
+msgid "so"
+msgstr ""
+
+msgid "au"
+msgstr ""
+
+msgid "su"
+msgstr ""
+
+msgid "lu"
+msgstr ""
+
+msgid "nz"
+msgstr ""
+
+msgid "am"
+msgstr ""
+
+# Quote alerts
+# ckanext/schemingdcat/templates/schemingdcat/snippets/quote_alerts.html
+msgid "Tip"
+msgstr ""
+
+msgid "Note"
+msgstr ""
+
+msgid "Warning"
+msgstr ""
+
+msgid "Caution"
+msgstr ""
+
+msgid "Important"
 msgstr ""

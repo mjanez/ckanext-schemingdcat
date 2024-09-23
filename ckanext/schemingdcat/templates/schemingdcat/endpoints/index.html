@@ -53,7 +53,7 @@
     {% elif endpoint.type == 'sparql' %}
         {% set endpoint_url = h.url_for('/sparql') %}
     {% endif %}
-    <a class="tag endpoints_index" target="_blank" rel="noopener noreferrer" href="{{ endpoint_url }}"><i class="fa {{ endpoint_icon }}"> </i> {{ endpoint_title }} <img src="{{ format_img }}" alt="{{ endpoint.display_name }}"></a>
+    <a class="tag endpoints_index_cards" target="_blank" rel="noopener noreferrer" href="{{ h.schemingdcat_url_unquote(endpoint_url) }}"><i class="fa {{ endpoint_icon }}"> </i> {{ endpoint_title }} <img src="{{ format_img }}" alt="{{ endpoint.display_name }}"></a>
 {% endmacro %}
 
 {% set endpoints = h.schemingdcat_get_catalog_endpoints() %}
@@ -74,7 +74,7 @@
 <div class="box">
   <div class="inner">
       <h1><center>{{ _('Catalog endpoints') }}</center></h1>
-      <div class="addons">
+      <div class="endpoints_index_addons">
 
       {% for endpoint_type in endpoint_types %}
         {% if endpoint_type == 'sparql'  and not sparql_active %}

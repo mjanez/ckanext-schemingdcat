@@ -1,8 +1,13 @@
+import logging
+import json
+
 import ckan.plugins as plugins
 from ckan.common import request
+
 import ckanext.schemingdcat.config as sdct_config
-from ckanext.schemingdcat.utils import get_facets_dict
-import logging
+from ckanext.schemingdcat.helpers import schemingdcat_get_current_lang
+import ckanext.schemingdcat.utils as utils
+from ckanext.schemingdcat.utils import deprecated
 
 log = logging.getLogger(__name__)
 
@@ -32,18 +37,23 @@ class Faceted():
         else:
             return facets_dict
 
-    def _custom_facets(self,
-                       facets_dict,
-                       package_type):
-
-        lang_code = request.environ['CKAN_LANG']
-
+    def _custom_facets(self, facets_dict, package_type):
+        lang_code = schemingdcat_get_current_lang()
+    
+        # Initialize cache dictionary if it does not exist
+        if not hasattr(sdct_config, 'dataset_custom_facets'):
+            sdct_config.dataset_custom_facets = {}
+    
+        # Check if we already cached the results for the current language
+        if lang_code in sdct_config.dataset_custom_facets:
+            return sdct_config.dataset_custom_facets[lang_code]
+    
         _facets_dict = {}
         for facet in self.facet_list:
             # Look for the field label in the scheming file.
             # If it's not there, use the default dictionary provided
-            scheming_item = get_facets_dict().get(facet)
-
+            scheming_item = utils.get_facets_dict().get(facet)
+    
             if scheming_item:
                 # Retrieve the corresponding label for the used language
                 _facets_dict[facet] = scheming_item.get(lang_code)
@@ -57,17 +67,16 @@ class Faceted():
                     else:
                         log.warning(
                             "Unable to find a valid label for the field '%s' when faceting" % facet)
-
+    
                 if not _facets_dict[facet]:
                     _facets_dict[facet] = plugins.toolkit._(facet)
-
+    
             else:
                 _facets_dict[facet] = plugins.toolkit._(facets_dict.get(facet))
-
-        # tag_key = 'tags_' + lang_code
-        # facets_dict[tag_key] = plugins.toolkit._('Tag')
-        #FIXME: FOR COMMON TAG FACET
-        #log.debug("dataset_facets._facets_dict: {0}".format(_facets_dict))
+    
+        # Cache the results for the current language
+        sdct_config.dataset_custom_facets[lang_code] = _facets_dict
+    
         return _facets_dict
 
     def group_facets(self,
