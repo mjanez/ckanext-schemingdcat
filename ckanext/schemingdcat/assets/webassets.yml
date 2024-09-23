@@ -13,7 +13,6 @@ schemingdcat-table-collapsible-rows:
       - base/main
   contents:
     - vendor/mustache/mustache.js
-    - vendor/jquery/jquery.js
     - js/modules/schemingdcat-table-collapsible-rows.js
 
 schemingdcat-permanent-url:

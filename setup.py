@@ -6,7 +6,7 @@ from os import path
 
 here = path.abspath(path.dirname(__file__))
 
-version = "3.1.0"
+version = "4.0.0"
 
 # Get the long description from the relevant file
 with open(path.join(here, 'README.md'), encoding='utf-8') as f:
@@ -44,6 +44,7 @@ setup(
         
         # EU | European DCAT-AP/GeoDCAT-AP profiles
         eu_dcat_ap_2=ckanext.schemingdcat.profiles:EuDCATAP2Profile
+        eu_dcat_ap_3=ckanext.schemingdcat.profiles:EuDCATAP3Profile
         eu_geodcat_ap_2=ckanext.schemingdcat.profiles:EuGeoDCATAP2Profile
         eu_geodcat_ap_3=ckanext.schemingdcat.profiles:EuGeoDCATAP3Profile
         

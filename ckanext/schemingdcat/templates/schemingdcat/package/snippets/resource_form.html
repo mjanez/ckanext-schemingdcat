@@ -1,10 +1,10 @@
 {% extends 'package/snippets/resource_form.html' %}
 
 {% block stages %}
-  {%- set pages = h.scheming_get_dataset_form_pages(dataset_type) -%}
-  {%- if pages and stage -%}
+  {% set pages = h.scheming_get_dataset_form_pages(dataset_type) %}
+  {% if pages and stage %}
     <ol class="stages stage-1">
-      {%- for p in pages -%}
+      {% for p in pages %}
         <li class="{{
           'first ' if loop.first else ''}}"
           style="width:{{ 100 / (loop.length + 1) }}%">
@@ -51,14 +51,15 @@
         {% set all_tabs = h.schemingdcat_form_tabs_grouping(schema, 'resource_fields') %}
         {% set user_is_org_admin = (data.owner_org and h.check_access('organization_update', {'id':data.owner_org})) %}
         {% set user_is_admin = h.check_access('sysadmin') or user_is_org_admin %}
+
         {% if not all_tabs %}
             {{ super() }}
         {% else %}
         <div id="groupTab" class="row group-tab">
           <ul class="nav nav-pills nav-stacked col-md-2 tabs_container">
               {% for tab in all_tabs %}
-                <li class="{% if loop.first %}active{% endif %}">
-                      <a href="#{{ h.schemingdcat_slugify(tab.form_tab) }}" data-toggle="tab" class="tab-link form_tab">{{ h.scheming_language_text(tab.label) }}</a>
+                <li class="nav-item {% if loop.first %}active{% endif %}">
+                    <a href="#{{ h.schemingdcat_slugify(tab.form_tab) }}" data-bs-toggle="tab" class="nav-link tab-link form_tab">{{ h.scheming_language_text(tab.label) }}</a>
                       <ul class="form-group-list" style="display: none;">
                         {% for form_group in tab.form_group_id %}
                         <li class="{% if form_group.form_group_id in tab.required_form_group_id %}required-fields{% endif %}" 
@@ -75,10 +76,10 @@
 
             <div class="tab-content col-md-10" style="display:block;">
                 {% for tab in all_tabs %}
-            <div class="tab-pane fade {% if loop.first %}active in{% endif %}" id="{{ h.schemingdcat_slugify(tab.form_tab) }}">
+            <div class="tab-pane fade {% if loop.first %}active show{% endif %}" id="{{ h.schemingdcat_slugify(tab.form_tab) }}">
                 {% for form_group in tab.form_group_id %}
                             {% if form_group %}
-                        <div class="{{ form_group.form_group_id }}-group card mb-3" data-form_group_id="{{ form_group.form_group_id }}" id="{{ form_group.form_group_id }}">
+                        <div class="{{ form_group.form_group_id }}-group card mb-3" data-bs-form_group_id="{{ form_group.form_group_id }}" id="{{ form_group.form_group_id }}">
                                     <div class="card-header">
                                         <h3 class="mb-0"><i class="fa {{ form_group.fa_icon }}" style="padding-right:5px;"></i>{{ h.scheming_language_text(form_group.label) }}</h3>
                                     </div>
@@ -100,6 +101,7 @@
                         {% endfor %}
                     </div>
                 {% endfor %}
+        </div>
             </div>
 
             {% if 'resource_fields' not in schema %}

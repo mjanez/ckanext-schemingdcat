@@ -354,6 +354,42 @@ msgstr "This can be used for custom CSS on a CKAN site"
 msgid "This is for choosing a predefined layout for the modules that appear on your homepage."
 msgstr "This is for choosing a predefined layout for the modules that appear on your homepage."
 
+#: ckanext/schemingdcat/templates/admin/index.html
+msgid ""
+"<p>As a sysadmin user you have full control over this CKAN instance. Proceed with care!</p>\n"
+"<p>For guidance on using sysadmin features, see the CKAN <a href=\"{{ docs_url }}\" target=\"_blank\" rel=\"noreferrer\">sysadmin guide</a></p>"
+msgstr ""
+"<p>As a sysadmin user you have full control over this CKAN instance. Proceed with care!</p>\n"
+"<p>For guidance on using sysadmin features, see the CKAN <a href=\"{{ docs_url }}\" target=\"_blank\" rel=\"noreferrer\">sysadmin guide</a></p>"
+
+#: ckanext/schemingdcat/templates/admin/index.html
+msgid "<p>A sysadmin user can access and edit any organizations, view and change user details, and permanently delete datasets. You should carefully consider who has access to a sysadmin account on your CKAN system.</p>"
+msgstr "<p>A sysadmin user can access and edit any organizations, view and change user details, and permanently delete datasets. You should carefully consider who has access to a sysadmin account on your CKAN system.</p>"
+
+#: ckanext/schemingdcat/templates/admin/index.html
+msgid "For guidance on using sysadmin features, see the CKAN"
+msgstr "For guidance on using sysadmin features, see the CKAN"
+
+#: ckanext/schemingdcat/templates/admin/index.html
+msgid "For guidance on configuration options, see the CKAN"
+msgstr "For guidance on configuration options, see the CKAN"
+
+#: ckanext/schemingdcat/templates/admin/index.html
+msgid "sysadmin guide"
+msgstr "sysadmin guide"
+
+#: ckanext/schemingdcat/templates/admin/index.html
+msgid "As a sysadmin user you have full control over this CKAN instance. <strong>Proceed with care!</strong>"
+msgstr "As a sysadmin user you have full control over this CKAN instance. <strong>Proceed with care!</strong>"
+
+#: ckanext/schemingdcat/templates/admin/index.html
+msgid "Current Sysadmins"
+msgstr "Current Sysadmins"
+
+#: ckanext/schemingdcat/templates/admin/index.html
+msgid "Promote user to Sysadmin"
+msgstr "Promote user to Sysadmin"
+
 #: ckanext/schemingdcat/templates/header.html:5
 msgid "Harvest metadata"
 msgstr "Harvest metadata"
@@ -922,6 +958,18 @@ msgstr "(<a href=\"{{ url }}\">ckanapi</a> library)"
 msgid "Query example (results containing 'medio-ambiente')"
 msgstr "Query example (results containing 'medio-ambiente')"
 
+#: ckanext/schemingdcat/templates/ajax_snippets/scd_api_info.html
+msgid "A simple request to the data API using Python."
+msgstr "A simple request to the data API using Python."
+
+#: ckanext/schemingdcat/templates/ajax_snippets/scd_api_info.html
+msgid "Further information in the <a href=\"http://docs.ckan.org/en/latest/maintaining/datastore.html\" target=\"_blank\">main CKAN Data API and DataStore documentation</a>."
+msgstr "Further information in the <a href=\"http://docs.ckan.org/en/latest/maintaining/datastore.html\" target=\"_blank\">main CKAN Data API and DataStore documentation</a>."
+
+#: ckanext/schemingdcat/templates/ajax_snippets
+msgid "Example"
+msgstr "Example"
+
 #: ckanext/schemingdcat/templates/schemingdcat/endpoints/index.html
 msgid "What are Endpoints?"
 msgstr "What are Endpoints?"
@@ -988,6 +1036,14 @@ msgid "Featured dataset"
 msgid_plural "Featured datasets"
 msgstr[0] "Featured dataset"
 msgstr[1] "Featured datasets"
+
+#: ckanext/schemingdcat/templates/home/snippets/about_portal.html
+msgid "Explore and use Open Data"
+msgstr "Explore and use Open Data"
+
+#: ckanext/schemingdcat/templates/home/snippets/about_themes.html
+msgid "Theme categories"
+msgstr "Theme categories"
 
 # ckanext/schemingdcat/templates/schemingdcat/metadata_templates/header_metadata_templates.html
 msgid "Metadata template"
@@ -1224,3 +1280,126 @@ msgstr "Non-spatial datasets"
 
 msgid "Spatial datasets"
 msgstr "Spatial datasets"
+
+msgid "Spatial dataset"
+msgstr "Spatial dataset"
+
+# INSPIRE Themes - Schema field_name: theme
+msgid "mf"
+msgstr "Meteorological geographical features"
+
+msgid "ac"
+msgstr "Atmospheric conditions"
+
+msgid "lc"
+msgstr "Land Cover"
+
+msgid "ad"
+msgstr "Addresses"
+
+msgid "pd"
+msgstr "Population distribution — demography"
+
+msgid "sd"
+msgstr "Species distribution"
+
+msgid "bu"
+msgstr "Buildings"
+
+msgid "el"
+msgstr "Elevations"
+
+msgid "ge"
+msgstr "Geology"
+
+msgid "hy"
+msgstr "Hydrography"
+
+msgid "hb"
+msgstr "Habitats and Biotopes"
+
+msgid "af"
+msgstr "Agricultural and aquaculture facilities"
+
+msgid "ef"
+msgstr "Environmental Monitoring Facilities"
+
+msgid "pf"
+msgstr "Production and Industrial Facilities"
+
+msgid "ps"
+msgstr "Protected sites"
+
+msgid "gn"
+msgstr "Geographical names"
+
+msgid "oi"
+msgstr "Orthoimagery"
+
+msgid "cp"
+msgstr "Cadastral parcels"
+
+msgid "of"
+msgstr "Oceanographic Geographical Features"
+
+msgid "er"
+msgstr "Energy resources"
+
+msgid "mr"
+msgstr "Mineral resources"
+
+msgid "tn"
+msgstr "Transport networks"
+
+msgid "br"
+msgstr "Bio-geographical regions"
+
+msgid "sr"
+msgstr "Sea regions"
+
+msgid "hh"
+msgstr "Human health and safety"
+
+msgid "us"
+msgstr "Utility and governmental services"
+
+msgid "gg"
+msgstr "Geographical Grid Systems"
+
+msgid "rs"
+msgstr "Coordinate reference systems"
+
+msgid "so"
+msgstr "Soil"
+
+msgid "au"
+msgstr "Administrative units"
+
+msgid "su"
+msgstr "Statistical units"
+
+msgid "lu"
+msgstr "Land use"
+
+msgid "nz"
+msgstr "Natural risk zones"
+
+msgid "am"
+msgstr "Area management/restriction/regulation zones and reporting units"
+
+# Quote alerts
+# ckanext/schemingdcat/templates/schemingdcat/snippets/quote_alerts.html
+msgid "Tip"
+msgstr "Tip"
+
+msgid "Note"
+msgstr "Note"
+
+msgid "Warning"
+msgstr "Warning"
+
+msgid "Caution"
+msgstr "Caution"
+
+msgid "Important"
+msgstr "Important"

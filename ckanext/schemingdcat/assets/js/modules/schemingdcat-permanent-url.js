@@ -49,7 +49,7 @@
         if (result) {
           var input = document.querySelector("#input");
           var span = document.createElement("span");
-          span.innerHTML = '<i class="fa fa-clipboard"></i>';
+          span.innerHTML = '<i class="fa-solid fa-clipboard-check"></i>';
           span.classList.add("permalink-copy");
           input.parentNode.replaceChild(span, input);
 

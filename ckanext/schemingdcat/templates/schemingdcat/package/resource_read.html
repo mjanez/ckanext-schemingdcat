@@ -40,24 +40,22 @@
   {% if res.datastore_active %}
     <li>{% snippet 'schemingdcat/package/snippets/data_api_button.html', resource=res %}</li>
 {% endif %}
-  <a class="btn btn-primary resource-url-analytics" href="{{ res.url }}">
-    {% if res.resource_type in ('listing', 'service') %}
-      <i class="fa fa-eye"></i> {{ _('View') }}
-    {% elif res.resource_type == 'api' %}
-      <i class="fa fa-key"></i> {{ _('API Endpoint') }}
-    {% elif res.has_views and not res.url_type == 'upload' %}
-      <i class="fa fa-external-link"></i> {{ _('Go to resource') }}
-    {% elif not res.has_views and res.url_type == 'upload' %}
-      <i class="fa fa-arrow-circle-down"></i> {{ _('Download') }}
-    {% else %}
-      <i class="fa fa-external-link"></i> {{ _('Go to resource') }}
-    {% endif %}
-  </a>
-  {% block download_resource_button %}
-    {% if res.datastore_active  %}
+  <div class="btn-group">
+    <a class="btn btn-primary resource-url-analytics" href="{{ res.url }}">
+      {% if res.resource_type in ('listing', 'service') %}
+        <i class="fa fa-eye"></i> {{ _('View') }}
+      {% elif  res.resource_type == 'api' %}
+        <i class="fa fa-key"></i> {{ _('API Endpoint') }}
+      {% elif not res.has_views and not res.url_type == 'upload' %}
+        <i class="fa fa-external-link"></i> {{ _('Go to resource') }}
+      {% else %}
+        <i class="fa fa-download"></i> {{ _('Download') }}
+      {% endif %}
+    </a>
+    {% if not res.resource_type in ('listing', 'service', 'api') and (res.has_views or res.url_type == 'upload') %}
       {% snippet "schemingdcat/package/snippets/download_datastore_formats.html", res=res %}
     {% endif %}
-  {% endblock %}
+  </div>
 </li>
 {% endif %}
 {% endblock %}

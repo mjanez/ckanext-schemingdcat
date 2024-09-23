@@ -1,0 +1,23 @@
+{% set processed_profiles = [] %}
+
+{% macro render_metadata_label(profile) %}
+  <div class="metadata-label pull-left">
+    <span><a href="{{ profile.profile_info_url }}" target="_blank">{{ profile.profile_label }}</a></span> <i class="fa fa-check-circle"></i>
+  </div>
+{% endmacro %}
+
+{% for profile in profiles %}
+    {% if profile.profile_label not in processed_profiles %}
+
+        {% if profile.profile_label == 'INSPIRE' and pkg.dcat_type in inspire_metadata_values %}
+            {{ render_metadata_label(profile) }}
+        {% elif profile.profile_label == 'DCAT-AP' %}
+            {{ render_metadata_label(profile) }}
+        {% elif profile.profile_label == 'GeoDCAT-AP' %}
+            {{ render_metadata_label(profile) }}
+        {% elif profile.profile_label == 'NTI-RISP' and pkg.theme_es %}
+            {{ render_metadata_label(profile) }}
+        {% endif %}
+        {% set _ = processed_profiles.append(profile.profile_label) %}
+    {% endif %}
+{% endfor %}

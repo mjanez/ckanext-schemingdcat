@@ -1,21 +1,23 @@
-from ckan.common import json, c, request, is_flask_request
+import six
+import re
+import yaml
+from collections import defaultdict
+import json
+from typing import Dict, List, Union
+from yaml.loader import SafeLoader
+from pathlib import Path
+from functools import lru_cache
+import datetime
+from urllib.parse import urlparse, unquote
+from urllib.error import URLError
+from six.moves.urllib.parse import urlencode
+
+from ckan.common import json, c, request
 from ckan.lib import helpers as ckan_helpers
 import ckan.logic as logic
 from ckan import model
 from ckan.lib.i18n import get_available_locales, get_lang
 import ckan.plugins as p
-import six
-import re
-import yaml
-from yaml.loader import SafeLoader
-from pathlib import Path
-from functools import lru_cache
-import datetime
-import typing
-from urllib.parse import urlparse, unquote
-from urllib.error import URLError
-
-from six.moves.urllib.parse import urlencode
 
 from ckanext.scheming.helpers import (
     scheming_choices_label,
@@ -35,7 +37,7 @@ import ckanext.schemingdcat.config as sdct_config
 from ckanext.schemingdcat.utils import (
     get_facets_dict,
     public_file_exists,
-    public_dir_exists,
+    public_dir_exists
 )
 from ckanext.dcat.utils import CONTENT_TYPES, get_endpoint
 from ckanext.fluent.validators import LANG_SUFFIX
@@ -47,7 +49,7 @@ all_helpers = {}
 prettify_cache = {}
 DEFAULT_LANG = None
 
-@lru_cache(maxsize=None)
+@lru_cache(maxsize=16)
 def get_scheming_dataset_schemas():
     """
     Fetches the dataset schemas using the scheming_dataset_schemas function.
@@ -99,6 +101,26 @@ def schemingdcat_get_schema_dataset_types():
         list: A list of schema names.
     """
     return [schema["dataset_type"] for schema in sdct_config.schemas.values()]
+
+
+@helper
+def get_facet_items_with_deserialized_names(facet_items):
+    import json
+    for item in facet_items:
+        try:
+            # Verificar si las cadenas no están vacías antes de deserializar
+            if item['name'] and item['display_name']:
+                names = json.loads(item['name'])
+                display_names = json.loads(item['display_name'])
+                
+                # Combinar las listas
+                item['combined'] = list(zip(names, display_names))
+            else:
+                item['combined'] = []
+        except json.JSONDecodeError:
+            item['combined'] = []
+        
+    return facet_items
 
 @helper
 def schemingdcat_default_facet_search_operator():
@@ -203,83 +225,107 @@ def schemingdcat_get_facet_items_dict(
     match each facet item).
 
     Reads the complete list of facet items for the given facet from
-    c.search_facets, and filters out the facet items that the user has already
+    search_facets, and filters out the facet items that the user has already
     selected.
 
     List of facet items are ordered acording the faccet_sort parameter
 
     Arguments:
     facet -- the name of the facet to filter.
-    search_facets -- dict with search facets(c.search_facets in Pylons)
+    search_facets -- dict with search facets in Flask (c.search_facets in Pylons)
     limit -- the max. number of facet items to return.
     exclude_active -- only return unselected facets.
     scheming_choices -- scheming choices to use to get label from value.
 
     """
 
-    # log.debug("Returning facets for: {0}".format(facet))
+    #log.debug("Returning facets for: {0}".format(facet))
 
     order = "default"
     items = []
+    seen_items = set()
 
     search_facets = search_facets or getattr(c, "search_facets", None)
-
+    #log.debug("search_facets RAW: {0}".format(search_facets))
+    
     if (
-        search_facets
-        and isinstance(search_facets, dict)
-        and search_facets.get(facet, {}).get("items")
-    ):
-        for facet_item in search_facets.get(facet)["items"]:
-            if scheming_choices:
-                facet_item["label"] = scheming_choices_label(
-                    scheming_choices, facet_item["name"]
+            search_facets
+            and isinstance(search_facets, dict)
+            and search_facets.get(facet, {}).get("items")
+        ):
+            for facet_item in search_facets.get(facet)["items"]:
+                try:
+                    names = [facet_item["name"]]
+                    display_names = [facet_item["display_name"]]
+                    labels =  [facet_item.get("label", facet_item["display_name"])]
+                except (ValueError, SyntaxError) as e:
+                    log.error("Error parsing facet_item: {0}".format(e))
+                    continue
+        
+                # Make sure labels are the same size as names and display_names.
+                if len(labels) != len(names):
+                    labels = display_names
+    
+                for name, display_name, label in zip(names, display_names, labels):
+                    item = {
+                        "name": name,
+                        "display_name": display_name,
+                        "count": facet_item["count"],
+                        "label": label
+                    }
+    
+                    if scheming_choices:
+                        item["label"] = scheming_choices_label(
+                            scheming_choices, item["name"]
+                        )
+                    else:
+                        item["label"] = item["display_name"]
+    
+                    if not len(item["name"].strip()):
+                        log.debug("Skipping facet_item with empty name")
+                        continue
+    
+                    # Avoid duplicates
+                    item_key = (item["name"], item["display_name"], item["label"])
+                    if item_key in seen_items:
+                        continue
+                    seen_items.add(item_key)
+    
+                    params_items = request.args.items(multi=True)
+    
+                    if (facet, item["name"]) not in params_items:
+                        items.append(dict(active=False, **item))
+                    elif not exclude_active:
+                        items.append(dict(active=True, **item))
+    
+                    order_lst = request.args.getlist("_%s_sort" % facet)
+                    if len(order_lst):
+                        order = order_lst[0]
+                        log.debug("order: {0}".format(order))
+    
+            # Sort descending by count and ascending by case-sensitive display name
+            sorts = {
+                "name": ("label", False),
+                "name_r": ("label", True),
+                "count": ("count", False),
+                "count_r": ("count", True),
+            }
+            if sorts.get(order):
+                items.sort(
+                    key=lambda it: (it[sorts.get(order)[0]]), reverse=sorts.get(order)[1]
                 )
             else:
-                facet_item["label"] = facet_item["display_name"]
-
-            if not len(facet_item["name"].strip()):
-                continue
-
-            params_items = (
-                request.params.items(multi=True)
-                if is_flask_request()
-                else request.params.items()
-            )
-
-            if not (facet, facet_item["name"]) in params_items:
-                items.append(dict(active=False, **facet_item))
-            elif not exclude_active:
-                items.append(dict(active=True, **facet_item))
-
-            #    log.debug("params: {0}:{1}".format(
-            #    facet,request.params.getlist("_%s_sort" % facet)))
-            order_lst = request.params.getlist("_%s_sort" % facet)
-            if len(order_lst):
-                order = order_lst[0]
-        #     Sort descendingly by count and ascendingly by case-sensitive display name
-        #    items.sort(key=lambda it: (-it['count'], it['display_name'].lower()))
-        sorts = {
-            "name": ("label", False),
-            "name_r": ("label", True),
-            "count": ("count", False),
-            "count_r": ("count", True),
-        }
-        if sorts.get(order):
-            items.sort(
-                key=lambda it: (it[sorts.get(order)[0]]), reverse=sorts.get(order)[1]
-            )
-        else:
-            items.sort(key=lambda it: (-it["count"], it["label"].lower()))
-
-        if hasattr(c, "search_facets_limits"):
-            if c.search_facets_limits and limit is None:
-                limit = c.search_facets_limits.get(facet)
-        # zero treated as infinite for hysterical raisins
-        if limit is not None and limit > 0:
-            return items[:limit]
+                items.sort(key=lambda it: (-it["count"], it["label"].lower()))
+    
+            if hasattr(c, "search_facets_limits"):
+                if c.search_facets_limits and limit is None:
+                    limit = c.search_facets_limits.get(facet)
+    
+            # zero treated as infinite for hysterical raisins
+            if limit is not None and limit > 0:
+                return items[:limit]
 
     return items
-
 
 @helper
 def schemingdcat_new_order_url(facet_name, order_concept, extras=None):
@@ -297,7 +343,7 @@ def schemingdcat_new_order_url(facet_name, order_concept, extras=None):
     """
     old_order = None
     order_param = "_%s_sort" % facet_name
-    order_lst = request.params.getlist(order_param)
+    order_lst = request.args.getlist(order_param)
     if not extras:
         extras = {}
 
@@ -315,11 +361,8 @@ def schemingdcat_new_order_url(facet_name, order_concept, extras=None):
 
     new_order = order_mapping.get(order_concept, {}).get(old_order)
 
-    params_items = (
-        request.params.items(multi=True)
-        if is_flask_request()
-        else request.params.items()
-    )
+    params_items = request.args.items(multi=True)
+
     params_nopage = [(k, v) for k, v in params_items if k != order_param]
 
     if new_order:
@@ -329,6 +372,41 @@ def schemingdcat_new_order_url(facet_name, order_concept, extras=None):
         url = url + "?" + urlencode(params_nopage)
 
     return url
+
+@helper
+def schemingdcat_get_open_data_statistics():
+    """
+    Retrieves Open Data portal statistics including counts of datasets, distributions, groups, organizations, tags, spatial datasets, and endpoints.
+
+    Returns:
+        dict: A dictionary containing the counts of various site elements.
+    """
+    return sdct_config.open_data_statistics
+
+@helper
+def schemingdcat_get_social_links(platform=None):
+    """
+    Retrieves social media links for GitHub, LinkedIn, and X from the configuration.
+    
+    Args:
+        platform (str, optional): The specific platform to retrieve the link for. 
+                                  Can be 'github', 'linkedin', or 'x'. 
+                                  If None, returns a dictionary with all links.
+    
+    Returns:
+        dict or str: A dictionary containing the social media links for GitHub, LinkedIn, and X,
+                     or a single link if a platform is specified.
+    """
+    social_links = {
+        'github': sdct_config.social_github,
+        'linkedin': sdct_config.social_linkedin,
+        'x': sdct_config.social_x
+    }
+    
+    if platform:
+        return social_links.get(platform.lower(), None)
+    
+    return social_links
 
 @helper
 def schemingdcat_get_facet_list_limit():
@@ -388,7 +466,37 @@ def schemingdcat_get_default_icon(field):
     """
     if "default_icon" in field:
         return field["default_icon"]
-    
+
+@helper
+def schemingdcat_get_inspire_dcat_types():
+    """
+    Returns the configuration value for INSPIRE DCAT types.
+
+    This function retrieves the configuration value that specifies the INSPIRE 
+    DCAT types. These types are used to categorize datasets according to the 
+    INSPIRE directive. The function returns the value of the configuration 
+    setting `INSPIRE_DCAT_TYPES`.
+
+    Returns:
+        list: A list of strings representing the INSPIRE DCAT types.
+    """
+    return sdct_config.INSPIRE_DCAT_TYPES
+
+@helper
+def schemingdcat_get_dataset_custom_facets():
+    """
+    Returns the custom facets for datasets from the configuration.
+
+    This function retrieves the custom facets for datasets as specified in the 
+    configuration. These custom facets are used to categorize datasets according 
+    to specific criteria defined in the configuration. The function returns the 
+    value of the configuration setting `dataset_custom_facets`.
+
+    Returns:
+        list: A list of strings representing the custom facets for datasets.
+    """
+    return sdct_config.dataset_custom_facets
+
 @helper
 def schemingdcat_get_default_package_item_icon():
     """
@@ -545,7 +653,7 @@ def schemingdcat_get_choice_item(field, value):
         dict: The whole option item in scheming, or None if not found.
     """
     if field and ("choices" in field):
-        # log.debug("Searching: {0} en {1}".format(value,field['choices']))
+        #log.debug("Searching: {0} en {1}".format(value,field['choices']))
         for choice in field["choices"]:
             if choice["value"] == value:
                 return choice
@@ -793,6 +901,8 @@ def schemingdcat_get_catalog_endpoints():
             "type": item["type"],
             "profile": item["profile"],
             "profile_label": item["profile_label"],
+            "profile_label_order": item["profile_label_order"],
+            "profile_info_url": item["profile_info_url"],
             "endpoint": get_endpoint("catalog")
             if item.get("type").lower() == "lod"
             else csw_uri.format(version=item["version"])
@@ -964,6 +1074,25 @@ def parse_json(value, default_value=None):
         if default_value is not None:
             return default_value
         return value
+
+@helper
+def get_root_path():
+    """
+    Retrieve the root path from the CKAN configuration, removing the '{{LANG}}' placeholder if present.
+
+    This function fetches the 'ckan.root_path' configuration setting and removes the '/{{LANG}}' 
+    placeholder if it exists in the path.
+
+    Returns:
+        str: The root path with the '{{LANG}}' placeholder removed if it was present.
+    """
+    root_path = p.toolkit.config.get('ckan.root_path')
+    
+    # Removes the '{{LANG}}' part if present in the root_path
+    if root_path and '{{LANG}}' in root_path:
+        root_path = root_path.replace('/{{LANG}}', '')
+    
+    return root_path
 
 @helper
 def get_langs():
@@ -1261,7 +1390,7 @@ def schemingdcat_parse_localised_date(date_=None):
     else:
         return date_.strftime('%Y-%m-%d')
 
-@lru_cache(maxsize=None)
+@lru_cache(maxsize=16)
 @helper
 def schemingdcat_get_dataset_schema(schema_type="dataset"):
     """
@@ -1279,9 +1408,9 @@ def schemingdcat_get_dataset_schema(schema_type="dataset"):
 
 @lru_cache(maxsize=100)
 @helper
-def schemingdcat_get_cached_schema(dataset_type="dataset"):
+def schemingdcat_get_cached_schema(dataset_type='dataset'):
     """
-    Retrieves the schema for the dataset instance and caches it using the LRU cache decorator for efficient retrieval.
+    Retrieve the cached schema for a given dataset type.
 
     Args:
         dataset_type (str, optional): The type of schema to retrieve. Defaults to 'dataset'.
@@ -1289,6 +1418,9 @@ def schemingdcat_get_cached_schema(dataset_type="dataset"):
     Returns:
         dict: The schema of the dataset instance.
     """
+    if sdct_config.schemas is None:
+        raise ValueError("sdct_config.schemas is not initialized")
+    
     return sdct_config.schemas.get(dataset_type, {})
 
 @helper
@@ -1310,7 +1442,7 @@ def schemingdcat_get_schema_form_groups(entity_type=None, object_type=None, sche
 
 # Vocabs
 @helper
-def get_inspire_themes(*args, **kwargs) -> typing.List[typing.Dict[str, str]]:
+def get_inspire_themes(*args, **kwargs) -> List[Dict[str, str]]:
     log.debug(f"inside get_inspire_themes {args=} {kwargs=}")
     try:
         inspire_themes = p.toolkit.get_action("tag_list")(
@@ -1406,7 +1538,55 @@ def get_spatial_datasets(count=10):
     
     return result['results']
 
-@lru_cache(maxsize=None)
+@helper
+def get_theme_datasets(field='theme', count=10):
+    """
+    This helper function retrieves a specified number of featured datasets from the CKAN instance. 
+    It uses the 'package_search' action of the CKAN logic layer to perform a search with specific parameters.
+    
+    Parameters:
+    field (str): The field to search for in the dataset extras. Default is 'theme'.
+    count (int): The number of featured datasets to retrieve. Default is 10.
+
+    Returns:
+    list: A list of unique values from the specified field in the featured datasets.
+    """
+    search_dict = {
+        'fl': 'extras_' + field,
+        'rows': count
+    }
+    context = {'model': model, 'session': model.Session}
+    result = logic.get_action('package_search')(context, search_dict)
+    
+    return result['results']
+
+@lru_cache(maxsize=16)
+@helper
+def get_unique_themes():
+    """
+    Retrieves unique themes from the dataset extras field specified by the default package item icon.
+
+    This helper function uses the `get_theme_datasets` function to fetch datasets and then extracts
+    unique values from the specified field. The results are cached to improve performance.
+
+    Returns:
+        list: A list of unique themes extracted from the specified field in the dataset extras.
+    """
+    field_name = schemingdcat_get_default_package_item_icon()
+    themes = get_theme_datasets(field_name)
+    
+    # Use a set to store unique values
+    unique_values = set()
+    for dataset in themes:
+        value = dataset.get(field_name)
+        if value:
+            # Parse the JSON string and add each value to the set
+            unique_values.update(json.loads(value))
+    
+    # Return the unique values as a list
+    return list(unique_values)
+
+@lru_cache(maxsize=16)
 @helper
 def get_header_endpoint_url(endpoint, site_protocol_and_host):
     url_for = ckan_helpers.url_for
@@ -1558,3 +1738,73 @@ def schemingdcat_slugify(s):
         str: The slugified string with only alphanumeric characters.
     """
     return sdct_config.slugify_pat.sub('', s)
+
+@helper
+def schemingdcat_get_theme_statistics(themes: List[Dict], theme_field='theme', icons_dir=None) -> List[Dict]:
+    """
+    Retrieve statistics for each unique theme in the provided list.
+
+    Args:
+        themes (list): A list of dictionaries containing theme information.
+        theme_field (str): The key where the theme data is stored in each dictionary.
+        icons_dir (str, optional): Directory where the icons are stored.
+
+    Returns:
+        list[dict]: A list of dictionaries containing the count, icon, theme, and label for each unique theme.
+    """
+    
+    if icons_dir is None:
+        icons_dir = schemingdcat_get_icons_dir(field_name=theme_field)
+    
+    # Use a defaultdict to store unique themes and their counts
+    theme_counts = defaultdict(int)
+
+    # Iterate over the themes and count occurrences
+    for theme_dict in themes:
+        theme_value = theme_dict.get(theme_field)  # Access 'theme' using the provided field name
+        if theme_value:
+            try:
+                parsed_values = json.loads(theme_value)  # Parse the JSON only once per theme
+            except json.JSONDecodeError:
+                continue  # Skip if theme_value is not valid JSON
+            for val in parsed_values:
+                theme_counts[val] += 1
+
+    # Generate the final list of dictionaries
+    stats = [
+        {
+            'count': count,
+            'icon': schemingdcat_get_icon(icons_dir=icons_dir, choice_value=theme),
+            'value': theme,
+            'label': theme.split('/')[-1],  # Use split only once
+            'field_name': theme_field,
+        }
+        for theme, count in theme_counts.items()  # Process items directly without separate for loop
+    ]
+
+    return stats
+
+@helper
+def schemingdcat_update_open_data_statistics() -> Dict[str, Union[int, List[Dict[str, Union[int, str]]]]]:
+    """
+    Retrieve Open Data portal statistics including counts of datasets, distributions, groups, organizations, tags, spatial datasets, and endpoints.
+
+    Returns:
+        dict: A dictionary containing the counts of various site elements.
+    """
+    actions = logic.get_action
+    
+    theme_field = schemingdcat_get_default_package_item_icon()
+    themes = get_theme_datasets(theme_field)
+    themes_stats = schemingdcat_get_theme_statistics(themes, theme_field)
+
+    sdct_config.open_data_statistics = {
+        'dataset_count': actions('package_search')({}, {"rows": 1})['count'],
+        'distribution_count': actions('package_search')({}, {"rows": 1})['count'],
+        'group_count': len(actions('group_list')({}, {})),
+        'organization_count': len(actions('organization_list')({}, {})),
+        'tag_count': len(actions('tag_list')({}, {})),
+        'spatial_dataset_count': len(get_spatial_datasets()),
+        'endpoints_count': len(schemingdcat_get_catalog_endpoints()),
+        'themes_stats': themes_stats,
+    }

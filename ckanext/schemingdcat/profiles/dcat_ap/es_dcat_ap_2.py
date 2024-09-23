@@ -12,16 +12,17 @@ from ckanext.schemingdcat.profiles.base import (
     MD_FORMAT,
     MD_EU_LANGUAGES,
 )
-from ckanext.schemingdcat.profiles.dcat_ap.eu_dcat_ap_2 import EuDCATAP2Profile
+from ckanext.schemingdcat.profiles.eu_dcat_ap_base import BaseEuDCATAPProfile
 from ckanext.schemingdcat.profiles.dcat_config import (
     # Vocabs
     RDF,
-    XSD,
-    SCHEMA,
-    RDFS,
     DCAT,
     DCATAP,
     DCT,
+    XSD,
+    SCHEMA,
+    RDFS,
+    ADMS,
     CNT,
     ELI,
     EUROVOC,
@@ -34,7 +35,7 @@ from ckanext.schemingdcat.profiles.dcat_config import (
     )
 
 #TODO: Implement Spanish DCAT-AP 2 profile
-class EsDCATAP2Profile(EuDCATAP2Profile):
+class EsDCATAP2Profile(BaseEuDCATAPProfile):
     """
     A custom RDF profile based on the DCAT-AP 2 for data portals in Europe
 
@@ -48,17 +49,39 @@ class EsDCATAP2Profile(EuDCATAP2Profile):
 
     """
 
+
     def parse_dataset(self, dataset_dict, dataset_ref):
 
-        # call super method
-        super(EsDCATAP2Profile, self).parse_dataset(dataset_dict, dataset_ref)
+        # Call base method for common properties
+        dataset_dict = self._parse_dataset_base(dataset_dict, dataset_ref)
 
-        # Translated fields
-        for key, field in default_translated_fields.items():
-            predicate = field['rdf_predicate']
-            value = self._object_value(dataset_ref, predicate, True)
-            if value:
-                dataset_dict[field['field_name']] = value
+        # DCAT AP v2 properties also applied to higher versions
+        dataset_dict = self._parse_dataset_v2(dataset_dict, dataset_ref)
+
+        return dataset_dict
+
+    def graph_from_dataset(self, dataset_dict, dataset_ref):
+
+        # Call base method for common properties
+        self._graph_from_dataset_base(dataset_dict, dataset_ref)
+
+        # DCAT AP v2 properties also applied to higher versions
+        self._graph_from_dataset_v2(dataset_dict, dataset_ref)
+
+        # DCAT AP v2 specific properties
+        self._graph_from_dataset_v2_only(dataset_dict, dataset_ref)
+
+    def graph_from_catalog(self, catalog_dict, catalog_ref):
+
+        self._graph_from_catalog_base(catalog_dict, catalog_ref)
+
+    def _parse_dataset_v2(self, dataset_dict, dataset_ref):
+        """
+        DCAT -> CKAN properties carried forward to higher DCAT-AP versions
+        """
+
+        # Call base super method for common properties
+        super().parse_dataset(dataset_dict, dataset_ref)
 
         # Basic fields
         for key, predicate in (
@@ -84,7 +107,6 @@ class EsDCATAP2Profile(EuDCATAP2Profile):
             values = self._object_value_list(dataset_ref, predicate)
             if values:
                 dataset_dict["extras"].append({"key": key, "value": json.dumps(values)})
-
         # Temporal
         start, end = self._time_interval(dataset_ref, DCT.temporal, dcat_ap_version=2)
         if start:
@@ -102,8 +124,8 @@ class EsDCATAP2Profile(EuDCATAP2Profile):
             dataset_ref, DCAT.spatialResolutionInMeters
         )
         if spatial_resolution:
-            # For some reason we incorrectly allowed lists in this property at some point
-            # keep support for it but default to single value
+            # For some reason we incorrectly allowed lists in this property at
+            # some point, keep support for it but default to single value
             value = (
                 spatial_resolution[0]
                 if len(spatial_resolution) == 1
@@ -178,8 +200,9 @@ class EsDCATAP2Profile(EuDCATAP2Profile):
                             else ""
                         )
 
-                        # Remember the (internal) access service reference for referencing in
-                        # further profiles, e.g. for adding more properties
+                        # Remember the (internal) access service reference for
+                        # referencing in further profiles, e.g. for adding more
+                        # properties
                         access_service_dict["access_service_ref"] = str(access_service)
 
                         access_service_list.append(access_service_dict)
@@ -191,12 +214,10 @@ class EsDCATAP2Profile(EuDCATAP2Profile):
 
         return dataset_dict
 
-    def graph_from_dataset(self, dataset_dict, dataset_ref):
-
-        # call super method
-        super(EsDCATAP2Profile, self).graph_from_dataset(
-            dataset_dict, dataset_ref
-        )
+    def _graph_from_dataset_v2(self, dataset_dict, dataset_ref):
+        """
+        CKAN -> DCAT properties carried forward to higher DCAT-AP versions
+        """
 
         # Standard values
         self._add_triple_from_dict(
@@ -236,6 +257,7 @@ class EsDCATAP2Profile(EuDCATAP2Profile):
                 fallbacks=fallbacks,
                 _type=type,
                 _datatype=datatype,
+                _class=_class,
             )
 
         # Temporal
@@ -346,8 +368,8 @@ class EsDCATAP2Profile(EuDCATAP2Profile):
                     access_service_node = CleanedURIRef(access_service_uri)
                 else:
                     access_service_node = BNode()
-                    # Remember the (internal) access service reference for referencing in
-                    # further profiles
+                    # Remember the (internal) access service reference for referencing
+                    # in further profiles
                     access_service_dict["access_service_ref"] = str(access_service_node)
 
                 self.g.add((distribution, DCAT.accessService, access_service_node))
@@ -365,6 +387,7 @@ class EsDCATAP2Profile(EuDCATAP2Profile):
                         DCAT.endpointDescription,
                         None,
                         URIRefOrLiteral,
+                        RDFS.Resource,
                     ),
                     ("description", DCT.description, None, Literal),
                 ]
@@ -399,9 +422,19 @@ class EsDCATAP2Profile(EuDCATAP2Profile):
             if access_service_list:
                 resource_dict["access_services"] = json.dumps(access_service_list)
 
-    def graph_from_catalog(self, catalog_dict, catalog_ref):
+    def _graph_from_dataset_v2_only(self, dataset_dict, dataset_ref):
+        """
+        CKAN -> DCAT v2 specific properties (not applied to higher versions)
+        """
 
-        # call super method
-        super(EsDCATAP2Profile, self).graph_from_catalog(
-            catalog_dict, catalog_ref
+        # Other identifiers (these are handled differently in the
+        # DCAT-AP v3 profile)
+        self._add_triple_from_dict(
+            dataset_dict,
+            dataset_ref,
+            ADMS.identifier,
+            "alternate_identifier",
+            list_value=True,
+            _type=URIRefOrLiteral,
+            _class=ADMS.Identifier,
         )

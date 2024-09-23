@@ -209,7 +209,7 @@ class SchemingDCATRDFProfile(RDFProfile):
         <dcat:contactPoint>
             <vcard:Organization rdf:nodeID="Nc320885686e84382a0a2ea602ebde399">
                 <vcard:fn>Contact Point for dataset 1</vcard:fn>
-                <vcard:hasEmail rdf:resource="mailto:contact@some.org"/>
+                <vcard:hasEmail <mailto:contact@some.org>
                 <vcard:hasURL>http://some.org<vcard:hasURL>
                 <vcard:role>pointOfContact<vcard:role>
             </vcard:Organization>

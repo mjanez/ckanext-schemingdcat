@@ -34,7 +34,8 @@ jobs:
       image: ${{ matrix.ckan-image }}
     services:
       solr:
-        image: ckan/ckan-solr:${{ matrix.ckan-version }}-solr9-spatial
+        # Custom image with spatial support and advanced schema
+        image: ghcr.io/mjanez/ckan-solr:2.10-solr9-spatial
       postgres:
         image: ckan/ckan-postgres-dev:${{ matrix.ckan-version }}
         env:
