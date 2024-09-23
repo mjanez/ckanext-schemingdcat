@@ -3460,3 +3460,9 @@ input#lang-r:checked ~ div .example-r {
 .quote-alert.important strong {
   color: #8957e5;
 }
+
+/* Harvest Source forms */
+.radio-list-item {
+  display: block;
+  margin-bottom: 10px; /* Espacio entre los elementos de la lista */
+}
