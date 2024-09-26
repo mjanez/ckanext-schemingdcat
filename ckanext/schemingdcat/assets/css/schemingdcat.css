@@ -137,6 +137,9 @@ img {
   [role=main] {
     min-height: 250px;
   }
+  .navbar {
+    padding-top:2.5rem;
+  }
 }
 [role=main],
 .main {
@@ -161,6 +164,9 @@ img {
   padding: 0px 0;
   background: #003164;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  min-height: 30px;
+  max-height: 80px;
+  color: #fff;
 }
 .site-footer {
   margin-top:150px;
@@ -1257,35 +1263,68 @@ img.item_image {
   position: relative;
   margin: -7px -25px;
   padding: 10px 15px;
+  border-radius: 5px; /* Rounded corners */
+  background-color: #f9f9f9; /* Light background */
+  transition: background-color 0.3s ease, box-shadow 0.3s ease; /* Smooth transitions */
+}
+
+.permalink-label:hover {
+  background-color: #e0e0e0; /* Slightly darker background on hover */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow on hover */
 }
 
 .permanav {
   cursor: pointer;
+  border-radius: 5px; /* Rounded corners */
+  transition: background-color 0.3s ease, box-shadow 0.3s ease; /* Smooth transitions */
 }
 
 .permanav:hover {
   background-color: #eeeeee; 
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow on hover */
 }
 
 .permalink-input {
-  margin-top: 5px;
-  margin-left: 5px;
+  margin-top: 14px;
   width: calc(100% - 10px);
+  border-radius: 5px; /* Rounded corners */
+  border: 1px solid #ccc; /* Light border */
+  padding: 8px; /* Padding for better readability */
+  transition: border-color 0.3s ease; /* Smooth transition for border color */
+}
+
+.permalink-input:focus {
+  border-color: #2f88a3; /* Border color on focus */
+  outline: none; /* Remove default outline */
 }
 
 .permalink-copy {
+  margin-top: 14px;
   font-size: 24px;
   color: #2f88a3;
   display: flex;
-  justify-content: right;
-  align-items: right;
+  justify-content: flex-end; /* Align to the right */
+  align-items: center; /* Center vertically */
   transition: color 0.3s ease, transform 0.3s ease;
+  cursor: pointer; /* Pointer cursor */
+}
+
+.permalink-copy:hover {
+  margin-top: 14px;
+  color: #1f667a; /* Darker color on hover */
+  transform: scale(1.1); /* Slightly enlarge on hover */
 }
 
 .permalink-copy i {
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  border-radius: 5px; /* Rounded corners */
+  padding: 5px; /* Padding for better click area */
+  transition: box-shadow 0.3s ease; /* Smooth transition for shadow */
 }
 
+.permalink-copy i:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* More pronounced shadow on hover */
+}
 /* dataset form */
 .card {
   position: relative;
@@ -1457,6 +1496,12 @@ img.item_image {
   align-items: center; 
 }
 
+@media (max-width: 410px) {
+  .metadata-header {
+    display: none !important;
+  }
+}
+
 .metadata-header {
   display: flex;
   align-items: center; 
@@ -1486,6 +1531,23 @@ img.item_image {
   display: flex;
   align-items: center;
   padding: 0 10px; 
+}
+
+.full-label {
+  display: inline;
+}
+
+.short-label {
+  display: none;
+}
+
+@media (max-width:992px) {
+  .full-label {
+    display: none;
+  }
+  .short-label {
+    display: inline;
+  }
 }
 
 /* Estilos personalizados para el separador */
@@ -1645,17 +1707,22 @@ img.item_image {
   box-shadow: none;
 }
 
+/* Package tags */
 .tags {
   display: flex;
+  justify-content: space-between;
   flex-wrap: wrap;
-  justify-content: space-between; 
+  flex-direction: column;
 }
+
+/* Home tags */
 
 .index_tags {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
   width: 100%; 
+  flex-direction: row;
 }
 
 .index_tags .tag {
@@ -1678,7 +1745,7 @@ img.item_image {
   padding: 5px;
   margin: 0;
   list-style: none;
-  justify-content: space-between;
+  justify-content: space-evenly;
 }
 
 .tag-container {
@@ -2426,7 +2493,7 @@ input#lang-r:checked ~ div .example-r {
 .label[data-bs-format*=shapefile],
 .label[data-bs-format*=gdb],
 .label[data-bs-format*=geodatabase] {
-  background-color: #daf7ff;
+  background-color: #7dc0d4;
 }
 
 .label[data-bs-format=wcs],
@@ -3079,6 +3146,11 @@ input#lang-r:checked ~ div .example-r {
 }
 
 /* CKAN 2.10 */
+/* Header */
+.masthead .fa.fa-bars.text-white {
+    color: rgb(0, 49, 100) !important;
+}
+
 /* Fix Flask debug panels */
 /* Selects all elements whose ID begins with 'flDebug' and ends with 'Panel-content' */
 [id^="flDebug"][id$="Panel-content"] {

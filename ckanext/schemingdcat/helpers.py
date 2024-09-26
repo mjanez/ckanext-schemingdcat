@@ -900,8 +900,10 @@ def schemingdcat_get_catalog_endpoints():
             "description": item["description"],
             "type": item["type"],
             "profile": item["profile"],
+            "profile_id": item["profile_id"],
             "profile_label": item["profile_label"],
             "profile_label_order": item["profile_label_order"],
+            "profile_version": tuple(map(int, str(item["version"]).split("."))),
             "profile_info_url": item["profile_info_url"],
             "endpoint": get_endpoint("catalog")
             if item.get("type").lower() == "lod"
