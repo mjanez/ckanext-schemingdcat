@@ -206,13 +206,13 @@ DATASET_DEFAULT_FIELDS = [
     {'field_name': 'title', 'fallback': None, 'default_value': None, 'override': False, 'dtype': str},
     {'field_name': 'notes', 'fallback': None, 'default_value': None, 'override': False, 'dtype': str},
     {'field_name': 'description', 'fallback': None, 'default_value': None, 'override': False, 'dtype': str},
-    {'field_name': 'access_rights', 'fallback': None, 'default_value': OGC2CKAN_HARVESTER_MD_CONFIG['access_rights'], 'override': True, 'dtype': str},
-    {'field_name': 'license', 'fallback': None, 'default_value': OGC2CKAN_HARVESTER_MD_CONFIG['license'], 'override': True, 'dtype': str},
-    {'field_name': 'license_id', 'fallback': None, 'default_value': OGC2CKAN_HARVESTER_MD_CONFIG['license_id'], 'override': True, 'dtype': str},
-    {'field_name': 'topic', 'fallback': None, 'default_value': OGC2CKAN_HARVESTER_MD_CONFIG['topic'], 'override': True, 'dtype': str},
-    {'field_name': 'theme', 'fallback': None, 'default_value': OGC2CKAN_HARVESTER_MD_CONFIG['theme'], 'override': True, 'dtype': str},
-    {'field_name': 'theme_eu', 'fallback': None, 'default_value': OGC2CKAN_HARVESTER_MD_CONFIG['theme_eu'], 'override': True, 'dtype': str},
-    {'field_name': 'status', 'fallback': None, 'default_value': OGC2CKAN_HARVESTER_MD_CONFIG['status'], 'override': True, 'dtype': str},
+    {'field_name': 'access_rights', 'fallback': None, 'default_value': OGC2CKAN_HARVESTER_MD_CONFIG['access_rights'], 'override': False, 'dtype': str},
+    {'field_name': 'license', 'fallback': None, 'default_value': OGC2CKAN_HARVESTER_MD_CONFIG['license'], 'override': False, 'dtype': str},
+    {'field_name': 'license_id', 'fallback': None, 'default_value': OGC2CKAN_HARVESTER_MD_CONFIG['license_id'], 'override': False, 'dtype': str},
+    {'field_name': 'topic', 'fallback': None, 'default_value': OGC2CKAN_HARVESTER_MD_CONFIG['topic'], 'override': False, 'dtype': str},
+    {'field_name': 'theme', 'fallback': None, 'default_value': OGC2CKAN_HARVESTER_MD_CONFIG['theme'], 'override': False, 'dtype': str},
+    {'field_name': 'theme_eu', 'fallback': None, 'default_value': OGC2CKAN_HARVESTER_MD_CONFIG['theme_eu'], 'override': False, 'dtype': str},
+    {'field_name': 'status', 'fallback': None, 'default_value': OGC2CKAN_HARVESTER_MD_CONFIG['status'], 'override': False, 'dtype': str},
     {'field_name': 'hvd_category', 'fallback': None, 'default_value': None, 'override': False, 'dtype': str},
 ]
 
@@ -223,12 +223,12 @@ RESOURCE_DEFAULT_FIELDS = [
     {'field_name': 'protocol', 'fallback': None, 'default_value': None, 'override': False, 'dtype': str},
     {'field_name': 'mimetype', 'fallback': None, 'default_value': None, 'override': False, 'dtype': str},
     {'field_name': 'description', 'fallback': None, 'default_value': None, 'override': False, 'dtype': str},
-    {'field_name': 'license', 'fallback': None, 'default_value': OGC2CKAN_HARVESTER_MD_CONFIG['license'], 'override': True, 'dtype': str},
-    {'field_name': 'license_id', 'fallback': None, 'default_value': OGC2CKAN_HARVESTER_MD_CONFIG['license_id'], 'override': True, 'dtype': str},
-    {'field_name': 'rights', 'fallback': None, 'default_value': OGC2CKAN_HARVESTER_MD_CONFIG['rights'], 'override': True, 'dtype': str},
+    {'field_name': 'license', 'fallback': None, 'default_value': OGC2CKAN_HARVESTER_MD_CONFIG['license'], 'override': False, 'dtype': str},
+    {'field_name': 'license_id', 'fallback': None, 'default_value': OGC2CKAN_HARVESTER_MD_CONFIG['license_id'], 'override': False, 'dtype': str},
+    {'field_name': 'rights', 'fallback': None, 'default_value': OGC2CKAN_HARVESTER_MD_CONFIG['rights'], 'override': False, 'dtype': str},
     {'field_name': 'language', 'fallback': None, 'default_value': OGC2CKAN_HARVESTER_MD_CONFIG['language'], 'override': False, 'dtype': str},
     {'field_name': 'conforms_to', 'fallback': None, 'default_value': None, 'override': False, 'dtype': str},
-    {'field_name': 'size', 'fallback': None, 'default_value': 0, 'override': True, 'dtype': int},
+    {'field_name': 'size', 'fallback': None, 'default_value': 0, 'override': False, 'dtype': int},
 ]
 
 # Custom rules for harvesters.base._update_custom_format()
