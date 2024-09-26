@@ -2988,7 +2988,7 @@ input#lang-r:checked ~ div .example-r {
 .sct-about-themes-card-container {
   display: flex;
   flex-wrap: wrap;
-  justify-content: space-between; 
+  justify-content: space-around;
   gap: 10px; 
 }
 
