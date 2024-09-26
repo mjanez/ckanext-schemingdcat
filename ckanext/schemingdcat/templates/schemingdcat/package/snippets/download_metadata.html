@@ -4,12 +4,15 @@
 
 {% for endpoint in endpoints %}
   {% set profile = endpoint.get('profile') %}
+  {% set profile_id = endpoint.get('profile_id') %}
   {% set profile_label = endpoint.get('profile_label') %}
   {% set profile_info_url = endpoint.get('profile_info_url') %}
   {% set profile_label_order = endpoint.get('profile_label_order') %}
-  {% set type = endpoint.get('type') %}
-  {% if {'profile': profile, 'profile_label': profile_label, 'profile_info_url': profile_info_url, 'type': type, 'profile_label_order': profile_label_order} not in profiles %}
-    {% set _ = profiles.append({'profile': profile, 'profile_label': profile_label, 'profile_info_url': profile_info_url, 'type': type, 'profile_label_order': profile_label_order}) %}
+  {% set profile_version = endpoint.get('profile_version') %}
+  {% set profile_fa_icon = endpoint.get('fa_icon') %}
+  {% set profile_type = endpoint.get('type') %}
+  {% if {'profile': profile, 'profile_id': profile_id, 'profile_label': profile_label, 'profile_info_url': profile_info_url, 'profile_type': profile_type, 'profile_label_order': profile_label_order} not in profiles %}
+    {% set _ = profiles.append({'profile': profile, 'profile_id': profile_id, 'profile_label': profile_label, 'profile_info_url': profile_info_url, 'profile_type': profile_type, 'profile_label_order': profile_label_order, 'profile_version': profile_version, 'profile_fa_icon': profile_fa_icon}) %}
   {% endif %}
 {% endfor %}
 
