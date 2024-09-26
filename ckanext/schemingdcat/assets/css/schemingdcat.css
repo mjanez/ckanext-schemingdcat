@@ -2074,7 +2074,6 @@ a.endpoints_index:hover {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin: 0 auto; /* Centra el contenedor del logo */
 }
 .footer-powered-ckan,
 .footer-socicons,
