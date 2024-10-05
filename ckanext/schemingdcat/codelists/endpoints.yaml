@@ -33,7 +33,7 @@ catalog_endpoints:
     display_name: RDF GeoDCAT-AP 2
     type: lod
     format: rdf
-    image_display_url: /images/icons/endpoints/eu_dcat_ap.svg
+    image_display_url: /images/icons/endpoints/eu_geodcat_ap.svg
     endpoint_icon: /images/endpoints/catalog-rdf-eu.png
     fa_icon: fa-share-alt
     description: RDF GeoDCAT-AP 2.0.0 Endpoint for european data portals.
@@ -48,7 +48,7 @@ catalog_endpoints:
     display_name: RDF GeoDCAT-AP 3
     type: lod
     format: rdf
-    image_display_url: /images/icons/endpoints/eu_dcat_ap.svg
+    image_display_url: /images/icons/endpoints/eu_geodcat_ap.svg
     endpoint_icon: /images/endpoints/catalog-rdf-eu.png
     fa_icon: fa-share-alt
     description: RDF GeoDCAT-AP 3.0.0 Endpoint for european data portals.
@@ -93,7 +93,7 @@ catalog_endpoints:
     display_name: JSON-LD GeoDCAT-AP 2
     type: lod
     format: jsonld
-    image_display_url: /images/icons/endpoints/eu_dcat_ap.svg
+    image_display_url: /images/icons/endpoints/eu_geodcat_ap.svg
     endpoint_icon: /images/endpoints/catalog-jsonld-eu.png
     fa_icon: fa-share-alt
     description: RDF GeoDCAT-AP 2.0.0 Endpoint for european data portals.
@@ -108,7 +108,7 @@ catalog_endpoints:
     display_name: JSON-LD GeoDCAT-AP 3
     type: lod
     format: jsonld
-    image_display_url: /images/icons/endpoints/eu_dcat_ap.svg
+    image_display_url: /images/icons/endpoints/eu_geodcat_ap.svg
     endpoint_icon: /images/endpoints/catalog-jsonld-eu.png
     fa_icon: fa-share-alt
     description: RDF GeoDCAT-AP 3.0.0 Endpoint for european data portals.

@@ -14,7 +14,7 @@ import yaml
 from yaml.loader import SafeLoader
 from pathlib import Path
 
-from ckanext.dcat.utils import CONTENT_TYPES
+from ckanext.dcat.utils import CONTENT_TYPES, get_endpoint
 from ckanext.scheming.helpers import (
     scheming_dataset_schemas,
 )
@@ -156,7 +156,7 @@ def public_dir_exists(path):
 def init_config():
     sdct_config.linkeddata_links = _load_yaml('linkeddata_links.yaml')
     sdct_config.geometadata_links = _load_yaml('geometadata_links.yaml')
-    sdct_config.endpoints = _load_yaml(sdct_config.endpoints_yaml)
+    sdct_config.endpoints = _load_yaml(p.toolkit.config.get('ckanext.schemingdcat.endpoints_yaml'))
     
     # Cache scheming schemas of local instance
     sdct_config.schemas = _get_schemas()
@@ -259,7 +259,7 @@ def get_linked_data(id):
     Returns:
         list: A list of dictionaries containing linked data for the identifier.
     """
-    if sdct_config.debug:
+    if p.toolkit.config.get("debug", False):
         linkeddata_links = _load_yaml('linkeddata_links.yaml')
     else:
         linkeddata_links = sdct_config.linkeddata_links
@@ -403,3 +403,104 @@ def set_schema_form_groups():
             log.error('KeyError encountered while setting schema form tabs for dataset_type: %s, error: %s', dataset_type, e)
             
     return form_groups     
+
+def schemingdcat_catalog_endpoints():
+    """Get the catalog endpoints.
+
+    Returns:
+        list: A list of dictionaries containing linked data for the identifier.
+    """    
+    csw_uri = schemingdcat_get_geospatial_endpoint("catalog")
+
+    return [
+        {
+            "name": item["name"],
+            "display_name": item["display_name"],
+            "format": item["format"],
+            "image_display_url": item["image_display_url"],
+            "endpoint_icon": item["endpoint_icon"],
+            "fa_icon": item["fa_icon"],
+            "description": item["description"],
+            "type": item["type"],
+            "profile": item["profile"],
+            "profile_id": item["profile_id"],
+            "profile_label": item["profile_label"],
+            "profile_label_order": item["profile_label_order"],
+            "profile_version": tuple(map(int, str(item["version"]).split("."))),
+            "profile_info_url": item["profile_info_url"],
+            "endpoint": get_endpoint("catalog")
+            if item.get("type").lower() == "lod"
+            else csw_uri.format(version=item["version"])
+            if item.get("type").lower() == "ogc"
+            else None,
+            "endpoint_data": {
+                "_format": item["format"],
+                "_external": True,
+                "profiles": item["profile"],
+            },
+        }
+        for item in sdct_config.endpoints["catalog_endpoints"]
+    ]
+
+def schemingdcat_get_geospatial_metadata():
+    """Get geospatial metadata for CSW formats.
+
+    Returns:
+        list: A list of dictionaries containing geospatial metadata for CSW formats.
+    """
+    csw_uri = schemingdcat_get_geospatial_endpoint("dataset")
+
+    return [
+        {
+            "name": item["name"],
+            "display_name": item["display_name"],
+            "format": item["format"],
+            "image_display_url": item["image_display_url"],
+            "endpoint_icon": item["endpoint_icon"],
+            "description": item["description"],
+            "description_url": item["description_url"],
+            "url": csw_uri.format(
+                output_format=item["output_format"],
+                version=item["version"],
+                element_set_name=item["element_set_name"],
+                output_schema=item["output_schema"],
+                id="{id}",
+            ),
+        }
+        for item in sdct_config.geometadata_links["csw_formats"]
+    ]
+
+def schemingdcat_get_geospatial_endpoint(type="dataset"):
+    """Get geospatial base URI for CSW Endpoint.
+
+    Args:
+        type (str): The type of endpoint to return. Can be 'catalog' or 'dataset'.
+
+    Returns:
+        str: The base URI of the CSW Endpoint with the appropriate format.
+    """
+    geometadata_base_uri = p.toolkit.config.get('ckanext.schemingdcat.geometadata_base_uri')
+    
+    try:
+        if geometadata_base_uri:
+            csw_uri = geometadata_base_uri
+
+        if (
+            geometadata_base_uri
+            and "/csw" not in geometadata_base_uri
+        ):
+            csw_uri = geometadata_base_uri.rstrip("/") + "/csw"
+        elif geometadata_base_uri == "":
+            csw_uri = "/csw"
+        else:
+            csw_uri = geometadata_base_uri.rstrip("/")
+    except:
+        csw_uri = "/csw"
+
+    if type == "catalog":
+        return csw_uri + "?service=CSW&version={version}&request=GetCapabilities"
+    else:
+        return (
+            csw_uri
+            + "?service=CSW&version={version}&request=GetRecordById&id={id}&elementSetName={element_set_name}&outputSchema={output_schema}&OutputFormat={output_format}"
+        )
