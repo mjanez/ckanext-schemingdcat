@@ -299,8 +299,12 @@ msgstr ""
 msgid "Catalog endpoints"
 msgstr ""
 
-#: ckanext/schemingdcat/templates/home/snippets/search.html:6
+#: ckanext/schemingdcat/templates/home/snippets/search.html
 msgid "Open Data Catalog"
+msgstr ""
+
+#: ckanext/schemingdcat/templates/home/snippets/search.html
+msgid "Find data published by various organizations to help you develop products and services."
 msgstr ""
 
 #: ckanext/schemingdcat/templates/admin/config.html:14

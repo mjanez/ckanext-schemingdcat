@@ -311,9 +311,13 @@ msgstr "Metadatos de la distribución"
 msgid "Catalog endpoints"
 msgstr "Puntos finales del catálogo"
 
-#: ckanext/schemingdcat/templates/home/snippets/search.html:6
+#: ckanext/schemingdcat/templates/home/snippets/search.html
 msgid "Open Data Catalog"
 msgstr "Catálogo de Datos Abiertos"
+
+#: ckanext/schemingdcat/templates/home/snippets/search.html
+msgid "Find data published by various organizations to help you develop products and services."
+msgstr "Encuentre datos publicados por diversas organizaciones que le ayudarán a desarrollar productos y servicios."
 
 #: ckanext/schemingdcat/templates/admin/config.html:14
 msgid "Frontpage intro text"
