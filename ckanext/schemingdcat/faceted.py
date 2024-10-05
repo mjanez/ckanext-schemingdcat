@@ -1,7 +1,7 @@
 import logging
 import json
 
-import ckan.plugins as plugins
+import ckan.plugins as p
 from ckan.common import request
 
 import ckanext.schemingdcat.config as sdct_config
@@ -14,7 +14,7 @@ log = logging.getLogger(__name__)
 
 class Faceted():
 
-    plugins.implements(plugins.IFacets)
+    p.implements(p.IFacets)
     facet_list = []
 
     def facet_load_config(self, facet_list):
@@ -60,19 +60,21 @@ class Faceted():
                 if not _facets_dict[facet]:
                     # If the label doesn't exist, try the default language label.
                     # And if that doesn't exist either, use the first one available.
-                    raw_label = scheming_item.get(sdct_config.default_locale,
-                                                  list(scheming_item.values())[0])
+                    raw_label = scheming_item.get(p.toolkit.config.get(
+                        "ckan.locale_default", "en"),
+                        list(scheming_item.values())[0]
+                    )
                     if raw_label:
-                        _facets_dict[facet] = plugins.toolkit._(raw_label)
+                        _facets_dict[facet] = p.toolkit._(raw_label)
                     else:
                         log.warning(
                             "Unable to find a valid label for the field '%s' when faceting" % facet)
     
                 if not _facets_dict[facet]:
-                    _facets_dict[facet] = plugins.toolkit._(facet)
+                    _facets_dict[facet] = p.toolkit._(facet)
     
             else:
-                _facets_dict[facet] = plugins.toolkit._(facets_dict.get(facet))
+                _facets_dict[facet] = p.toolkit._(facets_dict.get(facet))
     
         # Cache the results for the current language
         sdct_config.dataset_custom_facets[lang_code] = _facets_dict
@@ -84,7 +86,7 @@ class Faceted():
                      group_type,
                      package_type):
 
-        if sdct_config.group_custom_facets:
+        if p.toolkit.config.get('ckanext.schemingdcat.group_custom_facets'):
             #log.debug("Custom facets for group")
             facets_dict = self._custom_facets(facets_dict, package_type)
         return facets_dict
@@ -94,7 +96,7 @@ class Faceted():
                             organization_type,
                             package_type):
 
-        if sdct_config.group_custom_facets:
+        if p.toolkit.config.get('ckanext.schemingdcat.organization_custom_facets'):
             #log.debug("facetas personalizadas para organización")
             facets_dict = self._custom_facets(facets_dict, package_type)
         else:
@@ -102,16 +104,16 @@ class Faceted():
 
 #        lang_code = pylons.request.environ['CKAN_LANG']
 #        facets_dict.clear()
-#        facets_dict['organization'] = plugins.toolkit._('Organization')
-#        facets_dict['theme_id'] =  plugins.toolkit._('Category')
-#        facets_dict['res_format_label'] = plugins.toolkit._('Format')
-#        facets_dict['publisher_display_name'] = plugins.toolkit._('Publisher')
-#        facets_dict['administration_level'] = plugins.toolkit._(
+#        facets_dict['organization'] = p.toolkit._('Organization')
+#        facets_dict['theme_id'] =  p.toolkit._('Category')
+#        facets_dict['res_format_label'] = p.toolkit._('Format')
+#        facets_dict['publisher_display_name'] = p.toolkit._('Publisher')
+#        facets_dict['administration_level'] = p.toolkit._(
 #                                                'Administration level')
-#        facets_dict['frequency'] = plugins.toolkit._('Update frequency')
+#        facets_dict['frequency'] = p.toolkit._('Update frequency')
 #        tag_key = 'tags_' + lang_code
-#        facets_dict[tag_key] = plugins.toolkit._('Tag')
+#        facets_dict[tag_key] = p.toolkit._('Tag')
 #         FIXME: PARA FACETA COMUN DE TAGS
-#         facets_dict['tags'] = plugins.toolkit._('Tag')
+#         facets_dict['tags'] = p.toolkit._('Tag')
 #        return self._facets(facets_dict)
         return facets_dict

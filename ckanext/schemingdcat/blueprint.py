@@ -19,12 +19,12 @@ schemingdcat = Blueprint(u'schemingdcat', __name__)
 
 def endpoints():
     return render('schemingdcat/endpoints/index.html',extra_vars={
-            u'endpoints': sdct_helpers.schemingdcat_get_catalog_endpoints(),
+            u'endpoints': sdct_helpers.get_schemingdcat_get_catalog_endpoints(),
         })
     
 def metadata_templates():
     return render('schemingdcat/metadata_templates/index.html',extra_vars={
-            u'metadata_templates': sdct_helpers.schemingdcat_get_catalog_endpoints(),
+            u'metadata_templates': sdct_helpers.get_schemingdcat_get_catalog_endpoints(),
         })
 
 schemingdcat.add_url_rule("/endpoints/", view_func=endpoints, endpoint="endpoint_index", strict_slashes=False)
