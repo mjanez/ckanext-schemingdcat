@@ -399,6 +399,49 @@ button.active {
 }
 
 /* About */
+/* About site intro*/
+.sdct-about-heading-container {
+  max-width: 700px;
+  margin: 0 auto;
+
+  .open-data-intro {
+    max-width: 100%;
+    margin: 0 auto; 
+    padding: 10px;
+    background-color: #f0f8ff;
+    border-top: 5px solid #2f88a3;
+    border-radius: 0.3rem;
+    box-sizing: border-box;
+    position: relative;
+
+    p {
+      color: #8aa5bc;
+      margin: 0;
+    }
+
+    a {
+      color: #7b838b;
+      font-weight: 600;
+    }
+
+    img {
+      padding: 5px;
+    }
+
+    @media (max-width: 768px) {
+      max-width: 90%;
+      padding: 10px;
+    }
+
+    @media (max-width: 480px) {
+      max-width: 100%;
+      padding: 8px;
+      border-top: 5px solid #2f88a3;
+      border-radius: 0.3rem;
+    }
+  }
+}
+
 .about .page-heading {
   color: #003164;
 }
@@ -417,11 +460,6 @@ button.active {
     padding: 10px !important;
   }
 }
-
-.dataset-heading {
-  font-weight: 600;
-}
-
 .dataset-search .module nav ul li {
   border: none !important;
 }
@@ -2401,6 +2439,14 @@ input#lang-r:checked ~ div .example-r {
 }
 
 /* dataset-categories fixes */
+.dataset-heading {
+  font-weight: 600;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  max-width: 100%; /* Adjust as needed */
+}
+
+
 .dataset-content {
   flex: 0 1 80%; 
 }
@@ -3438,6 +3484,10 @@ input#lang-r:checked ~ div .example-r {
   background-color: #8ba669;
 }
 
+.fa-stack {
+  width: 2.2em !important;
+}
+
 /* contact info */
 .module_package_info {
   padding-top: 10px !important;
@@ -3537,3 +3587,4 @@ input#lang-r:checked ~ div .example-r {
   display: block;
   margin-bottom: 10px; /* Espacio entre los elementos de la lista */
 }
+

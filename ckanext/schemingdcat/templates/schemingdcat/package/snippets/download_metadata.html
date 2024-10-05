@@ -1,5 +1,5 @@
 {% set inspire_metadata_values = h.schemingdcat_get_inspire_dcat_types() %}
-{% set endpoints = h.schemingdcat_get_catalog_endpoints() %}
+{% set endpoints = h.get_schemingdcat_get_catalog_endpoints() %}
 {% set profiles = [] %}
 
 {% for endpoint in endpoints %}
