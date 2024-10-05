@@ -2273,13 +2273,14 @@ dataset_fields:
 # Spatial resolution (C)
 - field_name: spatial_resolution_in_meters
   label: 
-    en: Spatial resolution of the dataset (m) 
-    es: Resolución espacial del dataset (m)
+    en: Spatial resolution of the dataset
+    es: Resolución espacial del dataset
+  display_snippet: schemingdcat/display_snippets/spatial_resolution_in_meters.html
   display_property: dcat:spatialResolutionInMeters
-  form_placeholder: '5000'
+  form_placeholder: 5000
   help_text:
-    en: Specify spatial resolution as distance in metres.
-    es: Especifique la resolución espacial como distancia en metros
+    en: The minimum spatial separation resolvable in a dataset, measured in meters (m).
+    es: La separación espacial mínima resoluble en un conjunto de datos, medida en metros (m).
   form_group_id: inspire
 
 # License URI (M)
