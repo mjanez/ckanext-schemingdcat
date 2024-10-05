@@ -1,51 +1,4 @@
 import typing
-import re
-
-# Default values
-default_facet_operator = 'OR'
-icons_dir = 'images/icons'
-default_locale = 'en'
-debug = False
-linkeddata_links = None
-geometadata_links = None
-endpoints = None
-endpoints_yaml = 'endpoints.yaml'
-facet_list_limit = 6
-default_package_item_icon = 'theme'
-default_package_item_show_spatial = True
-show_metadata_templates_toolbar = True
-metadata_templates_search_identifier = 'schemingdcat_xls-template'
-mimetype_base_uri = 'http://www.iana.org/assignments/media-types'
-root_path = None
-slugify_pat = re.compile('[^a-zA-Z0-9]')
-# schemingdcat field_mapping extras prefix, e.g. custom_field = extras_custom_field
-field_mapping_extras_prefix = 'extras'
-field_mapping_extras_prefix_symbol = '_'
-# dict of local schemas dicts
-schemas = {}
-form_tabs_allowed = True
-form_tabs = {}
-form_tabs_grouping = None
-form_groups = {}
-# About stats
-open_data_statistics = {
-        'dataset_count': 0,
-        'distribution_count': 0,
-        'group_count': 0,
-        'organization_count': 0,
-        'tag_count': 0,
-        'spatial_dataset_count': 0,
-        'endpoints_count': 0,
-        'themes_stats': []
-    }
-# Custom facets
-dataset_custom_facets = {}
-organization_custom_facets = False
-group_custom_facets = False
-# Footer info
-social_github = 'https://github.com/mjanez/ckanext-schemingdcat'
-social_x = 'https://x.com/ckanproject'
-social_linkedin = 'https://www.linkedin.com/company/ckanproject'
 
 # Default DCAT metadata configuration
 OGC2CKAN_HARVESTER_MD_CONFIG = {
@@ -170,15 +123,7 @@ OGC2CKAN_ISO_MD_ELEMENTS = {
     'lineage_process_steps': 'gmd:dataQualityInfo/gmd:DQ_DataQuality/gmd:lineage/gmd:LI_Lineage/gmd:processStep'
 }
 
-# loose definition of BCP47-like strings
-BCP_47_LANGUAGE = u'^[a-z]{2,8}(-[0-9a-zA-Z]{1,8})*$'
-
-INSPIRE_DCAT_TYPES = [
-    'http://inspire.ec.europa.eu/metadata-codelist/ResourceType/dataset',
-    'http://inspire.ec.europa.eu/metadata-codelist/ResourceType/series',
-    'http://inspire.ec.europa.eu/metadata-codelist/ResourceType/service'
-]
-
+# CKAN fields
 DATASET_DEFAULT_SCHEMA = [
     'id',
     'type',
@@ -189,7 +134,6 @@ RESOURCE_DEFAULT_SCHEMA = [
     'url',
     'name',
     ]
-
 
 DATE_FIELDS = [
     {'field_name': 'created', 'fallback': 'issued', 'default_value': None, 'override': True, 'dtype': str},
@@ -231,89 +175,14 @@ RESOURCE_DEFAULT_FIELDS = [
     {'field_name': 'size', 'fallback': None, 'default_value': 0, 'override': False, 'dtype': int},
 ]
 
-# Custom rules for harvesters.base._update_custom_format()
-CUSTOM_FORMAT_RULES = [
-    {
-        'format_strings': ['esri', 'arcgis'],
-        'url_string': 'viewer.html?url=',
-        'format': 'HTML',
-        'mimetype': 'https://www.iana.org/assignments/media-types/text/html'
-    },
-    {
-        'format_strings': ['html', 'html5'],
-        'url_string': None,
-        'format': 'HTML',
-        'mimetype': 'https://www.iana.org/assignments/media-types/text/html'
-    },
-    {
-        'format_strings': None,
-        'url_string': 'getrecordbyid',
-        'format': 'XML',
-        'mimetype': 'https://www.iana.org/assignments/media-types/application/xml'
-    }
-    # Add more rules here as needed
-]
-
-DATADICTIONARY_DEFAULT_SCHEMA = [
-    'id',
-    'type',
-    'label',
-    'notes',
-    'type_override'
-    ]
-
-# Common date formats for parsing. https://docs.python.org/es/3/library/datetime.html#strftime-and-strptime-format-codes
-COMMON_DATE_FORMATS = [
-    '%Y-%m-%d',
-    '%d-%m-%Y',
-    '%m-%d-%Y',
-    '%Y/%m/%d',
-    '%d/%m/%Y',
-    '%m/%d/%Y',
-    '%Y-%m-%d %H:%M:%S',  # Date with time
-    '%d-%m-%Y %H:%M:%S',  # Date with time
-    '%m-%d-%Y %H:%M:%S',  # Date with time
-    '%Y/%m/%d %H:%M:%S',  # Date with time
-    '%d/%m/%Y %H:%M:%S',  # Date with time
-    '%m/%d/%Y %H:%M:%S',  # Date with time
-    '%Y-%m-%dT%H:%M:%S',  # ISO 8601 format
-    '%Y-%m-%dT%H:%M:%SZ',  # ISO 8601 format with Zulu time indicator
-]
 # Vocabs
 SCHEMINGDCAT_DEFAULT_DATASET_SCHEMA_NAME: typing.Final[str] = "dataset"
 SCHEMINGDCAT_INSPIRE_THEMES_VOCAB: typing.Final[str] = "theme"
 SCHEMINGDCAT_DCAT_THEMES_VOCAB: typing.Final[list] = ["theme_es", "theme_eu"]
 SCHEMINGDCAT_ISO19115_TOPICS_VOCAB: typing.Final[list] = "topic"
 
-
-# Clean ckan names
-URL_REGEX = re.compile(
-    r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\\(\\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+'
-)
-
-# Compile the regular expression
-INVALID_CHARS = re.compile(r"[^a-zñ0-9_.-]")
-
-# Define a dictionary to map accented characters to their unaccented equivalents except ñ
-ACCENT_MAP = str.maketrans({
-    "á": "a", "à": "a", "ä": "a", "â": "a", "ã": "a",
-    "é": "e", "è": "e", "ë": "e", "ê": "e",
-    "í": "i", "ì": "i", "ï": "i", "î": "i",
-    "ó": "o", "ò": "o", "ö": "o", "ô": "o", "õ": "o",
-    "ú": "u", "ù": "u", "ü": "u", "û": "u",
-    "ñ": "ñ",
-})
-
-# CKAN tags fields to be searched in the harvester
-AUX_TAG_FIELDS = [
-    'tag_string',
-    'keywords'
+INSPIRE_DCAT_TYPES = [
+    'http://inspire.ec.europa.eu/metadata-codelist/ResourceType/dataset',
+    'http://inspire.ec.europa.eu/metadata-codelist/ResourceType/series',
+    'http://inspire.ec.europa.eu/metadata-codelist/ResourceType/service'
 ]
-
-URL_FIELD_NAMES = {
-        'dataset': 
-            ['dcat_type', 'theme_es', 'language', 'topic', 'maintainer_url', 'tag_uri', 'contact_uri', 'contact_url', 'publisher_identifier', 'publisher_uri', 'publisher_url', 'publisher_type', 'maintainer_uri', 'maintainer_url', 'author_uri', 'author_url', 'conforms_to', 'theme', 'reference_system', 'spatial_uri', 'representation_type', 'license_id', 'access_rights', 'graphic_overview', 'frequency', 'hvd_category'],
-        'resource':
-            ['url', 'availability', 'mimetype', 'status', 'resource_relation', 'license', 'rights', 'conforms_to', 'reference_system']
-    }
-EMAIL_FIELD_NAMES = ['publisher_email', 'maintainer_email', 'author_email', ]

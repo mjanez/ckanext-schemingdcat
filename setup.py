@@ -32,6 +32,7 @@ setup(
         schemingdcat_datasets=ckanext.schemingdcat.plugin:SchemingDCATDatasetsPlugin
         schemingdcat_groups=ckanext.schemingdcat.plugin:SchemingDCATGroupsPlugin
         schemingdcat_organizations=ckanext.schemingdcat.plugin:SchemingDCATOrganizationsPlugin
+        schemingdcat_open_data_statistics=ckanext.schemingdcat.plugin:SchemingDCATOpenDataStatisticsPlugin
         
         # Harvesters
         schemingdcat_ckan_harvester=ckanext.schemingdcat.harvesters:SchemingDCATCKANHarvester
