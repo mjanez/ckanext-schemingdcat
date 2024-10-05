@@ -267,3 +267,16 @@ class ISchemingDCATHarvester(Interface):
                       errors by the harvester
         """
         return package_dict, []
+
+class ISchemingDCATStatisticsSchema(Interface):
+    def schemingdcat_update_statistics_schema(schema):
+        '''
+        Modify the statistics schema.
+
+        Args:
+            schema: Existing schema dictionary
+
+        Returns:
+            Modified schema dictionary.
+        '''
+        pass
