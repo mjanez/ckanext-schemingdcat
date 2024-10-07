@@ -6,7 +6,7 @@ OGC2CKAN_HARVESTER_MD_CONFIG = {
     'conformance': [
         'http://inspire.ec.europa.eu/documents/inspire-metadata-regulation','http://inspire.ec.europa.eu/documents/commission-regulation-eu-no-13122014-10-december-2014-amending-regulation-eu-no-10892010-0'
     ],
-    'author': 'ckanext-schemingdcat',
+    'author_name': 'ckanext-schemingdcat',
     'author_email': 'admin@{ckan_instance}',
     'author_url': '{ckan_instance}/organization/test',
     'author_uri': '{ckan_instance}/organization/test',
@@ -38,7 +38,7 @@ OGC2CKAN_HARVESTER_MD_CONFIG = {
     'license': 'http://creativecommons.org/licenses/by/4.0/',
     'license_id': 'cc-by',
     'lineage_process_steps': 'ckanext-schemingdcat lineage process steps.',
-    'maintainer': 'ckanext-schemingdcat',
+    'maintainer_name': 'ckanext-schemingdcat',
     'maintainer_email': 'admin@{ckan_instance}',
     'maintainer_url': '{ckan_instance}/organization/test',
     'maintainer_uri': '{ckan_instance}/organization/test',
