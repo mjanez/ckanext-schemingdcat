@@ -82,7 +82,7 @@ class SchemingDCATPostgresHarvester(SchemingDCATSQLHarvester):
         return {
             'name': 'schemingdcat_postgres_harvester',
             'title': 'PostgreSQL Database Harvester',
-            'description': 'An PostgreSQL database harvester for CKAN'
+            'description': 'A PostgreSQL database harvester for CKAN'
         }
     
     db_manager = PostgresDatabaseManager()
