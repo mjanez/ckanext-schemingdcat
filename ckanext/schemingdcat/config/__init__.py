@@ -11,6 +11,8 @@ __all__ = [
     'mimetype_base_uri'
     'field_mapping_extras_prefix'
     'field_mapping_extras_prefix_symbol'
+    'epsg_uri_template',
+    'geojson_tolerance',
 
     # From harvest.py
     'CUSTOM_FORMAT_RULES',

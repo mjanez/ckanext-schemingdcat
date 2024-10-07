@@ -25,20 +25,20 @@
 
   {{ form.markdown('notes', id='field-notes', label=_('Description'), value=data.notes, error=errors.notes) }}
 
-  <div class="harvest-types form-group control-group">
+  <div class="harvest-types form-group">
     <label class="form-label">{{ _('Source type') }}</label>
-    <div class="controls">
+    <div class="form-check">
       {% for harvester in h.harvesters_info() %}
         {% set checked = False %}
         {# select first option if nothing in data #}
         {% if data.source_type == harvester['name'] or (not data.source_type and loop.first) %}
             {% set checked = True %}
         {% endif %}
-        <label class="radio radio-list-item">
-          <input type="radio" name="source_type" value="{{ harvester['name'] }}" {{ "checked " if checked }} data-bs-module="harvest-type-change">
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="source_type" id="source_type_{{ loop.index }}" value="{{ harvester['name'] }}" {{ "checked" if checked }} data-bs-module="harvest-type-change">
           {{ harvester['title'] }}
-          <i class="fa fa-question-circle icon-question-sign muted" title="{{ harvester['description'] }}" data-bs-toggle="tooltip" data-bs-toggle="tooltip"></i>
-        </label>
+          <i class="fa fa-question-circle text-muted" title="{{ harvester['description'] }}" data-bs-toggle="tooltip"></i>
+        </div>
       {% endfor %}
     </div>
   </div>
@@ -66,10 +66,9 @@
 
   {% if show_organizations_selector %}
     {% set existing_org = data.owner_org %}
-    <div class="control-group form-group">
-      <label for="field-organizations" class="control-label">{{ _('Organization') }}</label>
-      <div class="controls">
-        <select id="field-organizations" name="owner_org" data-bs-module="autocomplete">
+    <div class="form-group">
+      <label for="field-organizations" class="form-label">{{ _('Organization') }}</label>
+      <select id="field-organizations" name="owner_org" data-module="autocomplete">
           <option value="" {% if not selected_org and data.id %} selected="selected" {% endif %}>{{ _('No organization') }}</option>
           {% for organization in organizations_available %}
             {# get out first org from users list only if there is not an existing org #}
@@ -78,7 +77,6 @@
           {% endfor %}
         </select>
       </div>
-    </div>
   {% endif %}
 
   {% if data.get('id', None) and h.check_access('harvest_source_delete', {'id': data.id}) and data.get('state', 'none') == 'deleted' %}

@@ -244,4 +244,32 @@ URL of your X (formerly Twitter) profile.
 
 
 
+### SchemingDCATSQLHarvester settings
+
+
+#### ckanext.schemingdcat.postgres.geojson_chars_limit
+
+
+
+
+Default value: `1000`
+
+
+Number of limit using in SchemingDCATSQLHarvester to select data from a specified column. For GeoJSON data, if the data length exceeds, the expression returns NULL to avoid performance issues with large GeoJSON objects.
+
+
+
+#### ckanext.schemingdcat.postgres.geojson_tolerance
+
+
+
+
+Default callable: `ckanext.schemingdcat.helpers:schemingdcat_validate_float`
+
+
+For geographic columns, it applies a transformation to the EPSG:4326 coordinate system and simplifies the geometry based on a tolerance value. Default: `0.001`
+
+
+
+
 <!-- end-config -->

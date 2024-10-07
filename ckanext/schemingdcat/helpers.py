@@ -1807,9 +1807,10 @@ def schemingdcat_format_number(value):
         return value
     
 @helper
-def schemingdcat_validate_float(value):
+def schemingdcat_validate_float(value=None):
     """
     Validates if the value is a float. If the value is a string or an integer, tries to convert it to float.
+    If the value is None, assigns a default value of 0.001.
     Returns the float value if valid, otherwise raises a ValueError.
 
     Args:
@@ -1821,6 +1822,8 @@ def schemingdcat_validate_float(value):
     Raises:
         ValueError: If the value cannot be converted to float.
     """
+    if value is None:
+        return sdct_config.geojson_tolerance
     if isinstance(value, float):
         return value
     if isinstance(value, int):

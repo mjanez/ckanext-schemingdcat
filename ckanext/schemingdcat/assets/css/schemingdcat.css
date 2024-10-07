@@ -3588,3 +3588,6 @@ input#lang-r:checked ~ div .example-r {
   margin-bottom: 10px; /* Espacio entre los elementos de la lista */
 }
 
+.form-check {
+  margin-bottom: 1rem;
+}
