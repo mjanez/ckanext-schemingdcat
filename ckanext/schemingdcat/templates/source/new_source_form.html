@@ -8,7 +8,7 @@
 
   {% call form.input('url', id='field-url', label=_('URL'), value=data.url, error=errors.url, classes=['control-full', 'control-large']) %}
       <span class="info-block">
-        <i class="fa fa-exclamation-triangle"></i> {{ _('This should include the <code>http://</code> or <code>https://</code> part of the URL.') }}
+        <i class="fa fa-exclamation-triangle"></i> {{ _('This should include the <code>http://</code> or <code>https://</code> part of the URL. If it is for the SQL Harvester, then it can be <code>http://{host}:{port}</code>, e.g.: <code>http://localhost:5432</code>'') }}
       </span>
   {% endcall %}
 
