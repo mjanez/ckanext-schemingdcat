@@ -320,7 +320,10 @@ class SchemingDCATPostgresHarvester(SchemingDCATSQLHarvester):
         base_query = f"SELECT {', '.join(query_components['selects'])} FROM {schema}.{table}"
         full_query = ' '.join([search_path, base_query] + query_components['joins'])
 
+        log.debug('full_query:%s', full_query)
+
         return full_query
+
       except Exception as e:
         raise RuntimeError("Error generating SQL query") from e
     
