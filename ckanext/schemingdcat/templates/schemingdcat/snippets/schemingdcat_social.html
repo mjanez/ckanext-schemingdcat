@@ -32,6 +32,7 @@
             {% set current_url = h.url_for_static(h.current_url(), _external=True) %}
             {% snippet "schemingdcat/snippets/permanent_url.html", url=current_url %}     
           {% endblock %}
+          {% set current_url = h.url_for_static(h.current_url(), _external=True) %}
           <li class="nav-item">
             <a href="https://twitter.com/share?url={{ current_url }}" target="_blank"><i class="fa-brands fa-twitter"></i> Twitter</a>
           </li>

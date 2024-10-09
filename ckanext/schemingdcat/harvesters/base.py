@@ -28,6 +28,7 @@ from ckanext.harvest.harvesters import HarvesterBase
 from ckanext.harvest.logic.schema import unicode_safe
 from ckanext.harvest.model import HarvestObject, HarvestObjectExtra
 from ckanext.schemingdcat.lib.field_mapping import FieldMappingValidator
+from ckanext.schemingdcat.signals import schemingdcat_harvest_package_updated, schemingdcat_harvest_package_created
 
 from ckanext.schemingdcat.config import (
     DATASET_DEFAULT_SCHEMA,
@@ -1319,9 +1320,9 @@ class SchemingDCATHarvester(HarvesterBase):
         for field in default_fields:
             if field['override']:
                 package_dict[field['field_name']] = field['default_value']
-            elif field['field_name'] not in package_dict or package_dict[field['field_name']] is None:
+            elif field['field_name'] not in package_dict or package_dict[field['field_name']] in [None, '']:
                 package_dict[field['field_name']] = field['default_value']
-            elif package_dict[field['field_name']] is None and field['fallback'] is not None:
+            elif package_dict[field['field_name']] in [None, ''] and field['fallback'] is not None:
                 package_dict[field['field_name']] = field['fallback']
 
         return package_dict
@@ -2032,6 +2033,9 @@ class SchemingDCATHarvester(HarvesterBase):
                             package_id,
                             harvest_object.guid,
                         )
+                        
+                        schemingdcat_harvest_package_updated.send(self, package_id=new_package["name"], harvest_object_id=harvest_object.guid)
+                        
                     except p.toolkit.ValidationError as e:
                         error_message = ", ".join(
                             f"{k}: {v}" for k, v in e.error_dict.items()
@@ -2110,6 +2114,9 @@ class SchemingDCATHarvester(HarvesterBase):
                         new_package["name"],
                         harvest_object.guid,
                     )
+                    
+                    schemingdcat_harvest_package_created.send(self, package_id=new_package["name"], harvest_object_id=harvest_object.guid)
+                    
                 except p.toolkit.ValidationError as e:
                     error_message = ", ".join(
                         f"{k}: {v}" for k, v in e.error_dict.items()

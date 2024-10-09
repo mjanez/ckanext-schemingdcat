@@ -6,6 +6,8 @@ from shapely.geometry import shape, Polygon
 
 import ckanext.scheming.helpers as sh
 import ckanext.schemingdcat.helpers as helpers
+from ckan import plugins as p
+import ckan.logic as logic
 import ckan.lib.helpers as h
 from urllib.parse import urlparse
 from ckantoolkit import (
@@ -1113,3 +1115,20 @@ def schemingdcat_fill_subfields(dependent_field_name, dependent_fields, value, d
                 data[dependent_key] = value
             except (IndexError, ValueError, KeyError) as e:
                 log.error('Exception occurred while setting field value: %s', e)
+                
+@validator
+def schemingdcat_stats_id_validator(value, context):
+    '''
+    Custom validator for the 'id' field (stat_name). Ensures that the stat_name meets certain criteria.
+    
+    Parameters:
+        - value: The value provided for the key.
+        - context: Additional context (optional).
+
+    Return:
+        - value
+    
+    '''
+    if not isinstance(value, str):
+        raise logic.ValidationError('The name of the statistic must be a text string.')
+    return value
