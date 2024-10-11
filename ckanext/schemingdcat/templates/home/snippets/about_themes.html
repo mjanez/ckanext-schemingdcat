@@ -27,6 +27,7 @@
     <div class="sct-about-themes-card-label">{{ _(label) }}</div>
 </a>
 {% endmacro %}
+
 {% set theme_field = h.schemingdcat_get_default_package_item_icon() %}
 {% set themes_stats = h.schemingdcat_get_open_data_statistics(theme_field) %}
 {% if themes_stats %}

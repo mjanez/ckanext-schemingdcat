@@ -1507,28 +1507,34 @@ def get_spatial_datasets(count=10, return_count=False):
         return result['results']
 
 @helper
-def get_theme_datasets(field='theme', count=10):
+def get_theme_datasets(field='theme'):
     """
-    This helper function retrieves a specified number of featured datasets from the CKAN instance. 
-    It uses the 'package_search' action of the CKAN logic layer to perform a search with specific parameters.
+    Retrieves all datasets with the specified field efficiently using pagination.
     
     Parameters:
     field (str): The field to search for in the dataset extras. Default is 'theme'.
-    count (int): The number of featured datasets to retrieve. Default is 10.
 
     Returns:
     list: A list of unique values from the specified field in the featured datasets.
     """
     search_dict = {
         'fl': 'extras_' + field,
-        'rows': count
+        'rows': 100,  # Number of datasets per batch
+        'start': 0
     }
     context = {'model': model, 'session': model.Session}
-    result = logic.get_action('package_search')(context, search_dict)
-    
-    return result['results']
+    results = []
 
-@lru_cache(maxsize=16)
+    while True:
+        result = logic.get_action('package_search')(context, search_dict)
+        results.extend(result['results'])
+        if len(result['results']) < search_dict['rows']:
+            break
+        search_dict['start'] += search_dict['rows']
+
+    log.debug('Total results retrieved: %d', len(results))
+    return results
+
 @helper
 def get_unique_themes():
     """
@@ -1760,6 +1766,9 @@ def schemingdcat_get_theme_statistics(theme_field=None, icons_dir=None) -> List[
             for val in parsed_values:
                 theme_counts[val] += 1
 
+    # Debugging: Print the theme counts
+    log.debug("Theme counts:%s", theme_counts)
+
     # Generate the final list of dictionaries
     stats = [
         {
@@ -1771,6 +1780,9 @@ def schemingdcat_get_theme_statistics(theme_field=None, icons_dir=None) -> List[
         }
         for theme, count in theme_counts.items()  # Process items directly without separate for loop
     ]
+
+    # Debugging: Print the stats
+    log.debug("Stats:%s", stats)
 
     return stats
 
