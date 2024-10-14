@@ -37,6 +37,7 @@ __all__ = [
     'SCHEMINGDCAT_DCAT_THEMES_VOCAB',
     'SCHEMINGDCAT_ISO19115_TOPICS_VOCAB',
     'INSPIRE_DCAT_TYPES',
+    'DCAT_AP_HVD_CATEGORY_LEGISLATION',
     
     # From tools.py
     'linkeddata_links',

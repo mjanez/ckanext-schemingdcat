@@ -186,3 +186,5 @@ INSPIRE_DCAT_TYPES = [
     'http://inspire.ec.europa.eu/metadata-codelist/ResourceType/series',
     'http://inspire.ec.europa.eu/metadata-codelist/ResourceType/service'
 ]
+
+DCAT_AP_HVD_CATEGORY_LEGISLATION = "http://data.europa.eu/eli/reg_impl/2023/138/oj"
