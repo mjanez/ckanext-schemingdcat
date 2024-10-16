@@ -710,7 +710,7 @@ msgid "URL"
 msgstr ""
 
 #: ckanext/harvest/templates/source/new_source_form.html:10
-msgid "This should include the <code>http://</code> or <code>https://</code> part of the URL."
+msgid "This should include the <code>http://</code> or <code>https://</code> part of the URL. If it is for the SQL Harvester, then it can be <code>http://{host}:{port}</code>, e.g.: <code>http://localhost:5432</code>"
 msgstr ""
 
 #: ckanext/harvest/templates/source/new_source_form.html
@@ -1100,6 +1100,30 @@ msgstr ""
 
 # ckanext/schemingdcat/templates/package/snippets/package_form.html
 msgid "There are required fields in this category"
+msgstr ""
+
+#: ckanext/schemingdcat/templates/schemingdcat/package/snippets/document_info.html
+msgid "Bibliographic information"
+msgstr ""
+
+#: ckanext/schemingdcat/templates/schemingdcat/snippets/dataset_citation.html
+msgid "Cite as"
+msgstr ""
+
+#: ckanext/schemingdcat/templates/schemingdcat/snippets/dataset_citation.html
+msgid "Retrieved"
+msgstr ""
+
+#: ckanext/schemingdcat/templates/schemingdcat/snippets/dataset_citation.html
+msgid "Private {id}"
+msgstr ""
+
+#: ckanext/schemingdcat/templates/schemingdcat/snippets/dataset_citation.html
+msgid "This {id} is not yet resolvable."
+msgstr ""
+
+#: ckanext/schemingdcat/templates/schemingdcat/snippets/dataset_citation.html
+msgid "It is available for use in manuscripts, and will be published when the Dataset is made public."
 msgstr ""
 
 # Themes (NTI-RISP) - Schema field_name: theme_es

@@ -1532,7 +1532,6 @@ def get_theme_datasets(field='theme'):
             break
         search_dict['start'] += search_dict['rows']
 
-    log.debug('Total results retrieved: %d', len(results))
     return results
 
 @helper
@@ -1766,9 +1765,6 @@ def schemingdcat_get_theme_statistics(theme_field=None, icons_dir=None) -> List[
             for val in parsed_values:
                 theme_counts[val] += 1
 
-    # Debugging: Print the theme counts
-    log.debug("Theme counts:%s", theme_counts)
-
     # Generate the final list of dictionaries
     stats = [
         {
@@ -1780,9 +1776,6 @@ def schemingdcat_get_theme_statistics(theme_field=None, icons_dir=None) -> List[
         }
         for theme, count in theme_counts.items()  # Process items directly without separate for loop
     ]
-
-    # Debugging: Print the stats
-    log.debug("Stats:%s", stats)
 
     return stats
 
@@ -1846,3 +1839,97 @@ def schemingdcat_validate_float(value=None):
         except ValueError:
             raise ValueError(f"Cannot convert string '{value}' to float.")
     raise ValueError(f"Value '{value}' is not a float, integer, or a string that can be converted to float.")
+
+# Bibliographics
+@helper
+def schemingdcat_is_bibliographic_dcat_type(dcat_type):
+    """
+    Check if a dcat_type corresponds to a bibliographic element.
+
+    Args:
+        dcat_type (str): The dcat_type to check.
+
+    Returns:
+        bool: True if the dcat_type is a bibliographic element, False otherwise.
+    """
+    return 'marcgt' in dcat_type or dcat_type == 'http://purl.org/dc/dcmitype/Text'
+
+@helper
+def schemingdcat_get_doi_from_identifier(pkg_identifier):
+    """
+    Retrieves the DOI of a dataset from an identifier value.
+
+    Args:
+        pkg_identifier (str): The identifier string of the dataset.
+
+    Returns:
+        str: The DOI if found, None otherwise.
+    """
+    doi_pattern = re.compile(r'doi:(10\.\d{4,9}/[-._;()/:A-Z0-9]+)', re.IGNORECASE)
+    match = doi_pattern.search(pkg_identifier)
+    
+    if match:
+        return match.group(1)
+    return None
+
+@helper
+def schemingdcat_get_current_datetime():
+    """
+    Devuelve la fecha y hora actual.
+
+    Returns:
+        datetime: La fecha y hora actual.
+    """
+    return datetime.datetime.now()
+
+@helper
+def schemingdcat_get_doi_from_alternate_identifier(pkg_identifier):
+    """
+    Gets the DOI of a dataset from the alternate_identifier field.
+
+    Args:
+        pkg_identifier (str): The dataset dictionary.
+
+    Returns:
+        str: The DOI if found, None otherwise.
+    """
+    # Remove all whitespace characters and trim leading/trailing spaces
+    cleaned_identifier = pkg_identifier.strip().replace(" ", "")
+    
+    doi_pattern = re.compile(r'doi:(10\.\d{4,9}/[-._;()/:A-Z0-9]+)', re.IGNORECASE)
+    match = doi_pattern.search(cleaned_identifier)
+    
+    if match:
+        return match.group(1)
+    return None
+
+@helper
+def schemingdcat_get_isbn_from_alternate_identifier(pkg_identifier):
+    """
+    Extracts and validates the ISBN from 'pkg_identifier' after removing the 'isbn:' prefix if present.
+    An ISBN consists of five sequential parts:
+    1. Prefix (978 or 979, 3 digits)
+    2. Registration group (1 to 5 digits)
+    3. Registrant (1 to 7 characters)
+    4. Publication element (up to 6 digits)
+    5. Checksum digit (1 digit)
+
+    Args:
+        pkg_identifier (str): The package identifier that may include the 'isbn:' prefix.
+
+    Returns:
+        str or None: The extracted ISBN if valid, otherwise None.
+    """
+    # Remove all whitespace characters and trim leading/trailing spaces
+    cleaned_identifier = pkg_identifier.strip().replace(" ", "")
+    
+    # Remove the 'isbn:' prefix if present
+    if cleaned_identifier.lower().startswith('isbn:'):
+        cleaned_identifier = cleaned_identifier[5:]
+    
+    isbn_pattern = re.compile(r'^(978|979)-\d{1,5}-\d{1,7}-\d{1,6}-\d$', re.IGNORECASE)
+    match = isbn_pattern.fullmatch(cleaned_identifier)
+    
+    if match:
+        return match.group(0)
+    return None

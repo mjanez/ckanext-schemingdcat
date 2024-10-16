@@ -1149,7 +1149,6 @@ def schemingdcat_hvd_category_applicable_legislation(field, schema):
     """   
     def validator(key, data, errors, context):
         hvd_category = data.get(('hvd_category', ))
-        log.debug('hvd_category: %s and key: %s', hvd_category, key)
         if hvd_category:
             if isinstance(data.get(key), list):
                 if not data[key]:

@@ -721,8 +721,8 @@ msgid "URL"
 msgstr "URL"
 
 #: ckanext/harvest/templates/source/new_source_form.html:10
-msgid "This should include the <code>http://</code> or <code>https://</code> part of the URL."
-msgstr "Debe incluir la parte <code>http://</code> o <code>https://</code> de la URL"
+msgid "This should include the <code>http://</code> or <code>https://</code> part of the URL. If it is for the SQL Harvester, then it can be <code>http://{host}:{port}</code>, e.g.: <code>http://localhost:5432</code>"
+msgstr "Debe incluir la parte <code>http://</code> o <code>https://</code> de la URL. Sí es para SQL Harvester, entonces puede ser <code>http://{host}:{port}</code>, e.g.: <code>http://localhost:5432</code>"
 
 #: ckanext/harvest/templates/source/new_source_form.html
 msgid "schemingdcat_xls"
@@ -1101,6 +1101,30 @@ msgstr "Añadir Datos"
 # ckanext/schemingdcat/templates/package/snippets/package_form.html
 msgid "There are required fields in this category"
 msgstr "Esta categoría contiene campos obligatorios"
+
+#: ckanext/schemingdcat/templates/schemingdcat/package/snippets/document_info.html
+msgid "Bibliographic information"
+msgstr "Información bibliográfica"
+
+#: ckanext/schemingdcat/templates/schemingdcat/snippets/dataset_citation.html
+msgid "Cite as"
+msgstr "Cite como"
+
+#: ckanext/schemingdcat/templates/schemingdcat/snippets/dataset_citation.html
+msgid "Retrieved"
+msgstr "Recuperado"
+
+#: ckanext/schemingdcat/templates/schemingdcat/snippets/dataset_citation.html
+msgid "Private {id}"
+msgstr "{id} privado"
+
+#: ckanext/schemingdcat/templates/schemingdcat/snippets/dataset_citation.html
+msgid "This {id} is not yet resolvable."
+msgstr "Este {id} no se puede resolver."
+
+#: ckanext/schemingdcat/templates/schemingdcat/snippets/dataset_citation.html
+msgid "It is available for use in manuscripts, and will be published when the Dataset is made public."
+msgstr "Está disponible para su uso en manuscritos, y se publicará cuando se haga público el conjunto de datos"
 
 # Themes (NTI-RISP) - Schema field_name: theme_es
 msgid "ciencia-tecnologia"

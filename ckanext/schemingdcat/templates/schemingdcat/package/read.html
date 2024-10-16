@@ -60,9 +60,14 @@
   {% endblock %}
 
   {% if pkg.spatial %}
-  {% block package_dataset_extent %}
-      {% snippet "schemingdcat/snippets/schemingdcat_dataset_map_additional_info.html", extent=pkg.spatial %}
-  {% endblock %}
+  {% set is_bibliographic_dcat_type = h.schemingdcat_is_bibliographic_dcat_type(pkg.dcat_type) %}
+    {% if pkg.dataset_scope == 'non_spatial_dataset' and is_bibliographic_dcat_type %}
+        {% snippet "schemingdcat/snippets/dataset_citation.html", pkg=pkg, dataset_type=dataset_type, schema=schema %}
+    {% else %}
+      {% block package_dataset_extent %}
+          {% snippet "schemingdcat/snippets/schemingdcat_dataset_map_additional_info.html", extent=pkg.spatial %}
+      {% endblock %}
+    {% endif %}
   {% endif %}
 
   {% block package_tags %}
@@ -70,8 +75,12 @@
   {% endblock %}
 
   {% block package_metadata_info %}
-    {% snippet "schemingdcat/package/snippets/metadata_info.html",
-      pkg=pkg, dataset_type=dataset_type, schema=schema %}
+  {% set is_bibliographic_dcat_type = h.schemingdcat_is_bibliographic_dcat_type(pkg.dcat_type) %}
+    {% if pkg.dataset_scope == 'non_spatial_dataset' and is_bibliographic_dcat_type %}
+      {% snippet "schemingdcat/package/snippets/document_info.html", pkg=pkg, dataset_type=dataset_type, schema=schema %}
+    {% else %}
+      {% snippet "schemingdcat/package/snippets/metadata_info.html", pkg=pkg, dataset_type=dataset_type, schema=schema %}
+    {% endif %}
   {% endblock %}
 
 {% endblock %}
