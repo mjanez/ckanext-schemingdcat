@@ -2025,16 +2025,16 @@ class SchemingDCATHarvester(HarvesterBase):
                         if field in existing_package_dict:
                             package_dict[field] = existing_package_dict[field]
                     try:
-                        package_id = p.toolkit.get_action("package_update")(
+                        updated_package = p.toolkit.get_action("package_update")(
                             context, package_dict
                         )
                         log.info(
                             "Updated package: %s with GUID: %s",
-                            package_id,
+                            updated_package["name"],
                             harvest_object.guid,
                         )
                         
-                        schemingdcat_harvest_package_updated.send(self, package_id=new_package["name"], harvest_object_id=harvest_object.guid)
+                        schemingdcat_harvest_package_updated.send(self, package_id=updated_package["name"], harvest_object_id=harvest_object.guid)
                         
                     except p.toolkit.ValidationError as e:
                         error_message = ", ".join(
