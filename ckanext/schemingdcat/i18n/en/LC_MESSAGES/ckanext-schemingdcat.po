@@ -1097,6 +1097,30 @@ msgstr "Add Data"
 msgid "There are required fields in this category"
 msgstr "There are required fields in this category"
 
+#: ckanext/schemingdcat/templates/schemingdcat/package/snippets/document_info.html
+msgid "Bibliographic information"
+msgstr "Bibliographic information"
+
+#: ckanext/schemingdcat/templates/schemingdcat/snippets/dataset_citation.html
+msgid "Cite as"
+msgstr "Cite as"
+
+#: ckanext/schemingdcat/templates/schemingdcat/snippets/dataset_citation.html
+msgid "Retrieved"
+msgstr "Retrieved"
+
+#: ckanext/schemingdcat/templates/schemingdcat/snippets/dataset_citation.html
+msgid "Private {id}"
+msgstr "Private {id}"
+
+#: ckanext/schemingdcat/templates/schemingdcat/snippets/dataset_citation.html
+msgid "This {id} is not yet resolvable."
+msgstr "This {id} is not yet resolvable"
+
+#: ckanext/schemingdcat/templates/schemingdcat/snippets/dataset_citation.html
+msgid "It is available for use in manuscripts, and will be published when the Dataset is made public."
+msgstr "It is available for use in manuscripts, and will be published when the Dataset is made public."
+
 # Themes (NTI-RISP) - Schema field_name: theme_es
 msgid "ciencia-tecnologia"
 msgstr "Science and technology"
