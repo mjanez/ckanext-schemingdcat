@@ -1108,6 +1108,10 @@ dataset_fields:
       es: Lituano
     value: http://publications.europa.eu/resource/authority/language/LIT
   - label:
+      en: Luxembourgish
+      es: Luxemburgués
+    value: http://publications.europa.eu/resource/authority/language/LTZ
+  - label:
       en: Maltese
       es: Maltés
     value: http://publications.europa.eu/resource/authority/language/MLT
@@ -1127,46 +1131,6 @@ dataset_fields:
       en: Romanian
       es: Rumano
     value: http://publications.europa.eu/resource/authority/language/ROM
-  - label:
-      en: Bulgarian
-      es: Búlgaro
-    value: http://publications.europa.eu/resource/authority/language/BUL
-  - label:
-      en: Irish
-      es: Irlandés
-    value: http://publications.europa.eu/resource/authority/language/GLE
-  - label:
-      en: Croatian
-      es: Croata
-    value: http://publications.europa.eu/resource/authority/language/HRV
-  - label:
-      en: Luxembourgish
-      es: Luxemburgués
-    value: http://publications.europa.eu/resource/authority/language/LTZ
-  - label:
-      en: Slovak
-      es: Eslovaco
-    value: http://publications.europa.eu/resource/authority/language/SLK
-  - label:
-      en: Slovene
-      es: Esloveno
-    value: http://publications.europa.eu/resource/authority/language/SLV
-  - label:
-      en: Maltese
-      es: Maltés
-    value: http://publications.europa.eu/resource/authority/language/MLT
-  - label:
-      en: Romanian
-      es: Rumano
-    value: http://publications.europa.eu/resource/authority/language/ROM
-  - label:
-      en: Bulgarian
-      es: Búlgaro
-    value: http://publications.europa.eu/resource/authority/language/BUL
-  - label:
-      en: Irish
-      es: Irlandés
-    value: http://publications.europa.eu/resource/authority/language/GLE
   form_group_id: identification
 
 # Date of creation (O)
@@ -2889,6 +2853,10 @@ resource_fields:
       es: Lituano
     value: http://publications.europa.eu/resource/authority/language/LIT
   - label:
+      en: Luxembourgish
+      es: Luxemburgués
+    value: http://publications.europa.eu/resource/authority/language/LTZ
+  - label:
       en: Maltese
       es: Maltés
     value: http://publications.europa.eu/resource/authority/language/MLT
@@ -2908,46 +2876,6 @@ resource_fields:
       en: Romanian
       es: Rumano
     value: http://publications.europa.eu/resource/authority/language/ROM
-  - label:
-      en: Bulgarian
-      es: Búlgaro
-    value: http://publications.europa.eu/resource/authority/language/BUL
-  - label:
-      en: Irish
-      es: Irlandés
-    value: http://publications.europa.eu/resource/authority/language/GLE
-  - label:
-      en: Croatian
-      es: Croata
-    value: http://publications.europa.eu/resource/authority/language/HRV
-  - label:
-      en: Luxembourgish
-      es: Luxemburgués
-    value: http://publications.europa.eu/resource/authority/language/LTZ
-  - label:
-      en: Slovak
-      es: Eslovaco
-    value: http://publications.europa.eu/resource/authority/language/SLK
-  - label:
-      en: Slovene
-      es: Esloveno
-    value: http://publications.europa.eu/resource/authority/language/SLV
-  - label:
-      en: Maltese
-      es: Maltés
-    value: http://publications.europa.eu/resource/authority/language/MLT
-  - label:
-      en: Romanian
-      es: Rumano
-    value: http://publications.europa.eu/resource/authority/language/ROM
-  - label:
-      en: Bulgarian
-      es: Búlgaro
-    value: http://publications.europa.eu/resource/authority/language/BUL
-  - label:
-      en: Irish
-      es: Irlandés
-    value: http://publications.europa.eu/resource/authority/language/GLE
   form_group_id: resource_identification
 
 # Additional format information (O)
