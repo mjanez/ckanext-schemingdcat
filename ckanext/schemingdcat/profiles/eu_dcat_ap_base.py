@@ -585,7 +585,7 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
                     "type": org_dict.get("publisher_type") or org_dict.get("dcat_type"),
                     "identifier": org_dict.get("identifier"),
                 }
-        # Add to graph
+        #FIXME: Review bugs when serialize. Add to graph
         if publisher_ref:
             g.add((publisher_ref, RDF.type, FOAF.Agent))
             g.add((dataset_ref, DCT.publisher, publisher_ref))

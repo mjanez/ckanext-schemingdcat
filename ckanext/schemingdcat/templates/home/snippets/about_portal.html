@@ -11,8 +11,7 @@
 
     {{ render_card("fas fa-database", 123, "Datasets", "https://example.com", "Example aria label", target_blank=True) }}
 #}
-
-{% set stats = h.schemingdcat_get_open_data_statistics() %}
+{% set stats = h.schemingdcat_get_open_data_statistics('portal') %}
 {% macro render_card(icon_class, count, label, url, target_blank=False) %}
 <div class="sct-about-figures-alt-card mt-2">
     <div class="sct-about-figures-alt-card-icon avoindata-explore-showcase">
@@ -33,19 +32,19 @@
     <div class="sct-about-figures sct-about-figures--col-3 ecl-u-mv-xl ecl-u-border-color-grey-10 ecl-u-border-width-1 ecl-u-border-all">
         <div class="sct-about-h3-container">
             <h3 class="sct-about-h3">{{ _('Explore and use Open Data') }}</h3>
-          </div>
+        </div>
         <div class="sct-about-figures__items">
-            {{ render_card("fas fa-table-list", stats.dataset_count, _('Dataset') if stats.dataset_count == 1 else _('Datasets'), h.url_for(controller='dataset', action='search')) }}
+            {{ render_card(stats.datasets.icon, stats.datasets.stat_count, _('Dataset') if stats.datasets.stat_count == 1 else _('Datasets'), h.url_for('dataset.search')) }}
 
-            {{ render_card("fas fa-globe", stats.spatial_dataset_count, _('Spatial dataset') if stats.spatial_dataset_count == 1 else _('Spatial datasets'), h.url_for('dataset.search', dataset_scope='spatial_dataset')) }}
+            {{ render_card(stats.spatial_datasets.icon, stats.spatial_datasets.stat_count, _('Spatial dataset') if stats.spatial_dataset_count == 1 else _('Spatial datasets'), h.url_for('dataset.search', dataset_scope='spatial_dataset')) }}
 
-            {{ render_card("fas fa-tags", stats.tag_count, _('Tag') if stats.tag_count == 1 else _('Tags'), h.url_for('api.action', ver=3, logic_function='tag_list'), target_blank=True) }}
+            {{ render_card(stats.tags.icon, stats.tags.stat_count, _('Tag') if stats.tag_count == 1 else _('Tags'), h.url_for('api.action', ver=3, logic_function='tag_list'), target_blank=True) }}
 
-            {{ render_card("fa-solid fa-sitemap", stats.organization_count, _('Organization') if stats.organization_count == 1 else _('Organizations'), h.url_for(controller='organization', action='index')) }}
+            {{ render_card(stats.organizations.icon, stats.organizations.stat_count, _('Organization') if stats.organization_count == 1 else _('Organizations'), h.url_for('organization.index')) }}
 
-            {{ render_card("fa-solid fa-square-share-nodes", stats.endpoints_count, _('Catalog endpoints'), h.url_for('schemingdcat.endpoint_index')) }}
+            {{ render_card(stats.endpoints.icon, stats.endpoints.stat_count, _('Catalog endpoints'), h.url_for('schemingdcat.endpoint_index')) }}
 
-            {{ render_card("fas fa-folder-open", stats.group_count, _('Group') if stats.group_count == 1 else _('Groups'), h.url_for(controller='group', action='index')) }}
+            {{ render_card(stats.groups.icon, stats.groups.stat_count, _('Group') if stats.group_count == 1 else _('Groups'), h.url_for('group.index')) }}
         </div>
     </div>
 </section>

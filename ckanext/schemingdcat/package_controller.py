@@ -1,12 +1,12 @@
 from ckan.common import request
 import json
-import ckan.plugins as plugins
+import ckan.plugins as p
 
 from ckanext.scheming.plugins import (
     SchemingDatasetsPlugin
 )
 
-import ckanext.schemingdcat.config as sdct_config
+import ckanext.schemingdcat.helpers as sdct_helpers
 
 import logging
 import sys
@@ -20,9 +20,9 @@ log = logging.getLogger(__name__)
 
 class PackageController():
 
-    plugins.implements(plugins.IPackageController, inherit=True)
+    p.implements(p.IPackageController, inherit=True)
 
-    default_facet_operator = sdct_config.default_facet_operator
+    default_facet_operator = sdct_helpers.schemingdcat_default_facet_search_operator()
 
     def read(self, entity):
         pass
