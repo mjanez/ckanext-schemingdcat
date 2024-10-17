@@ -1841,6 +1841,7 @@ def schemingdcat_validate_float(value=None):
     raise ValueError(f"Value '{value}' is not a float, integer, or a string that can be converted to float.")
 
 # Bibliographics
+@lru_cache(maxsize=24)
 @helper
 def schemingdcat_is_bibliographic_dcat_type(dcat_type):
     """
