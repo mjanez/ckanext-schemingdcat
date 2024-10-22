@@ -348,7 +348,7 @@ class SchemingDCATXLSHarvester(SchemingDCATHarvester):
     def _add_distributions_and_datadictionaries_to_datasets(self, table_datasets, table_distributions_grouped, table_datadictionaries_grouped, identifier_field='identifier', alternate_identifier_field='alternate_identifier', inspire_id_field='inspire_id', datadictionary_id_field="id"):
         """
         Add distributions (CKAN resources) and datadictionaries to each dataset object.
-
+    
         Args:
             table_datasets (list): List of dataset objects.
             table_distributions_grouped (dict): Dictionary of distributions grouped by dataset identifier.
@@ -357,18 +357,23 @@ class SchemingDCATXLSHarvester(SchemingDCATHarvester):
             alternate_identifier_field (str, optional): Field name for the alternate identifier. Defaults to 'alternate_identifier'.
             inspire_id_field (str, optional): Field name for the inspire id. Defaults to 'inspire_id'.
             datadictionary_id_field (str, optional): Field name for the datadictionary id. Defaults to 'id'.
-
+    
         Returns:
             list: List of dataset objects with distributions (CKAN resources) and datadictionaries added.
+    
+        Notes:
+            If 'dataset_id_field' is specified in the configuration, it will be used as the primary identifier field.
+            Otherwise, the function will fall back to using 'identifier_field', 'alternate_identifier_field', and 'inspire_id_field' in that order.
         """
         try:
+            dataset_id_field = self.config.get('dataset_id_field', None)
             return [
                 {
                     **d,
                     'resources': [
                         {**dr, 'datadictionaries': table_datadictionaries_grouped.get(dr[datadictionary_id_field], []) if table_datadictionaries_grouped else []}
                         for dr in table_distributions_grouped.get(
-                            d.get(identifier_field) or d.get(alternate_identifier_field) or d.get(inspire_id_field), []
+                            d.get(dataset_id_field) if dataset_id_field else d.get(identifier_field) or d.get(alternate_identifier_field) or d.get(inspire_id_field), []
                         )
                     ]
                 }
@@ -668,6 +673,12 @@ class SchemingDCATXLSHarvester(SchemingDCATHarvester):
                     raise ValueError(f"The field mapping is invalid: {e}") from e
 
                 config = json.dumps({**config_obj, mapping_name: field_mapping})
+                
+        # Check if dataset_id_field exists and is a string
+        if 'dataset_id_field' in config_obj:
+            dataset_id_field = config_obj['datadictionary_sheet']
+            if not isinstance(dataset_id_field, basestring):
+                raise ValueError('dataset_id_field must be a string')
 
         return config     
 

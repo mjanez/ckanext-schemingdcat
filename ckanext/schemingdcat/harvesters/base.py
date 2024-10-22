@@ -1442,7 +1442,7 @@ class SchemingDCATHarvester(HarvesterBase):
             package_dict.get("type") == "harvest"
             and self.config.get("allow_harvest_datasets", False) is False
         ):
-            log.warn(
+            log.warning(
                 "Remote dataset is a harvest source and allow_harvest_datasets is False, ignoring..."
             )
             return True
@@ -1453,9 +1453,6 @@ class SchemingDCATHarvester(HarvesterBase):
         )
         local_org = source_package_dict.get("owner_org")
         package_dict["owner_org"] = local_org
-
-        # Using dataset config defaults
-        package_dict = self._apply_package_defaults_from_config(package_dict, DATASET_DEFAULT_FIELDS)
 
         # Add default_extras from config
         default_extras = self.config.get('default_extras',{})
@@ -1528,6 +1525,9 @@ class SchemingDCATHarvester(HarvesterBase):
                     package_dict[key] = list({json.dumps(item): item for item in value}.values())
                 elif isinstance(value, dict):
                     package_dict[key] = {k: v for k, v in value.items()}
+
+        # Fallback: Using schemingdcat config defaults if no default values are set
+        package_dict = self._apply_package_defaults_from_config(package_dict, DATASET_DEFAULT_FIELDS)
 
         # log.debug('package_dict default values: %s', package_dict)
         return package_dict
