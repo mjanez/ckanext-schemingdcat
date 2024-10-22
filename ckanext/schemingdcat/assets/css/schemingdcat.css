@@ -3691,12 +3691,18 @@ input#lang-r:checked ~ div .example-r {
   .citation-flex-container {
       display: flex;
       justify-content: space-between;
-      align-items: center; /* Optional: to vertically center the items */
+      align-items: center;
       margin: 0 0 10px 0;
   }
   
   .citation-flex-between {
-      width: 100%; /* Ensure the container takes the full width */
+      width: 100%;
+  }
+
+  .citation-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
   }
 }
 

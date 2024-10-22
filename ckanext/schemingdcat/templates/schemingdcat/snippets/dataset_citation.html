@@ -5,9 +5,10 @@
 
 {% block citation_status %}
     {% asset 'ckanext-schemingdcat/schemingdcat-dataset-citation' %}
+    {% asset 'ckanext-schemingdcat/schemingdcat-dataset-bibtex' %}
 
     {% set doi = pkg['doi'] if pkg['doi'] else h.schemingdcat_get_doi_from_alternate_identifier(pkg['alternate_identifier']) %}
-    {% set datacite_url = 'api.datacite.org' %}
+    {% set doi_api_url = 'api.crossref.org' %}
 
     <div class="citation">
         <div id="citation-status">
@@ -60,13 +61,19 @@
                     <i class="fa fa-calendar"></i>
                     {{ _('Retrieved') }}: {{ h.render_datetime(h.schemingdcat_get_current_datetime(), date_format='%d %b %Y %H:%M:%S') }}
                 </small>
+                <!-- Buttons container at the end -->
+                <div class="citation-buttons">
                 {% if doi %}
-                    <a class="btn btn-primary" title="{{ _('Download') }} BibTeX" href="https://{{ datacite_url }}/dois/application/x-bibtex/{{ doi }}" target="_blank" rel="noreferrer">
+                        <a id="download-ris" class="btn btn-primary" title="{{ _('Download') }} RIS" href="https://{{ doi_api_url }}/works/{{ doi }}/transform/application/x-research-info-systems">
+                            <small><i class="fa fa-file-text"></i> RIS</small>
+                        </a>
+                        <a id="download-bibtex" class="btn btn-primary" title="{{ _('Download') }} BibTeX" href="https://{{ doi_api_url }}/works/{{ doi }}/transform/application/x-bibtex">
                         <small><i class="fa fa-file-text"></i> BibTeX</small>
                     </a>
                 {% endif %}
-            </div>
+                </div>
             {% endif %}
+            </div>
         </div>
     </div>
 {% endblock %}

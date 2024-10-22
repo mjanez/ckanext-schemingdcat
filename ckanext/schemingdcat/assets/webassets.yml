@@ -53,6 +53,12 @@ schemingdcat-dataset-citation:
   contents:
     - js/modules/schemingdcat-dataset-citation.js
 
+schemingdcat-dataset-bibtex:
+  output: ckanext-schemingdcat/%(version)s_schemingdcat_dataset-bibtex.js
+  filters: rjsmin
+  contents:
+    - js/modules/schemingdcat-dataset-bibtex.js
+
 main:
   filters: rjsmin
   output: base/%(version)s_main.js
