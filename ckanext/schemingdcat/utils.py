@@ -183,7 +183,7 @@ def _load_default_yaml(file):
         dict: A dictionary containing the data from the YAML file, or an empty dictionary if the file cannot be loaded.
     """
     source_path = Path(__file__).resolve(True)
-    log.debug('source_path: %s', source_path)
+    #log.debug('source_path: %s', source_path)
     return _load_yaml_file(source_path.parent.joinpath('codelists', file))
 
 def _load_yaml_file(path):
