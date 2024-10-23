@@ -49,10 +49,13 @@
        },
        "theme_es":{
           "field_name":"theme_es"
-       },
-       "hvd_category":{
-          "field_name":"hvd_category"
-       },
+      },
+      "hvd_category": {
+         "field_name": "hvd_category"
+      },
+      "applicable_legislation": {
+         "field_name": "applicable_legislation"
+      },
        "language":{
           "field_name":"language"
        },
@@ -101,7 +104,7 @@
        "publisher_type":{
           "field_name":"publisher_type"
        },
-       "maintainer":{
+       "maintainer_name":{
           "field_name":"maintainer"
        },
        "maintainer_email":{
@@ -113,7 +116,7 @@
        "maintainer_uri":{
           "field_name":"maintainer_uri"
        },
-       "author":{
+       "author_name":{
           "field_name":"author"
        },
        "author_email":{

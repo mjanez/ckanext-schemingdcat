@@ -75,7 +75,10 @@
         "hvd_category": {
             "field_value": "http://data.europa.eu/bna/c_dd313021"
         },
-        "author": {
+        "applicable_legislation": {
+            "field_value": "http://data.europa.eu/eli/reg_impl/2023/138/oj"
+        },
+        "author_name": {
             "field_value": null
         },
         "author_email": {
@@ -87,7 +90,7 @@
         "author_uri": {
             "field_value": null
         },
-        "maintainer": {
+        "maintainer_name": {
             "field_value": "Centro Nacional de Información Geográfica (CNIG)"
         },
         "maintainer_email": {
@@ -99,7 +102,7 @@
         "maintainer_uri": {
             "field_value": "http://datos.gob.es/recurso/sector-publico/org/Organismo/E00125901"
         },
-        "publisher": {
+        "publisher_name": {
             "field_value": "Centro Nacional de Información Geográfica (CNIG)"
         },
         "publisher_email": {
