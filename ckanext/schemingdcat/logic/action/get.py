@@ -1,4 +1,4 @@
-from ckanext.schemingdcat.helpers import schemingdcat_get_schema_names
+from ckanext.schemingdcat.helpers import schemingdcat_get_schema_names as _schemingdcat_get_schema_names
 
 def schemingdcat_dataset_schema_name(context, data_dict):
     """
@@ -11,4 +11,4 @@ def schemingdcat_dataset_schema_name(context, data_dict):
     Returns:
         list: A list of schema names.
     """
-    return schemingdcat_get_schema_names()
+    return _schemingdcat_get_schema_names()
