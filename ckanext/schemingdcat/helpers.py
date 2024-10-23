@@ -1350,3 +1350,35 @@ def schemingdcat_check_valid_url(url):
         return all([result.scheme, result.netloc])
     except ValueError:
         return False
+
+@helper
+def schemingdcat_format_number(value):
+    """Formats a number with thousands separators using dots.
+
+    Converts the input value to a float and formats it with thousands separators.
+    Commas are replaced with dots to match certain localization standards. If the
+    input cannot be converted to a float, the original value is returned unchanged.
+
+    Args:
+        value (int, float, str): The value to format. This can be an integer, float, or string
+            representing a numerical value.
+
+    Returns:
+        str or original type: A string representing the formatted number with dots as
+        thousands separators. If the input is not a valid number, the original value is returned.
+
+    Examples:
+        >>> schemingdcat_format_number(1000)
+        '1.000'
+        
+        >>> schemingdcat_format_number("2500000")
+        '2.500.000'
+        
+        >>> schemingdcat_format_number("invalid")
+        'invalid'
+    """
+    try:
+        value = float(value)
+        return "{:,.0f}".format(value).replace(",", ".")
+    except (ValueError, TypeError):
+        return value
