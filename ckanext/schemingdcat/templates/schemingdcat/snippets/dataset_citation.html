@@ -20,15 +20,23 @@
                     {% for author in authors %}
                         {{ format_element(author, loop.last, true) }}
                     {% endfor %}
+
                     {% set formatted_title = pkg['title'].strip().replace('...', '').replace(',', '') %}
                     <i>{{ formatted_title }}</i>{% if not formatted_title.endswith('.') %}.{% endif %}
                     {% if pkg['editor_name'] %}
                         {{ format_element(pkg['editor_name'], false, true) }}
                     {% endif %}
+
                     {% set first_resource = pkg['resources'][0] if pkg['resources'] else None %}
-                    {% if first_resource %}
+                    {% set created_field_name = _('Created') %}
+                    {% if first_resource and created_field_name in first_resource %}
+                        {{ format_element(first_resource[created_field_name][:4], true, false) }}
+                    {% else %}
+                        {% if first_resource and 'created' in first_resource %}
                         {{ format_element(first_resource['created'][:4], true, false) }}
+                        {% endif %}
                     {% endif %}
+
                     {% if doi %}
                         <a href="https://doi.org/{{ doi }}">https://doi.org/{{ doi }}</a>
                     {% endif %}
