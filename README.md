@@ -43,7 +43,7 @@ Compatibility with core CKAN versions:
 | CKAN version | Compatible?                                                                 |
 |--------------|-----------------------------------------------------------------------------|
 | 2.8          | ❌ No (>= Python 3)                                                          |
-| 2.9          | ✅ Yes (<= [`v3.2.2`](https://github.com/mjanez/ckanext-schemingdcat/releases/tag/v3.2.2)) |
+| 2.9          | ✅ Yes (<= [`v3.2.3`](https://github.com/mjanez/ckanext-schemingdcat/releases/tag/v3.2.3)) |
 | 2.10         | ✅ Yes (>= [`v4.0.0`](https://github.com/mjanez/ckanext-schemingdcat/releases/tag/v4.0.0)) |
 
 ### Plugins
