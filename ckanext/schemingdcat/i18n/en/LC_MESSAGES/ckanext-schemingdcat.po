@@ -1121,6 +1121,14 @@ msgstr "This {id} is not yet resolvable"
 msgid "It is available for use in manuscripts, and will be published when the Dataset is made public."
 msgstr "It is available for use in manuscripts, and will be published when the Dataset is made public."
 
+#: ckanext/schemingdcat/templates/scheming/form_snippets/org_hierarchy.html
+msgid "Parent"
+msgstr "Parent"
+
+#: ckanext/schemingdcat/templates/scheming/form_snippets/org_hierarchy.html
+msgid "None - top level"
+msgstr "None - top level"
+
 # Themes (NTI-RISP) - Schema field_name: theme_es
 msgid "ciencia-tecnologia"
 msgstr "Science and technology"

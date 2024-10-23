@@ -1126,6 +1126,14 @@ msgstr ""
 msgid "It is available for use in manuscripts, and will be published when the Dataset is made public."
 msgstr ""
 
+#: ckanext/schemingdcat/templates/scheming/form_snippets/org_hierarchy.html
+msgid "Parent"
+msgstr ""
+
+#: ckanext/schemingdcat/templates/scheming/form_snippets/org_hierarchy.html
+msgid "None - top level"
+msgstr ""
+
 # Themes (NTI-RISP) - Schema field_name: theme_es
 msgid "ciencia-tecnologia"
 msgstr ""
