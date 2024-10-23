@@ -93,9 +93,7 @@ class SchemingDCATPlugin(
 
     #IActions
     def get_actions(self):
-        action_functions = _get_logic_functions('ckanext.schemingdcat.logic.action')
-
-        return action_functions
+        return _get_logic_functions('ckanext.schemingdcat.logic.action')
 
 class SchemingDCATDatasetsPlugin(SchemingDatasetsPlugin):
     p.implements(p.IConfigurer)
@@ -236,23 +234,8 @@ class SchemingDCATOrganizationsPlugin(SchemingOrganizationsPlugin):
 
 
 class SchemingDCATOpenDataStatisticsPlugin(p.SingletonPlugin):
-    #p.implements(p.IConfigurer)
     p.implements(p.IActions)
     p.implements(p.IConfigurable)
-
-    # # IConfigurer
-    # def update_config(self, config_):
-    #     sdct_config.schemingdcat_open_data_statistics_themes = p.toolkit.asbool(
-    #         config_.get(
-    #             "ckanext.schemingdcat.open_data_statistics_themes", sdct_config.schemingdcat_open_data_statistics_themes
-    #         )
-    #     )
-        
-    #     sdct_config.schemingdcat_open_data_statistics = p.toolkit.asbool(
-    #         config_.get(
-    #             "ckanext.schemingdcat.open_data_statistics", sdct_config.schemingdcat_open_data_statistics
-    #         )
-    #     )
 
     #IConfigurable
     def configure(self, config):
@@ -266,9 +249,7 @@ class SchemingDCATOpenDataStatisticsPlugin(p.SingletonPlugin):
 
     #IActions
     def get_actions(self):
-        action_functions = _get_logic_functions('ckanext.schemingdcat.statistics.logic.action')
-
-        return action_functions
+        return _get_logic_functions('ckanext.schemingdcat.statistics.logic.action')
 
 def _get_logic_functions(module_root, logic_functions=None, decorator=None):
     """
