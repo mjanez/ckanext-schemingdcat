@@ -1527,7 +1527,6 @@ class SchemingDCATHarvester(HarvesterBase):
                 elif isinstance(value, dict):
                     package_dict[key] = {k: v for k, v in value.items()}
 
-
         # Fallback: Using schemingdcat config defaults if no default values are set
         package_dict = self._apply_package_defaults_from_config(package_dict, DATASET_DEFAULT_FIELDS)
 
