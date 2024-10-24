@@ -45,7 +45,7 @@
 {% block header_logo %}
   <a class="logo" href="{{ h.url_for('home.index') }}">
     {% if g.site_logo %}
-      {% set logo_url = g.site_logo if h.get_root_path() in g.site_logo else h.url_for_static_or_external(g.site_logo) %}
+      {% set logo_url = g.site_logo if h.get_not_lang_root_path() in g.site_logo else h.url_for_static_or_external(g.site_logo) %}
     {% else %}
       {% set logo_url = h.url_for_static_or_external('/images/default/ckan-logo.png') %}
     {% endif %}

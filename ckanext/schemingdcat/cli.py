@@ -12,6 +12,7 @@ import ckanext.schemingdcat.utils as utils
 import ckanext.schemingdcat.config as sdct_config
 import ckanext.scheming.helpers as sh
 import ckanext.schemingdcat.helpers as helpers
+import ckanext.schemingdcat.statistics.model as model
 
 from ckanext.schemingdcat.profiles.dcat_config import (
     EU_VOCABS_DIR,
@@ -115,7 +116,7 @@ def create_vocab(vocab_name, schema_name="dataset", lang="en"):
                             vocab_name
                         )
                     )
-        log.info("Done!")
+        click.secho(f"{vocab_name} created!", fg="green")
         
     else:
         log.warning(
@@ -173,7 +174,7 @@ def delete_vocab(vocab_name):
                 vocab_name
             )
         )
-    log.info("Done!")
+    click.secho(f"{vocab_name} deleted!", fg="green")
     
 def manage_vocab(vocab_name, schema_name="dataset", lang="en", delete=False):
     """
@@ -342,4 +343,59 @@ def download_rdf_eu_vocabs():
         except requests.exceptions.RequestException as e:
             log.error(f":An error occurred for URL: {rdf_file.url}. Error: {e}")
 
-    log.info("Done!")
+    click.secho("EU Vocabs downloaded!", fg=u"green")
+    
+@schemingdcat.command()
+@click.option("-v", "--verbose", is_flag=True, help='Enable verbose output.')
+@click.confirmation_option(
+    prompt="Are you sure you want to clean and set up the statistics table? This will delete all existing data."
+)
+def clean_stats(verbose):
+    """
+    Cleans the statistics table by deleting all existing records and recreating the table.
+
+    This command performs a complete reset of the statistics table used by the SchemingDCAT extension.
+    It deletes all existing records to ensure a fresh state and then recreates the table schema.
+    Use this command with caution, as it will remove all existing statistics data.
+
+    Args:
+        verbose (bool): Enables verbose output if set.
+
+    Returns:
+        None
+    """
+    try:
+        if verbose:
+            log.setLevel(logging.DEBUG)
+        log.info("Starting the reset process for the statistics table...")
+        model.clean()
+        click.secho("Statistics table cleaned!", fg=u"green")
+    except Exception as e:
+        log.error(f"An error occurred while cleaning the statistics table: {e}")
+        raise click.ClickException(f"Failed to clean statistics table: {e}")
+
+@schemingdcat.command()
+@click.option("-v", "--verbose", is_flag=True, help='Enable verbose output.')
+def update_stats(verbose):
+    """
+    Cleans the statistics table by deleting all existing records and recreating the table.
+
+    This command performs a complete reset of the statistics table used by the SchemingDCAT extension.
+    It deletes all existing records to ensure a fresh state and then recreates the table schema.
+    Use this command with caution, as it will remove all existing statistics data.
+
+    Args:
+        verbose (bool): Enables verbose output if set.
+
+    Returns:
+        None
+    """
+    try:
+        if verbose:
+            log.setLevel(logging.DEBUG)
+        log.info("Starting the update process for the statistics table...")
+        model.update_table()
+        click.secho("Statistics table updated!", fg=u"green")
+    except Exception as e:
+        log.error(f"An error occurred while updating the statistics table: {e}")
+        raise click.ClickException(f"Failed to update statistics table: {e}")
