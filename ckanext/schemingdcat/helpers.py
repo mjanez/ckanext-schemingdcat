@@ -1996,11 +1996,11 @@ def schemingdcat_user_is_org_member(
         org_members = member_list_action(
             data_dict={"id": org_id, "object_type": "user"}
         )
-        log.debug(f"{user.id=}")
-        log.debug(f"{org_members=}")
+        #log.debug(f"{user.id=}")
+        #log.debug(f"{org_members=}")
         for member_id, _, member_role in org_members:
             if user.id == member_id:
-                log.debug('member_role: %s and role: %s', member_role, role)
+                #log.debug('member_role: %s and role: %s', member_role, role)
                 
                 # Check direct match
                 if role is None or member_role.lower() == role.lower():

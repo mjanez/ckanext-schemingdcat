@@ -39,10 +39,11 @@ def package_update(next_auth, context, data_dict=None):
             else:
                 org_id = data_dict.get("owner_org", package.owner_org)
                 if org_id is not None:
+                    # Using the schemingdcat_member_list action to obtain correct roles
                     members = toolkit.get_action("schemingdcat_member_list")(
                         data_dict={"id": org_id, "object_type": "user"}
                     )
-                    log.debug('members:%s', members)
+                    #log.debug('members:%s', members)
                     for member_id, _, role in members:
                         if member_id == user.id and role.lower() == "admin":
                             result["success"] = True
