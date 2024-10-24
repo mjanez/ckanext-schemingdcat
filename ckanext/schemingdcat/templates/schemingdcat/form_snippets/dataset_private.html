@@ -1,8 +1,28 @@
+{#
+    Renders a select field for dataset privacy settings.
+
+    This snippet checks if the current user is an admin of the organization that owns
+    the dataset. If the user is an admin, it renders a select field with the available
+    choices for dataset privacy. If the user is not an admin, it displays a warning
+    message indicating that the user is not authorized to change the field.
+
+    Args:
+        field (obj): The field object containing metadata about the field.
+        data (dict): The dataset data.
+        errors (dict): A dictionary of errors for the fields.
+        g (obj): The global object containing user information.
+
+    Returns:
+        str: The rendered HTML for the select field or the warning message.
+#}
+
 {% import 'macros/form.html' as form %}
 
-{% set user_is_org_admin = h.schemingdcat_user_is_org_member(data.owner_org, g.userobj, role="admin") %}
+{% set owner_org = data.get('owner_org') %}
+{% set user_is_sysadmin = h.check_access('sysadmin') %}
+{% set user_is_orgadmin = h.schemingdcat_user_is_org_member(owner_org, g.userobj, role="admin") %}
 
-{% if user_is_org_admin %}
+{% if user_is_sysadmin or user_is_orgadmin %}
   {% set options=[] %}
   {% set form_restrict_choices_to=field.get('form_restrict_choices_to') %}
   {% if not h.scheming_field_required(field) or
@@ -46,7 +66,7 @@
       <label class="form-label" style="margin: 0;" for="{{ for }}">{% if h.scheming_field_required(field) %}<span title="{{ _("This field is required") }}" class="control-required">*</span> {% endif %}{{ h.scheming_language_text(field.label) or _('Custom') }}</label>
         {% set quote_content %}
         {% trans %}
-          You are not authorized to change this field. Only an <code>admin</code> can publish.
+          You are not authorized to change this field. Only a <code>admin</code> can publish a dataset <u>that has already been created</u>.
         {% endtrans %}
         {% endset %}
         {% snippet "schemingdcat/snippets/quote_alerts.html", alert_type='warning', content=quote_content %}
@@ -54,4 +74,3 @@
   {% endblock %}
 
 {% endif %}
-

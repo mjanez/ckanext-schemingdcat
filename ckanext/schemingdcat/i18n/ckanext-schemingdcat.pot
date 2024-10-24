@@ -1135,7 +1135,7 @@ msgid "None - top level"
 msgstr ""
 
 #: ckanext/schemingdcat/templates/schemingdcat/form_snippets/dataset_private.html
-msgid "You are not authorized to change this field. Only an <code>admin</code> can publish."
+msgid "You are not authorized to change this field. Only a <code>admin</code> can publish a dataset <u>that has already been created</u>."
 msgstr ""
 
 # Themes (NTI-RISP) - Schema field_name: theme_es

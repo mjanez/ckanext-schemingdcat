@@ -1135,8 +1135,8 @@ msgid "None - top level"
 msgstr "Ninguna - nivel superior"
 
 #: ckanext/schemingdcat/templates/schemingdcat/form_snippets/dataset_private.html
-msgid "You are not authorized to change this field. Only an <code>admin</code> can publish."
-msgstr "No está autorizado a modificar este campo. Solo un <code>administrador</code> puede publicar."
+msgid "You are not authorized to change this field. Only a <code>admin</code> can publish a dataset <u>that has already been created</u>."
+msgstr "No está autorizado a modificar este campo. Solo un <code>administrador</code> puede publicar un conjunto de datos <u>ya creado</u>."
 
 # Themes (NTI-RISP) - Schema field_name: theme_es
 msgid "ciencia-tecnologia"

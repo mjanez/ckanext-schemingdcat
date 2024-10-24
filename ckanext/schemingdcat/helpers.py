@@ -1991,7 +1991,7 @@ def schemingdcat_user_is_org_member(
     """
     log.debug(f"{locals()=}")
     result = False
-    if user is not None:
+    if org_id is not None and user is not None:
         member_list_action = p.toolkit.get_action("schemingdcat_member_list")
         org_members = member_list_action(
             data_dict={"id": org_id, "object_type": "user"}
