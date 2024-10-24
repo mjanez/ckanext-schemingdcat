@@ -342,6 +342,29 @@ dataset_fields:
   preset: dataset_organization
   form_group_id: general_info
 
+# Dataset privacy (M)
+- field_name: private
+  label:
+    en: Dataset visibility
+    es: Visiblidad del conjunto de datos
+  required: True
+  preset: dataset_private
+  form_include_blank_choice: False
+  choices:
+  - label:
+      en: Private
+      es: Privado
+    value: True
+  - label:
+      en: Public
+      es: Público
+    value: False
+  form_group_id: general_info
+  help_text:
+    en: The publicity or the visibility of the dataset. Only an <code>admin</code> can publish.
+    es: Publicidad o visiblidad del conjunto de datos. Solo un <code>administrador</code> puede publicar.
+  help_allow_html: True
+
 # Graphic overview (O)
 - field_name: graphic_overview
   label:

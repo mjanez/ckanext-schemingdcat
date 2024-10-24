@@ -157,6 +157,15 @@
       }
     },
     {
+      "preset_name": "dataset_private",
+      "values": {
+        "form_snippet": "schemingdcat/form_snippets/dataset_private.html",
+        "display_snippet": null,
+        "validators": "boolean_validator not_empty scheming_required scheming_choices",
+        "output_validators": "boolean_validator"
+      }
+    },
+    {
       "preset_name": "date",
       "values": {
         "form_snippet": "date.html",

@@ -1,5 +1,6 @@
 import sys
 import logging
+import typing
 import importlib
 import inspect
 
@@ -27,6 +28,7 @@ from ckanext.schemingdcat.faceted import Faceted
 from ckanext.schemingdcat.utils import init_config
 from ckanext.schemingdcat.package_controller import PackageController
 from ckanext.schemingdcat import helpers, validators, blueprint, subscriptions
+import ckanext.schemingdcat.logic.auth.ckan as ckan_auth
 
 try:
     config_declarations = p.toolkit.blanket.config_declarations
@@ -56,6 +58,7 @@ class SchemingDCATPlugin(
     p.implements(p.ISignal)
     p.implements(p.IConfigurable, inherit=True)
     p.implements(p.IActions, inherit=True)
+    p.implements(p.IAuthFunctions)
 
     # IConfigurer
     def update_config(self, config_):
@@ -94,6 +97,15 @@ class SchemingDCATPlugin(
     #IActions
     def get_actions(self):
         return _get_logic_functions('ckanext.schemingdcat.logic.action')
+
+    # Auth functions
+    def get_auth_functions(self) -> typing.Dict[str, typing.Callable]:
+        return {
+            #TODO: Implement package_publish
+            "package_publish": ckan_auth.authorize_package_publish,
+            "package_update": ckan_auth.package_update,
+            "package_patch": ckan_auth.package_patch
+        }
 
 class SchemingDCATDatasetsPlugin(SchemingDatasetsPlugin):
     p.implements(p.IConfigurer)

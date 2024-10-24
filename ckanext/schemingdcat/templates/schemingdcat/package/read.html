@@ -59,8 +59,6 @@
       can_edit=h.check_access('package_update', {'id':pkg.id }) %}
   {% endblock %}
 
-
-
   {% set is_bibliographic_dcat_type = h.schemingdcat_is_bibliographic_dcat_type(pkg.dcat_type) %}
   {% if pkg.dataset_scope == 'non_spatial_dataset' and is_bibliographic_dcat_type %}
       {% snippet "schemingdcat/snippets/dataset_citation.html", pkg=pkg, dataset_type=dataset_type, schema=schema %}

@@ -11,6 +11,7 @@ import datetime
 from urllib.parse import urlparse, unquote
 from urllib.error import URLError
 from six.moves.urllib.parse import urlencode
+import typing
 
 from ckan.common import json, c, request
 from ckan.lib import helpers as ckan_helpers
@@ -18,6 +19,7 @@ import ckan.logic as logic
 from ckan import model
 from ckan.lib.i18n import get_available_locales, get_lang
 import ckan.plugins as p
+import ckan.authz as authz
 
 from ckanext.scheming.helpers import (
     scheming_choices_label,
@@ -51,6 +53,34 @@ all_helpers = {}
 prettify_cache = {}
 DEFAULT_LANG = None
 _open_data_statistics = {}
+trans = authz.roles_trans()
+
+def translated_capacity(capacity: str) -> str:
+    """
+    Translate a given capacity string to its corresponding translated value.
+
+    This function attempts to translate the input `capacity` string using a predefined
+    translation dictionary `trans`. If the `capacity` string is not found in the 
+    dictionary, it returns the original `capacity` string.
+
+    Args:
+        capacity (str): The capacity string to be translated.
+
+    Returns:
+        str: The translated capacity string if found in the translation dictionary,
+             otherwise the original capacity string.
+
+    Example:
+        >>> trans = {'admin': 'Administrador', 'editor': 'Editor'}
+        >>> translated_capacity('admin')
+        'Administrador'
+        >>> translated_capacity('viewer')
+        'viewer'
+    """
+    try:
+        return trans[capacity]
+    except KeyError:
+        return capacity
 
 @lru_cache(maxsize=16)
 def get_scheming_dataset_schemas():
@@ -1934,3 +1964,46 @@ def schemingdcat_get_isbn_from_alternate_identifier(pkg_identifier):
     if match:
         return match.group(0)
     return None
+
+
+# Publisher permissions
+@helper
+def schemingdcat_user_is_org_member(
+    org_id: str, user=None, role: typing.Optional[str] = "admin"
+) -> bool:
+    """
+    Check if a user has a specific role in the input organization.
+
+    This function checks if the given user has the specified role in the organization
+    identified by `org_id`. By default, it checks if the user has the "admin" role.
+
+    Args:
+        org_id (str): The ID of the organization.
+        user: The user object to check. If None, the function will return False.
+        role (str, optional): The role to check for. Defaults to "admin".
+
+    Returns:
+        bool: True if the user has the specified role in the organization, False otherwise.
+
+    Example:
+        >>> schemingdcat_user_is_org_member("org_id", user, "editor")
+        True
+    """
+    log.debug(f"{locals()=}")
+    result = False
+    if user is not None:
+        member_list_action = p.toolkit.get_action("schemingdcat_member_list")
+        org_members = member_list_action(
+            data_dict={"id": org_id, "object_type": "user"}
+        )
+        log.debug(f"{user.id=}")
+        log.debug(f"{org_members=}")
+        for member_id, _, member_role in org_members:
+            if user.id == member_id:
+                log.debug('member_role: %s and role: %s', member_role, role)
+                
+                # Check direct match
+                if role is None or member_role.lower() == role.lower():
+                    result = True
+                break
+    return result
