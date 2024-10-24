@@ -7,7 +7,7 @@ import ckan.logic.auth as auth
 
 from ckanext.harvest.utils import DATASET_TYPE_NAME as CKANEXT_HARVEST_DATASET_TYPE_NAME
 
-logger = logging.getLogger(__name__)
+log = logging.getLogger(__name__)
 
 _check_access = logic.check_access
 
@@ -39,9 +39,10 @@ def package_update(next_auth, context, data_dict=None):
             else:
                 org_id = data_dict.get("owner_org", package.owner_org)
                 if org_id is not None:
-                    members = toolkit.get_action("member_list")(
+                    members = toolkit.get_action("schemingdcat_member_list")(
                         data_dict={"id": org_id, "object_type": "user"}
                     )
+                    log.debug('members:%s', members)
                     for member_id, _, role in members:
                         if member_id == user.id and role.lower() == "admin":
                             result["success"] = True
@@ -65,7 +66,7 @@ def package_patch(
     next_auth: typing.Callable, context: typing.Dict, data_dict: typing.Dict
 ):
     """Custom auth for the package_patch action."""
-    logger.debug("inside custom package_patch auth")
+    log.debug("inside custom package_patch auth")
     return package_update(next_auth, context, data_dict)
 
 
