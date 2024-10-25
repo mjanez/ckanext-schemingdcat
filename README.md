@@ -35,6 +35,7 @@ Enhancements:
 - [Update the base theme](#new-theme) of CKAN to use with the enhancements of this extension, now using Tabs instead of older `stages`.
 - Modern UI inspired on [`datopian/ckanext-datopian`](https://github.com/datopian/ckanext-datopian).
 - LOD/OGC Endpoints based on avalaible profiles (DCAT) and CSW capabilities with [`mjanez/ckan-pycsw`](https://github.com/mjanez/ckanext-pycsw).
+- Publisher (organization `admin`) and `editor` logic to control the visibility of records in a regular metadata monitoring workflow.
 
 ## Requirements
 ### Compatibility

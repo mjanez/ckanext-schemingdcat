@@ -28,9 +28,7 @@ def metadata_templates():
         })
 
 schemingdcat.add_url_rule("/endpoints/", view_func=endpoints, endpoint="endpoint_index", strict_slashes=False)
-
 schemingdcat.add_url_rule("/metadata-templates/", view_func=metadata_templates, endpoint="metadata_templates", strict_slashes=False)
-
 
 @schemingdcat.route(u'/dataset/linked_data/<id>')
 @deprecated
@@ -57,11 +55,6 @@ def index(id):
             u'endpoint': 'dcat.read_dataset',
             u'data_list': sdct_utils.get_linked_data(id),
         })
-
-from flask import g, render_template as render
-from ckan import model, logic
-from ckan.lib.base import abort
-from ckan.plugins.toolkit import get_action, _
 
 @schemingdcat.route(u'/dataset/geospatial_metadata/<id>')
 @deprecated

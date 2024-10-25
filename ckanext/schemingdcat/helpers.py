@@ -1102,6 +1102,7 @@ def get_langs():
     language_priorities = p.toolkit.config.get('ckan.locales_offered', '').split()
     return language_priorities
 
+@lru_cache(maxsize=4)
 @helper
 def schemingdcat_get_default_lang():
     """

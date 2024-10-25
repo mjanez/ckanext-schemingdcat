@@ -8,7 +8,7 @@ import ckanext.scheming.helpers as sh
 import ckanext.schemingdcat.helpers as helpers
 from ckan import plugins as p
 import ckan.logic as logic
-import ckan.lib.helpers as h
+from ckan.lib import helpers as ckan_helpers
 from urllib.parse import urlparse
 from ckantoolkit import (
     config,
@@ -43,6 +43,7 @@ log = logging.getLogger(__name__)
 all_validators = {}
 
 FORM_EXTRAS = ('__extras',)
+OPENAPI_REQUIRED_KEYS = ['url', 'name', 'title', 'description']
 
 def validator(fn):
     """
@@ -201,7 +202,7 @@ def schemingdcat_multiple_text(field, schema):
                 # Avoid errors
                 if '"' in element:
                     element=element.replace('"', '\"')
-                if h.is_url(element):
+                if ckan_helpers.is_url(element):
                     element=element.replace(' ', '')
                 out.append(element)
 

@@ -1,4 +1,3 @@
-from ckan.common import config
 import ckan.logic as logic
 import ckan.plugins as p
 import logging
@@ -9,6 +8,7 @@ import hashlib
 from threading import Lock
 import warnings
 from functools import wraps
+from urllib.parse import urljoin
 
 import yaml
 from yaml.loader import SafeLoader
@@ -36,7 +36,6 @@ _files_hash = set()
 
 _facets_dict_lock = Lock()
 _public_dirs_lock = Lock()
-
 
 def deprecated(func):
     """This is a decorator which can be used to mark functions as deprecated.
@@ -98,10 +97,10 @@ def get_public_dirs():
         with _public_dirs_lock:
             if not _public_dirs:
                 # CKAN 2.10 workaround
-                _public_dirs = config.get('plugin_public_paths', '')
+                _public_dirs = p.toolkit.config.get('plugin_public_paths', '')
 
                 # Add extra_template_paths if it exists
-                extra_template_paths = config.get('extra_template_paths', '')
+                extra_template_paths = p.toolkit.config.get('extra_template_paths', '')
                 if extra_template_paths:
                     _public_dirs.extend(extra_template_paths)
 
@@ -162,6 +161,27 @@ def init_config():
     sdct_config.schemas = _get_schemas()
     sdct_config.form_tabs = set_schema_form_tabs()
     sdct_config.form_groups = set_schema_form_groups()
+    
+def construct_full_url(url, protocol, host, root_path=''):
+    """
+    Constructs a full URL from a relative URL.
+
+    Args:
+        url (str): The URL to process.
+        protocol (str): The protocol (http or https).
+        host (str): The CKAN host.
+        root_path (str): The root path of CKAN.
+
+    Returns:
+        str: The full URL.
+    """
+    if not url.startswith(('http://', 'https://')):
+        if root_path:
+            base_url = f"{protocol}://{host}/{root_path.strip('/')}"
+        else:
+            base_url = f"{protocol}://{host}"
+        url = urljoin(base_url, url.lstrip('/'))
+    return url
 
 def is_yaml(file):
     """Check if a file has a YAML extension.
