@@ -482,6 +482,14 @@
         "validators": "ignore_missing schemingdcat_valid_email schemingdcat_fill_dependent_fields",
         "display_snippet": "email.html"
       }
+    },
+    {
+      "preset_name": "access_rights",
+      "values": {
+        "form_snippet": "select.html",
+        "display_snippet": "schemingdcat/display_snippets/link_schema.html",
+        "validators": "default(http://inspire.ec.europa.eu/metadata-codelist/LimitationsOnPublicAccess/noLimitations) scheming_required scheming_choices"
+      }
     }
   ]
 }

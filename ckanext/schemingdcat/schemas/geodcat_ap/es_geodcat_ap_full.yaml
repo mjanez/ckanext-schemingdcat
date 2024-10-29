@@ -3408,8 +3408,7 @@ dataset_fields:
   label:
     en: Access Rights
     es: Derechos de acceso
-  preset: select
-  display_snippet: schemingdcat/display_snippets/link_schema.html
+  preset: access_rights
   display_property: dct:accessRights
   form_include_blank_choice: False
   choices:
