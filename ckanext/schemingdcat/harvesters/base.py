@@ -266,7 +266,7 @@ class SchemingDCATHarvester(HarvesterBase):
         try:
             content = self._get_content(url)
             content_dict = json.loads(content)
-            log.debug('content_dict: %s', content_dict)
+            #log.debug('content_dict: %s', content_dict)
             
             # Check if content_dict is a dictionary and contains 'result'.
             if isinstance(content_dict, dict) and "result" in content_dict:
@@ -1443,7 +1443,7 @@ class SchemingDCATHarvester(HarvesterBase):
             package_dict.get("type") == "harvest"
             and self.config.get("allow_harvest_datasets", False) is False
         ):
-            log.warn(
+            log.warning(
                 "Remote dataset is a harvest source and allow_harvest_datasets is False, ignoring..."
             )
             return True
