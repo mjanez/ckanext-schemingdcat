@@ -287,3 +287,5 @@ URL_FIELD_NAMES = {
             ['url', 'availability', 'mimetype', 'status', 'resource_relation', 'license', 'rights', 'conforms_to', 'reference_system']
     }
 EMAIL_FIELD_NAMES = ['publisher_email', 'maintainer_email', 'author_email', ]
+
+DCAT_AP_HVD_CATEGORY_LEGISLATION = "http://data.europa.eu/eli/reg_impl/2023/138/oj"
