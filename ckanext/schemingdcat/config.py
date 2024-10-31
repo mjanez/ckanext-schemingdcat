@@ -100,7 +100,7 @@ OGC2CKAN_HARVESTER_MD_CONFIG = {
     'status': 'http://purl.org/adms/status/UnderDevelopment',
     'temporal_start': None,
     'temporal_end': None,
-    'theme': 'http://inspire.ec.europa.eu/theme/hb',
+    'theme': None,
     'theme_es': 'http://datos.gob.es/kos/sector-publico/sector/medio-ambiente',
     'theme_eu': 'http://publications.europa.eu/resource/authority/data-theme/ENVI',
     'topic': 'http://inspire.ec.europa.eu/metadata-codelist/TopicCategory/biota',

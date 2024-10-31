@@ -11,9 +11,19 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 <small>[Compare with latest](https://github.com/mjanez/ckanext-schemingdcat/compare/v3.2.3...HEAD)</small>
 
 <!-- insertion marker -->
-## [v3.2.3](https://github.com/mjanez/ckanext-schemingdcat/releases/tag/v3.2.3) - 2024-09-10
+## [v3.2.3](https://github.com/mjanez/ckanext-schemingdcat/releases/tag/v3.2.3) - 2024-10-22
 
-<small>[Compare with v3.2.1](https://github.com/mjanez/ckanext-schemingdcat/compare/v3.2.1...v3.2.3)</small>
+- Add snippets needed by ckanext-iepnb ([422f1ef](https://github.com/mjanez/ckanext-schemingdcat/commit/422f1ef754eb8c4fc231dcda847d02e4831921f4) by mjanez).
+
+<small>[Compare with v3.2.2](https://github.com/mjanez/ckanext-schemingdcat/compare/v3.2.2...v3.2.3)</small>
+
+### Fixed
+
+- Fix dataset_id_field assignment in XLS harvester configuration ([bfe0597](https://github.com/mjanez/ckanext-schemingdcat/commit/bfe0597b289e366fb054864f34e4f1d31b7c8495) by mjanez).
+
+## [v3.2.2](https://github.com/mjanez/ckanext-schemingdcat/releases/tag/v3.2.2) - 2024-09-10
+
+<small>[Compare with v3.2.1](https://github.com/mjanez/ckanext-schemingdcat/compare/v3.2.1...v3.2.2)</small>
 
 ### Added
 
