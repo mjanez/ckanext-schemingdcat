@@ -8,16 +8,71 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 <!-- insertion marker -->
 ## Unreleased
 
-<small>[Compare with latest](https://github.com/mjanez/ckanext-scheming_dcat/compare/v4.0.0...HEAD)</small>
+<small>[Compare with latest](https://github.com/mjanez/ckanext-scheming_dcat/compare/v4.2.1...HEAD)</small>
+
+<!-- insertion marker -->
+## [v4.2.1](https://github.com/mjanez/ckanext-scheming_dcat/releases/tag/v4.2.1) - 2024-11-04
+
+<small>[Compare with v4.2.0](https://github.com/mjanez/ckanext-scheming_dcat/compare/v4.2.0...v4.2.1)</small>
+
+### Added
+
+- Add XLS_HARVESTER_FIELDS_NOT_LIST to exclude fields that are not lists XLS harvester list parser ([7c9e91f](https://github.com/mjanez/ckanext-scheming_dcat/commit/7c9e91f5fac88959810c3e2285a455c822e722fc) by mjanez).
+- Add translations for "Parent" and "None - top level" in English and Spanish ([86e16a9](https://github.com/mjanez/ckanext-scheming_dcat/commit/86e16a941a189cc585f5f28d8d235f2f90c3e1e9) by mjanez).
+- Add dataset_id_field to SchemingDCATXLSHarvester for identifier resolution of attached resources ([dcb88d3](https://github.com/mjanez/ckanext-scheming_dcat/commit/dcb88d301d4ba5f205a982bd4fec4ced5d182eef) by mjanez).
+- Add BibTeX and RIS download functionality and enhance citation layout ([48b95c8](https://github.com/mjanez/ckanext-scheming_dcat/commit/48b95c85d04a87e7743220bd77c8e08820e34f5d) by mjanez).
 
 ### Fixed
 
+- Fix access_rights, maintainer and author field bugs ([ef1f26c](https://github.com/mjanez/ckanext-scheming_dcat/commit/ef1f26cdc7c9cdc1e3275214d6dda0522fa1d1b7) by mjanez).
+- Fix dataset_id_field assignment in SchemingDCATXLSHarvester configuration ([1705773](https://github.com/mjanez/ckanext-scheming_dcat/commit/1705773a9a0e3e35b67f23eb3867bc0f95aa6e2b) by mjanez).
+- Fix validators for dataset privacy settings (private) ([7b86e3c](https://github.com/mjanez/ckanext-scheming_dcat/commit/7b86e3cc02a0a4bf409a29ed49ff5930679ab44e) by mjanez).
+- Fix dataset privacy settings logic and improve authorization messages ([b371495](https://github.com/mjanez/ckanext-scheming_dcat/commit/b3714956bddf26dd7943a97c199b75b8aa3646ab) by mjanez).
+- Fix organization name retrieval to use display_name ([af8c4cc](https://github.com/mjanez/ckanext-scheming_dcat/commit/af8c4cc4093dacee4de09fef19ac52f0b803f7f7) by mjanez).
+
+### Removed
+
+- Removed old logic.py ([8de31b9](https://github.com/mjanez/ckanext-scheming_dcat/commit/8de31b94efc0602336cfb59952b28f82b7df13f0) by mjanez).
+
+## [v4.2.0](https://github.com/mjanez/ckanext-scheming_dcat/releases/tag/v4.2.0) - 2024-10-17
+
+<small>[Compare with v4.1.0](https://github.com/mjanez/ckanext-scheming_dcat/compare/v4.1.0...v4.2.0)</small>
+
+### Added
+
+- Add Luxembourgish language support and remove duplicates in DCAT schemas ([294dcff](https://github.com/mjanez/ckanext-scheming_dcat/commit/294dcff015ce62728addd9a5554c2c45aa7855e4) by mjanez).
+- Add dataset citation snippets and improve permanent URL handling ([0e22baf](https://github.com/mjanez/ckanext-scheming_dcat/commit/0e22baf41afc899a888d4428c660bc2e569d6975) by mjanez).
+
+### Fixed
+
+- Fix package update logging and event emission in SchemingDCATHarvester ([7ecb4fd](https://github.com/mjanez/ckanext-scheming_dcat/commit/7ecb4fd8ee1cdf5fadd9c33ba0cc87c2196ae517) by mjanez).
+
+## [v4.1.0](https://github.com/mjanez/ckanext-scheming_dcat/releases/tag/v4.1.0) - 2024-10-14
+
+<small>[Compare with v4.0.0](https://github.com/mjanez/ckanext-scheming_dcat/compare/v4.0.0...v4.1.0)</small>
+
+### Added
+
+- Add number_size display snippet ([d05b4dd](https://github.com/mjanez/ckanext-scheming_dcat/commit/d05b4dddca562436720f51e99e18e0d4da304665) by mjanez).
+- Add debug logging for full SQL query generation and remove unnecessary whitespace ([773c2fe](https://github.com/mjanez/ckanext-scheming_dcat/commit/773c2fefda50591110cff073757f947343394b29) by mjanez).
+- Add Bootstrap class to title input in new source form template ([7a2dfd6](https://github.com/mjanez/ckanext-scheming_dcat/commit/7a2dfd639197b0a79e2075d205ce8cbe05c3201b) by mjanez).
+- Add percentage and spatial resolution display snippets, and update spatial JSON rendering display/form snippets ([c47d62a](https://github.com/mjanez/ckanext-scheming_dcat/commit/c47d62a830b291b2163bdbff020b48cc86ddeaf1) by mjanez).
+- Add initial implementation for SchemingDCAT logic and update actions ([a85808b](https://github.com/mjanez/ckanext-scheming_dcat/commit/a85808b638557cc3ce8636a76cceffb915bb5309) by mjanez).
+- Add statistics logic and templates for SchemingDCAT integration ([e019582](https://github.com/mjanez/ckanext-scheming_dcat/commit/e019582622081f1ba1754c90d18cc8e2a9ab8d7d) by mjanez).
+- Add signals for package updates and create statistics schema interface ([6bf0ba0](https://github.com/mjanez/ckanext-scheming_dcat/commit/6bf0ba011c8bdf87d239a71c0f2cc5a257519852) by mjanez).
+- Add config_declaration CKAN >2.10 and refactor config.py to config/ ([4b8c741](https://github.com/mjanez/ckanext-scheming_dcat/commit/4b8c741e89bd0562aed8468e5fda9744fda6a048) by mjanez).
+- Add config_declaration CKAN >2.10 ([aa49986](https://github.com/mjanez/ckanext-scheming_dcat/commit/aa49986c48fdab8cac6a4914ed3d359c7aa23fd6) by mjanez).
+
+### Fixed
+
+- Fix bug in SQL Harvester URL input help text in new source form ([c92fdb3](https://github.com/mjanez/ckanext-scheming_dcat/commit/c92fdb3c1348a4163416ee039d23874420dd56eb) by mjanez).
+- Fix nested contact/author/maintainer/publisher fields ([f43eec2](https://github.com/mjanez/ckanext-scheming_dcat/commit/f43eec21e71a026cd6e110a5ba3baa68b2812dd0) by mjanez).
+- Fix PostgreSQL database harvester description ([9661186](https://github.com/mjanez/ckanext-scheming_dcat/commit/9661186807527ce4cf208e701cd0336eca7a57aa) by mjanez).
 - Fix request.params to request.args ([eda46f8](https://github.com/mjanez/ckanext-scheming_dcat/commit/eda46f83b8292f61dde80a6266e93bd5674d7ec8) by mjanez).
 - Fix current_url assignment in schemingdcat_social.html ([c45eaca](https://github.com/mjanez/ckanext-scheming_dcat/commit/c45eaca3e93c38f8ea10420c61448ae373f534b6) by mjanez).
 - Fix es_dcat PeriodOfTime class if not exists temporal_* ([f3873ea](https://github.com/mjanez/ckanext-scheming_dcat/commit/f3873ea0ccdbe40fb30a8447b554f5eab06e87c2) by mjanez).
 - FIx harvest source form ([98ccd3c](https://github.com/mjanez/ckanext-scheming_dcat/commit/98ccd3c537dbee46cf96e4d954ab2a4709a93e48) by mjanez).
 
-<!-- insertion marker -->
 ## [v4.0.0](https://github.com/mjanez/ckanext-scheming_dcat/releases/tag/v4.0.0) - 2024-09-20
 
 <small>[Compare with v4.0.0-alpha](https://github.com/mjanez/ckanext-scheming_dcat/compare/v4.0.0-alpha...v4.0.0)</small>
