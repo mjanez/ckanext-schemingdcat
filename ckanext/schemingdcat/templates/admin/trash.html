@@ -1,4 +1,4 @@
-{% extends "admin/base.html" %}
+{% ckan_extends %}
 
 {% block primary_content_inner %}
 <form method="POST" action="{{ h.url_for('admin.trash') }}" id="form-purge-all">
