@@ -676,7 +676,7 @@ class SchemingDCATXLSHarvester(SchemingDCATHarvester):
 
         # Check if dataset_id_field exists and is a string
         if 'dataset_id_field' in config_obj:
-            dataset_id_field = config_obj['datadictionary_sheet']
+            dataset_id_field = config_obj['dataset_id_field']
             if not isinstance(dataset_id_field, basestring):
                 raise ValueError('dataset_id_field must be a string')
 
