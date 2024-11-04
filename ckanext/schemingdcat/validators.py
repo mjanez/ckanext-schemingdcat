@@ -2,10 +2,13 @@ import json
 import re
 import six
 import mimetypes
+from shapely.geometry import shape, Polygon
 
 import ckanext.scheming.helpers as sh
 import ckanext.schemingdcat.helpers as helpers
-import ckan.lib.helpers as h
+from ckan import plugins as p
+import ckan.logic as logic
+from ckan.lib import helpers as ckan_helpers
 from urllib.parse import urlparse
 from ckantoolkit import (
     config,
@@ -31,7 +34,8 @@ from ckanext.fluent.validators import (
 from ckanext.schemingdcat.utils import parse_json
 from ckanext.schemingdcat.config import (
     OGC2CKAN_HARVESTER_MD_CONFIG,
-    mimetype_base_uri
+    mimetype_base_uri,
+    DCAT_AP_HVD_CATEGORY_LEGISLATION
 )
 
 log = logging.getLogger(__name__)
@@ -39,6 +43,7 @@ log = logging.getLogger(__name__)
 all_validators = {}
 
 FORM_EXTRAS = ('__extras',)
+OPENAPI_REQUIRED_KEYS = ['url', 'name', 'title', 'description']
 
 def validator(fn):
     """
@@ -197,7 +202,7 @@ def schemingdcat_multiple_text(field, schema):
                 # Avoid errors
                 if '"' in element:
                     element=element.replace('"', '\"')
-                if h.is_url(element):
+                if ckan_helpers.is_url(element):
                     element=element.replace(' ', '')
                 out.append(element)
 
@@ -645,7 +650,7 @@ def schemingdcat_get_extras(data, pkg_type='dataset'):
     extras = {}
     try:
         if pkg_type == 'dataset':
-            extras = data.get(key[:-1] + ('__extras',), {})
+            extras = data.get(key[:-1] + ('__extras',), {})  # noqa: F821
             return extras
         elif pkg_type in ('group', 'organization'):
             for key, value in data.items():
@@ -788,7 +793,7 @@ def schemingdcat_dataset_scope(field, schema):
     Returns:
         function: A validation function that can be used to update the field based on the presence of 'non_spatial_dataset' in the choice corresponding to 'dcat_type'.
     """
-    schema_data = helpers.schemingdcat_get_dataset_schema()
+    schema_data = helpers.schemingdcat_get_cached_schema(schema['dataset_type'])
     dcat_type_field = next((f for f in schema_data['dataset_fields'] if f['field_name'] == 'dcat_type'), None)
     choices = dcat_type_field['choices'] if dcat_type_field else []
     choices_dict = {item["value"]: item.get('dataset_scope', 'non_spatial_dataset') for item in choices}
@@ -825,7 +830,7 @@ def schemingdcat_xls_metadata_template(field, schema):
 @validator
 def schemingdcat_spatial_uri_validator(field, schema):
     """
-    Returns a validator function that checks if the 'spatial_uri' value exists in the choices. If it exists, it sets the value of the field to the value of 'spatial' in the choice. Otherwise, it sets the value to ''.
+    Returns a validator function that checks if the 'spatial_uri' value exists in the choices. If it exists, it sets the value of the field to the value of 'spatial' in the choice and 'spatial_coverage' fields. Otherwise, it sets the value to ''.
 
     Args:
         field (dict): Information about the field to be updated.
@@ -834,7 +839,7 @@ def schemingdcat_spatial_uri_validator(field, schema):
     Returns:
         function: A validation function that can be used to update the field based on the presence of 'spatial' in the choice corresponding to 'spatial_uri'.
     """
-    schema_data = helpers.schemingdcat_get_dataset_schema()
+    schema_data = helpers.schemingdcat_get_cached_schema(schema['dataset_type'])
     spatial_uri_field = next((f for f in schema_data['dataset_fields'] if f['field_name'] == 'spatial_uri'), None)
     choices = spatial_uri_field['choices'] if spatial_uri_field else []
 
@@ -907,12 +912,251 @@ def schemingdcat_valid_email(field, schema):
     def validator(key, data, errors, context):
         value = data[key].strip()
         
-        if value is missing or value is None or value == '':
-            data[key] = value
+        if value in (missing, None, ''):
+            data[key] = None
             return validator
+
         elif "@" not in value or "." not in value.split("@")[-1]:
             errors[key].append(_('Expecting valid email: "user@example.org"'))
             
         data[key] = value
+
+    return validator
+
+# subfield dicts. Spatial coverage validators
+@scheming_validator
+@validator
+def schemingdcat_fill_spatial_dependent_fields(field, schema):
+    """
+    Fills spatial dependent fields such as centroid and bounding box based on the provided GeoJSON value.
+
+    Args:
+        field (dict): The field definition containing the dependent fields information.
+        schema (dict): The schema definition.
+
+    Returns:
+        function: A validator function that processes the GeoJSON value and fills the dependent fields.
+
+    Raises:
+        json.JSONDecodeError: If the provided value is not a valid JSON.
+        ValueError: If the provided GeoJSON does not represent a Polygon.
+    """    
+    def validator(key, data, errors, context):
+        dependent_fields = field.get('dependent_fields')
+
+        if not dependent_fields:
+            return validator                  
+
+        value = data.get(key)
+
+        if value in (missing, None, ''):
+            data[key] = None
+            return validator
+
+        try:
+            value_dict = json.loads(value)
+            polygon = shape(value_dict)
+            if not isinstance(polygon, Polygon):
+                raise ValueError("The provided GeoJSON does not represent a Polygon.")
+        except (json.JSONDecodeError, ValueError) as e:
+            log.error('Invalid GeoJSON value: %s', e)
+            errors[key].append('Invalid GeoJSON value.')
+            return validator
+
+        centroid = polygon.centroid
+        centroid_value = {
+            "type": "Point",
+            "coordinates": [round(centroid.x, 5), round(centroid.y, 5)]
+        }
+        
+        subfields = {
+            'centroid': centroid_value,
+            'bbox': value_dict
+        }
+        
+        for subfield_name, subfield_value in subfields.items():
+            subfield_dict = {
+                'field_name': dependent_fields['field_name'],
+                'subfields': [{'field_name': subfield_name}]
+            }
+            schemingdcat_fill_subfields(dependent_fields['field_name'], subfield_dict, subfield_value, data)
+
+    return validator
+
+@scheming_validator
+@validator
+def schemingdcat_fill_spatial_uri_dependent_fields(field, schema):
+    """
+    Validator to fill dependent fields based on the spatial URI.
+
+    This validator checks if the provided spatial URI has corresponding dependent fields
+    and fills them with appropriate values. It uses the default locale to fetch the 
+    language-specific text for the spatial URI.
+
+    Args:
+        field (dict): The field dictionary containing 'choices' and 'dependent_fields'.
+        schema (dict): The schema dictionary.
+
+    Returns:
+        function: The validator function to be used in the scheming validation process.
+    """
+    lang = config.get('ckan.locale_default', 'en')
+    spatial_uri_choices = field['choices'] if field else []
+    
+    def validator(key, data, errors, context):
+        dependent_fields = field.get('dependent_fields')
+
+        if not dependent_fields:
+            return validator                  
+
+        value = data.get(key)
+        
+        if value in (missing, None, ''):
+            data[key] = None
+            return validator
+        
+        value_choice = next((item for item in spatial_uri_choices if item.get('value') == value), None)
+        
+        if value_choice:
+            spatial_text_value = scheming_language_text(value_choice.get('label'), lang)
+            
+            subfields = {
+                'uri': value,
+                'text': spatial_text_value
+            }
+            
+            for subfield_name, subfield_value in subfields.items():
+                subfield_dict = {
+                    'field_name': dependent_fields['field_name'],
+                    'subfields': [{'field_name': subfield_name}]
+                }
+                schemingdcat_fill_subfields(dependent_fields['field_name'], subfield_dict, subfield_value, data)
+                
+    return validator
+
+# subfield dicts. Validators used to populate dependent fields need to be migrated to only contact dict instead of contact_* fields in the future.
+@scheming_validator
+@validator
+def schemingdcat_fill_dependent_fields(field, schema):
+    """
+    Validator that fills dependent fields based on the value of the primary field.
+
+    This validator checks if the primary field has a value and, if so, fills the dependent fields
+    specified in the `dependent_fields` attribute of the primary field. If the dependent fields
+    have subfields, it will also fill those subfields with the same value.
+
+    Args:
+        field (dict): The field definition containing the `dependent_fields` attribute.
+        schema (dict): The schema definition.
+
+    Returns:
+        function: A validator function that processes the dependent fields.
+
+    Validator Args:
+        key (tuple): The key of the field being validated.
+        data (dict): The data dictionary containing all field values.
+        errors (dict): The dictionary to collect validation errors.
+        context (dict): The context dictionary containing additional information.
+
+    Raises:
+        None: This validator does not raise exceptions but logs errors if they occur.
+    """
+    #log.debug('field.dependent_fields: %s', field.get('dependent_fields'))
+    def validator(key, data, errors, context):        
+        dependent_fields = field.get('dependent_fields')
+
+        if not dependent_fields:
+            return validator                  
+
+        value = data.get(key)
+        
+        if value in (missing, None, ''):
+            data[key] = None
+            return validator
+                
+        dependent_field_name = dependent_fields['field_name']
+                        
+        schemingdcat_fill_subfields(dependent_field_name, dependent_fields, value, data)
+
+    return validator
+
+# Aux function to fill subfields for schemingdcat fill_dependent_fields validators
+def schemingdcat_fill_subfields(dependent_field_name, dependent_fields, value, data):
+    """
+    Fills subfields for schemingdcat fill_dependent_fields validators.
+
+    Args:
+        dependent_field_name (str): The name of the dependent field.
+        dependent_fields (dict): The dictionary containing subfields information.
+        value (any): The value to be set for the subfields.
+        data (dict): The data dictionary where the subfields will be set.
+
+    Returns:
+        None
+
+    Raises:
+        IndexError: If there is an indexing error while setting the subfield value.
+        ValueError: If there is a value error while setting the subfield value.
+        KeyError: If there is a key error while setting the subfield value.
+    """
+    dependent_key = (dependent_field_name,)
+    subfields = dependent_fields.get('subfields')
+
+    if subfields:
+        for subfield in subfields:
+            subfield_name = subfield['field_name']
+            if value:
+                dependent_subkey = (dependent_field_name, 0, subfield_name)
+                try:
+                    data[dependent_subkey] = value
+                except (IndexError, ValueError, KeyError) as e:
+                    log.error('Exception occurred while setting subfield value: %s', e)
+    else:
+        if value:
+            try:
+                data[dependent_key] = value
+            except (IndexError, ValueError, KeyError) as e:
+                log.error('Exception occurred while setting field value: %s', e)
+                
+@validator
+def schemingdcat_stats_id_validator(value, context):
+    '''
+    Custom validator for the 'id' field (stat_name). Ensures that the stat_name meets certain criteria.
+    
+    Parameters:
+        - value: The value provided for the key.
+        - context: Additional context (optional).
+
+    Return:
+        - value
+    
+    '''
+    if not isinstance(value, str):
+        raise logic.ValidationError('The name of the statistic must be a text string.')
+    return value
+
+@scheming_validator
+@validator
+def schemingdcat_hvd_category_applicable_legislation(field, schema):
+    """
+    Returns a validator function that checks if the 'hvd_category' value is not empty. If it is not empty, it updates the value of the field by adding the Commission Implementing Regulation (EU) 2023/138 of 21 December 2022 laying down a list of specific high-value datasets and the arrangements for their publication and re-use (Text with EEA relevance) to all datasets that contain an hvd_category (HVD Category).
+
+    Args:
+        field (dict): Information about the field to be updated.
+        schema (dict): The schema for the field to be updated.
+
+    Returns:
+        function: A validation function that updates the field based on the presence of 'hvd_category'.
+    """   
+    def validator(key, data, errors, context):
+        hvd_category = data.get(('hvd_category', ))
+        if hvd_category:
+            if isinstance(data.get(key), list):
+                if not data[key]:
+                    data[key] = [DCAT_AP_HVD_CATEGORY_LEGISLATION]
+                else:
+                    data[key].append(DCAT_AP_HVD_CATEGORY_LEGISLATION)
+            else:
+                data[key] = [DCAT_AP_HVD_CATEGORY_LEGISLATION]
 
     return validator

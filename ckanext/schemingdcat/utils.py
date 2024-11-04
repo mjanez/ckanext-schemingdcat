@@ -1,16 +1,25 @@
-from ckan.common import config
 import ckan.logic as logic
-from ckanext.schemingdcat import config as sdct_config
+import ckan.plugins as p
 import logging
 import os
 import inspect
 import json
 import hashlib
 from threading import Lock
-from ckanext.dcat.utils import CONTENT_TYPES
+import warnings
+from functools import wraps
+from urllib.parse import urljoin
+
 import yaml
 from yaml.loader import SafeLoader
 from pathlib import Path
+
+from ckanext.dcat.utils import CONTENT_TYPES, get_endpoint
+from ckanext.scheming.helpers import (
+    scheming_dataset_schemas,
+)
+
+from ckanext.schemingdcat import config as sdct_config
 
 try:
     from paste.reloader import watch_file
@@ -19,14 +28,24 @@ except ImportError:
 
 log = logging.getLogger(__name__)
 
+
 _facets_dict = None
 _public_dirs = None
-_files_hash = []
-_dirs_hash = []
+_dirs_hash = set()
+_files_hash = set()
 
 _facets_dict_lock = Lock()
 _public_dirs_lock = Lock()
 
+def deprecated(func):
+    """This is a decorator which can be used to mark functions as deprecated.
+    It will result in a warning being emitted when the function is used."""
+    @wraps(func)
+    def new_func(*args, **kwargs):
+        warnings.warn(f"Call to deprecated function {func.__name__}. This function will be removed in future versions.",
+                      category=DeprecationWarning, stacklevel=2)
+        return func(*args, **kwargs)
+    return new_func
 
 def get_facets_dict():
     """Get the labels for all fields defined in the scheming file.
@@ -51,7 +70,20 @@ def get_facets_dict():
                 for item in schema['resource_fields']:
                     _facets_dict[item['field_name']] = item['label']
 
+    #log.debug('_facets_dict: %s', _facets_dict)
+
     return _facets_dict
+
+def normalize_paths(paths):
+    """Normalize a list of paths to remove redundancies like '..'.
+
+    Args:
+        paths (list): List of paths to normalize.
+
+    Returns:
+        list: List of normalized paths.
+    """
+    return [os.path.normpath(path) for path in paths]
 
 def get_public_dirs():
     """Get the list of public directories specified in the configuration file.
@@ -64,9 +96,39 @@ def get_public_dirs():
     if not _public_dirs:
         with _public_dirs_lock:
             if not _public_dirs:
-                _public_dirs = config.get('extra_public_paths', '').split(',')
+                # CKAN 2.10 workaround
+                _public_dirs = p.toolkit.config.get('plugin_public_paths', '')
+
+                # Add extra_template_paths if it exists
+                extra_template_paths = p.toolkit.config.get('extra_template_paths', '')
+                if extra_template_paths:
+                    _public_dirs.extend(extra_template_paths)
 
     return _public_dirs
+
+def public_path_exists(path, check_func, cache):
+    """Check if a path exists in the public directories specified in the configuration file.
+
+    Args:
+        path (str): The path to check.
+        check_func (function): The function to use for checking (os.path.isfile or os.path.isdir).
+        cache (set): The cache to use for storing path hashes.
+
+    Returns:
+        bool: True if the path exists in one of the public directories, False otherwise.
+    """
+    path_hash = hashlib.sha512(path.encode('utf-8')).hexdigest()
+
+    if path_hash in cache:
+        return True
+
+    public_dirs = normalize_paths(get_public_dirs())
+    if any(check_func(os.path.join(public_dir, path)) for public_dir in public_dirs):
+        cache.add(path_hash)
+        return True
+
+
+    return False
 
 def public_file_exists(path):
     """Check if a file exists in the public directories specified in the configuration file.
@@ -77,20 +139,7 @@ def public_file_exists(path):
     Returns:
         bool: True if the file exists in one of the public directories, False otherwise.
     """
-    #log.debug("Check if exists: {0}".format(path))
-    file_hash = hashlib.sha512(path.encode('utf-8')).hexdigest()
-
-    if file_hash in _files_hash:
-        return True
-
-    public_dirs = get_public_dirs()
-    for i in range(len(public_dirs)):
-        public_path = os.path.join(public_dirs[i], path)
-        if os.path.isfile(public_path):
-            _files_hash.append(file_hash)
-            return True
-
-    return False
+    return public_path_exists(path, os.path.isfile, _files_hash)
 
 def public_dir_exists(path):
     """Check if a directory exists in the public directories specified in the configuration file.
@@ -101,24 +150,38 @@ def public_dir_exists(path):
     Returns:
         bool: True if the directory exists in one of the public directories, False otherwise.
     """
-    dir_hash = hashlib.sha512(path.encode('utf-8')).hexdigest()
-
-    if dir_hash in _dirs_hash:
-        return True
-
-    public_dirs = get_public_dirs()
-    for i in range(len(public_dirs)):
-        public_path = os.path.join(public_dirs[i], path)
-        if os.path.isdir(public_path):
-            _dirs_hash.append(dir_hash)
-            return True
-
-    return False
+    return public_path_exists(path, os.path.isdir, _dirs_hash)
 
 def init_config():
     sdct_config.linkeddata_links = _load_yaml('linkeddata_links.yaml')
     sdct_config.geometadata_links = _load_yaml('geometadata_links.yaml')
-    sdct_config.endpoints = _load_yaml(sdct_config.endpoints_yaml)
+    sdct_config.endpoints = _load_yaml(p.toolkit.config.get('ckanext.schemingdcat.endpoints_yaml'))
+    
+    # Cache scheming schemas of local instance
+    sdct_config.schemas = _get_schemas()
+    sdct_config.form_tabs = set_schema_form_tabs()
+    sdct_config.form_groups = set_schema_form_groups()
+    
+def construct_full_url(url, protocol, host, root_path=''):
+    """
+    Constructs a full URL from a relative URL.
+
+    Args:
+        url (str): The URL to process.
+        protocol (str): The protocol (http or https).
+        host (str): The CKAN host.
+        root_path (str): The root path of CKAN.
+
+    Returns:
+        str: The full URL.
+    """
+    if not url.startswith(('http://', 'https://')):
+        if root_path:
+            base_url = f"{protocol}://{host}/{root_path.strip('/')}"
+        else:
+            base_url = f"{protocol}://{host}"
+        url = urljoin(base_url, url.lstrip('/'))
+    return url
 
 def is_yaml(file):
     """Check if a file has a YAML extension.
@@ -183,7 +246,6 @@ def _load_default_yaml(file):
         dict: A dictionary containing the data from the YAML file, or an empty dictionary if the file cannot be loaded.
     """
     source_path = Path(__file__).resolve(True)
-    log.debug('source_path: %s', source_path)
     return _load_yaml_file(source_path.parent.joinpath('codelists', file))
 
 def _load_yaml_file(path):
@@ -217,7 +279,7 @@ def get_linked_data(id):
     Returns:
         list: A list of dictionaries containing linked data for the identifier.
     """
-    if sdct_config.debug:
+    if p.toolkit.config.get("debug", False):
         linkeddata_links = _load_yaml('linkeddata_links.yaml')
     else:
         linkeddata_links = sdct_config.linkeddata_links
@@ -288,3 +350,275 @@ def parse_json(value, default_value=None):
             # we want a string here.
             return str(value)
         return value
+
+def _get_schemas():
+    """
+    Fetches the dataset schemas using the scheming_dataset_schemas function.
+
+    This function attempts to retrieve the dataset schemas. If a KeyError is encountered,
+    it logs the error and returns an empty dictionary.
+
+    Returns:
+        dict: The dataset schemas if successfully retrieved, otherwise an empty dictionary.
+
+    Raises:
+        KeyError: If there is an issue accessing the dataset schemas.
+    """
+    try:
+        return scheming_dataset_schemas()
+    except KeyError as e:
+        log.error('KeyError encountered while fetching dataset schemas: %s', e)
+        return {}
+    
+def set_schema_form_tabs():
+    """
+    Sets the schema form tabs for each dataset type in the `sdct_config.schemas`.
+
+    This function iterates over the schemas defined in `sdct_config.schemas` and sets the corresponding
+    form tabs in `sdct_config.form_tabs`. If a schema does not have `schema_form_tabs`, it sets the form tab to None.
+    Logs warnings and errors as appropriate.
+
+    Raises:
+        KeyError: If there is an issue accessing the schema form tabs.
+    """
+    if not sdct_config.schemas:
+        log.warning('sdct_config.schemas is empty, no local scheming.dataset_schemas loaded.')
+        return
+
+    form_tabs = {}
+
+    for dataset_type, schema in sdct_config.schemas.items():
+        try:
+            form_tabs[dataset_type] = schema.get('schema_form_tabs', None)
+        except p.toolkit.ObjectNotFound:
+            pass
+        except KeyError as e:
+            log.error('KeyError encountered while setting schema form tabs for dataset_type: %s, error: %s', dataset_type, e)
+            
+    return form_tabs     
+
+def set_schema_form_groups():
+    """
+    Sets the schema form groups for each dataset type in the `sdct_config.schemas`.
+
+    This function iterates over the schemas defined in `sdct_config.schemas` and sets the corresponding
+    form tabs in `sdct_config.form_groups`. If a schema does not have `schema_form_groups`, it sets the form tab to None.
+    Logs warnings and errors as appropriate.
+
+    Raises:
+        KeyError: If there is an issue accessing the schema form tabs.
+    """
+    if not sdct_config.schemas:
+        log.warning('sdct_config.schemas is empty, no local scheming.dataset_schemas loaded.')
+        return
+
+    form_groups = {}
+
+    for dataset_type, schema in sdct_config.schemas.items():
+        try:
+            form_groups[dataset_type] = schema.get('schema_form_groups', None)
+        except p.toolkit.ObjectNotFound:
+            pass
+        except KeyError as e:
+            log.error('KeyError encountered while setting schema form tabs for dataset_type: %s, error: %s', dataset_type, e)
+            
+    return form_groups     
+
+def schemingdcat_catalog_endpoints():
+    """Get the catalog endpoints.
+
+    Returns:
+        list: A list of dictionaries containing linked data for the identifier.
+    """    
+    csw_uri = schemingdcat_get_geospatial_endpoint("catalog")
+
+    return [
+        {
+            "name": item["name"],
+            "display_name": item["display_name"],
+            "format": item["format"],
+            "image_display_url": item["image_display_url"],
+            "endpoint_icon": item["endpoint_icon"],
+            "fa_icon": item["fa_icon"],
+            "description": item["description"],
+            "type": item["type"],
+            "profile": item["profile"],
+            "profile_id": item["profile_id"],
+            "profile_label": item["profile_label"],
+            "profile_label_order": item["profile_label_order"],
+            "profile_version": tuple(map(int, str(item["version"]).split("."))),
+            "profile_info_url": item["profile_info_url"],
+            "endpoint": get_endpoint("catalog")
+            if item.get("type").lower() == "lod"
+            else csw_uri.format(version=item["version"])
+            if item.get("type").lower() == "ogc"
+            else None,
+            "endpoint_data": {
+                "_format": item["format"],
+                "_external": True,
+                "profiles": item["profile"],
+            },
+        }
+        for item in sdct_config.endpoints["catalog_endpoints"]
+    ]
+
+def schemingdcat_get_geospatial_metadata():
+    """Get geospatial metadata for CSW formats.
+
+    Returns:
+        list: A list of dictionaries containing geospatial metadata for CSW formats.
+    """
+    csw_uri = schemingdcat_get_geospatial_endpoint("dataset")
+
+    return [
+        {
+            "name": item["name"],
+            "display_name": item["display_name"],
+            "format": item["format"],
+            "image_display_url": item["image_display_url"],
+            "endpoint_icon": item["endpoint_icon"],
+            "description": item["description"],
+            "description_url": item["description_url"],
+            "url": csw_uri.format(
+                output_format=item["output_format"],
+                version=item["version"],
+                element_set_name=item["element_set_name"],
+                output_schema=item["output_schema"],
+                id="{id}",
+            ),
+        }
+        for item in sdct_config.geometadata_links["csw_formats"]
+    ]
+
+def schemingdcat_get_geospatial_endpoint(type="dataset"):
+    """Get geospatial base URI for CSW Endpoint.
+
+    Args:
+        type (str): The type of endpoint to return. Can be 'catalog' or 'dataset'.
+
+    Returns:
+        str: The base URI of the CSW Endpoint with the appropriate format.
+    """
+    geometadata_base_uri = p.toolkit.config.get('ckanext.schemingdcat.geometadata_base_uri')
+    
+    try:
+        if geometadata_base_uri:
+            csw_uri = geometadata_base_uri
+
+        if (
+            geometadata_base_uri
+            and "/csw" not in geometadata_base_uri
+        ):
+            csw_uri = geometadata_base_uri.rstrip("/") + "/csw"
+        elif geometadata_base_uri == "":
+            csw_uri = "/csw"
+        else:
+            csw_uri = geometadata_base_uri.rstrip("/")
+    except:
+        csw_uri = "/csw"
+
+    if type == "catalog":
+        return csw_uri + "?service=CSW&version={version}&request=GetCapabilities"
+    else:
+        return (
+            csw_uri
+            + "?service=CSW&version={version}&request=GetRecordById&id={id}&elementSetName={element_set_name}&outputSchema={output_schema}&OutputFormat={output_format}"
+        )
+
+# SchemingDCATSQLHarvester utils
+# Aux defs for SchemingDCATSQLHarvester import_stage validation
+def normalize_temporal_dates(package_dict):
+  """
+  Normalizes 'temporal_start' and 'temporal_end' in a dictionary to YYYY-MM-DD format.
+
+  Modifies 'temporal_start' and 'temporal_end' in `package_dict` to represent the first and last day of the year(s) specified. 
+  Input can be a comma-separated string or a list of years.
+
+  Args:
+    package_dict (dict): Dictionary with 'temporal_start' and/or 'temporal_end' keys.
+
+  Returns:
+    None: Modifies `package_dict` in-place.
+  """
+  # Convert to standard date string assuming the first or last day of the selected year
+  for key in ['temporal_start', 'temporal_end']:
+    if key in package_dict:
+      # Convert the value to a list of years if it's a string
+      years = [int(year) for year in package_dict[key].split(',')] if isinstance(package_dict[key], str) else package_dict[key]
+      
+      # Select the appropriate year
+      selected_year = min(years) if key == 'temporal_start' else max(years)
+      
+      # Convert to standard date string
+      date_str = f"{selected_year}-01-01" if key == 'temporal_start' else f"{selected_year}-12-31"
+      package_dict[key] = date_str
+      
+  return package_dict
+      
+def normalize_reference_system(package_dict):
+  """
+  Simplifies the normalization process by taking the SRID value as text and keeping everything to the left of the decimal point.
+
+  Args:
+    value (str): The SRID value as a string, which may contain decimals.
+
+  Returns:
+    str: The EPSG URI corresponding to the simplified SRID value.
+  """ 
+  try: 
+    package_dict['reference_system'] = sdct_config.epsg_uri_template.format(srid=package_dict['reference_system'].split('.')[0] )
+    return package_dict
+    
+  except Exception as e:
+    raise ValueError('SRID value is not a valid number: %s', package_dict['reference_system']) from e
+
+
+def normalize_resources(package_dict):
+    """Filters out resources without a non-empty URL from the package dictionary.
+
+    This function iterates over the resources in the given package dictionary. It keeps only those resources that have a non-empty URL field. The filtered list of resources is then reassigned back to the package dictionary.
+
+    Args:
+        package_dict (dict): A dictionary representing the package, which contains a list of resources.
+
+    """
+    # Filter resources that have a non-empty URL
+    filtered_resources = [resource for resource in package_dict.get("resources", []) if resource.get('url')]
+    
+    # Reassign the filtered list of resources back to the package_dict
+    package_dict["resources"] = filtered_resources
+    
+    return package_dict
+
+# Specific SQL clauses
+def sql_clauses(schema, table, column, alias):
+  """
+  Generates a SQL expression for GeoJSON data, spatial reference system, or other data with conditional logic based on length or alias.
+
+  This function constructs a SQL expression to select data from a specified column. For GeoJSON data, if the data length exceeds a predefined limit set in `ckanext.schemingdcat.postgres.geojson_chars_limit`, the expression returns NULL to avoid performance issues with large GeoJSON objects. Otherwise, it returns the GeoJSON data. For geographic columns, it applies a transformation to the EPSG:4326 coordinate system and simplifies the geometry based on a tolerance value defined in `postgres.geojson_tolerance`. If the alias is 'reference_system', it returns the SRID of the geometry.
+
+  Parameters:
+  - schema (str): The database schema name.
+  - table (str): The table name where the column is located.
+  - column (str): The column name containing GeoJSON data or geometry.
+  - alias (str): The alias to use for the resulting column in the SQL query.
+
+  Returns:
+  - str: A SQL expression as a string.
+  """
+  postgres_geojson_chars_limit = p.toolkit.config.get('ckanext.schemingdcat.postgres.geojson_chars_limit')
+  postgres_geojson_tolerance = p.toolkit.config.get('ckanext.schemingdcat.postgres.geojson_tolerance')
+  
+  if alias == 'spatial':
+    # NULL if SRID=0
+    return f"CASE WHEN ST_SRID({schema}.{table}.{column}) = 0 THEN NULL ELSE ST_AsGeoJSON(ST_Transform(ST_Envelope({schema}.{table}.{column}), 4326), 2) END AS {alias}"
+
+  elif alias == 'spatial_simple':
+    # NULL if SRID=0
+    return f"CASE WHEN ST_SRID({schema}.{table}.{column}) = 0 THEN NULL ELSE CASE WHEN LENGTH(ST_AsGeoJSON(ST_Simplify(ST_Transform({schema}.{table}.{column}, 4326), {postgres_geojson_tolerance}), 2)) <= {postgres_geojson_chars_limit} THEN ST_AsGeoJSON(ST_Simplify(ST_Transform({schema}.{table}.{column}, 4326), {postgres_geojson_tolerance}), 2) ELSE NULL END END AS {alias}"
+
+  elif alias == 'reference_system':
+    return f"ST_SRID({schema}.{table}.{column}) AS {alias}"
+
+  else:
+    return f"{schema}.{table}.{column} AS {alias}"

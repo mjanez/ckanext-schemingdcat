@@ -28,6 +28,7 @@ from ckanext.harvest.harvesters import HarvesterBase
 from ckanext.harvest.logic.schema import unicode_safe
 from ckanext.harvest.model import HarvestObject, HarvestObjectExtra
 from ckanext.schemingdcat.lib.field_mapping import FieldMappingValidator
+from ckanext.schemingdcat.signals import schemingdcat_harvest_package_updated, schemingdcat_harvest_package_created
 
 from ckanext.schemingdcat.config import (
     DATASET_DEFAULT_SCHEMA,
@@ -265,7 +266,7 @@ class SchemingDCATHarvester(HarvesterBase):
         try:
             content = self._get_content(url)
             content_dict = json.loads(content)
-            log.debug('content_dict: %s', content_dict)
+            #log.debug('content_dict: %s', content_dict)
             
             # Check if content_dict is a dictionary and contains 'result'.
             if isinstance(content_dict, dict) and "result" in content_dict:
@@ -536,6 +537,7 @@ class SchemingDCATHarvester(HarvesterBase):
     
         def apply_field_mapping(d, mapping):
             new_dict = {}
+            #TODO: If not field_mapping, items() fails.
             for local_field, remote_info in mapping.items():
                 if 'field_name' in remote_info:
                     remote_field = remote_info['field_name']
@@ -1107,8 +1109,11 @@ class SchemingDCATHarvester(HarvesterBase):
                     translated_fields["dataset_fields"].append(local_field_name)
     
                     if isinstance(remote_field_name, dict):
+                        local_field_value = package_dict.get(local_field_name, {})
+                        if not isinstance(local_field_value, dict):
+                            local_field_value = {}
                         package_dict[local_field_name] = {
-                            lang: package_dict.get(name, package_dict.get(local_field_name, {}).get(lang))
+                            lang: package_dict.get(name, local_field_value.get(lang))
                             for lang, name in remote_field_name.items()
                         }
                         if local_field_name.endswith('_translated'):
@@ -1315,9 +1320,9 @@ class SchemingDCATHarvester(HarvesterBase):
         for field in default_fields:
             if field['override']:
                 package_dict[field['field_name']] = field['default_value']
-            elif field['field_name'] not in package_dict or package_dict[field['field_name']] is None:
+            elif field['field_name'] not in package_dict or package_dict[field['field_name']] in [None, '']:
                 package_dict[field['field_name']] = field['default_value']
-            elif package_dict[field['field_name']] is None and field['fallback'] is not None:
+            elif package_dict[field['field_name']] in [None, ''] and field['fallback'] is not None:
                 package_dict[field['field_name']] = field['fallback']
 
         return package_dict
@@ -1438,7 +1443,7 @@ class SchemingDCATHarvester(HarvesterBase):
             package_dict.get("type") == "harvest"
             and self.config.get("allow_harvest_datasets", False) is False
         ):
-            log.warn(
+            log.warning(
                 "Remote dataset is a harvest source and allow_harvest_datasets is False, ignoring..."
             )
             return True
@@ -1449,9 +1454,6 @@ class SchemingDCATHarvester(HarvesterBase):
         )
         local_org = source_package_dict.get("owner_org")
         package_dict["owner_org"] = local_org
-
-        # Using dataset config defaults
-        package_dict = self._apply_package_defaults_from_config(package_dict, DATASET_DEFAULT_FIELDS)
 
         # Add default_extras from config
         default_extras = self.config.get('default_extras',{})
@@ -1524,6 +1526,9 @@ class SchemingDCATHarvester(HarvesterBase):
                     package_dict[key] = list({json.dumps(item): item for item in value}.values())
                 elif isinstance(value, dict):
                     package_dict[key] = {k: v for k, v in value.items()}
+
+        # Fallback: Using schemingdcat config defaults if no default values are set
+        package_dict = self._apply_package_defaults_from_config(package_dict, DATASET_DEFAULT_FIELDS)
 
         # log.debug('package_dict default values: %s', package_dict)
         return package_dict
@@ -2020,14 +2025,17 @@ class SchemingDCATHarvester(HarvesterBase):
                         if field in existing_package_dict:
                             package_dict[field] = existing_package_dict[field]
                     try:
-                        package_id = p.toolkit.get_action("package_update")(
+                        updated_package = p.toolkit.get_action("package_update")(
                             context, package_dict
                         )
                         log.info(
                             "Updated package: %s with GUID: %s",
-                            package_id,
+                            updated_package["name"],
                             harvest_object.guid,
                         )
+                        
+                        schemingdcat_harvest_package_updated.send(self, package_id=updated_package["name"], harvest_object_id=harvest_object.guid)
+                        
                     except p.toolkit.ValidationError as e:
                         error_message = ", ".join(
                             f"{k}: {v}" for k, v in e.error_dict.items()
@@ -2106,6 +2114,9 @@ class SchemingDCATHarvester(HarvesterBase):
                         new_package["name"],
                         harvest_object.guid,
                     )
+                    
+                    schemingdcat_harvest_package_created.send(self, package_id=new_package["name"], harvest_object_id=harvest_object.guid)
+                    
                 except p.toolkit.ValidationError as e:
                     error_message = ", ".join(
                         f"{k}: {v}" for k, v in e.error_dict.items()

@@ -1,39 +1,151 @@
-# High-value dataset category (R)
-  field_name: hvd_category
-  label: 
-    en: High-value dataset category
-    es: Categoría del conjunto de alto valor (HVD)
-  preset: select
-  display_property: dcatap:hvdCategory
-  display_snippet: schemingdcat/display_snippets/link_schema.html
+# INSPIRE Themes (M)
+  field_name: theme
+  label:
+    en: INSPIRE Themes
+    es: Temas INSPIRE
+  display_property: dcat:theme
+  preset: multiple_choice_icon
+  select_size: 10
   help_text:
-    en: 'More info: <a href="http://data.europa.eu/bna/c_a9135398" target="_blank" rel="noopener">High-value datasets - Overview</a>, <a href="http://data.europa.eu/bna/asd487ae75" target="_blank" rel="noopener">Vocab - EU Publications</a> and <a href="https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=PI_COM:C(2022)9562" target="_blank" rel="noopener">Implementing Act</a>  (European Commission)'
-    es: 'Referencias: <a href="http://data.europa.eu/bna/c_a9135398" target="_blank" rel="noopener">Conjuntos de alto valor - Visión generale</a>, <a href="http://data.europa.eu/bna/asd487ae75" target="_blank" rel="noopener">Vocabulario - EU Publications</a> y <a href="https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=PI_COM:C(2022)9562" target="_blank" rel="noopener">Reglamento de Implementación</a>  (Comisión Europea)'
+    en: '<a href="http://inspire.ec.europa.eu/theme" target="_blank" rel="noopener">Themes</a> (INSPIRE)'
+    es: '<a href="http://inspire.ec.europa.eu/theme" target="_blank" rel="noopener">Temas</a> (INSPIRE)'
   help_allow_html: True
   sorted_choices: True
   choices:
   - label:
-      en: Meteorological
-      es: Meteorología
-    value: http://data.europa.eu/bna/c_164e0bf5
+      en: Meteorological geographical features (MF)
+      es: Aspectos geográficos de carácter meteorológico (MF)
+    value: http://inspire.ec.europa.eu/theme/mf
   - label:
-      en: Companies and company ownership
-      es: Sociedades y propiedad de sociedades
-    value: http://data.europa.eu/bna/c_a9135398
+      en: Atmospheric conditions (AC)
+      es: Condiciones atmosféricas (AC)
+    value: http://inspire.ec.europa.eu/theme/ac
   - label:
-      en: Geospatial
-      es: Geospacial
-    value: http://data.europa.eu/bna/c_ac64a52d
+      en: Land Cover (LC)
+      es: Cubierta terrestre (LC)
+    value: http://inspire.ec.europa.eu/theme/lc
   - label:
-      en: Mobility
-      es: Movilidad
-    value: http://data.europa.eu/bna/c_b79e35eb
+      en: Addresses (AD)
+      es: Direcciones (AD)
+    value: http://inspire.ec.europa.eu/theme/ad
   - label:
-      en: Earth observation and environment
-      es: Observación de la Tierra y medio ambiente
-    value: http://data.europa.eu/bna/c_dd313021
+      en: Population distribution — demography (PD)
+      es: Distribución de la población - demografía (PD)
+    value: http://inspire.ec.europa.eu/theme/pd
   - label:
-      en: Statistics
-      es: Estadística
-    value: http://data.europa.eu/bna/c_e1da4e07
-  form_group_id: identification
+      en: Species distribution (SD)
+      es: Distribución de las especies (SD)
+    value: http://inspire.ec.europa.eu/theme/sd
+  - label:
+      en: Buildings (BU)
+      es: Edificios (BU)
+    value: http://inspire.ec.europa.eu/theme/bu
+  - label:
+      en: Elevations (EL)
+      es: Elevaciones (EL)
+    value: http://inspire.ec.europa.eu/theme/el
+  - label:
+      en: Geology (GE)
+      es: Geología (GE)
+    value: http://inspire.ec.europa.eu/theme/ge
+  - label:
+      en: Hydrography (HY)
+      es: Hidrografía (HY)
+    value: http://inspire.ec.europa.eu/theme/hy
+  - label:
+      en: Habitats and Biotopes (HB)
+      es: Hábitats y biotopos (HB)
+    value: http://inspire.ec.europa.eu/theme/hb
+  - label:
+      en: Agricultural and aquaculture facilities (AF)
+      es: Instalaciones agrícolas y de acuicultura (AF)
+    value: http://inspire.ec.europa.eu/theme/af
+  - label:
+      en: Environmental Monitoring Facilities (EF)
+      es: Instalaciones de observación del medio ambiente (EF)
+    value: http://inspire.ec.europa.eu/theme/ef
+  - label:
+      en: Production and Industrial Facilities (PF)
+      es: Instalaciones de producción e industriales (PF)
+    value: http://inspire.ec.europa.eu/theme/pf
+  - label:
+      en: Protected sites (PS)
+      es: Lugares protegidos (PS)
+    value: http://inspire.ec.europa.eu/theme/ps
+  - label:
+      en: Geographical names (GN)
+      es: Nombres geográficos (GN)
+    value: http://inspire.ec.europa.eu/theme/gn
+  - label:
+      en: Orthoimagery (OI)
+      es: Ortoimágenes (OI)
+    value: http://inspire.ec.europa.eu/theme/oi
+  - label:
+      en: Cadastral parcels (CP)
+      es: Parcelas catastrales (CP)
+    value: http://inspire.ec.europa.eu/theme/cp
+  - label:
+      en: Oceanographic Geographical Features (OF)
+      es: Rasgos geográficos oceanográficos (OF)
+    value: http://inspire.ec.europa.eu/theme/of
+  - label:
+      en: Energy resources (ER)
+      es: Recursos energéticos (ER)
+    value: http://inspire.ec.europa.eu/theme/er
+  - label:
+      en: Mineral resources (MR)
+      es: Recursos minerales (MR)
+    value: http://inspire.ec.europa.eu/theme/mr
+  - label:
+      en: Transport networks (TN)
+      es: Redes de transporte (TN)
+    value: http://inspire.ec.europa.eu/theme/tn
+  - label:
+      en: Bio-geographical regions (BR)
+      es: Regiones biogeográficas (BR)
+    value: http://inspire.ec.europa.eu/theme/br
+  - label:
+      en: Sea regions (BR)
+      es: Regiones marinas (SR)
+    value: http://inspire.ec.europa.eu/theme/sr
+  - label:
+      en: Human health and safety (HH)
+      es: Salud y seguridad humanas (HH)
+    value: http://inspire.ec.europa.eu/theme/hh
+  - label:
+      en: Utility and governmental services (US)
+      es: Servicios de utilidad pública y estatales (US)
+    value: http://inspire.ec.europa.eu/theme/us
+  - label:
+      en: Geographical Grid Systems (GG)
+      es: Sistema de cuadrículas geográficas (GG)
+    value: http://inspire.ec.europa.eu/theme/gg
+  - label:
+      en: Coordinate reference systems (RS)
+      es: Sistemas de coordenadas de referencia (RS)
+    value: http://inspire.ec.europa.eu/theme/rs
+  - label:
+      en: Soil (SO)
+      es: Suelo (SO)
+    value: http://inspire.ec.europa.eu/theme/so
+  - label:
+      en: Administrative units (SO)
+      es: Unidades administrativas (SO)
+    value: http://inspire.ec.europa.eu/theme/au
+  - label:
+      en: Statistical units (SU)
+      es: Unidades estadísticas (SU)
+    value: http://inspire.ec.europa.eu/theme/su
+  - label:
+      en: Land use (LU)
+      es: Uso del suelo (LU)
+    value: http://inspire.ec.europa.eu/theme/lu
+  - label:
+      en: Natural risk zones (NZ)
+      es: Zonas de riesgos naturales (NZ)
+    value: http://inspire.ec.europa.eu/theme/nz
+  - label:
+      en: Area management/restriction/regulation zones and reporting units (AM)
+      es: Zonas sujetas a ordenación, a restricciones o reglamentaciones y unidades de notificación (AM)
+    value: http://inspire.ec.europa.eu/theme/am
+  form_group_id: inspire  
