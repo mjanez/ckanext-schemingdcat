@@ -59,6 +59,7 @@ ckanext/schemingdcat/i18n/tools/input/*
 ckanext/schemingdcat/i18n/tools/input/input.yaml
 
 # custom harvesters
+doc/harvesters/*_config.*.json
 doc/harvesters/*_config.json
 doc/harvesters/*.config.json
 !doc/harvesters/ckan_template_config.json

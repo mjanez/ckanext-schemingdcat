@@ -20,6 +20,7 @@ __all__ = [
     'AUX_TAG_FIELDS',
     'URL_FIELD_NAMES',
     'EMAIL_FIELD_NAMES',
+    'XLS_HARVESTER_FIELDS_NOT_LIST',
 
     # From metadata.py
     'OGC2CKAN_HARVESTER_MD_CONFIG',

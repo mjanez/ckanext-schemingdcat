@@ -23,7 +23,8 @@ from ckanext.schemingdcat.interfaces import ISchemingDCATHarvester
 from ckanext.schemingdcat.lib.field_mapping import FieldMappingValidator
 
 from ckanext.schemingdcat.config import (
-    COMMON_DATE_FORMATS
+    COMMON_DATE_FORMATS,
+    XLS_HARVESTER_FIELDS_NOT_LIST
 )
 
 log = logging.getLogger(__name__)
@@ -483,24 +484,24 @@ class SchemingDCATXLSHarvester(SchemingDCATHarvester):
         """
         if self._local_schema is None:
             self._local_schema = self._get_local_schema()
-
+        
         # Get the list of fields that should be converted to lists
         list_fields = ['groups'] + [
             field['field_name']
             for field in self._local_schema['dataset_fields']
             if any(keyword in field.get(field_type, '').lower() for keyword in ['list', 'multiple', 'tag_string', 'tag', 'group'] for field_type in ['validators', 'output_validators', 'preset']) or 'groups' in field['field_name'].lower()
         ]
-
+    
         for element in data:
             for key, value in element.items():
-                if key in list_fields and isinstance(value, str):
+                if key in list_fields and key not in XLS_HARVESTER_FIELDS_NOT_LIST and isinstance(value, str):
                     element[key] = self._set_string_to_list(value)
                 elif key == 'distributions':
                     for distribution in value:
                         for key_dist, value_dist in distribution.items():
-                            if key_dist in list_fields and isinstance(value_dist, str):
+                            if key_dist in list_fields and key_dist not in XLS_HARVESTER_FIELDS_NOT_LIST and isinstance(value_dist, str):
                                 distribution[key_dist] = self._set_string_to_list(value_dist)
-
+    
         # Return the updated data
         return data
 
