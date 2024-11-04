@@ -64,7 +64,7 @@
       "preset_name": "dataset_organization",
       "values": {
         "validators": "owner_org_validator unicode_safe",
-        "form_snippet": "organization.html"
+        "form_snippet": "schemingdcat/form_snippets/organization.html"
       }
     },
     {
