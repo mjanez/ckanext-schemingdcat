@@ -1,0 +1,1813 @@
+﻿2024-09-23T19:54:16.4624475Z ##[group]Run pytest --log-cli-level=INFO --ckan-ini=test.ini --cov=ckanext.schemingdcat --cov-report=term-missing --cov-append --disable-warnings ckanext/schemingdcat/tests
+2024-09-23T19:54:16.4626022Z [36;1mpytest --log-cli-level=INFO --ckan-ini=test.ini --cov=ckanext.schemingdcat --cov-report=term-missing --cov-append --disable-warnings ckanext/schemingdcat/tests[0m
+2024-09-23T19:54:16.4627493Z shell: sh -e {0}
+2024-09-23T19:54:16.4627835Z env:
+2024-09-23T19:54:16.4628097Z   COLUMNS: 120
+2024-09-23T19:54:16.4628899Z   CKAN_SQLALCHEMY_URL: ***postgres/ckan_test
+2024-09-23T19:54:16.4629607Z   CKAN_DATASTORE_WRITE_URL: ***postgres/datastore_test
+2024-09-23T19:54:16.4630380Z   CKAN_DATASTORE_READ_URL: ***postgres/datastore_test
+2024-09-23T19:54:16.4630880Z   CKAN_SOLR_URL: http://solr:8983/solr/ckan
+2024-09-23T19:54:16.4631383Z   CKAN_REDIS_URL: redis://redis:6379/1
+2024-09-23T19:54:16.4631810Z ##[endgroup]
+2024-09-23T19:54:18.2098698Z 2024-09-23 19:54:18,209 INFO  [ckan.cli] Using configuration file /__w/ckanext-schemingdcat/ckanext-schemingdcat/test.ini
+2024-09-23T19:54:18.2101152Z 2024-09-23 19:54:18,209 INFO  [ckan.config.environment] Loading static files from public
+2024-09-23T19:54:18.7528857Z 2024-09-23 19:54:18,752 INFO  [ckan.config.environment] Loading templates from /srv/app/src/ckan/ckan/templates
+2024-09-23T19:54:19.5727942Z 2024-09-23 19:54:19,572 WARNI [ckanext.schemingdcat.utils] sdct_config.schemas is empty, no local scheming.dataset_schemas loaded.
+2024-09-23T19:54:19.5729790Z 2024-09-23 19:54:19,572 WARNI [ckanext.schemingdcat.utils] sdct_config.schemas is empty, no local scheming.dataset_schemas loaded.
+2024-09-23T19:54:20.3050371Z 2024-09-23 19:54:20,304 INFO  [ckan.config.environment] Loading templates from /srv/app/src/ckan/ckan/templates
+2024-09-23T19:54:20.6027689Z 2024-09-23 19:54:20,602 WARNI [ckan.config.middleware.flask_app] Extensions are excluded from CSRF protection! We allow extensions to run without CSRF protection but it will be forced future releases. Read the documentation for more information on how to add CSRF protection to your extension.
+2024-09-23T19:54:21.2849301Z ================================================= test session starts ==================================================
+2024-09-23T19:54:21.2850799Z platform linux -- Python 3.10.14, pytest-7.1.3, pluggy-1.5.0
+2024-09-23T19:54:21.2852095Z rootdir: /__w/ckanext-schemingdcat/ckanext-schemingdcat
+2024-09-23T19:54:21.2853802Z plugins: ckan-0.0.12, pretty-1.2.0, factoryboy-2.4.0, cov-3.0.0, split-0.8.0, rerunfailures-10.2, freezegun-0.4.2, Faker-14.2.0
+2024-09-23T19:54:21.2855147Z collected 27 items
+2024-09-23T19:54:21.2856445Z 2024-09-23 19:54:21,283 INFO  [ckan.config.environment] Loading templates from /srv/app/src/ckan/ckan/templates
+2024-09-23T19:54:21.2857654Z 
+2024-09-23T19:54:21.2858362Z ------------------------------------------------- live log collection --------------------------------------------------
+2024-09-23T19:54:21.2860215Z INFO     ckan.config.environment:environment.py:208 Loading templates from /srv/app/src/ckan/ckan/templates
+2024-09-23T19:54:22.3979986Z 2024-09-23 19:54:22,397 INFO  [ckan.config.environment] Loading templates from /srv/app/src/ckan/ckan/templates
+2024-09-23T19:54:22.3981819Z INFO     ckan.config.environment:environment.py:208 Loading templates from /srv/app/src/ckan/ckan/templates
+2024-09-23T19:54:22.4175986Z 
+2024-09-23T19:54:23.0881528Z ckanext/schemingdcat/tests/test_blueprints.py::TestSchemingDCATBlueprints::test_endpoints 
+2024-09-23T19:54:23.0883002Z ---------------------------------------------------- live log setup ----------------------------------------------------
+2024-09-23T19:54:23.0884323Z INFO     ckan.model:__init__.py:225 Database tables dropped
+2024-09-23T19:54:24.3720290Z INFO     ckan.model:__init__.py:354 CKAN database version upgraded: base -> 9f33a0280c51 (head)
+2024-09-23T19:54:24.3722141Z INFO     ckan.model:__init__.py:214 Database initialised
+2024-09-23T19:54:24.3723193Z INFO     ckan.model:__init__.py:246 Database rebuilt
+2024-09-23T19:54:29.6261783Z FAILED                 [  3%] [  3%]
+2024-09-23T19:54:29.6264060Z ckanext/schemingdcat/tests/test_blueprints.py:9 TestSchemingDCATBlueprints.test_endpoints - RuntimeError: At…
+2024-09-23T19:54:38.7793216Z ckanext/schemingdcat/tests/test_blueprints.py::TestSchemingDCATBlueprints::test_metadata_templates FAILED        [  7%] [  7%]
+2024-09-23T19:54:38.7794880Z ckanext/schemingdcat/tests/test_blueprints.py:15 TestSchemingDCATBlueprints.test_metadata_templates - Runtim…
+2024-09-23T19:54:48.1481526Z ckanext/schemingdcat/tests/test_blueprints.py::TestSchemingDCATBlueprints::test_linked_data FAILED               [ 11%] [ 11%]
+2024-09-23T19:54:48.1483245Z ckanext/schemingdcat/tests/test_blueprints.py:21 TestSchemingDCATBlueprints.test_linked_data - KeyError: ('a…
+2024-09-23T19:54:57.4685854Z ckanext/schemingdcat/tests/test_blueprints.py::TestSchemingDCATBlueprints::test_geospatial_metadata FAILED       [ 14%] [ 14%]
+2024-09-23T19:54:57.4688158Z ckanext/schemingdcat/tests/test_blueprints.py:29 TestSchemingDCATBlueprints.test_geospatial_metadata
+2024-09-23T19:55:06.7260428Z ckanext/schemingdcat/tests/test_blueprints.py::TestSchemingDCATBlueprints::test_linked_data_not_found FAILED     [ 18%] [ 18%]
+2024-09-23T19:55:06.7262485Z ckanext/schemingdcat/tests/test_blueprints.py:37 TestSchemingDCATBlueprints.test_linked_data_not_found
+2024-09-23T19:55:15.8887858Z ckanext/schemingdcat/tests/test_blueprints.py::TestSchemingDCATBlueprints::test_geospatial_metadata_not_found FAILED [ 22%] [ 22%]
+2024-09-23T19:55:15.8890039Z ckanext/schemingdcat/tests/test_blueprints.py:42 TestSchemingDCATBlueprints.test_geospatial_metadata_not_found
+2024-09-23T19:55:15.9187212Z ckanext/schemingdcat/tests/test_cli.py::test_create_inspire_tags FAILED                                          [ 25%] [ 25%]
+2024-09-23T19:55:15.9188745Z ckanext/schemingdcat/tests/test_cli.py:4 test_create_inspire_tags - assert 1 == 0  +  where 1 = <Result KeyE…
+2024-09-23T19:55:15.9350735Z ckanext/schemingdcat/tests/test_cli.py::test_delete_inspire_tags FAILED                                          [ 29%] [ 29%]
+2024-09-23T19:55:15.9352051Z ckanext/schemingdcat/tests/test_cli.py:11 test_delete_inspire_tags - AssertionError: assert 'Deleting inspir…
+2024-09-23T19:55:15.9470851Z ckanext/schemingdcat/tests/test_cli.py::test_create_dcat_tags FAILED                                             [ 33%] [ 33%]
+2024-09-23T19:55:15.9472121Z ckanext/schemingdcat/tests/test_cli.py:18 test_create_dcat_tags - assert 1 == 0  +  where 1 = <Result KeyErr…
+2024-09-23T19:55:15.9649501Z ckanext/schemingdcat/tests/test_cli.py::test_delete_dcat_tags FAILED                                             [ 37%] [ 37%]
+2024-09-23T19:55:15.9651612Z ckanext/schemingdcat/tests/test_cli.py:25 test_delete_dcat_tags - AssertionError: assert 'Deleting dcat_ap C…
+2024-09-23T19:55:15.9771581Z ckanext/schemingdcat/tests/test_cli.py::test_create_iso_topic_tags FAILED                                        [ 40%] [ 40%]
+2024-09-23T19:55:15.9774078Z ckanext/schemingdcat/tests/test_cli.py:32 test_create_iso_topic_tags - assert 1 == 0  +  where 1 = <Result K…
+2024-09-23T19:55:15.9925446Z ckanext/schemingdcat/tests/test_cli.py::test_delete_iso_topic_tags FAILED                                        [ 44%] [ 44%]
+2024-09-23T19:55:15.9927862Z ckanext/schemingdcat/tests/test_cli.py:39 test_delete_iso_topic_tags - AssertionError: assert 'Deleting iso1…
+2024-09-23T19:55:21.2970881Z ckanext/schemingdcat/tests/test_cli.py::test_download_rdf_eu_vocabs FAILED                                       [ 48%] [ 48%]
+2024-09-23T19:55:21.2973481Z ckanext/schemingdcat/tests/test_cli.py:46 test_download_rdf_eu_vocabs - AssertionError: assert 'Downloading …
+2024-09-23T19:55:28.7381280Z ckanext/schemingdcat/tests/test_plugin.py::TestSchemingDCATPlugin::test_update_config FAILED                     [ 51%] [ 51%]
+2024-09-23T19:55:28.7382964Z ckanext/schemingdcat/tests/test_plugin.py:9 TestSchemingDCATPlugin.test_update_config - AssertionError: asse…
+2024-09-23T19:55:36.1817657Z ckanext/schemingdcat/tests/test_plugin.py::TestSchemingDCATPlugin::test_get_helpers PASSED                       [ 55%]
+2024-09-23T19:55:43.5277156Z ckanext/schemingdcat/tests/test_plugin.py::TestSchemingDCATPlugin::test_get_validators FAILED                    [ 59%] [ 59%]
+2024-09-23T19:55:43.5278705Z ckanext/schemingdcat/tests/test_plugin.py:22 TestSchemingDCATPlugin.test_get_validators - AssertionError: as…
+2024-09-23T19:55:50.8952312Z ckanext/schemingdcat/tests/test_plugin.py::TestSchemingDCATPlugin::test_get_blueprint PASSED                     [ 62%]
+2024-09-23T19:55:58.3489000Z ckanext/schemingdcat/tests/test_plugin.py::TestSchemingDCATPlugin::test_get_commands PASSED                      [ 66%]
+2024-09-23T19:56:05.7683675Z ckanext/schemingdcat/tests/test_plugin.py::TestSchemingDCATPlugin::test_get_signal_subscriptions FAILED          [ 70%] [ 70%]
+2024-09-23T19:56:05.7686367Z ckanext/schemingdcat/tests/test_plugin.py:40 TestSchemingDCATPlugin.test_get_signal_subscriptions - Assertio…
+2024-09-23T19:56:13.1530643Z ckanext/schemingdcat/tests/test_plugin.py::TestSchemingDCATDatasetsPlugin::test_get_actions PASSED               [ 74%]
+2024-09-23T19:56:20.5031881Z ckanext/schemingdcat/tests/test_plugin.py::TestSchemingDCATDatasetsPlugin::test_validate FAILED                  [ 77%] [ 77%]
+2024-09-23T19:56:20.5033718Z ckanext/schemingdcat/tests/test_plugin.py:56 TestSchemingDCATDatasetsPlugin.test_validate - KeyError: 'resou…
+2024-09-23T19:56:27.9395934Z ckanext/schemingdcat/tests/test_plugin.py::TestSchemingDCATGroupsPlugin::test_about_template PASSED              [ 81%]
+2024-09-23T19:56:35.3018663Z ckanext/schemingdcat/tests/test_plugin.py::TestSchemingDCATOrganizationsPlugin::test_about_template PASSED       [ 85%]
+2024-09-23T19:56:36.6631915Z ckanext/schemingdcat/tests/profiles/dcat_ap_3/test_eu_dcatap_3_profile_parse.py::TestSchemingDCATParseSupport::test_e2e_dcat_to_ckan ERROR [ 88%] [ 88%]
+2024-09-23T19:56:36.6634585Z ckanext/schemingdcat/tests/profiles/dcat_ap_3/test_eu_dcatap_3_profile_parse.py:21 TestSchemingDCATParseSupport.test_e2e_dcat_to_ckan
+2024-09-23T19:56:43.0067312Z ckanext/schemingdcat/tests/shacl/test_shacl.py::test_validate_dcat_ap_2_graph_shapes FAILED                      [ 92%] [ 92%]
+2024-09-23T19:56:43.0069789Z ckanext/schemingdcat/tests/shacl/test_shacl.py:95 test_validate_dcat_ap_2_graph_shapes - FileNotFoundError: …
+2024-09-23T19:56:50.8822498Z ckanext/schemingdcat/tests/shacl/test_shacl.py::test_validate_dcat_ap_2_graph_shapes_recommended FAILED          [ 96%] [ 96%]
+2024-09-23T19:56:50.8824001Z ckanext/schemingdcat/tests/shacl/test_shacl.py:119 test_validate_dcat_ap_2_graph_shapes_recommended - FileNo…
+2024-09-23T19:56:59.3883554Z ckanext/schemingdcat/tests/shacl/test_shacl.py::test_validate_dcat_ap_2_graph_shapes_range FAILED                [100%] [100%]
+2024-09-23T19:56:59.3886092Z ckanext/schemingdcat/tests/shacl/test_shacl.py:173 test_validate_dcat_ap_2_graph_shapes_range - FileNotFound…
+2024-09-23T19:56:59.3888227Z ======================================================== ERRORS ========================================================
+2024-09-23T19:56:59.3889863Z _________________________ ERROR at setup of TestSchemingDCATParseSupport.test_e2e_dcat_to_ckan _________________________
+2024-09-23T19:56:59.3890855Z 
+2024-09-23T19:56:59.3891463Z url = 'ckanext.schemingdcat:schemas/geodcat_ap/eu_dcat_ap_full.yaml'
+2024-09-23T19:56:59.3892238Z 
+2024-09-23T19:56:59.3892569Z     def _load_schema_url(url):
+2024-09-23T19:56:59.3893257Z         from six.moves import urllib
+2024-09-23T19:56:59.3893886Z         try:
+2024-09-23T19:56:59.3894655Z >           res = urllib.request.urlopen(url)
+2024-09-23T19:56:59.3895239Z 
+2024-09-23T19:56:59.3895697Z ckanext-scheming/ckanext/scheming/plugins.py:541: 
+2024-09-23T19:56:59.3897289Z _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+2024-09-23T19:56:59.3898083Z 
+2024-09-23T19:56:59.3898833Z url = 'ckanext.schemingdcat:schemas/geodcat_ap/eu_dcat_ap_full.yaml', data = None
+2024-09-23T19:56:59.3899958Z timeout = <object object at 0x7f740f550f30>
+2024-09-23T19:56:59.3900899Z 
+2024-09-23T19:56:59.3901456Z     def urlopen(url, data=None, timeout=socket._GLOBAL_DEFAULT_TIMEOUT,
+2024-09-23T19:56:59.3902571Z                 *, cafile=None, capath=None, cadefault=False, context=None):
+2024-09-23T19:56:59.3904013Z         '''Open the URL url, which can be either a string or a Request object.
+2024-09-23T19:56:59.3904998Z     
+2024-09-23T19:56:59.3905771Z         *data* must be an object specifying additional data to be sent to
+2024-09-23T19:56:59.3907119Z         the server, or None if no such data is needed.  See Request for
+2024-09-23T19:56:59.3908171Z         details.
+2024-09-23T19:56:59.3908699Z     
+2024-09-23T19:56:59.3909434Z         urllib.request module uses HTTP/1.1 and includes a "Connection:close"
+2024-09-23T19:56:59.3910583Z         header in its HTTP requests.
+2024-09-23T19:56:59.3911277Z     
+2024-09-23T19:56:59.3912019Z         The optional *timeout* parameter specifies a timeout in seconds for
+2024-09-23T19:56:59.3913249Z         blocking operations like the connection attempt (if not specified, the
+2024-09-23T19:56:59.3914743Z         global default timeout setting will be used). This only works for HTTP,
+2024-09-23T19:56:59.3915742Z         HTTPS and FTP connections.
+2024-09-23T19:56:59.3916417Z     
+2024-09-23T19:56:59.3917517Z         If *context* is specified, it must be a ssl.SSLContext instance describing
+2024-09-23T19:56:59.3918770Z         the various SSL options. See HTTPSConnection for more details.
+2024-09-23T19:56:59.3919786Z     
+2024-09-23T19:56:59.3920607Z         The optional *cafile* and *capath* parameters specify a set of trusted CA
+2024-09-23T19:56:59.3921930Z         certificates for HTTPS requests. cafile should point to a single file
+2024-09-23T19:56:59.3923245Z         containing a bundle of CA certificates, whereas capath should point to a
+2024-09-23T19:56:59.3924578Z         directory of hashed certificate files. More information can be found in
+2024-09-23T19:56:59.3925712Z         ssl.SSLContext.load_verify_locations().
+2024-09-23T19:56:59.3926479Z     
+2024-09-23T19:56:59.3927259Z         The *cadefault* parameter is ignored.
+2024-09-23T19:56:59.3928042Z     
+2024-09-23T19:56:59.3928526Z     
+2024-09-23T19:56:59.3929269Z         This function always returns an object which can work as a
+2024-09-23T19:56:59.3930371Z         context manager and has the properties url, headers, and status.
+2024-09-23T19:56:59.3931571Z         See urllib.response.addinfourl for more detail on these properties.
+2024-09-23T19:56:59.3932591Z     
+2024-09-23T19:56:59.3933348Z         For HTTP and HTTPS URLs, this function returns a http.client.HTTPResponse
+2024-09-23T19:56:59.3934666Z         object slightly modified. In addition to the three new methods above, the
+2024-09-23T19:56:59.3936196Z         msg attribute contains the same information as the reason attribute ---
+2024-09-23T19:56:59.3938152Z         the reason phrase returned by the server --- instead of the response
+2024-09-23T19:56:59.3939355Z         headers as it is specified in the documentation for HTTPResponse.
+2024-09-23T19:56:59.3940280Z     
+2024-09-23T19:56:59.3941234Z         For FTP, file, and data URLs and requests explicitly handled by legacy
+2024-09-23T19:56:59.3942342Z         URLopener and FancyURLopener classes, this function returns a
+2024-09-23T19:56:59.3943286Z         urllib.response.addinfourl object.
+2024-09-23T19:56:59.3944124Z     
+2024-09-23T19:56:59.3944850Z         Note that None may be returned if no handler handles the request (though
+2024-09-23T19:56:59.3946135Z         the default installed global OpenerDirector uses UnknownHandler to ensure
+2024-09-23T19:56:59.3947416Z         this never happens).
+2024-09-23T19:56:59.3947978Z     
+2024-09-23T19:56:59.3948846Z         In addition, if proxy settings are detected (for example, when a *_proxy
+2024-09-23T19:56:59.3950081Z         environment variable like http_proxy is set), ProxyHandler is default
+2024-09-23T19:56:59.3951423Z         installed and makes sure the requests are handled through the proxy.
+2024-09-23T19:56:59.3952635Z     
+2024-09-23T19:56:59.3953159Z         '''
+2024-09-23T19:56:59.3953699Z         global _opener
+2024-09-23T19:56:59.3954429Z         if cafile or capath or cadefault:
+2024-09-23T19:56:59.3955203Z             import warnings
+2024-09-23T19:56:59.3956107Z             warnings.warn("cafile, capath and cadefault are deprecated, use a "
+2024-09-23T19:56:59.3957431Z                           "custom context instead.", DeprecationWarning, 2)
+2024-09-23T19:56:59.3958439Z             if context is not None:
+2024-09-23T19:56:59.3959145Z                 raise ValueError(
+2024-09-23T19:56:59.3960328Z                     "You can't pass both context and any of cafile, capath, and "
+2024-09-23T19:56:59.3961191Z                     "cadefault"
+2024-09-23T19:56:59.3961828Z                 )
+2024-09-23T19:56:59.3962464Z             if not _have_ssl:
+2024-09-23T19:56:59.3963254Z                 raise ValueError('SSL support not available')
+2024-09-23T19:56:59.3964396Z             context = ssl.create_default_context(ssl.Purpose.SERVER_AUTH,
+2024-09-23T19:56:59.3966085Z                                                  cafile=cafile,
+2024-09-23T19:56:59.3967115Z                                                  capath=capath)
+2024-09-23T19:56:59.3968026Z             # send ALPN extension to indicate HTTP/1.1 protocol
+2024-09-23T19:56:59.3969210Z             context.set_alpn_protocols(['http/1.1'])
+2024-09-23T19:56:59.3970019Z             https_handler = HTTPSHandler(context=context)
+2024-09-23T19:56:59.3970909Z             opener = build_opener(https_handler)
+2024-09-23T19:56:59.3971761Z         elif context:
+2024-09-23T19:56:59.3972417Z             https_handler = HTTPSHandler(context=context)
+2024-09-23T19:56:59.3973406Z             opener = build_opener(https_handler)
+2024-09-23T19:56:59.3974275Z         elif _opener is None:
+2024-09-23T19:56:59.3974944Z             _opener = opener = build_opener()
+2024-09-23T19:56:59.3975746Z         else:
+2024-09-23T19:56:59.3976378Z             opener = _opener
+2024-09-23T19:56:59.3977236Z >       return opener.open(url, data, timeout)
+2024-09-23T19:56:59.3977893Z 
+2024-09-23T19:56:59.3978218Z /usr/local/lib/python3.10/urllib/request.py:216: 
+2024-09-23T19:56:59.3979424Z _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+2024-09-23T19:56:59.3980196Z 
+2024-09-23T19:56:59.3980698Z self = <urllib.request.OpenerDirector object at 0x7f73fa807310>
+2024-09-23T19:56:59.3982071Z fullurl = 'ckanext.schemingdcat:schemas/geodcat_ap/eu_dcat_ap_full.yaml', data = None
+2024-09-23T19:56:59.3983316Z timeout = <object object at 0x7f740f550f30>
+2024-09-23T19:56:59.3983826Z 
+2024-09-23T19:56:59.3984411Z     def open(self, fullurl, data=None, timeout=socket._GLOBAL_DEFAULT_TIMEOUT):
+2024-09-23T19:56:59.3985399Z         # accept a URL or a Request object
+2024-09-23T19:56:59.3986507Z         if isinstance(fullurl, str):
+2024-09-23T19:56:59.3987462Z             req = Request(fullurl, data)
+2024-09-23T19:56:59.3988118Z         else:
+2024-09-23T19:56:59.3988761Z             req = fullurl
+2024-09-23T19:56:59.3989407Z             if data is not None:
+2024-09-23T19:56:59.3990017Z                 req.data = data
+2024-09-23T19:56:59.3990761Z     
+2024-09-23T19:56:59.3991275Z         req.timeout = timeout
+2024-09-23T19:56:59.3991874Z         protocol = req.type
+2024-09-23T19:56:59.3992593Z     
+2024-09-23T19:56:59.3993210Z         # pre-process request
+2024-09-23T19:56:59.3993839Z         meth_name = protocol+"_request"
+2024-09-23T19:56:59.3994867Z         for processor in self.process_request.get(protocol, []):
+2024-09-23T19:56:59.3995816Z             meth = getattr(processor, meth_name)
+2024-09-23T19:56:59.3996525Z             req = meth(req)
+2024-09-23T19:56:59.3997507Z     
+2024-09-23T19:56:59.3998653Z         sys.audit('urllib.Request', req.full_url, req.data, req.headers, req.get_method())
+2024-09-23T19:56:59.3999726Z >       response = self._open(req, data)
+2024-09-23T19:56:59.4000287Z 
+2024-09-23T19:56:59.4000705Z /usr/local/lib/python3.10/urllib/request.py:519: 
+2024-09-23T19:56:59.4002115Z _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+2024-09-23T19:56:59.4002870Z 
+2024-09-23T19:56:59.4003803Z self = <urllib.request.OpenerDirector object at 0x7f73fa807310>, req = <urllib.request.Request object at 0x7f73fa8040d0>
+2024-09-23T19:56:59.4005183Z data = None
+2024-09-23T19:56:59.4005526Z 
+2024-09-23T19:56:59.4005767Z     def _open(self, req, data=None):
+2024-09-23T19:56:59.4006778Z         result = self._call_chain(self.handle_open, 'default',
+2024-09-23T19:56:59.4008083Z                                   'default_open', req)
+2024-09-23T19:56:59.4008857Z         if result:
+2024-09-23T19:56:59.4009438Z             return result
+2024-09-23T19:56:59.4010063Z     
+2024-09-23T19:56:59.4010600Z         protocol = req.type
+2024-09-23T19:56:59.4011472Z         result = self._call_chain(self.handle_open, protocol, protocol +
+2024-09-23T19:56:59.4012574Z                                   '_open', req)
+2024-09-23T19:56:59.4013338Z         if result:
+2024-09-23T19:56:59.4013894Z             return result
+2024-09-23T19:56:59.4014577Z     
+2024-09-23T19:56:59.4015364Z >       return self._call_chain(self.handle_open, 'unknown',
+2024-09-23T19:56:59.4016364Z                                 'unknown_open', req)
+2024-09-23T19:56:59.4017049Z 
+2024-09-23T19:56:59.4017488Z /usr/local/lib/python3.10/urllib/request.py:541: 
+2024-09-23T19:56:59.4018633Z _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+2024-09-23T19:56:59.4019388Z 
+2024-09-23T19:56:59.4019872Z self = <urllib.request.OpenerDirector object at 0x7f73fa807310>
+2024-09-23T19:56:59.4022787Z chain = {'data': [<urllib.request.DataHandler object at 0x7f73fa804730>], 'file': [<urllib.request.FileHandler object at 0x7f7...ib.request.FTPHandler object at 0x7f73fa806cb0>], 'http': [<urllib.request.HTTPHandler object at 0x7f73fa805390>], ...}
+2024-09-23T19:56:59.4025723Z kind = 'unknown', meth_name = 'unknown_open', args = (<urllib.request.Request object at 0x7f73fa8040d0>,)
+2024-09-23T19:56:59.4027455Z handlers = [<urllib.request.UnknownHandler object at 0x7f73fa805ed0>]
+2024-09-23T19:56:59.4028809Z handler = <urllib.request.UnknownHandler object at 0x7f73fa805ed0>
+2024-09-23T19:56:59.4030330Z func = <bound method UnknownHandler.unknown_open of <urllib.request.UnknownHandler object at 0x7f73fa805ed0>>
+2024-09-23T19:56:59.4031427Z 
+2024-09-23T19:56:59.4031768Z     def _call_chain(self, chain, kind, meth_name, *args):
+2024-09-23T19:56:59.4032965Z         # Handlers raise an exception if no one else should try to handle
+2024-09-23T19:56:59.4034246Z         # the request, or return None if they can't but another handler
+2024-09-23T19:56:59.4035198Z         # could.  Otherwise, they return the response.
+2024-09-23T19:56:59.4036408Z         handlers = chain.get(kind, ())
+2024-09-23T19:56:59.4037334Z         for handler in handlers:
+2024-09-23T19:56:59.4038047Z             func = getattr(handler, meth_name)
+2024-09-23T19:56:59.4038927Z >           result = func(*args)
+2024-09-23T19:56:59.4039396Z 
+2024-09-23T19:56:59.4039720Z /usr/local/lib/python3.10/urllib/request.py:496: 
+2024-09-23T19:56:59.4040846Z _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+2024-09-23T19:56:59.4041691Z 
+2024-09-23T19:56:59.4042555Z self = <urllib.request.UnknownHandler object at 0x7f73fa805ed0>, req = <urllib.request.Request object at 0x7f73fa8040d0>
+2024-09-23T19:56:59.4043698Z 
+2024-09-23T19:56:59.4043936Z     def unknown_open(self, req):
+2024-09-23T19:56:59.4044633Z         type = req.type
+2024-09-23T19:56:59.4045511Z >       raise URLError('unknown url type: %s' % type)
+2024-09-23T19:56:59.4046671Z E       urllib.error.URLError: <urlopen error unknown url type: ckanext.schemingdcat>
+2024-09-23T19:56:59.4047730Z 
+2024-09-23T19:56:59.4048129Z /usr/local/lib/python3.10/urllib/request.py:1419: URLError
+2024-09-23T19:56:59.4048865Z 
+2024-09-23T19:56:59.4049599Z During handling of the above exception, another exception occurred:
+2024-09-23T19:56:59.4050305Z 
+2024-09-23T19:56:59.4052453Z ckan_config = {'use': 'config:/srv/app/src/ckan/test-core.ini', 'cache_dir': '/srv/app/src/ckan/data', 'debug': False, 'testing': Tr...LATES_AUTO_RELOAD': None, 'JSON_SORT_KEYS': True, 'SESSION_COOKIE_DOMAIN': None, 'PRESERVE_CONTEXT_ON_EXCEPTION': None}
+2024-09-23T19:56:59.4054504Z 
+2024-09-23T19:56:59.4054719Z     @pytest.fixture
+2024-09-23T19:56:59.4055440Z     def with_plugins(ckan_config):
+2024-09-23T19:56:59.4056340Z         """Load all plugins specified by the ``ckan.plugins`` config option
+2024-09-23T19:56:59.4057694Z         at the beginning of the test. When the test ends (even it fails), it will
+2024-09-23T19:56:59.4058920Z         unload all the plugins in the reverse order.
+2024-09-23T19:56:59.4059722Z     
+2024-09-23T19:56:59.4060330Z         .. literalinclude:: /../ckan/tests/test_factories.py
+2024-09-23T19:56:59.4061544Z            :start-after: # START-CONFIG-OVERRIDE
+2024-09-23T19:56:59.4062521Z            :end-before: # END-CONFIG-OVERRIDE
+2024-09-23T19:56:59.4063204Z     
+2024-09-23T19:56:59.4063832Z         """
+2024-09-23T19:56:59.4064488Z         plugins = aslist(ckan_config["ckan.plugins"])
+2024-09-23T19:56:59.4065253Z         for plugin in plugins:
+2024-09-23T19:56:59.4066158Z             if not ckan.plugins.plugin_loaded(plugin):
+2024-09-23T19:56:59.4067187Z >               ckan.plugins.load(plugin)
+2024-09-23T19:56:59.4067686Z 
+2024-09-23T19:56:59.4068106Z /srv/app/src/ckan/ckan/tests/pytest_ckan/fixtures.py:284: 
+2024-09-23T19:56:59.4069449Z _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+2024-09-23T19:56:59.4070596Z /srv/app/src/ckan/ckan/plugins/core.py:253: in load
+2024-09-23T19:56:59.4071368Z     plugins_update()
+2024-09-23T19:56:59.4072431Z /srv/app/src/ckan/ckan/plugins/core.py:210: in plugins_update
+2024-09-23T19:56:59.4073399Z     environment.update_config()
+2024-09-23T19:56:59.4074363Z /srv/app/src/ckan/ckan/config/environment.py:135: in update_config
+2024-09-23T19:56:59.4075528Z     plugin.update_config(config)
+2024-09-23T19:56:59.4076633Z ckanext-scheming/ckanext/scheming/plugins.py:141: in update_config
+2024-09-23T19:56:59.4077788Z     self._schemas = _load_schemas(
+2024-09-23T19:56:59.4079108Z ckanext-scheming/ckanext/scheming/plugins.py:505: in _load_schemas
+2024-09-23T19:56:59.4080170Z     schema = _load_schema(n)
+2024-09-23T19:56:59.4081316Z ckanext-scheming/ckanext/scheming/plugins.py:513: in _load_schema
+2024-09-23T19:56:59.4082253Z     schema = _load_schema_url(url)
+2024-09-23T19:56:59.4083255Z _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+2024-09-23T19:56:59.4084056Z 
+2024-09-23T19:56:59.4084829Z url = 'ckanext.schemingdcat:schemas/geodcat_ap/eu_dcat_ap_full.yaml'
+2024-09-23T19:56:59.4085779Z 
+2024-09-23T19:56:59.4086018Z     def _load_schema_url(url):
+2024-09-23T19:56:59.4086750Z         from six.moves import urllib
+2024-09-23T19:56:59.4087787Z         try:
+2024-09-23T19:56:59.4088421Z             res = urllib.request.urlopen(url)
+2024-09-23T19:56:59.4089228Z             tables = res.read()
+2024-09-23T19:56:59.4089983Z         except urllib.error.URLError:
+2024-09-23T19:56:59.4090892Z >           raise SchemingException("Could not load %s" % url)
+2024-09-23T19:56:59.4092456Z E           ckanext.scheming.errors.SchemingException: Could not load ckanext.schemingdcat:schemas/geodcat_ap/eu_dcat_ap_full.yaml
+2024-09-23T19:56:59.4093614Z 
+2024-09-23T19:56:59.4094359Z ckanext-scheming/ckanext/scheming/plugins.py:544: SchemingException
+2024-09-23T19:56:59.4095572Z ======================================================= FAILURES =======================================================
+2024-09-23T19:56:59.4097154Z ______________________________________ TestSchemingDCATBlueprints.test_endpoints _______________________________________
+2024-09-23T19:56:59.4098095Z 
+2024-09-23T19:56:59.4099046Z self = <ckanext.schemingdcat.tests.test_blueprints.TestSchemingDCATBlueprints object at 0x7f73fa9a7a30>
+2024-09-23T19:56:59.4100790Z app = <ckan.tests.helpers.CKANTestApp object at 0x7f73fa894f70>
+2024-09-23T19:56:59.4101580Z 
+2024-09-23T19:56:59.4101879Z     def test_endpoints(self, app):
+2024-09-23T19:56:59.4102983Z >       url = url_for('schemingdcat.endpoint_index')
+2024-09-23T19:56:59.4103549Z 
+2024-09-23T19:56:59.4103893Z ckanext/schemingdcat/tests/test_blueprints.py:11: 
+2024-09-23T19:56:59.4105072Z _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+2024-09-23T19:56:59.4106031Z 
+2024-09-23T19:56:59.4106777Z endpoint = 'schemingdcat.endpoint_index', values = {}, appctx = None, reqctx = None
+2024-09-23T19:56:59.4107891Z 
+2024-09-23T19:56:59.4108415Z     def url_for(endpoint: str, **values: t.Any) -> str:
+2024-09-23T19:56:59.4109449Z         """Generates a URL to the given endpoint with the method provided.
+2024-09-23T19:56:59.4110515Z     
+2024-09-23T19:56:59.4111333Z         Variable arguments that are unknown to the target endpoint are appended
+2024-09-23T19:56:59.4112677Z         to the generated URL as query arguments.  If the value of a query argument
+2024-09-23T19:56:59.4114183Z         is ``None``, the whole pair is skipped.  In case blueprints are active
+2024-09-23T19:56:59.4115431Z         you can shortcut references to the same blueprint by prefixing the
+2024-09-23T19:56:59.4116408Z         local endpoint with a dot (``.``).
+2024-09-23T19:56:59.4117452Z     
+2024-09-23T19:56:59.4118286Z         This will reference the index function local to the current blueprint::
+2024-09-23T19:56:59.4119240Z     
+2024-09-23T19:56:59.4119971Z             url_for('.index')
+2024-09-23T19:56:59.4120607Z     
+2024-09-23T19:56:59.4121194Z         See :ref:`url-building`.
+2024-09-23T19:56:59.4121983Z     
+2024-09-23T19:56:59.4122841Z         Configuration values ``APPLICATION_ROOT`` and ``SERVER_NAME`` are only used when
+2024-09-23T19:56:59.4123993Z         generating URLs outside of a request context.
+2024-09-23T19:56:59.4124894Z     
+2024-09-23T19:56:59.4125719Z         To integrate applications, :class:`Flask` has a hook to intercept URL build
+2024-09-23T19:56:59.4127182Z         errors through :attr:`Flask.url_build_error_handlers`.  The `url_for`
+2024-09-23T19:56:59.4128615Z         function results in a :exc:`~werkzeug.routing.BuildError` when the current
+2024-09-23T19:56:59.4130018Z         app does not have a URL for the given endpoint and values.  When it does, the
+2024-09-23T19:56:59.4131391Z         :data:`~flask.current_app` calls its :attr:`~Flask.url_build_error_handlers` if
+2024-09-23T19:56:59.4132733Z         it is not ``None``, which can return a string to use as the result of
+2024-09-23T19:56:59.4134002Z         `url_for` (instead of `url_for`'s default to raise the
+2024-09-23T19:56:59.4135544Z         :exc:`~werkzeug.routing.BuildError` exception) or re-raise the exception.
+2024-09-23T19:56:59.4136661Z         An example::
+2024-09-23T19:56:59.4137465Z     
+2024-09-23T19:56:59.4138130Z             def external_url_handler(error, endpoint, values):
+2024-09-23T19:56:59.4139262Z                 "Looks up an external URL when `url_for` cannot build a URL."
+2024-09-23T19:56:59.4140404Z                 # This is an example of hooking the build_error_handler.
+2024-09-23T19:56:59.4141611Z                 # Here, lookup_url is some utility function you've built
+2024-09-23T19:56:59.4142791Z                 # which looks up the endpoint in some external URL registry.
+2024-09-23T19:56:59.4143808Z                 url = lookup_url(endpoint, **values)
+2024-09-23T19:56:59.4144598Z                 if url is None:
+2024-09-23T19:56:59.4145446Z                     # External lookup did not have a URL.
+2024-09-23T19:56:59.4146635Z                     # Re-raise the BuildError, in context of original traceback.
+2024-09-23T19:56:59.4147947Z                     exc_type, exc_value, tb = sys.exc_info()
+2024-09-23T19:56:59.4148940Z                     if exc_value is error:
+2024-09-23T19:56:59.4149988Z                         raise exc_type(exc_value).with_traceback(tb)
+2024-09-23T19:56:59.4150898Z                     else:
+2024-09-23T19:56:59.4151634Z                         raise error
+2024-09-23T19:56:59.4152867Z                 # url_for will use this result, instead of raising BuildError.
+2024-09-23T19:56:59.4153888Z                 return url
+2024-09-23T19:56:59.4154608Z     
+2024-09-23T19:56:59.4155251Z             app.url_build_error_handlers.append(external_url_handler)
+2024-09-23T19:56:59.4156139Z     
+2024-09-23T19:56:59.4157235Z         Here, `error` is the instance of :exc:`~werkzeug.routing.BuildError`, and
+2024-09-23T19:56:59.4158479Z         `endpoint` and `values` are the arguments passed into `url_for`.  Note
+2024-09-23T19:56:59.4159829Z         that this is for building URLs outside the current application, and not for
+2024-09-23T19:56:59.4368945Z         handling 404 NotFound errors.
+2024-09-23T19:56:59.4369495Z     
+2024-09-23T19:56:59.4369875Z         .. versionadded:: 0.10
+2024-09-23T19:56:59.4370445Z            The `_scheme` parameter was added.
+2024-09-23T19:56:59.4370982Z     
+2024-09-23T19:56:59.4371325Z         .. versionadded:: 0.9
+2024-09-23T19:56:59.4371900Z            The `_anchor` and `_method` parameters were added.
+2024-09-23T19:56:59.4372489Z     
+2024-09-23T19:56:59.4372829Z         .. versionadded:: 0.9
+2024-09-23T19:56:59.4373366Z            Calls :meth:`Flask.handle_build_error` on
+2024-09-23T19:56:59.4373996Z            :exc:`~werkzeug.routing.BuildError`.
+2024-09-23T19:56:59.4374459Z     
+2024-09-23T19:56:59.4374797Z         :param endpoint: the endpoint of the URL (name of the function)
+2024-09-23T19:56:59.4375309Z         :param values: the variable arguments of the URL rule
+2024-09-23T19:56:59.4375848Z         :param _external: if set to ``True``, an absolute URL is generated. Server
+2024-09-23T19:56:59.4376463Z           address can be changed via ``SERVER_NAME`` configuration variable which
+2024-09-23T19:56:59.4377327Z           falls back to the `Host` header, then to the IP and port of the request.
+2024-09-23T19:56:59.4377975Z         :param _scheme: a string specifying the desired URL scheme. The `_external`
+2024-09-23T19:56:59.4378624Z           parameter must be set to ``True`` or a :exc:`ValueError` is raised. The default
+2024-09-23T19:56:59.4379209Z           behavior uses the same scheme as the current request, or
+2024-09-23T19:56:59.4379728Z           :data:`PREFERRED_URL_SCHEME` if no request context is available.
+2024-09-23T19:56:59.4380516Z           This also can be set to an empty string to build protocol-relative
+2024-09-23T19:56:59.4380948Z           URLs.
+2024-09-23T19:56:59.4381291Z         :param _anchor: if provided this is added as anchor to the URL.
+2024-09-23T19:56:59.4381851Z         :param _method: if provided this explicitly specifies an HTTP method.
+2024-09-23T19:56:59.4382656Z         """
+2024-09-23T19:56:59.4382883Z         appctx = _app_ctx_stack.top
+2024-09-23T19:56:59.4383200Z         reqctx = _request_ctx_stack.top
+2024-09-23T19:56:59.4383505Z     
+2024-09-23T19:56:59.4383703Z         if appctx is None:
+2024-09-23T19:56:59.4383978Z >           raise RuntimeError(
+2024-09-23T19:56:59.4384416Z                 "Attempted to generate a URL without the application context being"
+2024-09-23T19:56:59.4384990Z                 " pushed. This has to be executed when application context is"
+2024-09-23T19:56:59.4385417Z                 " available."
+2024-09-23T19:56:59.4385674Z             )
+2024-09-23T19:56:59.4386395Z E           RuntimeError: Attempted to generate a URL without the application context being pushed. This has to be executed when application context is available.
+2024-09-23T19:56:59.4387255Z 
+2024-09-23T19:56:59.4387610Z /usr/local/lib/python3.10/site-packages/flask/helpers.py:274: RuntimeError
+2024-09-23T19:56:59.4388393Z ------------------------------------------------ Captured stdout setup -------------------------------------------------
+2024-09-23T19:56:59.4389069Z 2024-09-23 19:54:23,085 INFO  [ckan.model] Database tables dropped
+2024-09-23T19:56:59.4389975Z 2024-09-23 19:54:24,371 INFO  [ckan.model] CKAN database version upgraded: base -> 9f33a0280c51 (head)
+2024-09-23T19:56:59.4390684Z 2024-09-23 19:54:24,371 INFO  [ckan.model] Database initialised
+2024-09-23T19:56:59.4391223Z 2024-09-23 19:54:24,371 INFO  [ckan.model] Database rebuilt
+2024-09-23T19:56:59.4391859Z -------------------------------------------------- Captured log setup --------------------------------------------------
+2024-09-23T19:56:59.4392433Z INFO     ckan.model:__init__.py:225 Database tables dropped
+2024-09-23T19:56:59.4393097Z INFO     ckan.model:__init__.py:354 CKAN database version upgraded: base -> 9f33a0280c51 (head)
+2024-09-23T19:56:59.4393686Z INFO     ckan.model:__init__.py:214 Database initialised
+2024-09-23T19:56:59.4394109Z INFO     ckan.model:__init__.py:246 Database rebuilt
+2024-09-23T19:56:59.4394724Z __________________________________ TestSchemingDCATBlueprints.test_metadata_templates __________________________________
+2024-09-23T19:56:59.4395192Z 
+2024-09-23T19:56:59.4395591Z self = <ckanext.schemingdcat.tests.test_blueprints.TestSchemingDCATBlueprints object at 0x7f73fa9a7ac0>
+2024-09-23T19:56:59.4396306Z app = <ckan.tests.helpers.CKANTestApp object at 0x7f73f95d0d30>
+2024-09-23T19:56:59.4396641Z 
+2024-09-23T19:56:59.4396765Z     def test_metadata_templates(self, app):
+2024-09-23T19:56:59.4397471Z >       url = url_for('schemingdcat.metadata_templates')
+2024-09-23T19:56:59.4397759Z 
+2024-09-23T19:56:59.4397922Z ckanext/schemingdcat/tests/test_blueprints.py:17: 
+2024-09-23T19:56:59.4398450Z _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+2024-09-23T19:56:59.4398831Z 
+2024-09-23T19:56:59.4399195Z endpoint = 'schemingdcat.metadata_templates', values = {}, appctx = None, reqctx = None
+2024-09-23T19:56:59.4399625Z 
+2024-09-23T19:56:59.4399831Z     def url_for(endpoint: str, **values: t.Any) -> str:
+2024-09-23T19:56:59.4400320Z         """Generates a URL to the given endpoint with the method provided.
+2024-09-23T19:56:59.4400744Z     
+2024-09-23T19:56:59.4401101Z         Variable arguments that are unknown to the target endpoint are appended
+2024-09-23T19:56:59.4401718Z         to the generated URL as query arguments.  If the value of a query argument
+2024-09-23T19:56:59.4402319Z         is ``None``, the whole pair is skipped.  In case blueprints are active
+2024-09-23T19:56:59.4402891Z         you can shortcut references to the same blueprint by prefixing the
+2024-09-23T19:56:59.4403354Z         local endpoint with a dot (``.``).
+2024-09-23T19:56:59.4403657Z     
+2024-09-23T19:56:59.4404021Z         This will reference the index function local to the current blueprint::
+2024-09-23T19:56:59.4404461Z     
+2024-09-23T19:56:59.4404688Z             url_for('.index')
+2024-09-23T19:56:59.4405098Z     
+2024-09-23T19:56:59.4405340Z         See :ref:`url-building`.
+2024-09-23T19:56:59.4405606Z     
+2024-09-23T19:56:59.4405987Z         Configuration values ``APPLICATION_ROOT`` and ``SERVER_NAME`` are only used when
+2024-09-23T19:56:59.4406539Z         generating URLs outside of a request context.
+2024-09-23T19:56:59.4406999Z     
+2024-09-23T19:56:59.4407379Z         To integrate applications, :class:`Flask` has a hook to intercept URL build
+2024-09-23T19:56:59.4407992Z         errors through :attr:`Flask.url_build_error_handlers`.  The `url_for`
+2024-09-23T19:56:59.4408600Z         function results in a :exc:`~werkzeug.routing.BuildError` when the current
+2024-09-23T19:56:59.4409242Z         app does not have a URL for the given endpoint and values.  When it does, the
+2024-09-23T19:56:59.4409888Z         :data:`~flask.current_app` calls its :attr:`~Flask.url_build_error_handlers` if
+2024-09-23T19:56:59.4410492Z         it is not ``None``, which can return a string to use as the result of
+2024-09-23T19:56:59.4411065Z         `url_for` (instead of `url_for`'s default to raise the
+2024-09-23T19:56:59.4411664Z         :exc:`~werkzeug.routing.BuildError` exception) or re-raise the exception.
+2024-09-23T19:56:59.4412367Z         An example::
+2024-09-23T19:56:59.4412592Z     
+2024-09-23T19:56:59.4412864Z             def external_url_handler(error, endpoint, values):
+2024-09-23T19:56:59.4413346Z                 "Looks up an external URL when `url_for` cannot build a URL."
+2024-09-23T19:56:59.4413851Z                 # This is an example of hooking the build_error_handler.
+2024-09-23T19:56:59.4414426Z                 # Here, lookup_url is some utility function you've built
+2024-09-23T19:56:59.4414920Z                 # which looks up the endpoint in some external URL registry.
+2024-09-23T19:56:59.4415378Z                 url = lookup_url(endpoint, **values)
+2024-09-23T19:56:59.4415723Z                 if url is None:
+2024-09-23T19:56:59.4416059Z                     # External lookup did not have a URL.
+2024-09-23T19:56:59.4416585Z                     # Re-raise the BuildError, in context of original traceback.
+2024-09-23T19:56:59.4417315Z                     exc_type, exc_value, tb = sys.exc_info()
+2024-09-23T19:56:59.4417702Z                     if exc_value is error:
+2024-09-23T19:56:59.4418088Z                         raise exc_type(exc_value).with_traceback(tb)
+2024-09-23T19:56:59.4418452Z                     else:
+2024-09-23T19:56:59.4418705Z                         raise error
+2024-09-23T19:56:59.4419107Z                 # url_for will use this result, instead of raising BuildError.
+2024-09-23T19:56:59.4419527Z                 return url
+2024-09-23T19:56:59.4419769Z     
+2024-09-23T19:56:59.4420069Z             app.url_build_error_handlers.append(external_url_handler)
+2024-09-23T19:56:59.4420458Z     
+2024-09-23T19:56:59.4420810Z         Here, `error` is the instance of :exc:`~werkzeug.routing.BuildError`, and
+2024-09-23T19:56:59.4421412Z         `endpoint` and `values` are the arguments passed into `url_for`.  Note
+2024-09-23T19:56:59.4422034Z         that this is for building URLs outside the current application, and not for
+2024-09-23T19:56:59.4422521Z         handling 404 NotFound errors.
+2024-09-23T19:56:59.4422811Z     
+2024-09-23T19:56:59.4423012Z         .. versionadded:: 0.10
+2024-09-23T19:56:59.4423324Z            The `_scheme` parameter was added.
+2024-09-23T19:56:59.4423639Z     
+2024-09-23T19:56:59.4423833Z         .. versionadded:: 0.9
+2024-09-23T19:56:59.4424171Z            The `_anchor` and `_method` parameters were added.
+2024-09-23T19:56:59.4424527Z     
+2024-09-23T19:56:59.4424718Z         .. versionadded:: 0.9
+2024-09-23T19:56:59.4425031Z            Calls :meth:`Flask.handle_build_error` on
+2024-09-23T19:56:59.4425421Z            :exc:`~werkzeug.routing.BuildError`.
+2024-09-23T19:56:59.4425737Z     
+2024-09-23T19:56:59.4426052Z         :param endpoint: the endpoint of the URL (name of the function)
+2024-09-23T19:56:59.4426543Z         :param values: the variable arguments of the URL rule
+2024-09-23T19:56:59.4427354Z         :param _external: if set to ``True``, an absolute URL is generated. Server
+2024-09-23T19:56:59.4427963Z           address can be changed via ``SERVER_NAME`` configuration variable which
+2024-09-23T19:56:59.4428578Z           falls back to the `Host` header, then to the IP and port of the request.
+2024-09-23T19:56:59.4429191Z         :param _scheme: a string specifying the desired URL scheme. The `_external`
+2024-09-23T19:56:59.4429830Z           parameter must be set to ``True`` or a :exc:`ValueError` is raised. The default
+2024-09-23T19:56:59.4430401Z           behavior uses the same scheme as the current request, or
+2024-09-23T19:56:59.4430916Z           :data:`PREFERRED_URL_SCHEME` if no request context is available.
+2024-09-23T19:56:59.4431546Z           This also can be set to an empty string to build protocol-relative
+2024-09-23T19:56:59.4431976Z           URLs.
+2024-09-23T19:56:59.4432316Z         :param _anchor: if provided this is added as anchor to the URL.
+2024-09-23T19:56:59.4432878Z         :param _method: if provided this explicitly specifies an HTTP method.
+2024-09-23T19:56:59.4433307Z         """
+2024-09-23T19:56:59.4433533Z         appctx = _app_ctx_stack.top
+2024-09-23T19:56:59.4433993Z         reqctx = _request_ctx_stack.top
+2024-09-23T19:56:59.4434284Z     
+2024-09-23T19:56:59.4434484Z         if appctx is None:
+2024-09-23T19:56:59.4434751Z >           raise RuntimeError(
+2024-09-23T19:56:59.4435179Z                 "Attempted to generate a URL without the application context being"
+2024-09-23T19:56:59.4435745Z                 " pushed. This has to be executed when application context is"
+2024-09-23T19:56:59.4436170Z                 " available."
+2024-09-23T19:56:59.4436429Z             )
+2024-09-23T19:56:59.4437359Z E           RuntimeError: Attempted to generate a URL without the application context being pushed. This has to be executed when application context is available.
+2024-09-23T19:56:59.4438057Z 
+2024-09-23T19:56:59.4438397Z /usr/local/lib/python3.10/site-packages/flask/helpers.py:274: RuntimeError
+2024-09-23T19:56:59.4439134Z _____________________________________ TestSchemingDCATBlueprints.test_linked_data ______________________________________
+2024-09-23T19:56:59.4439597Z 
+2024-09-23T19:56:59.4439995Z self = <ckanext.schemingdcat.tests.test_blueprints.TestSchemingDCATBlueprints object at 0x7f73fa9a7b80>
+2024-09-23T19:56:59.4440722Z app = <ckan.tests.helpers.CKANTestApp object at 0x7f74064d3c70>
+2024-09-23T19:56:59.4441051Z 
+2024-09-23T19:56:59.4441158Z     def test_linked_data(self, app):
+2024-09-23T19:56:59.4441494Z >       dataset = factories.Dataset()
+2024-09-23T19:56:59.4441718Z 
+2024-09-23T19:56:59.4441876Z ckanext/schemingdcat/tests/test_blueprints.py:23: 
+2024-09-23T19:56:59.4442396Z _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+2024-09-23T19:56:59.4443066Z /usr/local/lib/python3.10/site-packages/factory/base.py:40: in __call__
+2024-09-23T19:56:59.4443528Z     return cls.create(**kwargs)
+2024-09-23T19:56:59.4444011Z /usr/local/lib/python3.10/site-packages/factory/base.py:528: in create
+2024-09-23T19:56:59.4444543Z     return cls._generate(enums.CREATE_STRATEGY, kwargs)
+2024-09-23T19:56:59.4445143Z /usr/local/lib/python3.10/site-packages/factory/alchemy.py:51: in _generate
+2024-09-23T19:56:59.4445653Z     return super()._generate(strategy, params)
+2024-09-23T19:56:59.4446201Z /usr/local/lib/python3.10/site-packages/factory/base.py:465: in _generate
+2024-09-23T19:56:59.4446662Z     return step.build()
+2024-09-23T19:56:59.4447237Z /usr/local/lib/python3.10/site-packages/factory/builder.py:262: in build
+2024-09-23T19:56:59.4447738Z     instance = self.factory_meta.instantiate(
+2024-09-23T19:56:59.4448292Z /usr/local/lib/python3.10/site-packages/factory/base.py:317: in instantiate
+2024-09-23T19:56:59.4448823Z     return self.factory._create(model, *args, **kwargs)
+2024-09-23T19:56:59.4449285Z /srv/app/src/ckan/ckan/tests/factories.py:214: in _create
+2024-09-23T19:56:59.4449717Z     return cls.api_create(kwargs)
+2024-09-23T19:56:59.4450269Z /srv/app/src/ckan/ckan/tests/factories.py:197: in api_create
+2024-09-23T19:56:59.4450785Z     result = helpers.call_action(cls._meta.action, **data_dict)
+2024-09-23T19:56:59.4451312Z /srv/app/src/ckan/ckan/tests/helpers.py:128: in call_action
+2024-09-23T19:56:59.4451798Z     return logic.get_action(action_name)(context, kwargs)
+2024-09-23T19:56:59.4452252Z /srv/app/src/ckan/ckan/logic/__init__.py:580: in wrapped
+2024-09-23T19:56:59.4452676Z     result = _action(context, data_dict, **kw)
+2024-09-23T19:56:59.4453175Z /srv/app/src/ckan/ckan/logic/action/create.py:192: in package_create
+2024-09-23T19:56:59.4453682Z     data, errors = lib_plugins.plugin_validate(
+2024-09-23T19:56:59.4454141Z /srv/app/src/ckan/ckan/lib/plugins.py:327: in plugin_validate
+2024-09-23T19:56:59.4454672Z     result = plugin.validate(context, data_dict, schema, action)
+2024-09-23T19:56:59.4455122Z ckanext/schemingdcat/plugin.py:276: in validate
+2024-09-23T19:56:59.4455554Z     return toolkit.navl_validate(data_dict, schema, context)
+2024-09-23T19:56:59.4456127Z /srv/app/src/ckan/ckan/lib/navl/dictization_functions.py:305: in validate
+2024-09-23T19:56:59.4456739Z     flat_data, errors = _validate(flattened, schema, validators_context)
+2024-09-23T19:56:59.4457782Z /srv/app/src/ckan/ckan/lib/navl/dictization_functions.py:356: in _validate
+2024-09-23T19:56:59.4458368Z     convert(converter, key, converted_data, errors, context)
+2024-09-23T19:56:59.4458935Z /srv/app/src/ckan/ckan/lib/navl/dictization_functions.py:262: in convert
+2024-09-23T19:56:59.4459426Z     value = converter(*params)
+2024-09-23T19:56:59.4459868Z _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+2024-09-23T19:56:59.4460240Z 
+2024-09-23T19:56:59.4460379Z key = ('author_name',)
+2024-09-23T19:56:59.4461565Z data = {('author_name',): <ckan.lib.navl.dictization_functions.Missing object at 0x7f740b73b850>, ('author_uri',): <ckan.lib....ject at 0x7f740b73b850>, ('conforms_to',): <ckan.lib.navl.dictization_functions.Missing object at 0x7f740b73b850>, ...}
+2024-09-23T19:56:59.4462821Z errors = {('__after',): [], ('__before',): [], ('__extras',): [], ('__junk',): [], ...}
+2024-09-23T19:56:59.4463780Z context = {'__auth_audit': [], 'auth_user_obj': None, 'ignore_auth': True, 'model': <module 'ckan.model' from '/srv/app/src/ckan/ckan/model/__init__.py'>, ...}
+2024-09-23T19:56:59.4464397Z 
+2024-09-23T19:56:59.4464574Z     def callable(key: FlattenKey, data: FlattenDataDict,
+2024-09-23T19:56:59.4465015Z                  errors: FlattenErrorDict, context: Context):
+2024-09-23T19:56:59.4465395Z         value = data.get(key)
+2024-09-23T19:56:59.4465695Z         if not value or value is missing:
+2024-09-23T19:56:59.4466126Z >           data[key] = data[key[:-1] + (other_key,)]
+2024-09-23T19:56:59.4466509Z E           KeyError: ('author',)
+2024-09-23T19:56:59.4466712Z 
+2024-09-23T19:56:59.4467057Z /srv/app/src/ckan/ckan/lib/navl/validators.py:95: KeyError
+2024-09-23T19:56:59.4467742Z _________________________________ TestSchemingDCATBlueprints.test_geospatial_metadata __________________________________
+2024-09-23T19:56:59.4468212Z 
+2024-09-23T19:56:59.4468609Z self = <ckanext.schemingdcat.tests.test_blueprints.TestSchemingDCATBlueprints object at 0x7f73fa9a7d90>
+2024-09-23T19:56:59.4469328Z app = <ckan.tests.helpers.CKANTestApp object at 0x7f73f9491ed0>
+2024-09-23T19:56:59.4469654Z 
+2024-09-23T19:56:59.4469787Z     def test_geospatial_metadata(self, app):
+2024-09-23T19:56:59.4470140Z >       dataset = factories.Dataset()
+2024-09-23T19:56:59.4470364Z 
+2024-09-23T19:56:59.4470517Z ckanext/schemingdcat/tests/test_blueprints.py:31: 
+2024-09-23T19:56:59.4471045Z _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+2024-09-23T19:56:59.4471725Z /usr/local/lib/python3.10/site-packages/factory/base.py:40: in __call__
+2024-09-23T19:56:59.4472186Z     return cls.create(**kwargs)
+2024-09-23T19:56:59.4472673Z /usr/local/lib/python3.10/site-packages/factory/base.py:528: in create
+2024-09-23T19:56:59.4473416Z     return cls._generate(enums.CREATE_STRATEGY, kwargs)
+2024-09-23T19:56:59.4474023Z /usr/local/lib/python3.10/site-packages/factory/alchemy.py:51: in _generate
+2024-09-23T19:56:59.4474554Z     return super()._generate(strategy, params)
+2024-09-23T19:56:59.4475334Z /usr/local/lib/python3.10/site-packages/factory/base.py:465: in _generate
+2024-09-23T19:56:59.4475804Z     return step.build()
+2024-09-23T19:56:59.4476272Z /usr/local/lib/python3.10/site-packages/factory/builder.py:262: in build
+2024-09-23T19:56:59.4476775Z     instance = self.factory_meta.instantiate(
+2024-09-23T19:56:59.4477563Z /usr/local/lib/python3.10/site-packages/factory/base.py:317: in instantiate
+2024-09-23T19:56:59.4478104Z     return self.factory._create(model, *args, **kwargs)
+2024-09-23T19:56:59.4478573Z /srv/app/src/ckan/ckan/tests/factories.py:214: in _create
+2024-09-23T19:56:59.4478977Z     return cls.api_create(kwargs)
+2024-09-23T19:56:59.4479392Z /srv/app/src/ckan/ckan/tests/factories.py:197: in api_create
+2024-09-23T19:56:59.4479903Z     result = helpers.call_action(cls._meta.action, **data_dict)
+2024-09-23T19:56:59.4480407Z /srv/app/src/ckan/ckan/tests/helpers.py:128: in call_action
+2024-09-23T19:56:59.4481040Z     return logic.get_action(action_name)(context, kwargs)
+2024-09-23T19:56:59.4481497Z /srv/app/src/ckan/ckan/logic/__init__.py:580: in wrapped
+2024-09-23T19:56:59.4481920Z     result = _action(context, data_dict, **kw)
+2024-09-23T19:56:59.4482408Z /srv/app/src/ckan/ckan/logic/action/create.py:192: in package_create
+2024-09-23T19:56:59.4482923Z     data, errors = lib_plugins.plugin_validate(
+2024-09-23T19:56:59.4483380Z /srv/app/src/ckan/ckan/lib/plugins.py:327: in plugin_validate
+2024-09-23T19:56:59.4483900Z     result = plugin.validate(context, data_dict, schema, action)
+2024-09-23T19:56:59.4484350Z ckanext/schemingdcat/plugin.py:276: in validate
+2024-09-23T19:56:59.4484781Z     return toolkit.navl_validate(data_dict, schema, context)
+2024-09-23T19:56:59.4485346Z /srv/app/src/ckan/ckan/lib/navl/dictization_functions.py:305: in validate
+2024-09-23T19:56:59.4485962Z     flat_data, errors = _validate(flattened, schema, validators_context)
+2024-09-23T19:56:59.4486580Z /srv/app/src/ckan/ckan/lib/navl/dictization_functions.py:356: in _validate
+2024-09-23T19:56:59.4487335Z     convert(converter, key, converted_data, errors, context)
+2024-09-23T19:56:59.4487908Z /srv/app/src/ckan/ckan/lib/navl/dictization_functions.py:262: in convert
+2024-09-23T19:56:59.4488406Z     value = converter(*params)
+2024-09-23T19:56:59.4488846Z _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+2024-09-23T19:56:59.4489232Z 
+2024-09-23T19:56:59.4489357Z key = ('author_name',)
+2024-09-23T19:56:59.4490524Z data = {('author_name',): <ckan.lib.navl.dictization_functions.Missing object at 0x7f740b73b850>, ('author_uri',): <ckan.lib....ject at 0x7f740b73b850>, ('conforms_to',): <ckan.lib.navl.dictization_functions.Missing object at 0x7f740b73b850>, ...}
+2024-09-23T19:56:59.4491759Z errors = {('__after',): [], ('__before',): [], ('__extras',): [], ('__junk',): [], ...}
+2024-09-23T19:56:59.4492703Z context = {'__auth_audit': [], 'auth_user_obj': None, 'ignore_auth': True, 'model': <module 'ckan.model' from '/srv/app/src/ckan/ckan/model/__init__.py'>, ...}
+2024-09-23T19:56:59.4493326Z 
+2024-09-23T19:56:59.4493494Z     def callable(key: FlattenKey, data: FlattenDataDict,
+2024-09-23T19:56:59.4493940Z                  errors: FlattenErrorDict, context: Context):
+2024-09-23T19:56:59.4494315Z         value = data.get(key)
+2024-09-23T19:56:59.4494609Z         if not value or value is missing:
+2024-09-23T19:56:59.4495013Z >           data[key] = data[key[:-1] + (other_key,)]
+2024-09-23T19:56:59.4495395Z E           KeyError: ('author',)
+2024-09-23T19:56:59.4495595Z 
+2024-09-23T19:56:59.4495793Z /srv/app/src/ckan/ckan/lib/navl/validators.py:95: KeyError
+2024-09-23T19:56:59.4496460Z ________________________________ TestSchemingDCATBlueprints.test_linked_data_not_found _________________________________
+2024-09-23T19:56:59.4497302Z 
+2024-09-23T19:56:59.4497711Z self = <ckanext.schemingdcat.tests.test_blueprints.TestSchemingDCATBlueprints object at 0x7f73fa9b7f40>
+2024-09-23T19:56:59.4498445Z app = <ckan.tests.helpers.CKANTestApp object at 0x7f73f908be80>
+2024-09-23T19:56:59.4498773Z 
+2024-09-23T19:56:59.4498904Z     def test_linked_data_not_found(self, app):
+2024-09-23T19:56:59.4499396Z >       url = url_for('schemingdcat.index', id='nonexistent-id')
+2024-09-23T19:56:59.4499700Z 
+2024-09-23T19:56:59.4499857Z ckanext/schemingdcat/tests/test_blueprints.py:39: 
+2024-09-23T19:56:59.4500381Z _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+2024-09-23T19:56:59.4500763Z 
+2024-09-23T19:56:59.4501147Z endpoint = 'schemingdcat.index', values = {'id': 'nonexistent-id'}, appctx = None, reqctx = None
+2024-09-23T19:56:59.4501599Z 
+2024-09-23T19:56:59.4501802Z     def url_for(endpoint: str, **values: t.Any) -> str:
+2024-09-23T19:56:59.4502304Z         """Generates a URL to the given endpoint with the method provided.
+2024-09-23T19:56:59.4502713Z     
+2024-09-23T19:56:59.4503209Z         Variable arguments that are unknown to the target endpoint are appended
+2024-09-23T19:56:59.4503838Z         to the generated URL as query arguments.  If the value of a query argument
+2024-09-23T19:56:59.4504436Z         is ``None``, the whole pair is skipped.  In case blueprints are active
+2024-09-23T19:56:59.4505007Z         you can shortcut references to the same blueprint by prefixing the
+2024-09-23T19:56:59.4505472Z         local endpoint with a dot (``.``).
+2024-09-23T19:56:59.4505770Z     
+2024-09-23T19:56:59.4506140Z         This will reference the index function local to the current blueprint::
+2024-09-23T19:56:59.4506581Z     
+2024-09-23T19:56:59.4506808Z             url_for('.index')
+2024-09-23T19:56:59.4507203Z     
+2024-09-23T19:56:59.4507446Z         See :ref:`url-building`.
+2024-09-23T19:56:59.4507717Z     
+2024-09-23T19:56:59.4508100Z         Configuration values ``APPLICATION_ROOT`` and ``SERVER_NAME`` are only used when
+2024-09-23T19:56:59.4508649Z         generating URLs outside of a request context.
+2024-09-23T19:56:59.4508986Z     
+2024-09-23T19:56:59.4509346Z         To integrate applications, :class:`Flask` has a hook to intercept URL build
+2024-09-23T19:56:59.4509957Z         errors through :attr:`Flask.url_build_error_handlers`.  The `url_for`
+2024-09-23T19:56:59.4510563Z         function results in a :exc:`~werkzeug.routing.BuildError` when the current
+2024-09-23T19:56:59.4511209Z         app does not have a URL for the given endpoint and values.  When it does, the
+2024-09-23T19:56:59.4511856Z         :data:`~flask.current_app` calls its :attr:`~Flask.url_build_error_handlers` if
+2024-09-23T19:56:59.4512460Z         it is not ``None``, which can return a string to use as the result of
+2024-09-23T19:56:59.4513014Z         `url_for` (instead of `url_for`'s default to raise the
+2024-09-23T19:56:59.4513618Z         :exc:`~werkzeug.routing.BuildError` exception) or re-raise the exception.
+2024-09-23T19:56:59.4514079Z         An example::
+2024-09-23T19:56:59.4514344Z     
+2024-09-23T19:56:59.4514620Z             def external_url_handler(error, endpoint, values):
+2024-09-23T19:56:59.4515111Z                 "Looks up an external URL when `url_for` cannot build a URL."
+2024-09-23T19:56:59.4515620Z                 # This is an example of hooking the build_error_handler.
+2024-09-23T19:56:59.4516159Z                 # Here, lookup_url is some utility function you've built
+2024-09-23T19:56:59.4516654Z                 # which looks up the endpoint in some external URL registry.
+2024-09-23T19:56:59.4517315Z                 url = lookup_url(endpoint, **values)
+2024-09-23T19:56:59.4517671Z                 if url is None:
+2024-09-23T19:56:59.4518007Z                     # External lookup did not have a URL.
+2024-09-23T19:56:59.4518532Z                     # Re-raise the BuildError, in context of original traceback.
+2024-09-23T19:56:59.4519150Z                     exc_type, exc_value, tb = sys.exc_info()
+2024-09-23T19:56:59.4519525Z                     if exc_value is error:
+2024-09-23T19:56:59.4519907Z                         raise exc_type(exc_value).with_traceback(tb)
+2024-09-23T19:56:59.4520270Z                     else:
+2024-09-23T19:56:59.4520527Z                         raise error
+2024-09-23T19:56:59.4520926Z                 # url_for will use this result, instead of raising BuildError.
+2024-09-23T19:56:59.4521340Z                 return url
+2024-09-23T19:56:59.4521581Z     
+2024-09-23T19:56:59.4521883Z             app.url_build_error_handlers.append(external_url_handler)
+2024-09-23T19:56:59.4522267Z     
+2024-09-23T19:56:59.4522620Z         Here, `error` is the instance of :exc:`~werkzeug.routing.BuildError`, and
+2024-09-23T19:56:59.4523225Z         `endpoint` and `values` are the arguments passed into `url_for`.  Note
+2024-09-23T19:56:59.4523840Z         that this is for building URLs outside the current application, and not for
+2024-09-23T19:56:59.4524334Z         handling 404 NotFound errors.
+2024-09-23T19:56:59.4524622Z     
+2024-09-23T19:56:59.4524825Z         .. versionadded:: 0.10
+2024-09-23T19:56:59.4525282Z            The `_scheme` parameter was added.
+2024-09-23T19:56:59.4525594Z     
+2024-09-23T19:56:59.4525790Z         .. versionadded:: 0.9
+2024-09-23T19:56:59.4526127Z            The `_anchor` and `_method` parameters were added.
+2024-09-23T19:56:59.4526482Z     
+2024-09-23T19:56:59.4526676Z         .. versionadded:: 0.9
+2024-09-23T19:56:59.4527114Z            Calls :meth:`Flask.handle_build_error` on
+2024-09-23T19:56:59.4527512Z            :exc:`~werkzeug.routing.BuildError`.
+2024-09-23T19:56:59.4527830Z     
+2024-09-23T19:56:59.4528145Z         :param endpoint: the endpoint of the URL (name of the function)
+2024-09-23T19:56:59.4528641Z         :param values: the variable arguments of the URL rule
+2024-09-23T19:56:59.4529168Z         :param _external: if set to ``True``, an absolute URL is generated. Server
+2024-09-23T19:56:59.4529781Z           address can be changed via ``SERVER_NAME`` configuration variable which
+2024-09-23T19:56:59.4530394Z           falls back to the `Host` header, then to the IP and port of the request.
+2024-09-23T19:56:59.4531017Z         :param _scheme: a string specifying the desired URL scheme. The `_external`
+2024-09-23T19:56:59.4531670Z           parameter must be set to ``True`` or a :exc:`ValueError` is raised. The default
+2024-09-23T19:56:59.4532245Z           behavior uses the same scheme as the current request, or
+2024-09-23T19:56:59.4532763Z           :data:`PREFERRED_URL_SCHEME` if no request context is available.
+2024-09-23T19:56:59.4533387Z           This also can be set to an empty string to build protocol-relative
+2024-09-23T19:56:59.4533813Z           URLs.
+2024-09-23T19:56:59.4534156Z         :param _anchor: if provided this is added as anchor to the URL.
+2024-09-23T19:56:59.4534713Z         :param _method: if provided this explicitly specifies an HTTP method.
+2024-09-23T19:56:59.4535146Z         """
+2024-09-23T19:56:59.4535374Z         appctx = _app_ctx_stack.top
+2024-09-23T19:56:59.4535683Z         reqctx = _request_ctx_stack.top
+2024-09-23T19:56:59.4535977Z     
+2024-09-23T19:56:59.4536179Z         if appctx is None:
+2024-09-23T19:56:59.4536449Z >           raise RuntimeError(
+2024-09-23T19:56:59.4537062Z                 "Attempted to generate a URL without the application context being"
+2024-09-23T19:56:59.4537662Z                 " pushed. This has to be executed when application context is"
+2024-09-23T19:56:59.4538089Z                 " available."
+2024-09-23T19:56:59.4538349Z             )
+2024-09-23T19:56:59.4539056Z E           RuntimeError: Attempted to generate a URL without the application context being pushed. This has to be executed when application context is available.
+2024-09-23T19:56:59.4539748Z 
+2024-09-23T19:56:59.4540081Z /usr/local/lib/python3.10/site-packages/flask/helpers.py:274: RuntimeError
+2024-09-23T19:56:59.4540837Z ____________________________ TestSchemingDCATBlueprints.test_geospatial_metadata_not_found _____________________________
+2024-09-23T19:56:59.4541462Z 
+2024-09-23T19:56:59.4541852Z self = <ckanext.schemingdcat.tests.test_blueprints.TestSchemingDCATBlueprints object at 0x7f73fa9b7d60>
+2024-09-23T19:56:59.4542573Z app = <ckan.tests.helpers.CKANTestApp object at 0x7f73fa838940>
+2024-09-23T19:56:59.4542899Z 
+2024-09-23T19:56:59.4543055Z     def test_geospatial_metadata_not_found(self, app):
+2024-09-23T19:56:59.4543628Z >       url = url_for('schemingdcat.geospatial_metadata', id='nonexistent-id')
+2024-09-23T19:56:59.4543989Z 
+2024-09-23T19:56:59.4544147Z ckanext/schemingdcat/tests/test_blueprints.py:44: 
+2024-09-23T19:56:59.4544667Z _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+2024-09-23T19:56:59.4545044Z 
+2024-09-23T19:56:59.4545494Z endpoint = 'schemingdcat.geospatial_metadata', values = {'id': 'nonexistent-id'}, appctx = None, reqctx = None
+2024-09-23T19:56:59.4545996Z 
+2024-09-23T19:56:59.4546195Z     def url_for(endpoint: str, **values: t.Any) -> str:
+2024-09-23T19:56:59.4546692Z         """Generates a URL to the given endpoint with the method provided.
+2024-09-23T19:56:59.4547411Z     
+2024-09-23T19:56:59.4547776Z         Variable arguments that are unknown to the target endpoint are appended
+2024-09-23T19:56:59.4548405Z         to the generated URL as query arguments.  If the value of a query argument
+2024-09-23T19:56:59.4548998Z         is ``None``, the whole pair is skipped.  In case blueprints are active
+2024-09-23T19:56:59.4549572Z         you can shortcut references to the same blueprint by prefixing the
+2024-09-23T19:56:59.4550032Z         local endpoint with a dot (``.``).
+2024-09-23T19:56:59.4550342Z     
+2024-09-23T19:56:59.4550695Z         This will reference the index function local to the current blueprint::
+2024-09-23T19:56:59.4551138Z     
+2024-09-23T19:56:59.4551379Z             url_for('.index')
+2024-09-23T19:56:59.4551630Z     
+2024-09-23T19:56:59.4551872Z         See :ref:`url-building`.
+2024-09-23T19:56:59.4552146Z     
+2024-09-23T19:56:59.4552525Z         Configuration values ``APPLICATION_ROOT`` and ``SERVER_NAME`` are only used when
+2024-09-23T19:56:59.4553078Z         generating URLs outside of a request context.
+2024-09-23T19:56:59.4553421Z     
+2024-09-23T19:56:59.4553779Z         To integrate applications, :class:`Flask` has a hook to intercept URL build
+2024-09-23T19:56:59.4554389Z         errors through :attr:`Flask.url_build_error_handlers`.  The `url_for`
+2024-09-23T19:56:59.4554995Z         function results in a :exc:`~werkzeug.routing.BuildError` when the current
+2024-09-23T19:56:59.4555635Z         app does not have a URL for the given endpoint and values.  When it does, the
+2024-09-23T19:56:59.4556280Z         :data:`~flask.current_app` calls its :attr:`~Flask.url_build_error_handlers` if
+2024-09-23T19:56:59.4557078Z         it is not ``None``, which can return a string to use as the result of
+2024-09-23T19:56:59.4557674Z         `url_for` (instead of `url_for`'s default to raise the
+2024-09-23T19:56:59.4558282Z         :exc:`~werkzeug.routing.BuildError` exception) or re-raise the exception.
+2024-09-23T19:56:59.4558756Z         An example::
+2024-09-23T19:56:59.4558982Z     
+2024-09-23T19:56:59.4559257Z             def external_url_handler(error, endpoint, values):
+2024-09-23T19:56:59.4559741Z                 "Looks up an external URL when `url_for` cannot build a URL."
+2024-09-23T19:56:59.4560248Z                 # This is an example of hooking the build_error_handler.
+2024-09-23T19:56:59.4560778Z                 # Here, lookup_url is some utility function you've built
+2024-09-23T19:56:59.4561283Z                 # which looks up the endpoint in some external URL registry.
+2024-09-23T19:56:59.4561742Z                 url = lookup_url(endpoint, **values)
+2024-09-23T19:56:59.4562083Z                 if url is None:
+2024-09-23T19:56:59.4562415Z                     # External lookup did not have a URL.
+2024-09-23T19:56:59.4563076Z                     # Re-raise the BuildError, in context of original traceback.
+2024-09-23T19:56:59.4563544Z                     exc_type, exc_value, tb = sys.exc_info()
+2024-09-23T19:56:59.4563923Z                     if exc_value is error:
+2024-09-23T19:56:59.4564310Z                         raise exc_type(exc_value).with_traceback(tb)
+2024-09-23T19:56:59.4564668Z                     else:
+2024-09-23T19:56:59.4564924Z                         raise error
+2024-09-23T19:56:59.4565328Z                 # url_for will use this result, instead of raising BuildError.
+2024-09-23T19:56:59.4565742Z                 return url
+2024-09-23T19:56:59.4565985Z     
+2024-09-23T19:56:59.4566288Z             app.url_build_error_handlers.append(external_url_handler)
+2024-09-23T19:56:59.4566671Z     
+2024-09-23T19:56:59.4567149Z         Here, `error` is the instance of :exc:`~werkzeug.routing.BuildError`, and
+2024-09-23T19:56:59.4567761Z         `endpoint` and `values` are the arguments passed into `url_for`.  Note
+2024-09-23T19:56:59.4568369Z         that this is for building URLs outside the current application, and not for
+2024-09-23T19:56:59.4568857Z         handling 404 NotFound errors.
+2024-09-23T19:56:59.4569267Z     
+2024-09-23T19:56:59.4569469Z         .. versionadded:: 0.10
+2024-09-23T19:56:59.4569783Z            The `_scheme` parameter was added.
+2024-09-23T19:56:59.4570096Z     
+2024-09-23T19:56:59.4570293Z         .. versionadded:: 0.9
+2024-09-23T19:56:59.4570632Z            The `_anchor` and `_method` parameters were added.
+2024-09-23T19:56:59.4570986Z     
+2024-09-23T19:56:59.4571180Z         .. versionadded:: 0.9
+2024-09-23T19:56:59.4571495Z            Calls :meth:`Flask.handle_build_error` on
+2024-09-23T19:56:59.4571888Z            :exc:`~werkzeug.routing.BuildError`.
+2024-09-23T19:56:59.4572209Z     
+2024-09-23T19:56:59.4572529Z         :param endpoint: the endpoint of the URL (name of the function)
+2024-09-23T19:56:59.4573026Z         :param values: the variable arguments of the URL rule
+2024-09-23T19:56:59.4573558Z         :param _external: if set to ``True``, an absolute URL is generated. Server
+2024-09-23T19:56:59.4574162Z           address can be changed via ``SERVER_NAME`` configuration variable which
+2024-09-23T19:56:59.4574779Z           falls back to the `Host` header, then to the IP and port of the request.
+2024-09-23T19:56:59.4575399Z         :param _scheme: a string specifying the desired URL scheme. The `_external`
+2024-09-23T19:56:59.4576239Z           parameter must be set to ``True`` or a :exc:`ValueError` is raised. The default
+2024-09-23T19:56:59.4576969Z           behavior uses the same scheme as the current request, or
+2024-09-23T19:56:59.4577548Z           :data:`PREFERRED_URL_SCHEME` if no request context is available.
+2024-09-23T19:56:59.4578186Z           This also can be set to an empty string to build protocol-relative
+2024-09-23T19:56:59.4578613Z           URLs.
+2024-09-23T19:56:59.4578954Z         :param _anchor: if provided this is added as anchor to the URL.
+2024-09-23T19:56:59.4579513Z         :param _method: if provided this explicitly specifies an HTTP method.
+2024-09-23T19:56:59.4579946Z         """
+2024-09-23T19:56:59.4580171Z         appctx = _app_ctx_stack.top
+2024-09-23T19:56:59.4580489Z         reqctx = _request_ctx_stack.top
+2024-09-23T19:56:59.4580782Z     
+2024-09-23T19:56:59.4580981Z         if appctx is None:
+2024-09-23T19:56:59.4581245Z >           raise RuntimeError(
+2024-09-23T19:56:59.4581671Z                 "Attempted to generate a URL without the application context being"
+2024-09-23T19:56:59.4582236Z                 " pushed. This has to be executed when application context is"
+2024-09-23T19:56:59.4582661Z                 " available."
+2024-09-23T19:56:59.4582918Z             )
+2024-09-23T19:56:59.4583621Z E           RuntimeError: Attempted to generate a URL without the application context being pushed. This has to be executed when application context is available.
+2024-09-23T19:56:59.4584303Z 
+2024-09-23T19:56:59.4584633Z /usr/local/lib/python3.10/site-packages/flask/helpers.py:274: RuntimeError
+2024-09-23T19:56:59.4585450Z _______________________________________________ test_create_inspire_tags _______________________________________________
+2024-09-23T19:56:59.4585864Z 
+2024-09-23T19:56:59.4585969Z     def test_create_inspire_tags():
+2024-09-23T19:56:59.4586277Z         runner = CliRunner()
+2024-09-23T19:56:59.4586762Z         result = runner.invoke(schemingdcat, ["create-inspire-tags", "-l", "en"])
+2024-09-23T19:56:59.4587368Z >       assert result.exit_code == 0
+2024-09-23T19:56:59.4587675Z E       assert 1 == 0
+2024-09-23T19:56:59.4588204Z E        +  where 1 = <Result KeyError("Action 'scheming_dataset_schema_show' not found")>.exit_code
+2024-09-23T19:56:59.4588640Z 
+2024-09-23T19:56:59.4588823Z ckanext/schemingdcat/tests/test_cli.py:8: AssertionError
+2024-09-23T19:56:59.4589405Z _______________________________________________ test_delete_inspire_tags _______________________________________________
+2024-09-23T19:56:59.4589811Z 
+2024-09-23T19:56:59.4589921Z     def test_delete_inspire_tags():
+2024-09-23T19:56:59.4590227Z         runner = CliRunner()
+2024-09-23T19:56:59.4590670Z         result = runner.invoke(schemingdcat, ["delete-inspire-tags"])
+2024-09-23T19:56:59.4591228Z         assert result.exit_code == 0
+2024-09-23T19:56:59.4591667Z >       assert "Deleting inspire_themes CKAN tag vocabulary" in result.output
+2024-09-23T19:56:59.4592337Z E       AssertionError: assert 'Deleting inspire_themes CKAN tag vocabulary' in ''
+2024-09-23T19:56:59.4592878Z E        +  where '' = <Result okay>.output
+2024-09-23T19:56:59.4593112Z 
+2024-09-23T19:56:59.4593294Z ckanext/schemingdcat/tests/test_cli.py:16: AssertionError
+2024-09-23T19:56:59.4593872Z ________________________________________________ test_create_dcat_tags _________________________________________________
+2024-09-23T19:56:59.4594274Z 
+2024-09-23T19:56:59.4594377Z     def test_create_dcat_tags():
+2024-09-23T19:56:59.4594668Z         runner = CliRunner()
+2024-09-23T19:56:59.4595125Z         result = runner.invoke(schemingdcat, ["create-dcat-tags", "-l", "en"])
+2024-09-23T19:56:59.4595603Z >       assert result.exit_code == 0
+2024-09-23T19:56:59.4595909Z E       assert 1 == 0
+2024-09-23T19:56:59.4596435Z E        +  where 1 = <Result KeyError("Action 'scheming_dataset_schema_show' not found")>.exit_code
+2024-09-23T19:56:59.4597050Z 
+2024-09-23T19:56:59.4597247Z ckanext/schemingdcat/tests/test_cli.py:22: AssertionError
+2024-09-23T19:56:59.4597834Z ________________________________________________ test_delete_dcat_tags _________________________________________________
+2024-09-23T19:56:59.4598234Z 
+2024-09-23T19:56:59.4598340Z     def test_delete_dcat_tags():
+2024-09-23T19:56:59.4598628Z         runner = CliRunner()
+2024-09-23T19:56:59.4599053Z         result = runner.invoke(schemingdcat, ["delete-dcat-tags"])
+2024-09-23T19:56:59.4599474Z         assert result.exit_code == 0
+2024-09-23T19:56:59.4599888Z >       assert "Deleting dcat_ap CKAN tag vocabulary" in result.output
+2024-09-23T19:56:59.4600499Z E       AssertionError: assert 'Deleting dcat_ap CKAN tag vocabulary' in ''
+2024-09-23T19:56:59.4601028Z E        +  where '' = <Result okay>.output
+2024-09-23T19:56:59.4601264Z 
+2024-09-23T19:56:59.4601449Z ckanext/schemingdcat/tests/test_cli.py:30: AssertionError
+2024-09-23T19:56:59.4602033Z ______________________________________________ test_create_iso_topic_tags ______________________________________________
+2024-09-23T19:56:59.4602441Z 
+2024-09-23T19:56:59.4602553Z     def test_create_iso_topic_tags():
+2024-09-23T19:56:59.4602861Z         runner = CliRunner()
+2024-09-23T19:56:59.4603350Z         result = runner.invoke(schemingdcat, ["create-iso-topic-tags", "-l", "en"])
+2024-09-23T19:56:59.4603847Z >       assert result.exit_code == 0
+2024-09-23T19:56:59.4604146Z E       assert 1 == 0
+2024-09-23T19:56:59.4604674Z E        +  where 1 = <Result KeyError("Action 'scheming_dataset_schema_show' not found")>.exit_code
+2024-09-23T19:56:59.4605108Z 
+2024-09-23T19:56:59.4605289Z ckanext/schemingdcat/tests/test_cli.py:36: AssertionError
+2024-09-23T19:56:59.4606046Z ______________________________________________ test_delete_iso_topic_tags ______________________________________________
+2024-09-23T19:56:59.4606453Z 
+2024-09-23T19:56:59.4606565Z     def test_delete_iso_topic_tags():
+2024-09-23T19:56:59.4606988Z         runner = CliRunner()
+2024-09-23T19:56:59.4607447Z         result = runner.invoke(schemingdcat, ["delete-iso-topic-tags"])
+2024-09-23T19:56:59.4607884Z         assert result.exit_code == 0
+2024-09-23T19:56:59.4608336Z >       assert "Deleting iso19115_topics CKAN tag vocabulary" in result.output
+2024-09-23T19:56:59.4609013Z E       AssertionError: assert 'Deleting iso19115_topics CKAN tag vocabulary' in ''
+2024-09-23T19:56:59.4609545Z E        +  where '' = <Result okay>.output
+2024-09-23T19:56:59.4609785Z 
+2024-09-23T19:56:59.4609967Z ckanext/schemingdcat/tests/test_cli.py:44: AssertionError
+2024-09-23T19:56:59.4610556Z _____________________________________________ test_download_rdf_eu_vocabs ______________________________________________
+2024-09-23T19:56:59.4610965Z 
+2024-09-23T19:56:59.4611080Z     def test_download_rdf_eu_vocabs():
+2024-09-23T19:56:59.4611389Z         runner = CliRunner()
+2024-09-23T19:56:59.4611962Z         result = runner.invoke(schemingdcat, ["download-rdf-eu-vocabs"])
+2024-09-23T19:56:59.4612406Z         assert result.exit_code == 0
+2024-09-23T19:56:59.4612798Z >       assert "Downloading EU Vocabularies..." in result.output
+2024-09-23T19:56:59.4613364Z E       AssertionError: assert 'Downloading EU Vocabularies...' in ''
+2024-09-23T19:56:59.4613842Z E        +  where '' = <Result okay>.output
+2024-09-23T19:56:59.4614076Z 
+2024-09-23T19:56:59.4614284Z ckanext/schemingdcat/tests/test_cli.py:51: AssertionError
+2024-09-23T19:56:59.4614943Z ------------------------------------------------- Captured stderr call -------------------------------------------------
+2024-09-23T19:56:59.4616698Z WARNI [root] Failed to retrieve data for URL: http://op.europa.eu/o/opportal-service/euvoc-download-handler?cellarURI=http://publications.europa.eu/resource/distribution/licence/rdf/skos_ap_act/licences-skos-ap-act.rdf&fileName=licences-skos-ap-act.rdf. Status Code: 429
+2024-09-23T19:56:59.4618575Z -------------------------------------------------- Captured log call ---------------------------------------------------
+2024-09-23T19:56:59.4620339Z WARNING  root:cli.py:341 Failed to retrieve data for URL: http://op.europa.eu/o/opportal-service/euvoc-download-handler?cellarURI=http://publications.europa.eu/resource/distribution/licence/rdf/skos_ap_act/licences-skos-ap-act.rdf&fileName=licences-skos-ap-act.rdf. Status Code: 429
+2024-09-23T19:56:59.4621962Z ______________________________________ TestSchemingDCATPlugin.test_update_config _______________________________________
+2024-09-23T19:56:59.4622414Z 
+2024-09-23T19:56:59.4622767Z self = <ckanext.schemingdcat.tests.test_plugin.TestSchemingDCATPlugin object at 0x7f73fa9e4040>
+2024-09-23T19:56:59.4623246Z 
+2024-09-23T19:56:59.4623355Z     def test_update_config(self):
+2024-09-23T19:56:59.4623644Z         config = {}
+2024-09-23T19:56:59.4623950Z         plugin_instance = plugin.SchemingDCATPlugin()
+2024-09-23T19:56:59.4624352Z         plugin_instance.update_config(config)
+2024-09-23T19:56:59.4624701Z >       assert "templates" in config
+2024-09-23T19:56:59.4626032Z E       AssertionError: assert 'templates' in {'plugin_public_paths': ['/__w/ckanext-schemingdcat/ckanext-schemingdcat/ckanext/schemingdcat/public'], 'plugin_template_paths': ['/__w/ckanext-schemingdcat/ckanext-schemingdcat/ckanext/schemingdcat/templates']}
+2024-09-23T19:56:59.4627214Z 
+2024-09-23T19:56:59.4627415Z ckanext/schemingdcat/tests/test_plugin.py:14: AssertionError
+2024-09-23T19:56:59.4628067Z ______________________________________ TestSchemingDCATPlugin.test_get_validators ______________________________________
+2024-09-23T19:56:59.4628512Z 
+2024-09-23T19:56:59.4628860Z self = <ckanext.schemingdcat.tests.test_plugin.TestSchemingDCATPlugin object at 0x7f73fa9e61a0>
+2024-09-23T19:56:59.4629340Z 
+2024-09-23T19:56:59.4629581Z     def test_get_validators(self):
+2024-09-23T19:56:59.4629961Z         plugin_instance = plugin.SchemingDCATPlugin()
+2024-09-23T19:56:59.4630387Z         validators = plugin_instance.get_validators()
+2024-09-23T19:56:59.4630775Z         assert isinstance(validators, dict)
+2024-09-23T19:56:59.4631157Z >       assert "schemingdcat_validate" in validators
+2024-09-23T19:56:59.4632976Z E       AssertionError: assert 'schemingdcat_validate' in {'copy_from': <function copy_from at 0x7f7404757370>, 'multilingual_text_output': <function multilingual_text_output at 0x7f7404757130>, 'name_identifier_validator': <function name_identifier_validator at 0x7f7404756d40>, 'schemingdcat_clean_identifier': <function schemingdcat_clean_identifier at 0x7f7404756cb0>, ...}
+2024-09-23T19:56:59.4634406Z 
+2024-09-23T19:56:59.4634611Z ckanext/schemingdcat/tests/test_plugin.py:27: AssertionError
+2024-09-23T19:56:59.4635271Z _________________________________ TestSchemingDCATPlugin.test_get_signal_subscriptions _________________________________
+2024-09-23T19:56:59.4635744Z 
+2024-09-23T19:56:59.4636089Z self = <ckanext.schemingdcat.tests.test_plugin.TestSchemingDCATPlugin object at 0x7f73fa9e6b60>
+2024-09-23T19:56:59.4636673Z 
+2024-09-23T19:56:59.4636809Z     def test_get_signal_subscriptions(self):
+2024-09-23T19:56:59.4637407Z         plugin_instance = plugin.SchemingDCATPlugin()
+2024-09-23T19:56:59.4637879Z         subscriptions = plugin_instance.get_signal_subscriptions()
+2024-09-23T19:56:59.4638328Z >       assert isinstance(subscriptions, list)
+2024-09-23T19:56:59.4638680Z E       AssertionError: assert False
+2024-09-23T19:56:59.4641492Z E        +  where False = isinstance({<blinker.base.NamedSignal object at 0x7f740b73bd30; 'action_succeed'>: [{'receiver': <function stats_changed at 0x7f740476c700>, 'sender': 'bulk_update_public'}, {'receiver': <function stats_changed at 0x7f740476c700>, 'sender': 'bulk_update_private'}, {'receiver': <function stats_changed at 0x7f740476c700>, 'sender': 'bulk_update_delete'}, {'receiver': <function stats_changed at 0x7f740476c700>, 'sender': 'package_create'}, {'receiver': <function stats_changed at 0x7f740476c700>, 'sender': 'package_update'}, {'receiver': <function stats_changed at 0x7f740476c700>, 'sender': 'package_delete'}, ...]}, list)
+2024-09-23T19:56:59.4643817Z 
+2024-09-23T19:56:59.4644021Z ckanext/schemingdcat/tests/test_plugin.py:44: AssertionError
+2024-09-23T19:56:59.4644673Z _____________________________________ TestSchemingDCATDatasetsPlugin.test_validate _____________________________________
+2024-09-23T19:56:59.4645136Z 
+2024-09-23T19:56:59.4645528Z self = <ckanext.schemingdcat.tests.test_plugin.TestSchemingDCATDatasetsPlugin object at 0x7f73fa9e7850>
+2024-09-23T19:56:59.4646043Z 
+2024-09-23T19:56:59.4646145Z     def test_validate(self):
+2024-09-23T19:56:59.4646508Z         plugin_instance = plugin.SchemingDCATDatasetsPlugin()
+2024-09-23T19:56:59.4647009Z         context = {}
+2024-09-23T19:56:59.4647273Z         data_dict = {"type": "dataset"}
+2024-09-23T19:56:59.4647578Z         schema = {}
+2024-09-23T19:56:59.4647827Z         action = "package_create"
+2024-09-23T19:56:59.4648283Z >       result, errors = plugin_instance.validate(context, data_dict, schema, action)
+2024-09-23T19:56:59.4648674Z 
+2024-09-23T19:56:59.4648819Z ckanext/schemingdcat/tests/test_plugin.py:63: 
+2024-09-23T19:56:59.4649322Z _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+2024-09-23T19:56:59.4649698Z 
+2024-09-23T19:56:59.4650176Z self = <Plugin SchemingDCATDatasetsPlugin 'schemingdcat_datasets'>, context = {}, data_dict = {'type': 'dataset'}
+2024-09-23T19:56:59.4650835Z schema = {}, action = 'package_create'
+2024-09-23T19:56:59.4651058Z 
+2024-09-23T19:56:59.4651232Z     def validate(self, context, data_dict, schema, action):
+2024-09-23T19:56:59.4651604Z         """
+2024-09-23T19:56:59.4652143Z         Validate and convert for package_create, package_update and
+2024-09-23T19:56:59.4652774Z         package_show actions.
+2024-09-23T19:56:59.4653410Z         """
+2024-09-23T19:56:59.4653907Z         thing, action_type = action.split('_')
+2024-09-23T19:56:59.4654525Z         t = data_dict.get('type')
+2024-09-23T19:56:59.4655040Z         if not t or t not in self._schemas:
+2024-09-23T19:56:59.4655678Z             return data_dict, {'type': [
+2024-09-23T19:56:59.4656296Z                 "Unsupported dataset type: {t}".format(t=t)]}
+2024-09-23T19:56:59.4657043Z     
+2024-09-23T19:56:59.4657442Z         scheming_schema = self._expanded_schemas[t]
+2024-09-23T19:56:59.4657780Z     
+2024-09-23T19:56:59.4658104Z         before = scheming_schema.get('before_validators')
+2024-09-23T19:56:59.4658583Z         after = scheming_schema.get('after_validators')
+2024-09-23T19:56:59.4658977Z         if action_type == 'show':
+2024-09-23T19:56:59.4659314Z             get_validators = _field_output_validators
+2024-09-23T19:56:59.4659671Z             before = after = None
+2024-09-23T19:56:59.4659992Z         elif action_type == 'create':
+2024-09-23T19:56:59.4660344Z             get_validators = _field_create_validators
+2024-09-23T19:56:59.4660682Z         else:
+2024-09-23T19:56:59.4660927Z             get_validators = _field_validators
+2024-09-23T19:56:59.4661372Z     
+2024-09-23T19:56:59.4661564Z         if before:
+2024-09-23T19:56:59.4661966Z             schema['__before'] = scheming_validation.validators_from_string(
+2024-09-23T19:56:59.4662427Z                 before, None, scheming_schema)
+2024-09-23T19:56:59.4662746Z         if after:
+2024-09-23T19:56:59.4663135Z             schema['__after'] = scheming_validation.validators_from_string(
+2024-09-23T19:56:59.4663581Z                 after, None, scheming_schema)
+2024-09-23T19:56:59.4663895Z         fg = (
+2024-09-23T19:56:59.4664231Z             (scheming_schema['dataset_fields'], schema, True),
+2024-09-23T19:56:59.4664772Z >           (scheming_schema['resource_fields'], schema['resources'], False)
+2024-09-23T19:56:59.4665177Z         )
+2024-09-23T19:56:59.4665421Z E       KeyError: 'resources'
+2024-09-23T19:56:59.4665607Z 
+2024-09-23T19:56:59.4665748Z ckanext/schemingdcat/plugin.py:221: KeyError
+2024-09-23T19:56:59.4666303Z _________________________________________ test_validate_dcat_ap_2_graph_shapes _________________________________________
+2024-09-23T19:56:59.4666734Z 
+2024-09-23T19:56:59.4667081Z     @pytest.mark.usefixtures("with_plugins", "clean_db")
+2024-09-23T19:56:59.4667725Z     @pytest.mark.ckan_config("ckan.plugins", "dcat harvest schemingdcat_datasets schemingdcat fluent")
+2024-09-23T19:56:59.4668294Z     @pytest.mark.ckan_config(
+2024-09-23T19:56:59.4668816Z         "scheming.dataset_schemas", "ckanext.schemingdcat:schemas/geodcat_ap/es_geodcat_ap_full.yaml"
+2024-09-23T19:56:59.4669340Z     )
+2024-09-23T19:56:59.4669549Z     @pytest.mark.ckan_config(
+2024-09-23T19:56:59.4669830Z         "scheming.presets",
+2024-09-23T19:56:59.4670294Z         "ckanext.schemingdcat:schemas/default_presets.json ckanext.fluent:presets.json",
+2024-09-23T19:56:59.4670778Z     )
+2024-09-23T19:56:59.4670984Z     @pytest.mark.ckan_config(
+2024-09-23T19:56:59.4671381Z         "ckanext.dcat.rdf.profiles", "eu_dcat_ap_2 eu_dcat_ap_scheming"
+2024-09-23T19:56:59.4671795Z     )
+2024-09-23T19:56:59.4672037Z     def test_validate_dcat_ap_2_graph_shapes():
+2024-09-23T19:56:59.4672359Z     
+2024-09-23T19:56:59.4672634Z         graph = graph_from_dataset("dcat_ap_2_full_dataset")
+2024-09-23T19:56:59.4672989Z     
+2024-09-23T19:56:59.4673430Z         # dcat-ap_2.1.1_shacl_shapes.ttl: constraints concerning existance, domain and
+2024-09-23T19:56:59.4673939Z         # literal range, and cardinalities.
+2024-09-23T19:56:59.4674320Z         path = _get_shacl_file_path("shapes", "2.1.1")
+2024-09-23T19:56:59.4674709Z >       r = validate(graph, shacl_graph=path)
+2024-09-23T19:56:59.4674952Z 
+2024-09-23T19:56:59.4675119Z ckanext/schemingdcat/tests/shacl/test_shacl.py:115: 
+2024-09-23T19:56:59.4675655Z _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+2024-09-23T19:56:59.4676362Z /usr/local/lib/python3.10/site-packages/pyshacl/validate.py:457: in validate
+2024-09-23T19:56:59.4677364Z     loaded_sg = load_from_source(
+2024-09-23T19:56:59.4677830Z _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+2024-09-23T19:56:59.4678213Z 
+2024-09-23T19:56:59.4678858Z source = '/__w/ckanext-schemingdcat/ckanext-schemingdcat/ckanext/schemingdcat/tests/shacl/shacl/2.1.1/dcat-ap_2.1.1_shacl_shapes.ttl'
+2024-09-23T19:56:59.4679872Z g = None, rdf_format = 'turtle', multigraph = True, do_owl_imports = False, import_chain = None
+2024-09-23T19:56:59.4680426Z logger = <Logger pyshacl.validate (INFO)>
+2024-09-23T19:56:59.4680676Z 
+2024-09-23T19:56:59.4680768Z     def load_from_source(
+2024-09-23T19:56:59.4681228Z         source: Union[GraphLike, BufferedIOBase, TextIOBase, BinaryIO, Union[str, bytes]],
+2024-09-23T19:56:59.4681741Z         g: Optional[GraphLike] = None,
+2024-09-23T19:56:59.4682075Z         rdf_format: Optional[str] = None,
+2024-09-23T19:56:59.4682407Z         multigraph: bool = False,
+2024-09-23T19:56:59.4682730Z         do_owl_imports: Union[bool, int] = False,
+2024-09-23T19:56:59.4683184Z         import_chain: Optional[List[Union[rdflib.URIRef, str]]] = None,
+2024-09-23T19:56:59.4683766Z         logger: Optional[Logger] = None,
+2024-09-23T19:56:59.4684060Z     ):
+2024-09-23T19:56:59.4684251Z         """
+2024-09-23T19:56:59.4684448Z     
+2024-09-23T19:56:59.4684639Z         :param source:
+2024-09-23T19:56:59.4684881Z         :param g:
+2024-09-23T19:56:59.4685123Z         :type g: rdflib.Graph | None
+2024-09-23T19:56:59.4685425Z         :param rdf_format:
+2024-09-23T19:56:59.4685699Z         :type rdf_format: str | None
+2024-09-23T19:56:59.4686003Z         :param multigraph:
+2024-09-23T19:56:59.4686259Z         :type multigraph: bool
+2024-09-23T19:56:59.4686544Z         :param do_owl_imports:
+2024-09-23T19:56:59.4686981Z         :type do_owl_imports: bool|int
+2024-09-23T19:56:59.4687325Z         :param import_chain:
+2024-09-23T19:56:59.4687622Z         :type import_chain: list | None
+2024-09-23T19:56:59.4687929Z         :param logger:
+2024-09-23T19:56:59.4688178Z         :type logger: Logger | None
+2024-09-23T19:56:59.4688475Z         :return:
+2024-09-23T19:56:59.4688688Z         """
+2024-09-23T19:56:59.4688899Z         source_is_graph = False
+2024-09-23T19:56:59.4689292Z         open_source: Optional[Union[BufferedIOBase, BinaryIO]] = None
+2024-09-23T19:56:59.4689721Z         source_was_open: bool = False
+2024-09-23T19:56:59.4690136Z         source_as_file: Optional[Union[BufferedIOBase, BinaryIO]] = None
+2024-09-23T19:56:59.4690601Z         source_as_filename: Optional[str] = None
+2024-09-23T19:56:59.4690975Z         source_as_bytes: Optional[bytes] = None
+2024-09-23T19:56:59.4691302Z         filename = None
+2024-09-23T19:56:59.4691551Z         public_id = None
+2024-09-23T19:56:59.4691807Z         uri_prefix = None
+2024-09-23T19:56:59.4692059Z         if logger is None:
+2024-09-23T19:56:59.4692357Z             logger = getLogger("rdfutil.load")
+2024-09-23T19:56:59.4692705Z             logger.setLevel(WARNING)
+2024-09-23T19:56:59.4693225Z         is_imported_graph = do_owl_imports and isinstance(do_owl_imports, int) and do_owl_imports > 1
+2024-09-23T19:56:59.4693945Z         if isinstance(source, (rdflib.Graph, rdflib.ConjunctiveGraph, rdflib.Dataset)):
+2024-09-23T19:56:59.4694450Z             source_is_graph = True
+2024-09-23T19:56:59.4694738Z             if g is None:
+2024-09-23T19:56:59.4694991Z                 g = source
+2024-09-23T19:56:59.4695238Z             else:
+2024-09-23T19:56:59.4695666Z                 raise RuntimeError("Cannot pass in both target=rdflib.Graph/Dataset and g=graph.")
+2024-09-23T19:56:59.4696258Z         elif isinstance(source, (BufferedIOBase, TextIOBase)):
+2024-09-23T19:56:59.4696710Z             if hasattr(source, 'name'):
+2024-09-23T19:56:59.4697278Z                 filename = source.name  # type: ignore
+2024-09-23T19:56:59.4697717Z                 public_id = Path(filename).resolve().as_uri() + "#"
+2024-09-23T19:56:59.4698345Z             if isinstance(source, TextIOBase):
+2024-09-23T19:56:59.4698766Z                 buf = getattr(source, "buffer")  # type: BufferedIOBase
+2024-09-23T19:56:59.4699188Z                 source_as_file = source = buf
+2024-09-23T19:56:59.4699501Z             else:
+2024-09-23T19:56:59.4699739Z                 source_as_file = source
+2024-09-23T19:56:59.4700108Z             if hasattr(source, 'closed'):
+2024-09-23T19:56:59.4700445Z                 if not bool(source.closed):
+2024-09-23T19:56:59.4700778Z                     open_source = source
+2024-09-23T19:56:59.4701099Z                     source_was_open = True
+2024-09-23T19:56:59.4701404Z             else:
+2024-09-23T19:56:59.4701727Z                 # Assume it is open now and it was open when we started.
+2024-09-23T19:56:59.4702130Z                 open_source = source
+2024-09-23T19:56:59.4702443Z                 source_was_open = True
+2024-09-23T19:56:59.4702730Z     
+2024-09-23T19:56:59.4702940Z         elif isinstance(source, str):
+2024-09-23T19:56:59.4703420Z             if source == "stdin" or source == "-" or source == "/dev/stdin":
+2024-09-23T19:56:59.4703859Z                 public_id = "/dev/stdin"
+2024-09-23T19:56:59.4704290Z                 filename = "/dev/stdin"
+2024-09-23T19:56:59.4704624Z                 source_as_filename = filename
+2024-09-23T19:56:59.4705075Z             elif is_windows and source.startswith('file:///'):
+2024-09-23T19:56:59.4705456Z                 public_id = source
+2024-09-23T19:56:59.4705757Z                 filename = source[8:]
+2024-09-23T19:56:59.4706079Z                 source_as_filename = filename
+2024-09-23T19:56:59.4706540Z             elif not is_windows and source.startswith('file://'):
+2024-09-23T19:56:59.4707100Z                 public_id = source
+2024-09-23T19:56:59.4707405Z                 filename = source[7:]
+2024-09-23T19:56:59.4707727Z                 source_as_filename = filename
+2024-09-23T19:56:59.4708232Z             elif source.startswith('http:') or source.startswith('https:'):
+2024-09-23T19:56:59.4708682Z                 public_id = source
+2024-09-23T19:56:59.4708958Z                 try:
+2024-09-23T19:56:59.4709332Z                     resp, resp_filename, web_format, raw_fp = get_rdf_from_web(source)
+2024-09-23T19:56:59.4709782Z                 except HTTPError:
+2024-09-23T19:56:59.4710083Z                     if is_imported_graph:
+2024-09-23T19:56:59.4710399Z                         return g
+2024-09-23T19:56:59.4710672Z                     else:
+2024-09-23T19:56:59.4710914Z                         raise
+2024-09-23T19:56:59.4711230Z                 if web_format == 'graph':
+2024-09-23T19:56:59.4711546Z                     source = resp
+2024-09-23T19:56:59.4711838Z                     source_is_graph = True
+2024-09-23T19:56:59.4712233Z                 elif web_format in ('auto', None):
+2024-09-23T19:56:59.4712578Z                     if resp_filename:
+2024-09-23T19:56:59.4712900Z                         filename = resp_filename
+2024-09-23T19:56:59.4713246Z                     source_was_open = False
+2024-09-23T19:56:59.4713595Z                     source = open_source = resp
+2024-09-23T19:56:59.4713909Z                 else:
+2024-09-23T19:56:59.4714168Z                     rdf_format = web_format
+2024-09-23T19:56:59.4714547Z                     filename = resp_filename
+2024-09-23T19:56:59.4714906Z                     fp = resp.fp if raw_fp else resp
+2024-09-23T19:56:59.4715263Z                     source_was_open = False
+2024-09-23T19:56:59.4715595Z                     source = open_source = fp
+2024-09-23T19:56:59.4715906Z             else:
+2024-09-23T19:56:59.4716182Z                 first_char = source[0]
+2024-09-23T19:56:59.4716749Z                 if is_windows and (first_char == '\\' or (len(source) > 3 and source[1:3] == ":\\")):
+2024-09-23T19:56:59.4717486Z                     filename = source
+2024-09-23T19:56:59.4717816Z                     source_as_filename = filename
+2024-09-23T19:56:59.4718345Z                 elif first_char == '/' or (len(source) > 2 and source[0:2] == "./"):
+2024-09-23T19:56:59.4718927Z                     filename = source
+2024-09-23T19:56:59.4719249Z                     source_as_filename = filename
+2024-09-23T19:56:59.4719575Z                 elif (
+2024-09-23T19:56:59.4719867Z                     first_char == '#'
+2024-09-23T19:56:59.4720203Z                     or first_char == '@'
+2024-09-23T19:56:59.4720555Z                     or first_char == '<'
+2024-09-23T19:56:59.4720895Z                     or first_char == '\n'
+2024-09-23T19:56:59.4721240Z                     or first_char == '{'
+2024-09-23T19:56:59.4721587Z                     or first_char == '['
+2024-09-23T19:56:59.4721870Z                 ):
+2024-09-23T19:56:59.4722272Z                     # Contains some JSON or XML or Turtle chars, it's not a path
+2024-09-23T19:56:59.4722707Z                     source_as_file = None
+2024-09-23T19:56:59.4723044Z                     source_as_filename = None
+2024-09-23T19:56:59.4723486Z                 elif len(source) >= 32 and '\n' in source[:32]:
+2024-09-23T19:56:59.4724056Z                     # Contains a new line near the start of the file, can't be a path
+2024-09-23T19:56:59.4724509Z                     source_as_file = None
+2024-09-23T19:56:59.4724955Z                     source_as_filename = None
+2024-09-23T19:56:59.4725291Z                 elif len(source) < 140:
+2024-09-23T19:56:59.4725606Z                     filename = source
+2024-09-23T19:56:59.4725923Z                     source_as_filename = filename
+2024-09-23T19:56:59.4726289Z             if source_as_filename and filename:
+2024-09-23T19:56:59.4726640Z                 pid = os.getpid()
+2024-09-23T19:56:59.4727079Z                 fd0 = "/proc/{}/fd/0".format(str(pid))
+2024-09-23T19:56:59.4727492Z                 if filename == "/dev/stdin" or filename == fd0:
+2024-09-23T19:56:59.4727961Z                     source = source_as_file = open_source = sys.stdin.buffer
+2024-09-23T19:56:59.4728386Z                     source_was_open = True
+2024-09-23T19:56:59.4728688Z                 else:
+2024-09-23T19:56:59.4728925Z                     try:
+2024-09-23T19:56:59.4729220Z                         filename = os.readlink(filename)
+2024-09-23T19:56:59.4729633Z                         if filename == fd0 or filename == "/dev/stdin":
+2024-09-23T19:56:59.4730115Z                             source = source_as_file = open_source = sys.stdin.buffer
+2024-09-23T19:56:59.4730557Z                             source_was_open = True
+2024-09-23T19:56:59.4730895Z                     except OSError:
+2024-09-23T19:56:59.4731187Z                         pass
+2024-09-23T19:56:59.4731659Z             # TODO: Do we still need this? Not sure why this was added, but works better without it
+2024-09-23T19:56:59.4732285Z             #  if public_id and not public_id.endswith('#'):
+2024-09-23T19:56:59.4732702Z             #     public_id = "{}#".format(public_id)
+2024-09-23T19:56:59.4733297Z             if not source_as_file and not source_as_filename and not open_source and isinstance(source, str):
+2024-09-23T19:56:59.4733862Z                 # source is raw RDF data.
+2024-09-23T19:56:59.4734304Z                 source_as_bytes = source = source.encode('utf-8')
+2024-09-23T19:56:59.4734703Z         elif isinstance(source, bytes):
+2024-09-23T19:56:59.4735333Z             if source.startswith(b'file:') or source.startswith(b'http:') or source.startswith(b'https:'):
+2024-09-23T19:56:59.4736072Z                 raise ValueError("file:// and http:// strings should be given as str, not bytes.")
+2024-09-23T19:56:59.4736602Z             first_char_b: bytes = source[0:1]
+2024-09-23T19:56:59.4737133Z             if (
+2024-09-23T19:56:59.4737422Z                 first_char_b == b'#'
+2024-09-23T19:56:59.4737770Z                 or first_char_b == b'@'
+2024-09-23T19:56:59.4738122Z                 or first_char_b == b'<'
+2024-09-23T19:56:59.4738459Z                 or first_char_b == b'\n'
+2024-09-23T19:56:59.4738807Z                 or first_char_b == b'{'
+2024-09-23T19:56:59.4739152Z                 or first_char_b == b'['
+2024-09-23T19:56:59.4739574Z             ):
+2024-09-23T19:56:59.4739860Z                 # Contains some JSON or XML or Turtle stuff
+2024-09-23T19:56:59.4740234Z                 source_as_file = None
+2024-09-23T19:56:59.4740553Z                 source_as_filename = None
+2024-09-23T19:56:59.4740873Z             elif len(source) < 140:
+2024-09-23T19:56:59.4741249Z                 filename = source.decode('utf-8')
+2024-09-23T19:56:59.4741605Z                 source_as_filename = filename
+2024-09-23T19:56:59.4742067Z             if not source_as_file and not source_as_filename and not open_source:
+2024-09-23T19:56:59.4742174Z                 source_as_bytes = source
+2024-09-23T19:56:59.4742261Z         else:
+2024-09-23T19:56:59.4742486Z             raise ValueError("Cannot determine the format of the input graph")
+2024-09-23T19:56:59.4742574Z         if g is None:
+2024-09-23T19:56:59.4742674Z             if source_is_graph:
+2024-09-23T19:56:59.4743028Z                 target_g: Union[rdflib.Graph, rdflib.ConjunctiveGraph, rdflib.Dataset] = source  # type: ignore
+2024-09-23T19:56:59.4743113Z             else:
+2024-09-23T19:56:59.4743213Z                 if multigraph:
+2024-09-23T19:56:59.4743406Z                     target_ds = rdflib.Dataset(default_graph_base=public_id)
+2024-09-23T19:56:59.4743813Z                     target_ds.namespace_manager = NamespaceManager(target_ds, 'core')
+2024-09-23T19:56:59.4744073Z                     target_ds.default_context.namespace_manager = target_ds.namespace_manager
+2024-09-23T19:56:59.4744212Z                     default_g = target_ds.default_context
+2024-09-23T19:56:59.4744334Z                     target_ds.graph(default_g)
+2024-09-23T19:56:59.4744436Z                     target_g = target_ds
+2024-09-23T19:56:59.4744521Z                 else:
+2024-09-23T19:56:59.4744736Z                     target_g = rdflib.Graph(bind_namespaces='core')
+2024-09-23T19:56:59.4744816Z         else:
+2024-09-23T19:56:59.4745095Z             if not isinstance(g, (rdflib.Graph, rdflib.Dataset, rdflib.ConjunctiveGraph)):
+2024-09-23T19:56:59.4745415Z                 raise RuntimeError("Passing in 'g' must be a rdflib Graph or Dataset.")
+2024-09-23T19:56:59.4745503Z             target_g = g
+2024-09-23T19:56:59.4745581Z     
+2024-09-23T19:56:59.4745694Z         if filename and not rdf_format:
+2024-09-23T19:56:59.4745841Z             if filename.endswith('.ttl'):
+2024-09-23T19:56:59.4746012Z                 rdf_format = rdf_format or 'turtle'
+2024-09-23T19:56:59.4746164Z             elif filename.endswith('.nt'):
+2024-09-23T19:56:59.4746320Z                 rdf_format = rdf_format or 'nt'
+2024-09-23T19:56:59.4746473Z             elif filename.endswith('.n3'):
+2024-09-23T19:56:59.4746631Z                 rdf_format = rdf_format or 'n3'
+2024-09-23T19:56:59.4746785Z             elif filename.endswith('.json'):
+2024-09-23T19:56:59.4747087Z                 rdf_format = rdf_format or 'json-ld'
+2024-09-23T19:56:59.4747352Z             elif filename.endswith('.nq') or filename.endswith('.nquads'):
+2024-09-23T19:56:59.4747522Z                 rdf_format = rdf_format or 'nquads'
+2024-09-23T19:56:59.4747684Z             elif filename.endswith('.trig'):
+2024-09-23T19:56:59.4747846Z                 rdf_format = rdf_format or 'trig'
+2024-09-23T19:56:59.4748101Z             elif filename.endswith('.xml') or filename.endswith('.rdf'):
+2024-09-23T19:56:59.4748268Z                 rdf_format = rdf_format or 'xml'
+2024-09-23T19:56:59.4748488Z         if source_as_filename and filename is not None and not open_source:
+2024-09-23T19:56:59.4748631Z             filename = str(Path(filename).resolve())
+2024-09-23T19:56:59.4748727Z             if not public_id:
+2024-09-23T19:56:59.4748872Z                 public_id = Path(filename).as_uri() + "#"
+2024-09-23T19:56:59.4749075Z >           source = open_source = open(filename, mode='rb')
+2024-09-23T19:56:59.4749923Z E           FileNotFoundError: [Errno 2] No such file or directory: '/__w/ckanext-schemingdcat/ckanext-schemingdcat/ckanext/schemingdcat/tests/shacl/shacl/2.1.1/dcat-ap_2.1.1_shacl_shapes.ttl'
+2024-09-23T19:56:59.4750051Z 
+2024-09-23T19:56:59.4750435Z /usr/local/lib/python3.10/site-packages/pyshacl/rdfutil/load.py:319: FileNotFoundError
+2024-09-23T19:56:59.4750761Z ___________________________________ test_validate_dcat_ap_2_graph_shapes_recommended ___________________________________
+2024-09-23T19:56:59.4750771Z 
+2024-09-23T19:56:59.4750938Z     @pytest.mark.usefixtures("with_plugins", "clean_db")
+2024-09-23T19:56:59.4751294Z     @pytest.mark.ckan_config("ckan.plugins", "dcat harvest schemingdcat_datasets schemingdcat fluent")
+2024-09-23T19:56:59.4751400Z     @pytest.mark.ckan_config(
+2024-09-23T19:56:59.4751730Z         "scheming.dataset_schemas", "ckanext.schemingdcat:schemas/geodcat_ap/es_geodcat_ap_full.yaml"
+2024-09-23T19:56:59.4751811Z     )
+2024-09-23T19:56:59.4751912Z     @pytest.mark.ckan_config(
+2024-09-23T19:56:59.4752008Z         "scheming.presets",
+2024-09-23T19:56:59.4752298Z         "ckanext.schemingdcat:schemas/default_presets.json ckanext.fluent:presets.json",
+2024-09-23T19:56:59.4752373Z     )
+2024-09-23T19:56:59.4752474Z     @pytest.mark.ckan_config(
+2024-09-23T19:56:59.4752692Z         "ckanext.dcat.rdf.profiles", "eu_dcat_ap_2 eu_dcat_ap_scheming"
+2024-09-23T19:56:59.4752896Z     )
+2024-09-23T19:56:59.4753067Z     def test_validate_dcat_ap_2_graph_shapes_recommended():
+2024-09-23T19:56:59.4753146Z     
+2024-09-23T19:56:59.4753307Z         graph = graph_from_dataset("dcat_ap_2_full_dataset")
+2024-09-23T19:56:59.4753385Z     
+2024-09-23T19:56:59.4753712Z         # dcat-ap_2.1.1_shacl_shapes_recommended.ttl: constraints concerning existance
+2024-09-23T19:56:59.4753820Z         # of recommended properties.
+2024-09-23T19:56:59.4754004Z         path = _get_shacl_file_path("shapes_recommended", "2.1.1")
+2024-09-23T19:56:59.4754134Z >       r = validate(graph, shacl_graph=path)
+2024-09-23T19:56:59.4754139Z 
+2024-09-23T19:56:59.4754303Z ckanext/schemingdcat/tests/shacl/test_shacl.py:139: 
+2024-09-23T19:56:59.4754563Z _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+2024-09-23T19:56:59.4754895Z /usr/local/lib/python3.10/site-packages/pyshacl/validate.py:457: in validate
+2024-09-23T19:56:59.4754998Z     loaded_sg = load_from_source(
+2024-09-23T19:56:59.4755258Z _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+2024-09-23T19:56:59.4755264Z 
+2024-09-23T19:56:59.4755947Z source = '/__w/ckanext-schemingdcat/ckanext-schemingdcat/ckanext/schemingdcat/tests/shacl/shacl/2.1.1/dcat-ap_2.1.1_shacl_shapes_recommended.ttl'
+2024-09-23T19:56:59.4756320Z g = None, rdf_format = 'turtle', multigraph = True, do_owl_imports = False, import_chain = None
+2024-09-23T19:56:59.4756446Z logger = <Logger pyshacl.validate (INFO)>
+2024-09-23T19:56:59.4756452Z 
+2024-09-23T19:56:59.4756544Z     def load_from_source(
+2024-09-23T19:56:59.4756945Z         source: Union[GraphLike, BufferedIOBase, TextIOBase, BinaryIO, Union[str, bytes]],
+2024-09-23T19:56:59.4757060Z         g: Optional[GraphLike] = None,
+2024-09-23T19:56:59.4757177Z         rdf_format: Optional[str] = None,
+2024-09-23T19:56:59.4757289Z         multigraph: bool = False,
+2024-09-23T19:56:59.4757420Z         do_owl_imports: Union[bool, int] = False,
+2024-09-23T19:56:59.4757637Z         import_chain: Optional[List[Union[rdflib.URIRef, str]]] = None,
+2024-09-23T19:56:59.4757748Z         logger: Optional[Logger] = None,
+2024-09-23T19:56:59.4757824Z     ):
+2024-09-23T19:56:59.4757906Z         """
+2024-09-23T19:56:59.4757979Z     
+2024-09-23T19:56:59.4758067Z         :param source:
+2024-09-23T19:56:59.4758155Z         :param g:
+2024-09-23T19:56:59.4758260Z         :type g: rdflib.Graph | None
+2024-09-23T19:56:59.4758351Z         :param rdf_format:
+2024-09-23T19:56:59.4758459Z         :type rdf_format: str | None
+2024-09-23T19:56:59.4758555Z         :param multigraph:
+2024-09-23T19:56:59.4758652Z         :type multigraph: bool
+2024-09-23T19:56:59.4758753Z         :param do_owl_imports:
+2024-09-23T19:56:59.4758860Z         :type do_owl_imports: bool|int
+2024-09-23T19:56:59.4759079Z         :param import_chain:
+2024-09-23T19:56:59.4759194Z         :type import_chain: list | None
+2024-09-23T19:56:59.4759281Z         :param logger:
+2024-09-23T19:56:59.4759385Z         :type logger: Logger | None
+2024-09-23T19:56:59.4759472Z         :return:
+2024-09-23T19:56:59.4759549Z         """
+2024-09-23T19:56:59.4759645Z         source_is_graph = False
+2024-09-23T19:56:59.4759852Z         open_source: Optional[Union[BufferedIOBase, BinaryIO]] = None
+2024-09-23T19:56:59.4759957Z         source_was_open: bool = False
+2024-09-23T19:56:59.4760171Z         source_as_file: Optional[Union[BufferedIOBase, BinaryIO]] = None
+2024-09-23T19:56:59.4760300Z         source_as_filename: Optional[str] = None
+2024-09-23T19:56:59.4760427Z         source_as_bytes: Optional[bytes] = None
+2024-09-23T19:56:59.4760524Z         filename = None
+2024-09-23T19:56:59.4760618Z         public_id = None
+2024-09-23T19:56:59.4760707Z         uri_prefix = None
+2024-09-23T19:56:59.4760804Z         if logger is None:
+2024-09-23T19:56:59.4760935Z             logger = getLogger("rdfutil.load")
+2024-09-23T19:56:59.4761038Z             logger.setLevel(WARNING)
+2024-09-23T19:56:59.4761477Z         is_imported_graph = do_owl_imports and isinstance(do_owl_imports, int) and do_owl_imports > 1
+2024-09-23T19:56:59.4761758Z         if isinstance(source, (rdflib.Graph, rdflib.ConjunctiveGraph, rdflib.Dataset)):
+2024-09-23T19:56:59.4761856Z             source_is_graph = True
+2024-09-23T19:56:59.4761949Z             if g is None:
+2024-09-23T19:56:59.4762035Z                 g = source
+2024-09-23T19:56:59.4762115Z             else:
+2024-09-23T19:56:59.4762415Z                 raise RuntimeError("Cannot pass in both target=rdflib.Graph/Dataset and g=graph.")
+2024-09-23T19:56:59.4762594Z         elif isinstance(source, (BufferedIOBase, TextIOBase)):
+2024-09-23T19:56:59.4762746Z             if hasattr(source, 'name'):
+2024-09-23T19:56:59.4762887Z                 filename = source.name  # type: ignore
+2024-09-23T19:56:59.4763059Z                 public_id = Path(filename).resolve().as_uri() + "#"
+2024-09-23T19:56:59.4763188Z             if isinstance(source, TextIOBase):
+2024-09-23T19:56:59.4763368Z                 buf = getattr(source, "buffer")  # type: BufferedIOBase
+2024-09-23T19:56:59.4763489Z                 source_as_file = source = buf
+2024-09-23T19:56:59.4763577Z             else:
+2024-09-23T19:56:59.4763676Z                 source_as_file = source
+2024-09-23T19:56:59.4763820Z             if hasattr(source, 'closed'):
+2024-09-23T19:56:59.4763939Z                 if not bool(source.closed):
+2024-09-23T19:56:59.4764043Z                     open_source = source
+2024-09-23T19:56:59.4764149Z                     source_was_open = True
+2024-09-23T19:56:59.4764235Z             else:
+2024-09-23T19:56:59.4764422Z                 # Assume it is open now and it was open when we started.
+2024-09-23T19:56:59.4764524Z                 open_source = source
+2024-09-23T19:56:59.4764624Z                 source_was_open = True
+2024-09-23T19:56:59.4764701Z     
+2024-09-23T19:56:59.4764811Z         elif isinstance(source, str):
+2024-09-23T19:56:59.4765065Z             if source == "stdin" or source == "-" or source == "/dev/stdin":
+2024-09-23T19:56:59.4765174Z                 public_id = "/dev/stdin"
+2024-09-23T19:56:59.4765278Z                 filename = "/dev/stdin"
+2024-09-23T19:56:59.4765393Z                 source_as_filename = filename
+2024-09-23T19:56:59.4765606Z             elif is_windows and source.startswith('file:///'):
+2024-09-23T19:56:59.4765708Z                 public_id = source
+2024-09-23T19:56:59.4765808Z                 filename = source[8:]
+2024-09-23T19:56:59.4765920Z                 source_as_filename = filename
+2024-09-23T19:56:59.4766156Z             elif not is_windows and source.startswith('file://'):
+2024-09-23T19:56:59.4766254Z                 public_id = source
+2024-09-23T19:56:59.4766352Z                 filename = source[7:]
+2024-09-23T19:56:59.4766468Z                 source_as_filename = filename
+2024-09-23T19:56:59.4766932Z             elif source.startswith('http:') or source.startswith('https:'):
+2024-09-23T19:56:59.4767034Z                 public_id = source
+2024-09-23T19:56:59.4767116Z                 try:
+2024-09-23T19:56:59.4767342Z                     resp, resp_filename, web_format, raw_fp = get_rdf_from_web(source)
+2024-09-23T19:56:59.4767445Z                 except HTTPError:
+2024-09-23T19:56:59.4767550Z                     if is_imported_graph:
+2024-09-23T19:56:59.4767640Z                         return g
+2024-09-23T19:56:59.4767728Z                     else:
+2024-09-23T19:56:59.4767812Z                         raise
+2024-09-23T19:56:59.4767955Z                 if web_format == 'graph':
+2024-09-23T19:56:59.4768051Z                     source = resp
+2024-09-23T19:56:59.4768159Z                     source_is_graph = True
+2024-09-23T19:56:59.4768324Z                 elif web_format in ('auto', None):
+2024-09-23T19:56:59.4768427Z                     if resp_filename:
+2024-09-23T19:56:59.4768545Z                         filename = resp_filename
+2024-09-23T19:56:59.4768656Z                     source_was_open = False
+2024-09-23T19:56:59.4768779Z                     source = open_source = resp
+2024-09-23T19:56:59.4768988Z                 else:
+2024-09-23T19:56:59.4769096Z                     rdf_format = web_format
+2024-09-23T19:56:59.4769214Z                     filename = resp_filename
+2024-09-23T19:56:59.4769346Z                     fp = resp.fp if raw_fp else resp
+2024-09-23T19:56:59.4769456Z                     source_was_open = False
+2024-09-23T19:56:59.4769567Z                     source = open_source = fp
+2024-09-23T19:56:59.4769646Z             else:
+2024-09-23T19:56:59.4769752Z                 first_char = source[0]
+2024-09-23T19:56:59.4770102Z                 if is_windows and (first_char == '\\' or (len(source) > 3 and source[1:3] == ":\\")):
+2024-09-23T19:56:59.4770199Z                     filename = source
+2024-09-23T19:56:59.4770324Z                     source_as_filename = filename
+2024-09-23T19:56:59.4770601Z                 elif first_char == '/' or (len(source) > 2 and source[0:2] == "./"):
+2024-09-23T19:56:59.4770698Z                     filename = source
+2024-09-23T19:56:59.4770825Z                     source_as_filename = filename
+2024-09-23T19:56:59.4770906Z                 elif (
+2024-09-23T19:56:59.4771038Z                     first_char == '#'
+2024-09-23T19:56:59.4771179Z                     or first_char == '@'
+2024-09-23T19:56:59.4771313Z                     or first_char == '<'
+2024-09-23T19:56:59.4771453Z                     or first_char == '\n'
+2024-09-23T19:56:59.4771586Z                     or first_char == '{'
+2024-09-23T19:56:59.4771718Z                     or first_char == '['
+2024-09-23T19:56:59.4771803Z                 ):
+2024-09-23T19:56:59.4772063Z                     # Contains some JSON or XML or Turtle chars, it's not a path
+2024-09-23T19:56:59.4772168Z                     source_as_file = None
+2024-09-23T19:56:59.4772284Z                     source_as_filename = None
+2024-09-23T19:56:59.4772489Z                 elif len(source) >= 32 and '\n' in source[:32]:
+2024-09-23T19:56:59.4772768Z                     # Contains a new line near the start of the file, can't be a path
+2024-09-23T19:56:59.4772879Z                     source_as_file = None
+2024-09-23T19:56:59.4772993Z                     source_as_filename = None
+2024-09-23T19:56:59.4773094Z                 elif len(source) < 140:
+2024-09-23T19:56:59.4773195Z                     filename = source
+2024-09-23T19:56:59.4773310Z                     source_as_filename = filename
+2024-09-23T19:56:59.4773433Z             if source_as_filename and filename:
+2024-09-23T19:56:59.4773535Z                 pid = os.getpid()
+2024-09-23T19:56:59.4773668Z                 fd0 = "/proc/{}/fd/0".format(str(pid))
+2024-09-23T19:56:59.4773827Z                 if filename == "/dev/stdin" or filename == fd0:
+2024-09-23T19:56:59.4774013Z                     source = source_as_file = open_source = sys.stdin.buffer
+2024-09-23T19:56:59.4774120Z                     source_was_open = True
+2024-09-23T19:56:59.4774326Z                 else:
+2024-09-23T19:56:59.4774409Z                     try:
+2024-09-23T19:56:59.4774542Z                         filename = os.readlink(filename)
+2024-09-23T19:56:59.4774715Z                         if filename == fd0 or filename == "/dev/stdin":
+2024-09-23T19:56:59.4774908Z                             source = source_as_file = open_source = sys.stdin.buffer
+2024-09-23T19:56:59.4775027Z                             source_was_open = True
+2024-09-23T19:56:59.4775127Z                     except OSError:
+2024-09-23T19:56:59.4775213Z                         pass
+2024-09-23T19:56:59.4775509Z             # TODO: Do we still need this? Not sure why this was added, but works better without it
+2024-09-23T19:56:59.4775722Z             #  if public_id and not public_id.endswith('#'):
+2024-09-23T19:56:59.4775854Z             #     public_id = "{}#".format(public_id)
+2024-09-23T19:56:59.4776196Z             if not source_as_file and not source_as_filename and not open_source and isinstance(source, str):
+2024-09-23T19:56:59.4776310Z                 # source is raw RDF data.
+2024-09-23T19:56:59.4776521Z                 source_as_bytes = source = source.encode('utf-8')
+2024-09-23T19:56:59.4776713Z         elif isinstance(source, bytes):
+2024-09-23T19:56:59.4777347Z             if source.startswith(b'file:') or source.startswith(b'http:') or source.startswith(b'https:'):
+2024-09-23T19:56:59.4777693Z                 raise ValueError("file:// and http:// strings should be given as str, not bytes.")
+2024-09-23T19:56:59.4777890Z             first_char_b: bytes = source[0:1]
+2024-09-23T19:56:59.4778027Z             if (
+2024-09-23T19:56:59.4778209Z                 first_char_b == b'#'
+2024-09-23T19:56:59.4778354Z                 or first_char_b == b'@'
+2024-09-23T19:56:59.4778486Z                 or first_char_b == b'<'
+2024-09-23T19:56:59.4778628Z                 or first_char_b == b'\n'
+2024-09-23T19:56:59.4778760Z                 or first_char_b == b'{'
+2024-09-23T19:56:59.4778895Z                 or first_char_b == b'['
+2024-09-23T19:56:59.4778980Z             ):
+2024-09-23T19:56:59.4779130Z                 # Contains some JSON or XML or Turtle stuff
+2024-09-23T19:56:59.4779236Z                 source_as_file = None
+2024-09-23T19:56:59.4779349Z                 source_as_filename = None
+2024-09-23T19:56:59.4779447Z             elif len(source) < 140:
+2024-09-23T19:56:59.4779612Z                 filename = source.decode('utf-8')
+2024-09-23T19:56:59.4779732Z                 source_as_filename = filename
+2024-09-23T19:56:59.4779964Z             if not source_as_file and not source_as_filename and not open_source:
+2024-09-23T19:56:59.4780068Z                 source_as_bytes = source
+2024-09-23T19:56:59.4780154Z         else:
+2024-09-23T19:56:59.4780381Z             raise ValueError("Cannot determine the format of the input graph")
+2024-09-23T19:56:59.4780467Z         if g is None:
+2024-09-23T19:56:59.4780567Z             if source_is_graph:
+2024-09-23T19:56:59.4780924Z                 target_g: Union[rdflib.Graph, rdflib.ConjunctiveGraph, rdflib.Dataset] = source  # type: ignore
+2024-09-23T19:56:59.4781009Z             else:
+2024-09-23T19:56:59.4781111Z                 if multigraph:
+2024-09-23T19:56:59.4781307Z                     target_ds = rdflib.Dataset(default_graph_base=public_id)
+2024-09-23T19:56:59.4781602Z                     target_ds.namespace_manager = NamespaceManager(target_ds, 'core')
+2024-09-23T19:56:59.4781862Z                     target_ds.default_context.namespace_manager = target_ds.namespace_manager
+2024-09-23T19:56:59.4782003Z                     default_g = target_ds.default_context
+2024-09-23T19:56:59.4782127Z                     target_ds.graph(default_g)
+2024-09-23T19:56:59.4782229Z                     target_g = target_ds
+2024-09-23T19:56:59.4782310Z                 else:
+2024-09-23T19:56:59.4782523Z                     target_g = rdflib.Graph(bind_namespaces='core')
+2024-09-23T19:56:59.4782605Z         else:
+2024-09-23T19:56:59.4782883Z             if not isinstance(g, (rdflib.Graph, rdflib.Dataset, rdflib.ConjunctiveGraph)):
+2024-09-23T19:56:59.4783349Z                 raise RuntimeError("Passing in 'g' must be a rdflib Graph or Dataset.")
+2024-09-23T19:56:59.4783443Z             target_g = g
+2024-09-23T19:56:59.4783522Z     
+2024-09-23T19:56:59.4783630Z         if filename and not rdf_format:
+2024-09-23T19:56:59.4783782Z             if filename.endswith('.ttl'):
+2024-09-23T19:56:59.4783952Z                 rdf_format = rdf_format or 'turtle'
+2024-09-23T19:56:59.4784102Z             elif filename.endswith('.nt'):
+2024-09-23T19:56:59.4784261Z                 rdf_format = rdf_format or 'nt'
+2024-09-23T19:56:59.4784415Z             elif filename.endswith('.n3'):
+2024-09-23T19:56:59.4784567Z                 rdf_format = rdf_format or 'n3'
+2024-09-23T19:56:59.4784723Z             elif filename.endswith('.json'):
+2024-09-23T19:56:59.4784898Z                 rdf_format = rdf_format or 'json-ld'
+2024-09-23T19:56:59.4785164Z             elif filename.endswith('.nq') or filename.endswith('.nquads'):
+2024-09-23T19:56:59.4785330Z                 rdf_format = rdf_format or 'nquads'
+2024-09-23T19:56:59.4785487Z             elif filename.endswith('.trig'):
+2024-09-23T19:56:59.4785785Z                 rdf_format = rdf_format or 'trig'
+2024-09-23T19:56:59.4786046Z             elif filename.endswith('.xml') or filename.endswith('.rdf'):
+2024-09-23T19:56:59.4786203Z                 rdf_format = rdf_format or 'xml'
+2024-09-23T19:56:59.4786424Z         if source_as_filename and filename is not None and not open_source:
+2024-09-23T19:56:59.4786568Z             filename = str(Path(filename).resolve())
+2024-09-23T19:56:59.4786664Z             if not public_id:
+2024-09-23T19:56:59.4786808Z                 public_id = Path(filename).as_uri() + "#"
+2024-09-23T19:56:59.4787140Z >           source = open_source = open(filename, mode='rb')
+2024-09-23T19:56:59.4788061Z E           FileNotFoundError: [Errno 2] No such file or directory: '/__w/ckanext-schemingdcat/ckanext-schemingdcat/ckanext/schemingdcat/tests/shacl/shacl/2.1.1/dcat-ap_2.1.1_shacl_shapes_recommended.ttl'
+2024-09-23T19:56:59.4788074Z 
+2024-09-23T19:56:59.4788453Z /usr/local/lib/python3.10/site-packages/pyshacl/rdfutil/load.py:319: FileNotFoundError
+2024-09-23T19:56:59.4788774Z ______________________________________ test_validate_dcat_ap_2_graph_shapes_range ______________________________________
+2024-09-23T19:56:59.4788781Z 
+2024-09-23T19:56:59.4788951Z     @pytest.mark.usefixtures("with_plugins", "clean_db")
+2024-09-23T19:56:59.4789308Z     @pytest.mark.ckan_config("ckan.plugins", "dcat harvest schemingdcat_datasets schemingdcat fluent")
+2024-09-23T19:56:59.4789408Z     @pytest.mark.ckan_config(
+2024-09-23T19:56:59.4789738Z         "scheming.dataset_schemas", "ckanext.schemingdcat:schemas/geodcat_ap/es_geodcat_ap_full.yaml"
+2024-09-23T19:56:59.4789818Z     )
+2024-09-23T19:56:59.4789917Z     @pytest.mark.ckan_config(
+2024-09-23T19:56:59.4790012Z         "scheming.presets",
+2024-09-23T19:56:59.4790304Z         "ckanext.schemingdcat:schemas/default_presets.json ckanext.fluent:presets.json",
+2024-09-23T19:56:59.4790382Z     )
+2024-09-23T19:56:59.4790483Z     @pytest.mark.ckan_config(
+2024-09-23T19:56:59.4790705Z         "ckanext.dcat.rdf.profiles", "eu_dcat_ap_2 eu_dcat_ap_scheming"
+2024-09-23T19:56:59.4790780Z     )
+2024-09-23T19:56:59.4790934Z     def test_validate_dcat_ap_2_graph_shapes_range():
+2024-09-23T19:56:59.4791008Z     
+2024-09-23T19:56:59.4791202Z         graph = graph_from_dataset("dcat_ap_2_vocabularies_dataset")
+2024-09-23T19:56:59.4791280Z     
+2024-09-23T19:56:59.4791557Z         # dcat-ap_2.1.1_shacl_range.ttl: constraints concerning object range
+2024-09-23T19:56:59.4791700Z         path = _get_shacl_file_path("range", "2.1.1")
+2024-09-23T19:56:59.4791831Z >       r = validate(graph, shacl_graph=path)
+2024-09-23T19:56:59.4791836Z 
+2024-09-23T19:56:59.4792002Z ckanext/schemingdcat/tests/shacl/test_shacl.py:192: 
+2024-09-23T19:56:59.4792257Z _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+2024-09-23T19:56:59.4792717Z /usr/local/lib/python3.10/site-packages/pyshacl/validate.py:457: in validate
+2024-09-23T19:56:59.4792822Z     loaded_sg = load_from_source(
+2024-09-23T19:56:59.4793075Z _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+2024-09-23T19:56:59.4793081Z 
+2024-09-23T19:56:59.4793686Z source = '/__w/ckanext-schemingdcat/ckanext-schemingdcat/ckanext/schemingdcat/tests/shacl/shacl/2.1.1/dcat-ap_2.1.1_shacl_range.ttl'
+2024-09-23T19:56:59.4794055Z g = None, rdf_format = 'turtle', multigraph = True, do_owl_imports = False, import_chain = None
+2024-09-23T19:56:59.4794186Z logger = <Logger pyshacl.validate (INFO)>
+2024-09-23T19:56:59.4794192Z 
+2024-09-23T19:56:59.4794283Z     def load_from_source(
+2024-09-23T19:56:59.4794569Z         source: Union[GraphLike, BufferedIOBase, TextIOBase, BinaryIO, Union[str, bytes]],
+2024-09-23T19:56:59.4794683Z         g: Optional[GraphLike] = None,
+2024-09-23T19:56:59.4794799Z         rdf_format: Optional[str] = None,
+2024-09-23T19:56:59.4794903Z         multigraph: bool = False,
+2024-09-23T19:56:59.4795033Z         do_owl_imports: Union[bool, int] = False,
+2024-09-23T19:56:59.4795346Z         import_chain: Optional[List[Union[rdflib.URIRef, str]]] = None,
+2024-09-23T19:56:59.4795463Z         logger: Optional[Logger] = None,
+2024-09-23T19:56:59.4795538Z     ):
+2024-09-23T19:56:59.4795616Z         """
+2024-09-23T19:56:59.4795695Z     
+2024-09-23T19:56:59.4795782Z         :param source:
+2024-09-23T19:56:59.4795865Z         :param g:
+2024-09-23T19:56:59.4795974Z         :type g: rdflib.Graph | None
+2024-09-23T19:56:59.4796067Z         :param rdf_format:
+2024-09-23T19:56:59.4796168Z         :type rdf_format: str | None
+2024-09-23T19:56:59.4796264Z         :param multigraph:
+2024-09-23T19:56:59.4796361Z         :type multigraph: bool
+2024-09-23T19:56:59.4796455Z         :param do_owl_imports:
+2024-09-23T19:56:59.4796567Z         :type do_owl_imports: bool|int
+2024-09-23T19:56:59.4796665Z         :param import_chain:
+2024-09-23T19:56:59.4796772Z         :type import_chain: list | None
+2024-09-23T19:56:59.4797013Z         :param logger:
+2024-09-23T19:56:59.4797156Z         :type logger: Logger | None
+2024-09-23T19:56:59.4797240Z         :return:
+2024-09-23T19:56:59.4797326Z         """
+2024-09-23T19:56:59.4797422Z         source_is_graph = False
+2024-09-23T19:56:59.4797628Z         open_source: Optional[Union[BufferedIOBase, BinaryIO]] = None
+2024-09-23T19:56:59.4797739Z         source_was_open: bool = False
+2024-09-23T19:56:59.4797951Z         source_as_file: Optional[Union[BufferedIOBase, BinaryIO]] = None
+2024-09-23T19:56:59.4798083Z         source_as_filename: Optional[str] = None
+2024-09-23T19:56:59.4798212Z         source_as_bytes: Optional[bytes] = None
+2024-09-23T19:56:59.4798303Z         filename = None
+2024-09-23T19:56:59.4798398Z         public_id = None
+2024-09-23T19:56:59.4798489Z         uri_prefix = None
+2024-09-23T19:56:59.4798581Z         if logger is None:
+2024-09-23T19:56:59.4798717Z             logger = getLogger("rdfutil.load")
+2024-09-23T19:56:59.4798818Z             logger.setLevel(WARNING)
+2024-09-23T19:56:59.4799136Z         is_imported_graph = do_owl_imports and isinstance(do_owl_imports, int) and do_owl_imports > 1
+2024-09-23T19:56:59.4799423Z         if isinstance(source, (rdflib.Graph, rdflib.ConjunctiveGraph, rdflib.Dataset)):
+2024-09-23T19:56:59.4799522Z             source_is_graph = True
+2024-09-23T19:56:59.4799611Z             if g is None:
+2024-09-23T19:56:59.4799702Z                 g = source
+2024-09-23T19:56:59.4799783Z             else:
+2024-09-23T19:56:59.4800079Z                 raise RuntimeError("Cannot pass in both target=rdflib.Graph/Dataset and g=graph.")
+2024-09-23T19:56:59.4800255Z         elif isinstance(source, (BufferedIOBase, TextIOBase)):
+2024-09-23T19:56:59.4800411Z             if hasattr(source, 'name'):
+2024-09-23T19:56:59.4800553Z                 filename = source.name  # type: ignore
+2024-09-23T19:56:59.4800845Z                 public_id = Path(filename).resolve().as_uri() + "#"
+2024-09-23T19:56:59.4800970Z             if isinstance(source, TextIOBase):
+2024-09-23T19:56:59.4801158Z                 buf = getattr(source, "buffer")  # type: BufferedIOBase
+2024-09-23T19:56:59.4801277Z                 source_as_file = source = buf
+2024-09-23T19:56:59.4801357Z             else:
+2024-09-23T19:56:59.4801463Z                 source_as_file = source
+2024-09-23T19:56:59.4801611Z             if hasattr(source, 'closed'):
+2024-09-23T19:56:59.4801725Z                 if not bool(source.closed):
+2024-09-23T19:56:59.4801833Z                     open_source = source
+2024-09-23T19:56:59.4801940Z                     source_was_open = True
+2024-09-23T19:56:59.4802019Z             else:
+2024-09-23T19:56:59.4802209Z                 # Assume it is open now and it was open when we started.
+2024-09-23T19:56:59.4802305Z                 open_source = source
+2024-09-23T19:56:59.4802411Z                 source_was_open = True
+2024-09-23T19:56:59.4802490Z     
+2024-09-23T19:56:59.4802600Z         elif isinstance(source, str):
+2024-09-23T19:56:59.4802861Z             if source == "stdin" or source == "-" or source == "/dev/stdin":
+2024-09-23T19:56:59.4803105Z                 public_id = "/dev/stdin"
+2024-09-23T19:56:59.4803205Z                 filename = "/dev/stdin"
+2024-09-23T19:56:59.4803326Z                 source_as_filename = filename
+2024-09-23T19:56:59.4803540Z             elif is_windows and source.startswith('file:///'):
+2024-09-23T19:56:59.4803636Z                 public_id = source
+2024-09-23T19:56:59.4803741Z                 filename = source[8:]
+2024-09-23T19:56:59.4803853Z                 source_as_filename = filename
+2024-09-23T19:56:59.4804084Z             elif not is_windows and source.startswith('file://'):
+2024-09-23T19:56:59.4804186Z                 public_id = source
+2024-09-23T19:56:59.4804285Z                 filename = source[7:]
+2024-09-23T19:56:59.4804395Z                 source_as_filename = filename
+2024-09-23T19:56:59.4804671Z             elif source.startswith('http:') or source.startswith('https:'):
+2024-09-23T19:56:59.4804766Z                 public_id = source
+2024-09-23T19:56:59.4804855Z                 try:
+2024-09-23T19:56:59.4805074Z                     resp, resp_filename, web_format, raw_fp = get_rdf_from_web(source)
+2024-09-23T19:56:59.4805174Z                 except HTTPError:
+2024-09-23T19:56:59.4805285Z                     if is_imported_graph:
+2024-09-23T19:56:59.4805374Z                         return g
+2024-09-23T19:56:59.4805456Z                     else:
+2024-09-23T19:56:59.4805546Z                         raise
+2024-09-23T19:56:59.4805686Z                 if web_format == 'graph':
+2024-09-23T19:56:59.4805777Z                     source = resp
+2024-09-23T19:56:59.4805889Z                     source_is_graph = True
+2024-09-23T19:56:59.4806054Z                 elif web_format in ('auto', None):
+2024-09-23T19:56:59.4806151Z                     if resp_filename:
+2024-09-23T19:56:59.4806274Z                         filename = resp_filename
+2024-09-23T19:56:59.4806385Z                     source_was_open = False
+2024-09-23T19:56:59.4806504Z                     source = open_source = resp
+2024-09-23T19:56:59.4806595Z                 else:
+2024-09-23T19:56:59.4806699Z                     rdf_format = web_format
+2024-09-23T19:56:59.4806816Z                     filename = resp_filename
+2024-09-23T19:56:59.4807069Z                     fp = resp.fp if raw_fp else resp
+2024-09-23T19:56:59.4807175Z                     source_was_open = False
+2024-09-23T19:56:59.4807296Z                     source = open_source = fp
+2024-09-23T19:56:59.4807374Z             else:
+2024-09-23T19:56:59.4807473Z                 first_char = source[0]
+2024-09-23T19:56:59.4807834Z                 if is_windows and (first_char == '\\' or (len(source) > 3 and source[1:3] == ":\\")):
+2024-09-23T19:56:59.4807933Z                     filename = source
+2024-09-23T19:56:59.4808053Z                     source_as_filename = filename
+2024-09-23T19:56:59.4808460Z                 elif first_char == '/' or (len(source) > 2 and source[0:2] == "./"):
+2024-09-23T19:56:59.4808559Z                     filename = source
+2024-09-23T19:56:59.4808681Z                     source_as_filename = filename
+2024-09-23T19:56:59.4808771Z                 elif (
+2024-09-23T19:56:59.4808901Z                     first_char == '#'
+2024-09-23T19:56:59.4809050Z                     or first_char == '@'
+2024-09-23T19:56:59.4809184Z                     or first_char == '<'
+2024-09-23T19:56:59.4809319Z                     or first_char == '\n'
+2024-09-23T19:56:59.4809457Z                     or first_char == '{'
+2024-09-23T19:56:59.4809588Z                     or first_char == '['
+2024-09-23T19:56:59.4809668Z                 ):
+2024-09-23T19:56:59.4809938Z                     # Contains some JSON or XML or Turtle chars, it's not a path
+2024-09-23T19:56:59.4810041Z                     source_as_file = None
+2024-09-23T19:56:59.4810153Z                     source_as_filename = None
+2024-09-23T19:56:59.4810367Z                 elif len(source) >= 32 and '\n' in source[:32]:
+2024-09-23T19:56:59.4810646Z                     # Contains a new line near the start of the file, can't be a path
+2024-09-23T19:56:59.4810857Z                     source_as_file = None
+2024-09-23T19:56:59.4810974Z                     source_as_filename = None
+2024-09-23T19:56:59.4811075Z                 elif len(source) < 140:
+2024-09-23T19:56:59.4811170Z                     filename = source
+2024-09-23T19:56:59.4811295Z                     source_as_filename = filename
+2024-09-23T19:56:59.4811419Z             if source_as_filename and filename:
+2024-09-23T19:56:59.4811520Z                 pid = os.getpid()
+2024-09-23T19:56:59.4811652Z                 fd0 = "/proc/{}/fd/0".format(str(pid))
+2024-09-23T19:56:59.4811804Z                 if filename == "/dev/stdin" or filename == fd0:
+2024-09-23T19:56:59.4811996Z                     source = source_as_file = open_source = sys.stdin.buffer
+2024-09-23T19:56:59.4812103Z                     source_was_open = True
+2024-09-23T19:56:59.4812189Z                 else:
+2024-09-23T19:56:59.4812276Z                     try:
+2024-09-23T19:56:59.4812410Z                         filename = os.readlink(filename)
+2024-09-23T19:56:59.4812576Z                         if filename == fd0 or filename == "/dev/stdin":
+2024-09-23T19:56:59.4812775Z                             source = source_as_file = open_source = sys.stdin.buffer
+2024-09-23T19:56:59.4812894Z                             source_was_open = True
+2024-09-23T19:56:59.4812990Z                     except OSError:
+2024-09-23T19:56:59.4813080Z                         pass
+2024-09-23T19:56:59.4813377Z             # TODO: Do we still need this? Not sure why this was added, but works better without it
+2024-09-23T19:56:59.4813589Z             #  if public_id and not public_id.endswith('#'):
+2024-09-23T19:56:59.4813722Z             #     public_id = "{}#".format(public_id)
+2024-09-23T19:56:59.4814064Z             if not source_as_file and not source_as_filename and not open_source and isinstance(source, str):
+2024-09-23T19:56:59.4814182Z                 # source is raw RDF data.
+2024-09-23T19:56:59.4814424Z                 source_as_bytes = source = source.encode('utf-8')
+2024-09-23T19:56:59.4814536Z         elif isinstance(source, bytes):
+2024-09-23T19:56:59.4814942Z             if source.startswith(b'file:') or source.startswith(b'http:') or source.startswith(b'https:'):
+2024-09-23T19:56:59.4815229Z                 raise ValueError("file:// and http:// strings should be given as str, not bytes.")
+2024-09-23T19:56:59.4815352Z             first_char_b: bytes = source[0:1]
+2024-09-23T19:56:59.4815435Z             if (
+2024-09-23T19:56:59.4815564Z                 first_char_b == b'#'
+2024-09-23T19:56:59.4815704Z                 or first_char_b == b'@'
+2024-09-23T19:56:59.4815834Z                 or first_char_b == b'<'
+2024-09-23T19:56:59.4815971Z                 or first_char_b == b'\n'
+2024-09-23T19:56:59.4816109Z                 or first_char_b == b'{'
+2024-09-23T19:56:59.4816345Z                 or first_char_b == b'['
+2024-09-23T19:56:59.4816424Z             ):
+2024-09-23T19:56:59.4816581Z                 # Contains some JSON or XML or Turtle stuff
+2024-09-23T19:56:59.4816689Z                 source_as_file = None
+2024-09-23T19:56:59.4816794Z                 source_as_filename = None
+2024-09-23T19:56:59.4817081Z             elif len(source) < 140:
+2024-09-23T19:56:59.4817272Z                 filename = source.decode('utf-8')
+2024-09-23T19:56:59.4817390Z                 source_as_filename = filename
+2024-09-23T19:56:59.4817631Z             if not source_as_file and not source_as_filename and not open_source:
+2024-09-23T19:56:59.4817736Z                 source_as_bytes = source
+2024-09-23T19:56:59.4817815Z         else:
+2024-09-23T19:56:59.4818052Z             raise ValueError("Cannot determine the format of the input graph")
+2024-09-23T19:56:59.4818235Z         if g is None:
+2024-09-23T19:56:59.4818339Z             if source_is_graph:
+2024-09-23T19:56:59.4818697Z                 target_g: Union[rdflib.Graph, rdflib.ConjunctiveGraph, rdflib.Dataset] = source  # type: ignore
+2024-09-23T19:56:59.4818784Z             else:
+2024-09-23T19:56:59.4819003Z                 if multigraph:
+2024-09-23T19:56:59.4819199Z                     target_ds = rdflib.Dataset(default_graph_base=public_id)
+2024-09-23T19:56:59.4819495Z                     target_ds.namespace_manager = NamespaceManager(target_ds, 'core')
+2024-09-23T19:56:59.4819752Z                     target_ds.default_context.namespace_manager = target_ds.namespace_manager
+2024-09-23T19:56:59.4819890Z                     default_g = target_ds.default_context
+2024-09-23T19:56:59.4820014Z                     target_ds.graph(default_g)
+2024-09-23T19:56:59.4820119Z                     target_g = target_ds
+2024-09-23T19:56:59.4820200Z                 else:
+2024-09-23T19:56:59.4820416Z                     target_g = rdflib.Graph(bind_namespaces='core')
+2024-09-23T19:56:59.4820496Z         else:
+2024-09-23T19:56:59.4820782Z             if not isinstance(g, (rdflib.Graph, rdflib.Dataset, rdflib.ConjunctiveGraph)):
+2024-09-23T19:56:59.4821100Z                 raise RuntimeError("Passing in 'g' must be a rdflib Graph or Dataset.")
+2024-09-23T19:56:59.4821192Z             target_g = g
+2024-09-23T19:56:59.4821270Z     
+2024-09-23T19:56:59.4821377Z         if filename and not rdf_format:
+2024-09-23T19:56:59.4821524Z             if filename.endswith('.ttl'):
+2024-09-23T19:56:59.4821695Z                 rdf_format = rdf_format or 'turtle'
+2024-09-23T19:56:59.4821845Z             elif filename.endswith('.nt'):
+2024-09-23T19:56:59.4822001Z                 rdf_format = rdf_format or 'nt'
+2024-09-23T19:56:59.4822155Z             elif filename.endswith('.n3'):
+2024-09-23T19:56:59.4822309Z                 rdf_format = rdf_format or 'n3'
+2024-09-23T19:56:59.4822462Z             elif filename.endswith('.json'):
+2024-09-23T19:56:59.4822636Z                 rdf_format = rdf_format or 'json-ld'
+2024-09-23T19:56:59.4822899Z             elif filename.endswith('.nq') or filename.endswith('.nquads'):
+2024-09-23T19:56:59.4823065Z                 rdf_format = rdf_format or 'nquads'
+2024-09-23T19:56:59.4823223Z             elif filename.endswith('.trig'):
+2024-09-23T19:56:59.4823386Z                 rdf_format = rdf_format or 'trig'
+2024-09-23T19:56:59.4823637Z             elif filename.endswith('.xml') or filename.endswith('.rdf'):
+2024-09-23T19:56:59.4823800Z                 rdf_format = rdf_format or 'xml'
+2024-09-23T19:56:59.4824021Z         if source_as_filename and filename is not None and not open_source:
+2024-09-23T19:56:59.4824162Z             filename = str(Path(filename).resolve())
+2024-09-23T19:56:59.4824257Z             if not public_id:
+2024-09-23T19:56:59.4824401Z                 public_id = Path(filename).as_uri() + "#"
+2024-09-23T19:56:59.4824607Z >           source = open_source = open(filename, mode='rb')
+2024-09-23T19:56:59.4825441Z E           FileNotFoundError: [Errno 2] No such file or directory: '/__w/ckanext-schemingdcat/ckanext-schemingdcat/ckanext/schemingdcat/tests/shacl/shacl/2.1.1/dcat-ap_2.1.1_shacl_range.ttl'
+2024-09-23T19:56:59.4825565Z 
+2024-09-23T19:56:59.4825947Z /usr/local/lib/python3.10/site-packages/pyshacl/rdfutil/load.py:319: FileNotFoundError
+2024-09-23T19:56:59.4825965Z 
+2024-09-23T19:56:59.4826219Z ---------- coverage: platform linux, python 3.10.14-final-0 ----------
+2024-09-23T19:56:59.4826416Z Name                                                                                  Stmts   Miss  Cover   Missing
+2024-09-23T19:56:59.4826713Z -------------------------------------------------------------------------------------------------------------------
+2024-09-23T19:56:59.4827106Z ckanext/schemingdcat/__init__.py                                                          0      0   100%
+2024-09-23T19:56:59.4827526Z ckanext/schemingdcat/blueprint.py                                                        45     19    58%   21, 26, 38-55, 69-85
+2024-09-23T19:56:59.4827941Z ckanext/schemingdcat/cli.py                                                             117     22    81%   73-80, 92-121, 162-163, 327, 342-343
+2024-09-23T19:56:59.4828349Z ckanext/schemingdcat/codelists.py                                                       121     19    84%   32, 66, 86-93, 125-135
+2024-09-23T19:56:59.4828749Z ckanext/schemingdcat/config.py                                                           55      0   100%
+2024-09-23T19:56:59.4829171Z ckanext/schemingdcat/faceted.py                                                          50     31    38%   29, 35-38, 41-80, 87-90, 97-117
+2024-09-23T19:56:59.4829539Z ckanext/schemingdcat/harvesters/__init__.py                                               4      4     0%   1-5
+2024-09-23T19:56:59.4829945Z ckanext/schemingdcat/harvesters/base.py                                                 907    907     0%   1-2231
+2024-09-23T19:56:59.4830345Z ckanext/schemingdcat/harvesters/ckan.py                                                 289    289     0%   1-660
+2024-09-23T19:56:59.4830742Z ckanext/schemingdcat/harvesters/csw.py                                                   32     32     0%   1-75
+2024-09-23T19:56:59.4831123Z ckanext/schemingdcat/harvesters/ows.py                                                   13     13     0%   1-30
+2024-09-23T19:56:59.4831520Z ckanext/schemingdcat/harvesters/xls.py                                                  546    546     0%   1-1139
+2024-09-23T19:56:59.4831916Z ckanext/schemingdcat/harvesters/xml.py                                                   13     13     0%   1-30
+2024-09-23T19:56:59.4834584Z ckanext/schemingdcat/helpers.py                                                         703    455    35%   66-70, 93, 103, 108-123, 132-139, 152, 165-180, 189-200, 212, 244-328, 344-374, 384, 400-409, 419, 442-448, 455, 467-468, 483, 498, 536, 552, 588-602, 623, 630, 634, 642, 655-661, 676-679, 692-697, 709-715, 727-729, 742-750, 763, 776-800, 816-823, 835-846, 858, 938, 940, 943-944, 949, 961-963, 993-1002, 1015-1031, 1048-1050, 1064-1068, 1071-1076, 1089-1095, 1108-1109, 1124-1126, 1136-1139, 1158-1191, 1204-1206, 1223, 1248-1265, 1269-1279, 1293, 1303-1351, 1358-1362, 1373-1391, 1422, 1435-1441, 1446-1453, 1466-1492, 1506-1516, 1575-1587, 1592-1607, 1620-1624, 1631, 1637, 1643-1648, 1654-1659, 1669, 1673-1682, 1698-1727, 1740, 1768-1769
+2024-09-23T19:56:59.4834976Z ckanext/schemingdcat/interfaces.py                                                       32     32     0%   1-269
+2024-09-23T19:56:59.4835261Z ckanext/schemingdcat/lib/__init__.py                                                      0      0   100%
+2024-09-23T19:56:59.4835671Z ckanext/schemingdcat/lib/field_mapping.py                                               100    100     0%   1-191
+2024-09-23T19:56:59.4836032Z ckanext/schemingdcat/lib/ows.py                                                          24     24     0%   1-99
+2024-09-23T19:56:59.4836312Z ckanext/schemingdcat/logic.py                                                             5      1    80%   18
+2024-09-23T19:56:59.4837154Z ckanext/schemingdcat/package_controller.py                                              147     66    55%   34, 37, 40, 43, 48, 72-83, 87, 94, 151-152, 199, 205-221, 251, 256, 259, 263, 270, 273, 277, 280, 284, 290, 293, 305-333
+2024-09-23T19:56:59.4837629Z ckanext/schemingdcat/plugin.py                                                          148     10    93%   135, 171, 174, 177, 180, 198, 211, 214, 217, 240
+2024-09-23T19:56:59.4837945Z ckanext/schemingdcat/profiles/__init__.py                                                 8      0   100%
+2024-09-23T19:56:59.4838771Z ckanext/schemingdcat/profiles/base.py                                                   213    106    50%   97-100, 119-143, 183-199, 230-252, 287-299, 308, 314, 328-330, 345-352, 370, 372, 401-404, 511, 514-517, 524-528, 548-569, 581-593, 605-617
+2024-09-23T19:56:59.4839092Z ckanext/schemingdcat/profiles/dcat/__init__.py                                            0      0   100%
+2024-09-23T19:56:59.4839766Z ckanext/schemingdcat/profiles/dcat/es_dcat.py                                           157    132    16%   62-67, 72-78, 82-85, 99-181, 189-314, 321, 327-380, 395-398, 401, 415-429, 442-454, 468-473
+2024-09-23T19:56:59.4840197Z ckanext/schemingdcat/profiles/dcat_ap/__init__.py                                         0      0   100%
+2024-09-23T19:56:59.4840714Z ckanext/schemingdcat/profiles/dcat_ap/es_dcat_ap_2.py                                   139    124    11%   56-61, 66-72, 76, 84-215, 223-423, 432
+2024-09-23T19:56:59.4841179Z ckanext/schemingdcat/profiles/dcat_ap/eu_dcat_ap.py                                      14      6    57%   26-28, 33-36, 40, 49
+2024-09-23T19:56:59.4841801Z ckanext/schemingdcat/profiles/dcat_ap/eu_dcat_ap_2.py                                   139     80    42%   53-58, 73, 81-212, 265-267, 272-279, 286-292, 310-311, 356-359, 365, 414
+2024-09-23T19:56:59.4842278Z ckanext/schemingdcat/profiles/dcat_ap/eu_dcat_ap_3.py                                    35     21    40%   44-52, 57-66, 70, 75-95
+2024-09-23T19:56:59.4842613Z ckanext/schemingdcat/profiles/dcat_config.py                                             29      0   100%
+2024-09-23T19:56:59.4843463Z ckanext/schemingdcat/profiles/eu_dcat_ap_base.py                                        336    180    46%   76-303, 364, 369, 418, 458, 496, 533, 541-581, 590-602, 609-616, 623-629, 643-646, 651-658, 695, 726-727, 740, 758-759, 775, 793-794, 823-867
+2024-09-23T19:56:59.4843961Z ckanext/schemingdcat/profiles/eu_dcat_ap_scheming.py                                    119     55    54%   37, 52-131, 147, 174, 232, 257-258
+2024-09-23T19:56:59.4844308Z ckanext/schemingdcat/profiles/geodcat_ap/__init__.py                                      0      0   100%
+2024-09-23T19:56:59.4844893Z ckanext/schemingdcat/profiles/geodcat_ap/eu_geodcat_ap_2.py                              76     58    24%   54-62, 67-76, 81-84, 89-144, 155-193, 199, 221-237
+2024-09-23T19:56:59.4845384Z ckanext/schemingdcat/profiles/geodcat_ap/eu_geodcat_ap_3.py                              29     14    52%   52-63, 68-83, 89-92, 96
+2024-09-23T19:56:59.4845784Z ckanext/schemingdcat/subscriptions.py                                                    16      2    88%   45-46
+2024-09-23T19:56:59.4846078Z ckanext/schemingdcat/tests/__init__.py                                                    0      0   100%
+2024-09-23T19:56:59.4846390Z ckanext/schemingdcat/tests/conftest.py                                                    7      0   100%
+2024-09-23T19:56:59.4846715Z ckanext/schemingdcat/tests/profiles/__init__.py                                           0      0   100%
+2024-09-23T19:56:59.4847169Z ckanext/schemingdcat/tests/profiles/dcat_ap_3/__init__.py                                 0      0   100%
+2024-09-23T19:56:59.4847685Z ckanext/schemingdcat/tests/profiles/dcat_ap_3/test_eu_dcatap_3_profile_parse.py          70     59    16%   27-159
+2024-09-23T19:56:59.4848223Z ckanext/schemingdcat/tests/profiles/dcat_ap_3/test_eu_dcatap_3_profile_serialize.py     108     90    17%   50-459, 463-485
+2024-09-23T19:56:59.4848835Z ckanext/schemingdcat/tests/test_blueprints.py                                            38     20    47%   12-14, 18-20, 24-28, 32-36, 40-41, 45-46
+2024-09-23T19:56:59.4849165Z ckanext/schemingdcat/tests/test_cli.py                                                   37      3    92%   9, 23, 37
+2024-09-23T19:56:59.4849582Z ckanext/schemingdcat/tests/test_plugin.py                                                65      4    94%   15, 45, 64-65
+2024-09-23T19:56:59.4849877Z ckanext/schemingdcat/tests/utils.py                                                       5      0   100%
+2024-09-23T19:56:59.4850539Z ckanext/schemingdcat/utils.py                                                           168     60    64%   46-48, 58-76, 106, 132, 187-188, 210-217, 244, 248-250, 262-281, 289-304, 320-332, 349-351, 373-376, 400-403
+2024-09-23T19:56:59.4852241Z ckanext/schemingdcat/validators.py                                                      530    261    51%   80, 86-89, 91-94, 97-101, 107, 116, 128, 130-139, 144-147, 168, 177, 179-180, 184, 186-188, 190-196, 200, 206, 213-214, 239-240, 242, 244, 277-285, 301-321, 400, 412, 423-424, 440-445, 447-448, 453-456, 458-459, 461-462, 467-468, 472-475, 485-524, 528-529, 533, 550-570, 631-633, 646-657, 670-722, 740-748, 752-762, 773-777, 821, 876-890, 912-913, 916, 941-978, 1003-1029, 1065, 1108-1115
+2024-09-23T19:56:59.4852645Z -------------------------------------------------------------------------------------------------------------------
+2024-09-23T19:56:59.4852825Z TOTAL                                                                                  5689   3858    32%
+2024-09-23T19:56:59.4852831Z 
+2024-09-23T19:56:59.4853060Z                                                   Summary of Failures                                                   
+2024-09-23T19:56:59.4853466Z ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━┓
+2024-09-23T19:56:59.4853821Z ┃  File                         ┃  Function                     ┃  Function Line  ┃  Error Line  ┃  Error              ┃
+2024-09-23T19:56:59.4854200Z ┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━┩
+2024-09-23T19:56:59.4855036Z │  ckanext/schemingdcat/tests…  │  TestSchemingDCATBlueprints…  │  10             │  11          │  RuntimeError       │
+2024-09-23T19:56:59.4855527Z │  ckanext/schemingdcat/tests…  │  TestSchemingDCATBlueprints…  │  16             │  17          │  RuntimeError       │
+2024-09-23T19:56:59.4856013Z │  ckanext/schemingdcat/tests…  │  TestSchemingDCATBlueprints…  │  22             │  23          │  KeyError           │
+2024-09-23T19:56:59.4856497Z │  ckanext/schemingdcat/tests…  │  TestSchemingDCATBlueprints…  │  30             │  31          │  KeyError           │
+2024-09-23T19:56:59.4857172Z │  ckanext/schemingdcat/tests…  │  TestSchemingDCATBlueprints…  │  38             │  39          │  RuntimeError       │
+2024-09-23T19:56:59.4857665Z │  ckanext/schemingdcat/tests…  │  TestSchemingDCATBlueprints…  │  43             │  44          │  RuntimeError       │
+2024-09-23T19:56:59.4858303Z │  ckanext/schemingdcat/tests…  │  test_create_inspire_tags     │  5              │  8           │  AssertionError     │
+2024-09-23T19:56:59.4858765Z │  ckanext/schemingdcat/tests…  │  test_delete_inspire_tags     │  12             │  16          │  AssertionError     │
+2024-09-23T19:56:59.4859200Z │  ckanext/schemingdcat/tests…  │  test_create_dcat_tags        │  19             │  22          │  AssertionError     │
+2024-09-23T19:56:59.4859634Z │  ckanext/schemingdcat/tests…  │  test_delete_dcat_tags        │  26             │  30          │  AssertionError     │
+2024-09-23T19:56:59.4860075Z │  ckanext/schemingdcat/tests…  │  test_create_iso_topic_tags   │  33             │  36          │  AssertionError     │
+2024-09-23T19:56:59.4860518Z │  ckanext/schemingdcat/tests…  │  test_delete_iso_topic_tags   │  40             │  44          │  AssertionError     │
+2024-09-23T19:56:59.4860975Z │  ckanext/schemingdcat/tests…  │  test_download_rdf_eu_vocabs  │  47             │  51          │  AssertionError     │
+2024-09-23T19:56:59.4861439Z │  ckanext/schemingdcat/tests…  │  TestSchemingDCATPlugin.tes…  │  10             │  14          │  AssertionError     │
+2024-09-23T19:56:59.4861916Z │  ckanext/schemingdcat/tests…  │  TestSchemingDCATPlugin.tes…  │  23             │  27          │  AssertionError     │
+2024-09-23T19:56:59.4862376Z │  ckanext/schemingdcat/tests…  │  TestSchemingDCATPlugin.tes…  │  41             │  44          │  AssertionError     │
+2024-09-23T19:56:59.4862839Z │  ckanext/schemingdcat/tests…  │  TestSchemingDCATDatasetsPl…  │  57             │  63          │  KeyError           │
+2024-09-23T19:56:59.4863284Z │  ckanext/schemingdcat/tests…  │  test_validate_dcat_ap_2_gr…  │  96             │  115         │  FileNotFoundError  │
+2024-09-23T19:56:59.4863730Z │  ckanext/schemingdcat/tests…  │  test_validate_dcat_ap_2_gr…  │  120            │  139         │  FileNotFoundError  │
+2024-09-23T19:56:59.4864187Z │  ckanext/schemingdcat/tests…  │  test_validate_dcat_ap_2_gr…  │  174            │  192         │  FileNotFoundError  │
+2024-09-23T19:56:59.4864547Z └───────────────────────────────┴───────────────────────────────┴─────────────────┴──────────────┴─────────────────────┘
+2024-09-23T19:56:59.4864761Z Results (161.18s):
+2024-09-23T19:56:59.4864845Z         20 failed
+2024-09-23T19:56:59.4864929Z          6 passed
+2024-09-23T19:56:59.4865016Z        278 warnings
+2024-09-23T19:56:59.4865096Z          1 error
+2024-09-23T19:56:59.7887349Z ##[error]Process completed with exit code 1.

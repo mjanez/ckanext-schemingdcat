@@ -48,13 +48,16 @@
       copy().then((result) => {
         if (result) {
           var input = document.querySelector("#input");
-          var span = document.createElement("span");
-          span.innerHTML = '<i class="fa-solid fa-clipboard-check"></i>';
-          span.classList.add("permalink-copy");
-          input.parentNode.replaceChild(span, input);
+          var clipboardIcon = document.querySelector("#permalink-clipboard-icon");
+
+          // Replace input with clipboard icon
+          input.style.visibility = "hidden";
+          clipboardIcon.style.display = "inline";
 
           setTimeout(() => {
-            span.parentNode.replaceChild(input, span);
+            // Restore input and hide clipboard icon after 1 second
+            input.style.visibility = "visible";
+            clipboardIcon.style.display = "none";
           }, 1000);
         } else {
           error("Error copying text");

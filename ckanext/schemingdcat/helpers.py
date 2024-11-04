@@ -11,6 +11,7 @@ import datetime
 from urllib.parse import urlparse, unquote
 from urllib.error import URLError
 from six.moves.urllib.parse import urlencode
+import typing
 
 from ckan.common import json, c, request
 from ckan.lib import helpers as ckan_helpers
@@ -18,6 +19,7 @@ import ckan.logic as logic
 from ckan import model
 from ckan.lib.i18n import get_available_locales, get_lang
 import ckan.plugins as p
+import ckan.authz as authz
 
 from ckanext.scheming.helpers import (
     scheming_choices_label,
@@ -37,9 +39,11 @@ import ckanext.schemingdcat.config as sdct_config
 from ckanext.schemingdcat.utils import (
     get_facets_dict,
     public_file_exists,
-    public_dir_exists
+    public_dir_exists,
+    schemingdcat_catalog_endpoints,
+    schemingdcat_get_geospatial_metadata
 )
-from ckanext.dcat.utils import CONTENT_TYPES, get_endpoint
+from ckanext.dcat.utils import CONTENT_TYPES
 from ckanext.fluent.validators import LANG_SUFFIX
 import logging
 
@@ -48,6 +52,35 @@ log = logging.getLogger(__name__)
 all_helpers = {}
 prettify_cache = {}
 DEFAULT_LANG = None
+_open_data_statistics = {}
+trans = authz.roles_trans()
+
+def translated_capacity(capacity: str) -> str:
+    """
+    Translate a given capacity string to its corresponding translated value.
+
+    This function attempts to translate the input `capacity` string using a predefined
+    translation dictionary `trans`. If the `capacity` string is not found in the 
+    dictionary, it returns the original `capacity` string.
+
+    Args:
+        capacity (str): The capacity string to be translated.
+
+    Returns:
+        str: The translated capacity string if found in the translation dictionary,
+             otherwise the original capacity string.
+
+    Example:
+        >>> trans = {'admin': 'Administrador', 'editor': 'Editor'}
+        >>> translated_capacity('admin')
+        'Administrador'
+        >>> translated_capacity('viewer')
+        'viewer'
+    """
+    try:
+        return trans[capacity]
+    except KeyError:
+        return capacity
 
 @lru_cache(maxsize=16)
 def get_scheming_dataset_schemas():
@@ -122,22 +155,18 @@ def get_facet_items_with_deserialized_names(facet_items):
         
     return facet_items
 
+@lru_cache(maxsize=8)
 @helper
 def schemingdcat_default_facet_search_operator():
-    """Return the default facet search operator: AND/OR.
+    """Return the default facet search operator: AND or OR.
 
     Returns:
-        str: The default facet search operator.
+        str: The default facet search operator ('AND' or 'OR').
     """
-    facet_operator = sdct_config.default_facet_operator
-    if facet_operator and (
-        facet_operator.upper() == "AND" or facet_operator.upper() == "OR"
-    ):
-        facet_operator = facet_operator.upper()
-    else:
-        facet_operator = "AND"
-    return facet_operator
+    allowed_operators = {'AND', 'OR'}
+    facet_operator = p.toolkit.config.get('ckanext.schemingdcat.default_facet_operator', 'OR').upper()
 
+    return facet_operator if facet_operator in allowed_operators else 'OR'
 
 @helper
 def schemingdcat_decode_json(json_text):
@@ -166,7 +195,7 @@ def schemingdcat_organization_name(org_id):
     try:
         org_dic = ckan_helpers.get_organization(org_id["display_name"])
         if org_dic is not None:
-            org_name = org_dic["name"]
+            org_name = org_dic["display_name"]
         else:
             log.warning(
                 "Could not find the name of the organization with ID {0}".format(
@@ -374,14 +403,43 @@ def schemingdcat_new_order_url(facet_name, order_concept, extras=None):
     return url
 
 @helper
-def schemingdcat_get_open_data_statistics():
+def schemingdcat_get_open_data_statistics(stat_type=None):
     """
     Retrieves Open Data portal statistics including counts of datasets, distributions, groups, organizations, tags, spatial datasets, and endpoints.
 
+    Args:
+        stat_type (str, optional): The type of statistics to filter by. If None, all statistics are returned.
+
     Returns:
-        dict: A dictionary containing the counts of various site elements.
+        dict: A dictionary containing the counts of various site elements, with keys as the 'id' and values as dictionaries containing 'value', 'label', 'icon', 'stat_count', and 'stat_type'.
     """
-    return sdct_config.open_data_statistics
+    global _open_data_statistics
+
+    # Retrieve the statistics list from the action
+    stats_list = logic.get_action("schemingdcat_statistics_list")({}, {})
+    
+    # Convert the list of dictionaries to a summarized dictionary
+    for stat in stats_list:
+        stat_id = stat['id']
+        if stat_id in _open_data_statistics:
+            # Update only the stat_count if the entry already exists in the cache
+            _open_data_statistics[stat_id]['stat_count'] = stat['stat_count']
+        else:
+            # Add new entry to the cache
+            _open_data_statistics[stat_id] = {
+                'value': stat['value'],
+                'label': stat['label'],
+                'icon': stat['icon'],
+                'stat_count': stat['stat_count'],
+                'stat_type': stat['stat_type']
+            }
+    
+    # Filter the statistics by stat_type if provided
+    if stat_type is not None:
+        filtered_statistics = {k: v for k, v in _open_data_statistics.items() if v['stat_type'] == stat_type}
+        return filtered_statistics
+
+    return _open_data_statistics
 
 @helper
 def schemingdcat_get_social_links(platform=None):
@@ -397,29 +455,21 @@ def schemingdcat_get_social_links(platform=None):
         dict or str: A dictionary containing the social media links for GitHub, LinkedIn, and X,
                      or a single link if a platform is specified.
     """
-    social_links = {
-        'github': sdct_config.social_github,
-        'linkedin': sdct_config.social_linkedin,
-        'x': sdct_config.social_x
-    }
+    if not sdct_config.social_links:
+        sdct_config.social_links = {
+            'github': p.toolkit.config.get('ckanext.schemingdcat.social_github'),
+            'linkedin': p.toolkit.config.get('ckanext.schemingdcat.social_linkedin'),
+            'x': p.toolkit.config.get('ckanext.schemingdcat.social_x')
+        }
     
     if platform:
-        return social_links.get(platform.lower(), None)
+        return sdct_config.social_links.get(platform.lower(), None)
     
-    return social_links
+    return sdct_config.social_links
 
+@lru_cache(maxsize=16)
 @helper
-def schemingdcat_get_facet_list_limit():
-    """
-    Retrieves the limit for the facet list from the scheming DCAT configuration.
-
-    Returns:
-        int: The limit for the facet list.
-    """
-    return sdct_config.facet_list_limit
-
-@helper
-def schemingdcat_get_icons_dir(field=None, field_name=None):
+def schemingdcat_get_icons_dir(field_tuple=None, field_name=None):
     """
     Returns the defined icons directory for a given scheming field definition or field name.
 
@@ -438,17 +488,18 @@ def schemingdcat_get_icons_dir(field=None, field_name=None):
         str: A string representing the icons directory for the field or field name. 
              If no icons directory is defined or found, the function will return None.
     """
-    if field:
+    if field_tuple:
+        field = dict(field_tuple)
         if "icons_dir" in field:
             return field["icons_dir"]
 
         if "field_name" in field:
-            dir = sdct_config.icons_dir + "/" + field["field_name"]
+            dir = p.toolkit.config.get('ckanext.schemingdcat.icons_dir') + "/" + field["field_name"]
             if public_dir_exists(dir):
                 return dir
 
     elif field_name:
-        dir = sdct_config.icons_dir + "/" + field_name
+        dir = p.toolkit.config.get('ckanext.schemingdcat.icons_dir') + "/" + field_name
         if public_dir_exists(dir):
             return dir    
 
@@ -466,6 +517,10 @@ def schemingdcat_get_default_icon(field):
     """
     if "default_icon" in field:
         return field["default_icon"]
+
+@helper
+def schemingdcat_get_open_data_intro_enabled():
+    return p.toolkit.config.get('ckanext.schemingdcat.open_data_intro_enabled')
 
 @helper
 def schemingdcat_get_inspire_dcat_types():
@@ -517,7 +572,7 @@ def schemingdcat_get_default_package_item_icon():
              images. If no default icon is defined for the field, the function 
              will return None.
     """
-    return sdct_config.default_package_item_icon
+    return p.toolkit.config.get('ckanext.schemingdcat.default_package_item_icon')
 
 @helper
 def schemingdcat_get_default_package_item_show_spatial():
@@ -533,7 +588,7 @@ def schemingdcat_get_default_package_item_show_spatial():
               be shown in the default package item. If no value is defined in the 
               configuration, the function will return None.
     """
-    return sdct_config.default_package_item_show_spatial
+    return p.toolkit.config.get('ckanext.schemingdcat.default_package_item_show_spatial')
 
 @helper
 def schemingdcat_get_show_metadata_templates_toolbar():
@@ -549,31 +604,25 @@ def schemingdcat_get_show_metadata_templates_toolbar():
               should be shown. If the configuration value is not set, the function 
               will return False.
     """
-    return sdct_config.show_metadata_templates_toolbar
+    return p.toolkit.config.get('ckanext.schemingdcat.show_metadata_templates_toolbar')
 
 @helper
 def schemingdcat_get_metadata_templates_search_identifier():
     """
-    Returns the default icon defined for a given scheming field definition.
+    Returns the identifier of catalog metadata templates.
 
     This function is used to retrieve the default value to retrieve metadata templates. If no default value is defined, 
     the function will return None.
 
-    Args:
-        field (dict): A dictionary representing the scheming field definition. 
-                      This should include all the properties of the field, 
-                      including the default icon if one is defined.
 
     Returns:
-        str: A string representing the default icon for the field. This could 
-             be a URL, a data URI, or any other string format used to represent 
-             images. If no default icon is defined for the field, the function 
-             will return None.
+        str: A string representing the default icon identifier of catalog metadata templates.
+
     """
-    return sdct_config.metadata_templates_search_identifier
+    return p.toolkit.config.get('ckanext.schemingdcat.metadata_templates_search_identifier')
 
 @helper
-def schemingdcat_get_schemingdcat_xls_harvest_templates(search_identifier=sdct_config.metadata_templates_search_identifier, count=10):
+def schemingdcat_get_schemingdcat_xls_harvest_templates(search_identifier=p.toolkit.config.get('ckanext.schemingdcat.metadata_templates_search_identifier'), count=10):
     """
     This helper function retrieves the schemingdcat_xls templates from the CKAN instance. 
     It uses the 'package_search' action of the CKAN logic layer to perform a search with specific parameters.
@@ -881,41 +930,13 @@ def schemingdcat_get_linked_data(id):
     ]
 
 @helper
-def schemingdcat_get_catalog_endpoints():
+def get_schemingdcat_get_catalog_endpoints():
     """Get the catalog endpoints.
 
     Returns:
         list: A list of dictionaries containing linked data for the identifier.
     """    
-    csw_uri = schemingdcat_get_geospatial_endpoint("catalog")
-
-    return [
-        {
-            "name": item["name"],
-            "display_name": item["display_name"],
-            "format": item["format"],
-            "image_display_url": item["image_display_url"],
-            "endpoint_icon": item["endpoint_icon"],
-            "fa_icon": item["fa_icon"],
-            "description": item["description"],
-            "type": item["type"],
-            "profile": item["profile"],
-            "profile_label": item["profile_label"],
-            "profile_label_order": item["profile_label_order"],
-            "profile_info_url": item["profile_info_url"],
-            "endpoint": get_endpoint("catalog")
-            if item.get("type").lower() == "lod"
-            else csw_uri.format(version=item["version"])
-            if item.get("type").lower() == "ogc"
-            else None,
-            "endpoint_data": {
-                "_format": item["format"],
-                "_external": True,
-                "profiles": item["profile"],
-            },
-        }
-        for item in sdct_config.endpoints["catalog_endpoints"]
-    ]
+    return schemingdcat_catalog_endpoints()
 
 @helper
 def schemingdcat_get_geospatial_endpoint(type="dataset"):
@@ -927,19 +948,21 @@ def schemingdcat_get_geospatial_endpoint(type="dataset"):
     Returns:
         str: The base URI of the CSW Endpoint with the appropriate format.
     """
+    geometadata_base_uri = p.toolkit.config.get('ckanext.schemingdcat.geometadata_base_uri')
+    
     try:
-        if sdct_config.geometadata_base_uri:
-            csw_uri = sdct_config.geometadata_base_uri
+        if geometadata_base_uri:
+            csw_uri = geometadata_base_uri
 
         if (
-            sdct_config.geometadata_base_uri
-            and "/csw" not in sdct_config.geometadata_base_uri
+            geometadata_base_uri
+            and "/csw" not in geometadata_base_uri
         ):
-            csw_uri = sdct_config.geometadata_base_uri.rstrip("/") + "/csw"
-        elif sdct_config.geometadata_base_uri == "":
+            csw_uri = geometadata_base_uri.rstrip("/") + "/csw"
+        elif geometadata_base_uri == "":
             csw_uri = "/csw"
         else:
-            csw_uri = sdct_config.geometadata_base_uri.rstrip("/")
+            csw_uri = geometadata_base_uri.rstrip("/")
     except:
         csw_uri = "/csw"
 
@@ -950,35 +973,6 @@ def schemingdcat_get_geospatial_endpoint(type="dataset"):
             csw_uri
             + "?service=CSW&version={version}&request=GetRecordById&id={id}&elementSetName={element_set_name}&outputSchema={output_schema}&OutputFormat={output_format}"
         )
-
-@helper
-def schemingdcat_get_geospatial_metadata():
-    """Get geospatial metadata for CSW formats.
-
-    Returns:
-        list: A list of dictionaries containing geospatial metadata for CSW formats.
-    """
-    csw_uri = schemingdcat_get_geospatial_endpoint("dataset")
-
-    return [
-        {
-            "name": item["name"],
-            "display_name": item["display_name"],
-            "format": item["format"],
-            "image_display_url": item["image_display_url"],
-            "endpoint_icon": item["endpoint_icon"],
-            "description": item["description"],
-            "description_url": item["description_url"],
-            "url": csw_uri.format(
-                output_format=item["output_format"],
-                version=item["version"],
-                element_set_name=item["element_set_name"],
-                output_schema=item["output_schema"],
-                id="{id}",
-            ),
-        }
-        for item in sdct_config.geometadata_links["csw_formats"]
-    ]
 
 @helper
 def schemingdcat_get_all_metadata(id):
@@ -1076,7 +1070,7 @@ def parse_json(value, default_value=None):
         return value
 
 @helper
-def get_root_path():
+def get_not_lang_root_path():
     """
     Retrieve the root path from the CKAN configuration, removing the '{{LANG}}' placeholder if present.
 
@@ -1108,6 +1102,7 @@ def get_langs():
     language_priorities = p.toolkit.config.get('ckan.locales_offered', '').split()
     return language_priorities
 
+@lru_cache(maxsize=4)
 @helper
 def schemingdcat_get_default_lang():
     """
@@ -1343,7 +1338,7 @@ def schemingdcat_package_list_for_source(source_id):
     pager.items = query['results']
 
     if query['results']:
-        out = ckan_helpers.snippet('snippets/package_list.html', packages=query['results'])
+        out = ckan_helpers.snippet('schemingdcat/snippets/package_list.html', packages=query['results'])
         out += pager.pager()
     else:
         out = ckan_helpers.snippet('snippets/package_list_empty.html')
@@ -1516,16 +1511,17 @@ def get_featured_datasets(count=1):
     return result['results']
 
 @helper
-def get_spatial_datasets(count=10):
+def get_spatial_datasets(count=10, return_count=False):
     """
     This helper function retrieves a specified number of featured datasets from the CKAN instance. 
     It uses the 'package_search' action of the CKAN logic layer to perform a search with specific parameters.
     
     Parameters:
-    count (int): The number of featured datasets to retrieve. Default is 1.
+    count (int): The number of featured datasets to retrieve. Default is 10.
+    return_count (bool): If True, returns the count of featured datasets. If False, returns the detailed information. Default is False.
 
     Returns:
-    list: A list of dictionaries, each representing a featured dataset.
+    int or list: If return_count is True, returns the count of featured datasets. Otherwise, returns a list of dictionaries, each representing a featured dataset.
     """
     fq = '+dcat_type:*inspire*'
     search_dict = {
@@ -1536,31 +1532,39 @@ def get_spatial_datasets(count=10):
     context = {'model': model, 'session': model.Session}
     result = logic.get_action('package_search')(context, search_dict)
     
-    return result['results']
+    if return_count:
+        return result['count']
+    else:
+        return result['results']
 
 @helper
-def get_theme_datasets(field='theme', count=10):
+def get_theme_datasets(field='theme'):
     """
-    This helper function retrieves a specified number of featured datasets from the CKAN instance. 
-    It uses the 'package_search' action of the CKAN logic layer to perform a search with specific parameters.
+    Retrieves all datasets with the specified field efficiently using pagination.
     
     Parameters:
     field (str): The field to search for in the dataset extras. Default is 'theme'.
-    count (int): The number of featured datasets to retrieve. Default is 10.
 
     Returns:
     list: A list of unique values from the specified field in the featured datasets.
     """
     search_dict = {
         'fl': 'extras_' + field,
-        'rows': count
+        'rows': 100,  # Number of datasets per batch
+        'start': 0
     }
     context = {'model': model, 'session': model.Session}
-    result = logic.get_action('package_search')(context, search_dict)
-    
-    return result['results']
+    results = []
 
-@lru_cache(maxsize=16)
+    while True:
+        result = logic.get_action('package_search')(context, search_dict)
+        results.extend(result['results'])
+        if len(result['results']) < search_dict['rows']:
+            break
+        search_dict['start'] += search_dict['rows']
+
+    return results
+
 @helper
 def get_unique_themes():
     """
@@ -1666,7 +1670,7 @@ def schemingdcat_form_tabs_allowed():
     Returns:
         bool: True if form tabs are allowed, False otherwise.
     """
-    return sdct_config.form_tabs_allowed
+    return p.toolkit.config.get('ckanext.schemingdcat.form_tabs_allowed')
 
 @helper
 def schemingdcat_get_required_form_groups(schema, tab_type='dataset_fields'):
@@ -1740,19 +1744,41 @@ def schemingdcat_slugify(s):
     return sdct_config.slugify_pat.sub('', s)
 
 @helper
-def schemingdcat_get_theme_statistics(themes: List[Dict], theme_field='theme', icons_dir=None) -> List[Dict]:
+def schemingdcat_open_data_statistics_enabled():
+    """
+    Checks if open data statistics are enabled for the portal and themes.
+
+    Retrieves the configuration settings to determine whether open data statistics
+    are enabled for the portal and for themes within the Scheming DCAT extension.
+
+    Returns:
+        dict: A dictionary with the keys:
+            - 'portal' (bool): Indicates if portal-level statistics are enabled.
+            - 'themes' (bool): Indicates if theme-level statistics are enabled.
+    """
+    return {'portal': p.toolkit.config.get('ckanext.schemingdcat.open_data_statistics'), 'themes': p.toolkit.config.get('ckanext.schemingdcat.open_data_statistics_themes')}
+
+@helper
+def schemingdcat_get_theme_statistics(theme_field=None, icons_dir=None) -> List[Dict]:
     """
     Retrieve statistics for each unique theme in the provided list.
 
     Args:
-        themes (list): A list of dictionaries containing theme information.
-        theme_field (str): The key where the theme data is stored in each dictionary.
+        theme_field (str, optional): The key where the theme data is stored in each dictionary.
         icons_dir (str, optional): Directory where the icons are stored.
 
     Returns:
         list[dict]: A list of dictionaries containing the count, icon, theme, and label for each unique theme.
     """
-    
+
+    if theme_field is None:
+        theme_field = schemingdcat_get_default_package_item_icon()
+    try:
+        themes = get_theme_datasets(theme_field)
+    except Exception as e:
+        log.error("Error aggregating theme statistics: %s", e)
+        raise
+
     if icons_dir is None:
         icons_dir = schemingdcat_get_icons_dir(field_name=theme_field)
     
@@ -1785,26 +1811,200 @@ def schemingdcat_get_theme_statistics(themes: List[Dict], theme_field='theme', i
     return stats
 
 @helper
-def schemingdcat_update_open_data_statistics() -> Dict[str, Union[int, List[Dict[str, Union[int, str]]]]]:
-    """
-    Retrieve Open Data portal statistics including counts of datasets, distributions, groups, organizations, tags, spatial datasets, and endpoints.
+def schemingdcat_format_number(value):
+    """Formats a number with thousands separators using dots.
+
+    Converts the input value to a float and formats it with thousands separators.
+    Commas are replaced with dots to match certain localization standards. If the
+    input cannot be converted to a float, the original value is returned unchanged.
+
+    Args:
+        value (int, float, str): The value to format. This can be an integer, float, or string
+            representing a numerical value.
 
     Returns:
-        dict: A dictionary containing the counts of various site elements.
-    """
-    actions = logic.get_action
-    
-    theme_field = schemingdcat_get_default_package_item_icon()
-    themes = get_theme_datasets(theme_field)
-    themes_stats = schemingdcat_get_theme_statistics(themes, theme_field)
+        str or original type: A string representing the formatted number with dots as
+        thousands separators. If the input is not a valid number, the original value is returned.
 
-    sdct_config.open_data_statistics = {
-        'dataset_count': actions('package_search')({}, {"rows": 1})['count'],
-        'distribution_count': actions('package_search')({}, {"rows": 1})['count'],
-        'group_count': len(actions('group_list')({}, {})),
-        'organization_count': len(actions('organization_list')({}, {})),
-        'tag_count': len(actions('tag_list')({}, {})),
-        'spatial_dataset_count': len(get_spatial_datasets()),
-        'endpoints_count': len(schemingdcat_get_catalog_endpoints()),
-        'themes_stats': themes_stats,
-    }
+    Examples:
+        >>> schemingdcat_format_number(1000)
+        '1.000'
+        
+        >>> schemingdcat_format_number("2500000")
+        '2.500.000'
+        
+        >>> schemingdcat_format_number("invalid")
+        'invalid'
+    """
+    try:
+        value = float(value)
+        return "{:,.0f}".format(value).replace(",", ".")
+    except (ValueError, TypeError):
+        return value
+    
+@helper
+def schemingdcat_validate_float(value=None):
+    """
+    Validates if the value is a float. If the value is a string or an integer, tries to convert it to float.
+    If the value is None, assigns a default value of 0.001.
+    Returns the float value if valid, otherwise raises a ValueError.
+
+    Args:
+        value: The value to be validated.
+
+    Returns:
+        float: The validated float value.
+
+    Raises:
+        ValueError: If the value cannot be converted to float.
+    """
+    if value is None:
+        return sdct_config.geojson_tolerance
+    if isinstance(value, float):
+        return value
+    if isinstance(value, int):
+        return float(value)
+    if isinstance(value, str):
+        try:
+            return float(value)
+        except ValueError:
+            raise ValueError(f"Cannot convert string '{value}' to float.")
+    raise ValueError(f"Value '{value}' is not a float, integer, or a string that can be converted to float.")
+
+# Bibliographics
+@lru_cache(maxsize=24)
+@helper
+def schemingdcat_is_bibliographic_dcat_type(dcat_type):
+    """
+    Check if a dcat_type corresponds to a bibliographic element.
+
+    Args:
+        dcat_type (str): The dcat_type to check.
+
+    Returns:
+        bool: True if the dcat_type is a bibliographic element, False otherwise.
+    """
+    return 'marcgt' in dcat_type or dcat_type == 'http://purl.org/dc/dcmitype/Text'
+
+@helper
+def schemingdcat_get_doi_from_identifier(pkg_identifier):
+    """
+    Retrieves the DOI of a dataset from an identifier value.
+
+    Args:
+        pkg_identifier (str): The identifier string of the dataset.
+
+    Returns:
+        str: The DOI if found, None otherwise.
+    """
+    doi_pattern = re.compile(r'doi:(10\.\d{4,9}/[-._;()/:A-Z0-9]+)', re.IGNORECASE)
+    match = doi_pattern.search(pkg_identifier)
+    
+    if match:
+        return match.group(1)
+    return None
+
+@helper
+def schemingdcat_get_current_datetime():
+    """
+    Devuelve la fecha y hora actual.
+
+    Returns:
+        datetime: La fecha y hora actual.
+    """
+    return datetime.datetime.now()
+
+@helper
+def schemingdcat_get_doi_from_alternate_identifier(pkg_identifier):
+    """
+    Gets the DOI of a dataset from the alternate_identifier field.
+
+    Args:
+        pkg_identifier (str): The dataset dictionary.
+
+    Returns:
+        str: The DOI if found, None otherwise.
+    """
+    # Remove all whitespace characters and trim leading/trailing spaces
+    cleaned_identifier = pkg_identifier.strip().replace(" ", "")
+    
+    doi_pattern = re.compile(r'doi:(10\.\d{4,9}/[-._;()/:A-Z0-9]+)', re.IGNORECASE)
+    match = doi_pattern.search(cleaned_identifier)
+    
+    if match:
+        return match.group(1)
+    return None
+
+@helper
+def schemingdcat_get_isbn_from_alternate_identifier(pkg_identifier):
+    """
+    Extracts and validates the ISBN from 'pkg_identifier' after removing the 'isbn:' prefix if present.
+    An ISBN consists of five sequential parts:
+    1. Prefix (978 or 979, 3 digits)
+    2. Registration group (1 to 5 digits)
+    3. Registrant (1 to 7 characters)
+    4. Publication element (up to 6 digits)
+    5. Checksum digit (1 digit)
+
+    Args:
+        pkg_identifier (str): The package identifier that may include the 'isbn:' prefix.
+
+    Returns:
+        str or None: The extracted ISBN if valid, otherwise None.
+    """
+    # Remove all whitespace characters and trim leading/trailing spaces
+    cleaned_identifier = pkg_identifier.strip().replace(" ", "")
+    
+    # Remove the 'isbn:' prefix if present
+    if cleaned_identifier.lower().startswith('isbn:'):
+        cleaned_identifier = cleaned_identifier[5:]
+    
+    isbn_pattern = re.compile(r'^(978|979)-\d{1,5}-\d{1,7}-\d{1,6}-\d$', re.IGNORECASE)
+    match = isbn_pattern.fullmatch(cleaned_identifier)
+    
+    if match:
+        return match.group(0)
+    return None
+
+
+# Publisher permissions
+@helper
+def schemingdcat_user_is_org_member(
+    org_id: str, user=None, role: typing.Optional[str] = "admin"
+) -> bool:
+    """
+    Check if a user has a specific role in the input organization.
+
+    This function checks if the given user has the specified role in the organization
+    identified by `org_id`. By default, it checks if the user has the "admin" role.
+
+    Args:
+        org_id (str): The ID of the organization.
+        user: The user object to check. If None, the function will return False.
+        role (str, optional): The role to check for. Defaults to "admin".
+
+    Returns:
+        bool: True if the user has the specified role in the organization, False otherwise.
+
+    Example:
+        >>> schemingdcat_user_is_org_member("org_id", user, "editor")
+        True
+    """
+    log.debug(f"{locals()=}")
+    result = False
+    if org_id is not None and user is not None:
+        member_list_action = p.toolkit.get_action("schemingdcat_member_list")
+        org_members = member_list_action(
+            data_dict={"id": org_id, "object_type": "user"}
+        )
+        #log.debug(f"{user.id=}")
+        #log.debug(f"{org_members=}")
+        for member_id, _, member_role in org_members:
+            if user.id == member_id:
+                #log.debug('member_role: %s and role: %s', member_role, role)
+                
+                # Check direct match
+                if role is None or member_role.lower() == role.lower():
+                    result = True
+                break
+    return result

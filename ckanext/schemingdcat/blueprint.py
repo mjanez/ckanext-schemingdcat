@@ -19,18 +19,16 @@ schemingdcat = Blueprint(u'schemingdcat', __name__)
 
 def endpoints():
     return render('schemingdcat/endpoints/index.html',extra_vars={
-            u'endpoints': sdct_helpers.schemingdcat_get_catalog_endpoints(),
+            u'endpoints': sdct_helpers.get_schemingdcat_get_catalog_endpoints(),
         })
     
 def metadata_templates():
     return render('schemingdcat/metadata_templates/index.html',extra_vars={
-            u'metadata_templates': sdct_helpers.schemingdcat_get_catalog_endpoints(),
+            u'metadata_templates': sdct_helpers.get_schemingdcat_get_catalog_endpoints(),
         })
 
 schemingdcat.add_url_rule("/endpoints/", view_func=endpoints, endpoint="endpoint_index", strict_slashes=False)
-
 schemingdcat.add_url_rule("/metadata-templates/", view_func=metadata_templates, endpoint="metadata_templates", strict_slashes=False)
-
 
 @schemingdcat.route(u'/dataset/linked_data/<id>')
 @deprecated
@@ -57,11 +55,6 @@ def index(id):
             u'endpoint': 'dcat.read_dataset',
             u'data_list': sdct_utils.get_linked_data(id),
         })
-
-from flask import g, render_template as render
-from ckan import model, logic
-from ckan.lib.base import abort
-from ckan.plugins.toolkit import get_action, _
 
 @schemingdcat.route(u'/dataset/geospatial_metadata/<id>')
 @deprecated

@@ -414,19 +414,19 @@ class EsNTIRISPProfile(EuDCATAPProfile):
         # Temporal
         start = self._get_dataset_value(dataset_dict, 'temporal_start')
         end = self._get_dataset_value(dataset_dict, 'temporal_end')
-
-        uid = 1
-
-        temporal_extent = URIRef(
-            "%s/%s-%s" % (dataset_ref, 'PeriodOfTime', uid))
-        self.g.add((temporal_extent, RDF.type, DCT.PeriodOfTime))
-        if start:
-            self._add_date_triple(
-                temporal_extent, SCHEMA.startDate, start)
-        if end:
-            self._add_date_triple(
-                temporal_extent, SCHEMA.endDate, end)
-        self.g.add((dataset_ref, DCT.temporal, temporal_extent))
+    
+        if start or end:
+            uid = 1
+            temporal_extent = URIRef(
+                "%s/%s-%s" % (dataset_ref, 'PeriodOfTime', uid))
+            self.g.add((temporal_extent, RDF.type, DCT.PeriodOfTime))
+            if start:
+                self._add_date_triple(
+                    temporal_extent, SCHEMA.startDate, start)
+            if end:
+                self._add_date_triple(
+                    temporal_extent, SCHEMA.endDate, end)
+            self.g.add((dataset_ref, DCT.temporal, temporal_extent))
 
     def _distribution_format(self, resource_dict, distribution):
         """

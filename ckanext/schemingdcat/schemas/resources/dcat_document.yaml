@@ -228,6 +228,29 @@ dataset_fields:
   preset: dataset_organization
   form_group_id: general_info
 
+# Dataset privacy (M)
+- field_name: private
+  label:
+    en: Dataset visibility
+    es: Visiblidad del conjunto de datos
+  required: True
+  preset: dataset_private
+  form_include_blank_choice: False
+  choices:
+  - label:
+      en: Private
+      es: Privado
+    value: True
+  - label:
+      en: Public
+      es: Público
+    value: False
+  form_group_id: general_info
+  help_text:
+    en: The publicity or the visibility of the dataset. Only an <code>admin</code> can publish.
+    es: Publicidad o visiblidad del conjunto de datos. Solo un <code>administrador</code> puede publicar.
+  help_allow_html: True
+
 # Graphic overview (O)
 - field_name: graphic_overview
   label:
@@ -552,6 +575,10 @@ dataset_fields:
       es: Lituano
     value: http://publications.europa.eu/resource/authority/language/LIT
   - label:
+      en: Luxembourgish
+      es: Luxemburgués
+    value: http://publications.europa.eu/resource/authority/language/LTZ
+  - label:
       en: Maltese
       es: Maltés
     value: http://publications.europa.eu/resource/authority/language/MLT
@@ -571,46 +598,6 @@ dataset_fields:
       en: Romanian
       es: Rumano
     value: http://publications.europa.eu/resource/authority/language/ROM
-  - label:
-      en: Bulgarian
-      es: Búlgaro
-    value: http://publications.europa.eu/resource/authority/language/BUL
-  - label:
-      en: Irish
-      es: Irlandés
-    value: http://publications.europa.eu/resource/authority/language/GLE
-  - label:
-      en: Croatian
-      es: Croata
-    value: http://publications.europa.eu/resource/authority/language/HRV
-  - label:
-      en: Luxembourgish
-      es: Luxemburgués
-    value: http://publications.europa.eu/resource/authority/language/LTZ
-  - label:
-      en: Slovak
-      es: Eslovaco
-    value: http://publications.europa.eu/resource/authority/language/SLK
-  - label:
-      en: Slovene
-      es: Esloveno
-    value: http://publications.europa.eu/resource/authority/language/SLV
-  - label:
-      en: Maltese
-      es: Maltés
-    value: http://publications.europa.eu/resource/authority/language/MLT
-  - label:
-      en: Romanian
-      es: Rumano
-    value: http://publications.europa.eu/resource/authority/language/ROM
-  - label:
-      en: Bulgarian
-      es: Búlgaro
-    value: http://publications.europa.eu/resource/authority/language/BUL
-  - label:
-      en: Irish
-      es: Irlandés
-    value: http://publications.europa.eu/resource/authority/language/GLE
   form_group_id: identification
 
 # Date of creation (O)
@@ -1495,7 +1482,7 @@ dataset_fields:
   label: 
     en: License
     es: Licencia
-  form_snippet: license.html
+  form_snippet: schemingdcat/form_snippets/license.html
   display_property: dct:license
   help_text:
     en: 'License definitions and additional information can be found at: <a href="http://opendefinition.org/" target="_blank" rel="noopener">Open Definition</a>'
@@ -1508,8 +1495,7 @@ dataset_fields:
   label:
     en: Access Rights
     es: Derechos de acceso
-  preset: select
-  display_snippet: schemingdcat/display_snippets/link_schema.html
+  preset: access_rights
   display_property: dct:accessRights
   form_include_blank_choice: False
   choices:
@@ -1817,6 +1803,10 @@ resource_fields:
       es: Lituano
     value: http://publications.europa.eu/resource/authority/language/LIT
   - label:
+      en: Luxembourgish
+      es: Luxemburgués
+    value: http://publications.europa.eu/resource/authority/language/LTZ
+  - label:
       en: Maltese
       es: Maltés
     value: http://publications.europa.eu/resource/authority/language/MLT
@@ -1836,46 +1826,6 @@ resource_fields:
       en: Romanian
       es: Rumano
     value: http://publications.europa.eu/resource/authority/language/ROM
-  - label:
-      en: Bulgarian
-      es: Búlgaro
-    value: http://publications.europa.eu/resource/authority/language/BUL
-  - label:
-      en: Irish
-      es: Irlandés
-    value: http://publications.europa.eu/resource/authority/language/GLE
-  - label:
-      en: Croatian
-      es: Croata
-    value: http://publications.europa.eu/resource/authority/language/HRV
-  - label:
-      en: Luxembourgish
-      es: Luxemburgués
-    value: http://publications.europa.eu/resource/authority/language/LTZ
-  - label:
-      en: Slovak
-      es: Eslovaco
-    value: http://publications.europa.eu/resource/authority/language/SLK
-  - label:
-      en: Slovene
-      es: Esloveno
-    value: http://publications.europa.eu/resource/authority/language/SLV
-  - label:
-      en: Maltese
-      es: Maltés
-    value: http://publications.europa.eu/resource/authority/language/MLT
-  - label:
-      en: Romanian
-      es: Rumano
-    value: http://publications.europa.eu/resource/authority/language/ROM
-  - label:
-      en: Bulgarian
-      es: Búlgaro
-    value: http://publications.europa.eu/resource/authority/language/BUL
-  - label:
-      en: Irish
-      es: Irlandés
-    value: http://publications.europa.eu/resource/authority/language/GLE
   form_group_id: resource_identification
 
 # Byte size (O)

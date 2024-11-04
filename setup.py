@@ -6,7 +6,7 @@ from os import path
 
 here = path.abspath(path.dirname(__file__))
 
-version = "4.0.0"
+version = "4.2.1"
 
 # Get the long description from the relevant file
 with open(path.join(here, 'README.md'), encoding='utf-8') as f:
@@ -32,11 +32,13 @@ setup(
         schemingdcat_datasets=ckanext.schemingdcat.plugin:SchemingDCATDatasetsPlugin
         schemingdcat_groups=ckanext.schemingdcat.plugin:SchemingDCATGroupsPlugin
         schemingdcat_organizations=ckanext.schemingdcat.plugin:SchemingDCATOrganizationsPlugin
+        schemingdcat_open_data_statistics=ckanext.schemingdcat.plugin:SchemingDCATOpenDataStatisticsPlugin
         
         # Harvesters
         schemingdcat_ckan_harvester=ckanext.schemingdcat.harvesters:SchemingDCATCKANHarvester
         schemingdcat_xls_harvester=ckanext.schemingdcat.harvesters:SchemingDCATXLSHarvester
         schemingdcat_ows_harvester=ckanext.schemingdcat.harvesters:SchemingDCATOWSHarvester
+        schemingdcat_postgres_harvester=ckanext.schemingdcat.harvesters:SchemingDCATPostgresHarvester
 
         [ckan.rdf.profiles]
         # Custom compatibilty profile meant to add support for ckanext-scheming

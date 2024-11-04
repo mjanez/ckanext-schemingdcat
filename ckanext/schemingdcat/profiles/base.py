@@ -298,18 +298,24 @@ class SchemingDCATRDFProfile(RDFProfile):
 
         return author
     
-    # ckanext-schemingdcat: codelists functions
     def _search_values_codelist_add_to_graph(self, metadata_codelist, labels, dataset_dict, dataset_ref, dataset_tag_base, g, dcat_property):
         # Create a dictionary with label as key and id as value for each element in metadata_codelist
         inspire_dict = {row["label"].lower(): row.get("id", row.get("value")) for row in metadata_codelist}
         
-        # Check if labels is a list, if not, convert it to a list
+        # Ensure labels is a list
         if not isinstance(labels, list):
             labels = [labels]
         
+        # Get 'topic' from dataset_dict, handle NoneType
+        topics = self._get_dataset_value(dataset_dict, "topic")
+        if not topics:
+            topics = []
+        elif not isinstance(topics, list):
+            topics = [topics]
+        
         for label in labels:
-            if label not in self._get_dataset_value(dataset_dict, "topic"):
-                # Check if tag_name is in inspire_dict
+            if label not in topics:
+                # Check if label is in inspire_dict
                 if label.lower() in inspire_dict:
                     tag_val = inspire_dict[label.lower()]
                 else:

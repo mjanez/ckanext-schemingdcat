@@ -6,7 +6,9 @@ from shapely.geometry import shape, Polygon
 
 import ckanext.scheming.helpers as sh
 import ckanext.schemingdcat.helpers as helpers
-import ckan.lib.helpers as h
+from ckan import plugins as p
+import ckan.logic as logic
+from ckan.lib import helpers as ckan_helpers
 from urllib.parse import urlparse
 from ckantoolkit import (
     config,
@@ -32,7 +34,8 @@ from ckanext.fluent.validators import (
 from ckanext.schemingdcat.utils import parse_json
 from ckanext.schemingdcat.config import (
     OGC2CKAN_HARVESTER_MD_CONFIG,
-    mimetype_base_uri
+    mimetype_base_uri,
+    DCAT_AP_HVD_CATEGORY_LEGISLATION
 )
 
 log = logging.getLogger(__name__)
@@ -40,6 +43,7 @@ log = logging.getLogger(__name__)
 all_validators = {}
 
 FORM_EXTRAS = ('__extras',)
+OPENAPI_REQUIRED_KEYS = ['url', 'name', 'title', 'description']
 
 def validator(fn):
     """
@@ -198,7 +202,7 @@ def schemingdcat_multiple_text(field, schema):
                 # Avoid errors
                 if '"' in element:
                     element=element.replace('"', '\"')
-                if h.is_url(element):
+                if ckan_helpers.is_url(element):
                     element=element.replace(' ', '')
                 out.append(element)
 
@@ -1113,3 +1117,46 @@ def schemingdcat_fill_subfields(dependent_field_name, dependent_fields, value, d
                 data[dependent_key] = value
             except (IndexError, ValueError, KeyError) as e:
                 log.error('Exception occurred while setting field value: %s', e)
+                
+@validator
+def schemingdcat_stats_id_validator(value, context):
+    '''
+    Custom validator for the 'id' field (stat_name). Ensures that the stat_name meets certain criteria.
+    
+    Parameters:
+        - value: The value provided for the key.
+        - context: Additional context (optional).
+
+    Return:
+        - value
+    
+    '''
+    if not isinstance(value, str):
+        raise logic.ValidationError('The name of the statistic must be a text string.')
+    return value
+
+@scheming_validator
+@validator
+def schemingdcat_hvd_category_applicable_legislation(field, schema):
+    """
+    Returns a validator function that checks if the 'hvd_category' value is not empty. If it is not empty, it updates the value of the field by adding the Commission Implementing Regulation (EU) 2023/138 of 21 December 2022 laying down a list of specific high-value datasets and the arrangements for their publication and re-use (Text with EEA relevance) to all datasets that contain an hvd_category (HVD Category).
+
+    Args:
+        field (dict): Information about the field to be updated.
+        schema (dict): The schema for the field to be updated.
+
+    Returns:
+        function: A validation function that updates the field based on the presence of 'hvd_category'.
+    """   
+    def validator(key, data, errors, context):
+        hvd_category = data.get(('hvd_category', ))
+        if hvd_category:
+            if isinstance(data.get(key), list):
+                if not data[key]:
+                    data[key] = [DCAT_AP_HVD_CATEGORY_LEGISLATION]
+                else:
+                    data[key].append(DCAT_AP_HVD_CATEGORY_LEGISLATION)
+            else:
+                data[key] = [DCAT_AP_HVD_CATEGORY_LEGISLATION]
+
+    return validator

@@ -64,7 +64,7 @@
       "preset_name": "dataset_organization",
       "values": {
         "validators": "owner_org_validator unicode_safe",
-        "form_snippet": "organization.html"
+        "form_snippet": "schemingdcat/form_snippets/organization.html"
       }
     },
     {
@@ -75,7 +75,7 @@
         "form_placeholder": "http://example.com/my-data.csv",
         "upload_field": "upload",
         "upload_clear": "clear_upload",
-        "upload_label": "File"
+        "upload_label": "Upload a file"
       }
     },
     {
@@ -154,6 +154,15 @@
         "form_snippet": null,
         "display_snippet": null,
         "validators": "default(non_spatial_dataset) schemingdcat_dataset_scope"
+      }
+    },
+    {
+      "preset_name": "dataset_private",
+      "values": {
+        "form_snippet": "schemingdcat/form_snippets/dataset_private.html",
+        "display_snippet": null,
+        "validators": "default(True) scheming_required boolean_validator",
+        "output_validators": "boolean_validator"
       }
     },
     {
@@ -472,6 +481,14 @@
       "values": {
         "validators": "ignore_missing schemingdcat_valid_email schemingdcat_fill_dependent_fields",
         "display_snippet": "email.html"
+      }
+    },
+    {
+      "preset_name": "access_rights",
+      "values": {
+        "form_snippet": "select.html",
+        "display_snippet": "schemingdcat/display_snippets/link_schema.html",
+        "validators": "default(http://inspire.ec.europa.eu/metadata-codelist/LimitationsOnPublicAccess/noLimitations) scheming_required scheming_choices"
       }
     }
   ]

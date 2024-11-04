@@ -8,13 +8,13 @@
 
   {% call form.input('url', id='field-url', label=_('URL'), value=data.url, error=errors.url, classes=['control-full', 'control-large']) %}
       <span class="info-block">
-        <i class="fa fa-exclamation-triangle"></i> {{ _('This should include the <code>http://</code> or <code>https://</code> part of the URL.') }}
+        <i class="fa fa-exclamation-triangle"></i> {{ _('This should include the <code>http://</code> or <code>https://</code> part of the URL. If it is for the SQL Harvester, then it can be <code>http://{host}:{port}</code>, e.g.: <code>http://localhost:5432</code>') }}
       </span>
   {% endcall %}
 
   {{ h.csrf_input() if 'csrf_input' in h }}
 
-  {{ form.input('title', id='field-title', label=_('Title'), placeholder=_('eg. A descriptive title'), value=data.title, error=errors.title, classes=['control-full'], attrs={'data-module': 'slug-preview-target'}) }}
+  {{ form.input('title', id='field-title', label=_('Title'), placeholder=_('eg. A descriptive title'), value=data.title, error=errors.title, classes=['control-full'], attrs={'data-module': 'slug-preview-target', 'class': "form-control"}) }}
 
   {% set prefix = 'harvest' %}
   {% set domain = h.url_for('{0}.read'.format(c.dataset_type), id='', qualified=true) %}
@@ -25,20 +25,20 @@
 
   {{ form.markdown('notes', id='field-notes', label=_('Description'), value=data.notes, error=errors.notes) }}
 
-  <div class="harvest-types form-group control-group">
-    <label class="control-label">{{ _('Source type') }}</label>
-    <div class="controls">
+  <div class="harvest-types form-group">
+    <label class="form-label">{{ _('Source type') }}</label>
+    <div class="form-check">
       {% for harvester in h.harvesters_info() %}
         {% set checked = False %}
         {# select first option if nothing in data #}
         {% if data.source_type == harvester['name'] or (not data.source_type and loop.first) %}
-           {% set checked = True %}
+            {% set checked = True %}
         {% endif %}
-        <label class="radio">
-          <input type="radio" name="source_type" value="{{ harvester['name'] }}" {{ "checked " if checked }} data-bs-module="harvest-type-change">
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="source_type" id="source_type_{{ loop.index }}" value="{{ harvester['name'] }}" {{ "checked" if checked }} data-bs-module="harvest-type-change">
           {{ harvester['title'] }}
-          <i class="fa fa-question-circle icon-question-sign muted" title="{{ harvester['description'] }}" data-bs-toggle="tooltip" data-bs-toggle="tooltip"></i>
-        </label>
+          <i class="fa fa-question-circle text-muted" title="{{ harvester['description'] }}" data-bs-toggle="tooltip"></i>
+        </div>
       {% endfor %}
     </div>
   </div>
@@ -66,10 +66,9 @@
 
   {% if show_organizations_selector %}
     {% set existing_org = data.owner_org %}
-    <div class="control-group form-group">
-      <label for="field-organizations" class="control-label">{{ _('Organization') }}</label>
-      <div class="controls">
-        <select id="field-organizations" name="owner_org" data-bs-module="autocomplete">
+    <div class="form-group">
+      <label for="field-organizations" class="form-label">{{ _('Organization') }}</label>
+      <select id="field-organizations" name="owner_org" data-module="autocomplete">
           <option value="" {% if not selected_org and data.id %} selected="selected" {% endif %}>{{ _('No organization') }}</option>
           {% for organization in organizations_available %}
             {# get out first org from users list only if there is not an existing org #}
@@ -78,7 +77,6 @@
           {% endfor %}
         </select>
       </div>
-    </div>
   {% endif %}
 
   {% if data.get('id', None) and h.check_access('harvest_source_delete', {'id': data.id}) and data.get('state', 'none') == 'deleted' %}
@@ -99,18 +97,18 @@
         {% set locale_delete = h.dump_json({'content': _('This will flag the source as deleted but keep all its datasets and previous jobs. Are you sure you want to delete this harvest source?')}) %}
         {% set locale_clear = h.dump_json({'content': _('Warning: Apart from deleting this source, this command will remove all its datasets, as well as all previous job reports. Are you sure you want to continue?')}) %}
   <div class="dropdown btn-group">
-    <a href="#" class="btn btn-danger dropdown-toggle" data-bs-toggle="dropdown" data-bs-toggle="dropdown">
+    <a href="#" class="btn btn-danger dropdown-toggle" data-bs-toggle="dropdown">
       {{ _('Delete') }}
       <span class="caret"></span>
     </a>
     <ul class="dropdown-menu">
       <li>
-        <a href="{% url_for 'harvest_delete', id=data.name %}" data-bs-module="confirm-action" data-bs-module-i18n="{{ locale_delete }}">
+        <a href="{% url_for 'harvest_delete', id=data.name %}" data-module="confirm-action" data-module-i18n="{{ locale_delete }}" class="dropdown-item">
           {{ _('Delete source') }}
         </a>
       </li>
       <li>
-        <a href="{% url_for 'harvest_delete', id=data.name %}?clear=True" data-bs-module="confirm-action" data-bs-module-i18n="{{ locale_clear }}">
+        <a href="{% url_for 'harvest_delete', id=data.name %}?clear=True" data-module="confirm-action" data-module-i18n="{{ locale_clear }}" class="dropdown-item">
           {{ _('Delete and clear source') }}
         </a>
       </li>
