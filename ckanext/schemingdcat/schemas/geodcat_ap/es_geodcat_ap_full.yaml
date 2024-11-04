@@ -2206,8 +2206,12 @@ dataset_fields:
   preset: select
   display_property: dct:accrualPeriodicity
   display_snippet: schemingdcat/display_snippets/link_schema.html
-  sorted_choices: True
+  sorted_choices: False
   choices:
+  - label:
+      en: Provisional data
+      es: Datos provisionales
+    value: http://publications.europa.eu/resource/authority/frequency/OP_DATPRO
   - label:
       en: Annual
       es: Anual
@@ -2264,10 +2268,6 @@ dataset_fields:
       en: Never
       es: Nunca
     value: http://publications.europa.eu/resource/authority/frequency/NEVER
-  - label:
-      en: Provisional data
-      es: Datos provisionales
-    value: http://publications.europa.eu/resource/authority/frequency/OP_DATPRO
   - label:
       en: Quarterly
       es: Trimestral
