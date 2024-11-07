@@ -953,10 +953,22 @@ img.spatial_uri-icon {
   vertical-align: middle;
 }
 
+/* Rows dataset/resource metadata */
+.truncate-text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
 /* Links list*/
 .link-list { 
   list-style-type: "🔗 ";
   vertical-align: middle;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
 }
 
 .link-list li::marker {

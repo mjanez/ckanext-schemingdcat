@@ -15,7 +15,7 @@
     {% if res[field_name] %}
         <tr>
             <th scope="row">{{ h.scheming_language_text(field.label) }}</th>
-            <td>
+            <td class="truncate-text">
                 {% if res[field_name] is iterable and res[field_name] is not string %}
                     <ul class="link-list">
                     {% for item in res[field_name] %}
@@ -101,7 +101,7 @@
     {% set field = h.scheming_field_by_name(schema.resource_fields, 'size') %}
     <tr>
         <th scope="row">{{ h.scheming_language_text(field.label) }}</th>
-        <td>
+        <td class="truncate-text">
             {{ h.localised_filesize(res[field_name]) }}
         </td>
     </tr>
@@ -112,7 +112,7 @@
     {% set field = h.scheming_field_by_name(schema.resource_fields, 'download_url') %}
     <tr>
         <th scope="row">{{ h.scheming_language_text(field.label) }}</th>
-        <td>
+        <td class="truncate-text">
             {{ h.link_to(res[field_name], res[field_name], target='_blank') }}
         </td>
     </tr>
