@@ -958,17 +958,22 @@ img.spatial_uri-icon {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  display: block;
   max-width: 100%;
+}
+.truncate-link {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: inline-block;
+  max-width: 100%;
+  vertical-align: middle;
 }
 
 /* Links list*/
 .link-list { 
   list-style-type: "🔗 ";
   vertical-align: middle;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 100%;
 }
 
 .link-list li::marker {
@@ -1457,12 +1462,6 @@ img.item_image {
   table-layout: fixed; /* Fija el layout de la tabla */
   width: 100%; /* Asegura que la tabla ocupe el 100% del contenedor */
 }
-/* Apply text truncation to cells in metadata_info */
-.truncate-text {
-  overflow: hidden; /* Hides the text overflow */
-  text-overflow: ellipsis; /* Adds ellipsis if text is too long */
-}
-
 .table tr.toggle-separator {
   display: table-row;
 }
