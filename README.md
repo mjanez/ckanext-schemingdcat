@@ -16,7 +16,9 @@
 This CKAN extension provides functions and templates specifically designed to extend `ckanext-scheming` and `ckanext-dcat` and includes RDF profiles and Harvest enhancements to adapt CKAN Schema to multiple metadata profiles as: [GeoDCAT-AP](./ckanext/schemingdcat/schemas/geodcat_ap/es_geodcat_ap_full.yaml) or [DCAT-AP](./ckanext/schemingdcat/schemas/dcat_ap/eu_dcat_ap_full.yaml).
 
 > [!WARNING] 
-> This project requires [mjanez/ckanext-dcat](https://github.com/mjanez/ckanext-dcat) (for newer releases) or [ckan/ckanext-dcat](https://github.com/ckan/ckanext-dcat) (older), along with [ckan/ckanext-scheming](https://github.com/ckan/ckanext-scheming) and [ckan/ckanext-spatial](https://github.com/ckan/ckanext-spatial) to work properly. If you want to use custom schemas with multilingual support, you need to use `ckanext-fluent`. A fixed version is available at [mjanez/ckanext-fluent](https://github.com/mjanez/ckanext-fluent).
+> This project requires [mjanez/ckanext-dcat](https://github.com/mjanez/ckanext-dcat) (for newer releases) or [ckan/ckanext-dcat](https://github.com/ckan/ckanext-dcat) (older), along with [ckan/ckanext-scheming](https://github.com/ckan/ckanext-scheming) and [ckan/ckanext-spatial](https://github.com/ckan/ckanext-spatial) to work properly. 
+> * If you want to use custom schemas with multilingual support, you need to use `ckanext-fluent`. A fixed version is available at [mjanez/ckanext-fluent](https://github.com/mjanez/ckanext-fluent).
+> * If you want to use custom harvesters, you need to use `ckanext-harvest`, an improved, more private version is avalaibe at [mjanez/ckanext-harvest](https://github.com/mjanez/ckanext-harvest).
 
 > [!TIP]
 > It is **recommended to use with:** [`ckan-docker`](https://github.com/mjanez/ckan-docker) deployment or only use [`ckan-pycsw`](https://github.com/mjanez/ckan-pycsw) to deploy a CSW Catalog.
@@ -124,7 +126,10 @@ To use custom schemas in `ckanext-scheming`:
   ```
 
 ### Harvest
-Add the [custom Harvesters](#harvesters) to the list of plugins as you need:
+**Requirement**:
+- If you want to use custom harvesters, you need to use `ckanext-harvest`, an improved, more private version is avalaibe at [mjanez/ckanext-harvest](https://github.com/mjanez/ckanext-harvest).
+
+Next add the [custom Harvesters](#harvesters) to the list of plugins as you need:
 
   ```ini
   ckan.plugins = ... spatial_metadata ... dcat ... schemingdcat ... harvest ... schemingdcat_ckan_harvester schemingdcat_csw_harvester ...
@@ -800,6 +805,147 @@ The `ckan schemingdcat` command offers utilites:
 
     ckan schemingdcat download-rdf-eu-vocabs
 
+### SQL Harvester
+The plugin includes a harvester for local databases using the custom schemas provided by `schemingdcat` and `ckanext-scheming`. 
+
+To use it, you need to add the `schemingdcat_postgres_harvester` plugin to your options file:
+
+  ```ini
+    ckan.plugins = harvest schemingdcat schemingdcat_datasets ... schemingdcat_ckan_harvester schemingdcat_postgres_harvester
+  ```
+
+The SQL Harvester supports the following options:
+
+### Schema Generation Guide
+This guide will help you generate a schema that is compatible with our system. The schema is a JSON object that defines the mapping of fields in your database to the fields in our system.
+
+#### Field Mapping Structure
+The `dataset_field_mapping`/`distribution_field_mapping` is structured as follows (multilingual version):
+
+```json
+{
+  ...
+  "field_mapping_schema_version": 1,
+  "<dataset_field_mapping>/<distribution_field_mapping>": {
+    "<schema_field_name>": {
+      "languages": {
+        "<language>":  {
+          <"field_value": "<fixed_value>/<fixed_value_list>">,/<"field_name": "<db_field_name>/<db_field_name_list>">
+        },
+        ...
+      },
+      ...
+    },
+    ...
+  }
+}
+```
+
+* `<schema_field_name>`: The name of the field in the CKAN schema.
+  * `<language>`: (Optional) The language code for multilingual fields. Must be a valid [ISO 639-1](https://localizely.com/iso-639-1-list/) language code. Now nested under the `languages` key.
+* `<fixed_value>/<fixed_value_list>`: (Optional) A fixed value or a list of fixed values to be assigned to the field for all records.
+* **Field Labels**: Field position or field name:
+  * `<field_name>/<field_name_list>`: (Optional) The name of the field in your database. Must be in the format `{schema}.{table}.{field}`.
+
+For fields that are not multilingual, you can use `field_name` directly without the `languages` key. For example:
+
+```json
+{
+  ...
+  "field_mapping_schema_version": 2,
+  "<dataset_field_mapping>/<distribution_field_mapping>": {
+    "<schema_field_name>": {
+      <"field_value": "<fixed_value>/<fixed_value_list>">,/<"field_name": "<db_field_name>/<db_field_name_list>">
+    },
+    ...
+  }
+}
+```
+
+```json
+{
+   "database_type":"postgres",
+   "credentials":{
+      "user":"u_fototeca",
+      "password":"u_fototeca",
+      "host":"localhost",
+      "port":5432,
+      "db":"fototeca"
+   },
+   "field_mapping_schema_version":1,
+   "dataset_field_mapping":{
+      "alternate_identifier": {
+          "field_name": "fototeca.vista_ckan.cod_vuelo",
+          "is_p_key": true,
+          "index": true,
+          "f_key_references": [
+              "fototeca.vuelos.cod_vuelo"
+          ]
+      },
+      "flight_color": {
+          "field_name": "fototeca.vista_ckan.color",
+          "f_key_references": [
+              "fototeca.l_color.color"
+          ]
+      },
+      },
+      "encoding": {
+          "field_value": "UTF-8"
+      },
+      "title_translated":{
+         "languages": {
+            "es":{
+              "field_name": "fototeca.vuelos.nom_vuelo",
+            }
+         }
+      }
+   },
+   "defaults_groups":[
+
+   ],
+   "defaults_tags":[
+
+   ],
+   "default_group_dicts":[
+
+   ]
+}
+```
+
+* `database_type`: The type of your database. Currently, only `postgres` is supported.
+* `credentials`: The credentials to connect to your database. Must include `username`, `password`, `host`, `port`, and `database name`.
+* `field_mapping_schema_version`: The version of the field mapping schema. Currently, only version `1` is supported.
+* `dataset_field_mapping`: The mapping of fields in your database to the fields in our system. Each field must be in the format `{schema}.{table}.{field}`.
+* Other properties of `ckanext-harvest`/`ckanext-schemingdcat`.
+
+#### Field Types
+There are two types of fields that can be defined in the configuration:
+
+1. **Regular Fields**: These fields have a field label to define the mapping or a fixed value for all their records.
+    - **Properties**: A field can have one of these three properties:
+      - **Fixed Value Fields (`field_value`)**: These fields have a fixed value that is assigned to all records. This is defined using the `field_value` property. If `field_value` is a list, `field_name` could be set at the same time, and the `field_value` extends the list obtained from the remote field.
+      - **Field Labels**: Field name in the database:
+        - **Name-Based Fields (`field_name`)**: These fields are defined by their name in the DB table. This is defined using the `field_name` property. To facilitate data retrieval from the database, especially regarding the identification of primary keys (`p_key`) and foreign keys (`f_key`), the following properties can be added to the `field_mapping` schema:
+          1. **Primary Key Field (`is_p_key`)** [*Optional*]: This property will identify if the field is a primary key (`p_key`) or not if not indicated. This will facilitate join operations and references between tables.
+          2. **Table References (`f_key_references`)** [*Optional* (`list`)]: For fields that are foreign keys, this property would specify which schemas, tables, and fields the foreign key refers to. For example, `["public.vuelo.id", "public.camara.id"]`. This is useful for automating joins between tables.
+          3. **Index (`index`)** [*Optional*]: A boolean property to indicate if the field should be indexed to improve query efficiency. Although not specific to primary or foreign keys, it is relevant for query optimization. By default, its value is `false`.
+
+          The modified schema would allow for more efficient data retrieval and simplify the construction of the DataFrame, especially in complex scenarios with multiple tables and relationships. Here is an example of how the modified schema would look for a field that is a foreign key:
+
+          ```json
+          "dataset_field_mapping": {
+            "alternate_identifier": {
+                "field_name": "fototeca.vista_ckan.cod_vuelo",
+                "is_p_key": true,
+                "index": true,
+                "f_key_references": [
+                    "fototeca.vuelos.cod_vuelo"
+                ]
+            }
+          }
+          ```
+
+2. **Multilingual Fields (`languages`)**: These fields have different values for different languages. Each language is represented as a separate object within the field object (`es`, `en`, ...). The language object can have `field_value`, and `field_name` properties, just like a regular field.
 
 ## DCAT Profiles
 This plugin also contains a custom [`ckanext-dcat` profiles](./ckanext/schemingdcat/profiles) to serialize a CKAN dataset to a:
@@ -832,6 +978,9 @@ To define which profiles to use you can:
 Note that in both cases the order in which you define them is important, as it will be the one that the profiles will be run on.
 
 ### Multilingual RDF support
+**Requirement**:
+- If you want to use custom schemas with multilingual support, you need to use `ckanext-fluent`. A fixed version is available at [mjanez/ckanext-fluent](https://github.com/mjanez/ckanext-fluent).
+
 To add multilingual values from CKAN to RDF, the [`SchemingDCATRDFProfile` method `_object_value](./ckanext/schemingdcat/profiles/base.py)` can be called with optional parameter `multilang=true` (defaults to `false`)). 
 If `_object_value` is called with the `multilang=true`-parameter, but no language-attribute is found, the value will be added as Literal with the default language (en).
 
