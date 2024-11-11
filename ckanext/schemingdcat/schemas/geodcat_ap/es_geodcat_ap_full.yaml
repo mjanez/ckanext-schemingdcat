@@ -2451,7 +2451,7 @@ dataset_fields:
       es: Condiciones atmosféricas (AC)
     value: http://inspire.ec.europa.eu/theme/ac
   - label:
-      en: Land Cover (LC)
+      en: Land cover (LC)
       es: Cubierta terrestre (LC)
     value: http://inspire.ec.europa.eu/theme/lc
   - label:

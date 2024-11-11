@@ -1152,11 +1152,10 @@ def schemingdcat_hvd_category_applicable_legislation(field, schema):
         hvd_category = data.get(('hvd_category', ))
         if hvd_category:
             if isinstance(data.get(key), list):
-                if not data[key]:
-                    data[key] = [DCAT_AP_HVD_CATEGORY_LEGISLATION]
-                else:
+                if DCAT_AP_HVD_CATEGORY_LEGISLATION not in data[key]:
                     data[key].append(DCAT_AP_HVD_CATEGORY_LEGISLATION)
             else:
-                data[key] = [DCAT_AP_HVD_CATEGORY_LEGISLATION]
+                if data.get(key) != DCAT_AP_HVD_CATEGORY_LEGISLATION:
+                    data[key] = [DCAT_AP_HVD_CATEGORY_LEGISLATION]
 
     return validator

@@ -20,7 +20,7 @@
     {% for value in values if value|length %}
     {% set value = h.scheming_clean_json_value(value.replace(' ', '')) %}
       <li>
-        <a href="{{ value }}">{{ value }}</a>
+        <a href="{{ value }}" class="truncate-link">{{ value }}</a>
       </li>
     {% endfor %}
   </ul>

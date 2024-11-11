@@ -1,7 +1,7 @@
 import logging
 import typing
 
-import ckan.plugins.toolkit as toolkit
+import ckan.plugins as p
 import ckan.logic as logic
 import ckan.logic.auth as auth
 
@@ -12,7 +12,7 @@ log = logging.getLogger(__name__)
 _check_access = logic.check_access
 
 # Credits to logic.auth.ckan: https://github.com/kartoza/ckanext-dalrrd-emc-dcpr
-@toolkit.chained_auth_function
+@p.toolkit.chained_auth_function
 def package_update(next_auth, context, data_dict=None):
     """Custom auth for the package_update action.
 
@@ -24,7 +24,7 @@ def package_update(next_auth, context, data_dict=None):
     if user.sysadmin:
         final_result = next_auth(context, data_dict)
     elif data_dict is not None:
-        # NOTE: we do not call toolkit.get_action("package_show") here but rather do it
+        # NOTE: we do not call p.toolkit.get_action("package_show") here but rather do it
         # the same as vanilla CKAN which uses a custom way to retrieve the object from
         # the context - this is in order to ensure other extensions
         # (e.g. ckanext.harvest) are able to function correctly
@@ -40,7 +40,7 @@ def package_update(next_auth, context, data_dict=None):
                 org_id = data_dict.get("owner_org", package.owner_org)
                 if org_id is not None:
                     # Using the schemingdcat_member_list action to obtain correct roles
-                    members = toolkit.get_action("schemingdcat_member_list")(
+                    members = p.toolkit.get_action("schemingdcat_member_list")(
                         data_dict={"id": org_id, "object_type": "user"}
                     )
                     #log.debug('members:%s', members)
@@ -62,7 +62,7 @@ def package_update(next_auth, context, data_dict=None):
     return final_result
 
 
-@toolkit.chained_auth_function
+@p.toolkit.chained_auth_function
 def package_patch(
     next_auth: typing.Callable, context: typing.Dict, data_dict: typing.Dict
 ):
@@ -93,7 +93,7 @@ def authorize_package_publish(
         # beforehand, so we deny
         owner_org = data_.get("owner_org", data_.get("group_id"))
         if owner_org is not None:
-            members = toolkit.get_action("member_list")(
+            members = p.toolkit.get_action("member_list")(
                 data_dict={"id": owner_org, "object_type": "user"}
             )
             admin_member_ids = [

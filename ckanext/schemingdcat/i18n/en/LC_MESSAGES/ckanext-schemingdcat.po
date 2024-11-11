@@ -856,6 +856,10 @@ msgstr "Name Descending"
 msgid "Last Modified"
 msgstr "Last Modified"
 
+#: ckanext/harvest/templates/source/search.html:25
+msgid "Only <code>sysadmin</code> users can manage harvest sources. Check the <a href='https://github.com/mjanez/ckanext-harvest'>ckanext-harvest</a> documentation for more information."
+msgstr "Only <code>sysadmin</code> users can manage harvest sources. Check the <a href='https://github.com/mjanez/ckanext-harvest'>ckanext-harvest</a> documentation for more information."
+
 #: ckanext/harvest/templates/source/search.html:50
 msgid "Search harvest sources..."
 msgstr "Search harvest sources..."

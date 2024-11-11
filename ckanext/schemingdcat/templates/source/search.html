@@ -16,9 +16,19 @@
             <li><a href="https://github.com/mjanez/ckanext-scheming_dcat?tab=readme-ov-file#harvesters" target="_blank">ckanext-scheming_dcat</a></li>
             <li><a href="https://github.com/ckan/ckanext-dcat?tab=readme-ov-file#rdf-dcat-harvester" target="_blank">ckanext-dcat</a></li>
             <li><a href="https://docs.ckan.org/projects/ckanext-spatial/en/latest/harvesters.html" target="_blank">ckanext-scheming_spatial</a></li>
+            <li><a href="https://github.com/mjanez/ckanext-harvest?tab=readme-ov-file#ckanext-harvest---remote-harvesting-extension" target="_blank">ckanext-harvest</a></li>
         </ul>
         </p>
+        {% block harvest_info %}
+            {% set quote_content %}
+            {% trans %}
+            Only <code>sysadmin</code> users can manage harvest sources. Check the <a href='https://github.com/mjanez/ckanext-harvest'>ckanext-harvest</a> documentation for more information.
+            {% endtrans %}
+            {% endset %}
+            {% snippet "schemingdcat/snippets/quote_alerts.html", alert_type='info', content=quote_content %}
+        {% endblock %}
     </div>
+
     </section>
     
     {% block facets %}
