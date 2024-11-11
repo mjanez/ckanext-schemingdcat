@@ -953,7 +953,7 @@ img.spatial_uri-icon {
   vertical-align: middle;
 }
 
-/* Rows dataset/resource metadata */
+/* Truncate Rows dataset/resource metadata */
 .truncate-text {
   white-space: nowrap;
   overflow: hidden;
@@ -968,6 +968,13 @@ img.spatial_uri-icon {
   display: inline-block;
   max-width: 100%;
   vertical-align: middle;
+}
+
+.truncate-td {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
 }
 
 /* Links list*/

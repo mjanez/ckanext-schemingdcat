@@ -8,7 +8,19 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 <!-- insertion marker -->
 ## Unreleased
 
-<small>[Compare with latest](https://github.com/mjanez/ckanext-scheming_dcat/compare/v4.2.1...HEAD)</small>
+<small>[Compare with latest](https://github.com/mjanez/ckanext-scheming_dcat/compare/v4.2.2...HEAD)</small>
+
+<!-- insertion marker -->
+## [v4.2.2](https://github.com/mjanez/ckanext-scheming_dcat/releases/tag/v4.2.2) - 2024-11-11
+
+<small>[Compare with v4.2.1](https://github.com/mjanez/ckanext-scheming_dcat/compare/v4.2.1...v4.2.2)</small>
+
+### Added
+
+- Add text truncation styles for links, texts, and lists in metadata/resource info ([a48f239](https://github.com/mjanez/ckanext-scheming_dcat/commit/a48f23925ab131d0359156fbe13842e506da48a4) by mjanez).
+- Add informational message for sysadmin users managing harvest sources and improve README ([6392811](https://github.com/mjanez/ckanext-scheming_dcat/commit/6392811c60f4758634340695562aa9c5004662eb) by mjanez).
+- Add text truncation styles for dataset/resource metadata display ([e09c8c6](https://github.com/mjanez/ckanext-scheming_dcat/commit/e09c8c6664158441772d4f6d923d7c2df956a20d) by mjanez).
+
 
 <!-- insertion marker -->
 ## [v4.2.1](https://github.com/mjanez/ckanext-scheming_dcat/releases/tag/v4.2.1) - 2024-11-04
@@ -24,6 +36,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Fixed
 
+- Fix org label breadcrumb navigation ([ead4bfc](https://github.com/mjanez/ckanext-scheming_dcat/commit/ead4bfc79068d6a63a748bbe6bd8b6a9681f7795) by mjanez).
+- Fix DCAT_AP_HVD_CATEGORY_LEGISLATION duplicates bug ([df062da](https://github.com/mjanez/ckanext-scheming_dcat/commit/df062da16832f6e81f8e56424c15f3e742c573ca) by mjanez).
+- Fix data attributes for purge action (admin/trash.html) ([73311ba](https://github.com/mjanez/ckanext-scheming_dcat/commit/73311ba6f5be10e74acde1a5ca53e8f203cafb6b) by mjanez).
 - Fix access_rights, maintainer and author field bugs ([ef1f26c](https://github.com/mjanez/ckanext-scheming_dcat/commit/ef1f26cdc7c9cdc1e3275214d6dda0522fa1d1b7) by mjanez).
 - Fix dataset_id_field assignment in SchemingDCATXLSHarvester configuration ([1705773](https://github.com/mjanez/ckanext-scheming_dcat/commit/1705773a9a0e3e35b67f23eb3867bc0f95aa6e2b) by mjanez).
 - Fix validators for dataset privacy settings (private) ([7b86e3c](https://github.com/mjanez/ckanext-scheming_dcat/commit/7b86e3cc02a0a4bf409a29ed49ff5930679ab44e) by mjanez).
@@ -34,6 +49,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 - Removed old logic.py ([8de31b9](https://github.com/mjanez/ckanext-scheming_dcat/commit/8de31b94efc0602336cfb59952b28f82b7df13f0) by mjanez).
 
+<!-- insertion marker -->
 ## [v4.2.0](https://github.com/mjanez/ckanext-scheming_dcat/releases/tag/v4.2.0) - 2024-10-17
 
 <small>[Compare with v4.1.0](https://github.com/mjanez/ckanext-scheming_dcat/compare/v4.1.0...v4.2.0)</small>
