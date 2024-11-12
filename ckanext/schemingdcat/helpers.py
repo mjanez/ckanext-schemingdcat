@@ -1990,7 +1990,6 @@ def schemingdcat_user_is_org_member(
         >>> schemingdcat_user_is_org_member("org_id", user, "editor")
         True
     """
-    log.debug(f"{locals()=}")
     result = False
     if org_id is not None and user is not None:
         member_list_action = p.toolkit.get_action("schemingdcat_member_list")

@@ -622,3 +622,24 @@ def sql_clauses(schema, table, column, alias):
 
   else:
     return f"{schema}.{table}.{column} AS {alias}"
+
+def remove_private_keys(data, private_keys=None):
+    """
+    Removes private keys from a dictionary.
+
+    Args:
+        data (dict): The dictionary from which private keys will be removed.
+        private_keys (list, optional): A list of private keys to remove. If not provided, uses DEFAULT_PRIVATE_KEYS.
+
+    Returns:
+        dict: The dictionary without the private keys.
+    """
+    if private_keys is None:
+        private_keys = p.toolkit.config.get('ckanext.schemingdcat.api.private_fields')
+
+    #log.debug('private_keys: %s', private_keys)
+    for key in private_keys:
+        if key in data:
+            del data[key]
+    #log.debug('Processed data: %s', data)
+    return data

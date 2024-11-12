@@ -58,6 +58,25 @@ groups:
         required: false
         example: 'https://demo.pycsw.org/cite/csw'
 
+  - annotation: API settings
+    options:
+      - key: ckanext.schemingdcat.api.private_fields
+        description: |
+          List of fields that should not be exposed in the API actions like `package_show`, `package_search` `resource_show`, etc.
+        type: list
+        default: []
+        required: false
+        
+      - key: ckanext.schemingdcat.api.private_fields_roles
+        description: |
+          List of members that has access to private_fields. By default members of the organization with the role `admin`, `editor` and `member` have access to private fields.
+        type: list
+        default:
+          - admin
+          - editor
+          - member
+        required: false
+
   - annotation: Facet settings
     options:
       - key: ckanext.schemingdcat.default_facet_operator
