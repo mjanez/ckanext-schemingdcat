@@ -54,6 +54,7 @@ __all__ = [
     'slugify_pat',
     'URL_REGEX',
     'INVALID_CHARS',
+    'TAGS_NORMALIZE_PATTERN',
     'ACCENT_MAP',
     'COMMON_DATE_FORMATS'
 ]
