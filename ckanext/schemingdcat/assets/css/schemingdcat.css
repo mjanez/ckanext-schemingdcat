@@ -39,6 +39,7 @@
   --sct-secondary-color: #2f88a3;
   --sct-secondary-border-color: #00316426;
   --sct-secondary-bg-color: #0031641f;
+  --sct-grey-color: #6c757d;
 }
 
 body {
@@ -3732,4 +3733,8 @@ input#lang-r:checked ~ div .example-r {
   right: 0; 
   top: 60%;
   transform: translateY(-40%);
+}
+
+.text-muted {
+  color: var(--sct-grey-color);
 }
