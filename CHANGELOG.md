@@ -6,9 +6,19 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 <!-- insertion marker -->
-## Unreleased
+## [v4.2.3](https://github.com/mjanez/ckanext-scheming_dcat/releases/tag/v4.2.3) - 2024-11-12
 
-<small>[Compare with latest](https://github.com/mjanez/ckanext-scheming_dcat/compare/v4.2.2...HEAD)</small>
+<small>[Compare with latest](https://github.com/mjanez/ckanext-scheming_dcat/compare/v4.2.3...v4.2.2)</small>
+
+### Added
+
+- Add private_fields logic to package_show, package_search, etc. and config options ([ad8172d](https://github.com/mjanez/ckanext-scheming_dcat/commit/ad8172dae84714f970057fe516a8d75f40ed9865) by mjanez).
+- Add validators and presets for tag_string normalization (normalize_tag_string_autocomplete) ([e606499](https://github.com/mjanez/ckanext-scheming_dcat/commit/e606499c8f3300d15fda9b20446dfff371478ac1) by mjanez).
+- Add custom identifier template and update translations for metadata completion message ([eba6c0d](https://github.com/mjanez/ckanext-scheming_dcat/commit/eba6c0dea0d3ad690979f8e552374f0cfbc421c4) by mjanez).
+
+### Fixed
+
+- Fix user organization membership check and clean up tag normalization logging ([404b838](https://github.com/mjanez/ckanext-scheming_dcat/commit/404b83887e35d817a9e4c806865fe0fb2032fae0) by mjanez).
 
 <!-- insertion marker -->
 ## [v4.2.2](https://github.com/mjanez/ckanext-scheming_dcat/releases/tag/v4.2.2) - 2024-11-11
@@ -21,8 +31,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Add informational message for sysadmin users managing harvest sources and improve README ([6392811](https://github.com/mjanez/ckanext-scheming_dcat/commit/6392811c60f4758634340695562aa9c5004662eb) by mjanez).
 - Add text truncation styles for dataset/resource metadata display ([e09c8c6](https://github.com/mjanez/ckanext-scheming_dcat/commit/e09c8c6664158441772d4f6d923d7c2df956a20d) by mjanez).
 
+### Fixed
 
-<!-- insertion marker -->
+- Fix org label breadcrumb navigation ([ead4bfc](https://github.com/mjanez/ckanext-scheming_dcat/commit/ead4bfc79068d6a63a748bbe6bd8b6a9681f7795) by mjanez).
+- Fix DCAT_AP_HVD_CATEGORY_LEGISLATION duplicates bug ([df062da](https://github.com/mjanez/ckanext-scheming_dcat/commit/df062da16832f6e81f8e56424c15f3e742c573ca) by mjanez).
+
 ## [v4.2.1](https://github.com/mjanez/ckanext-scheming_dcat/releases/tag/v4.2.1) - 2024-11-04
 
 <small>[Compare with v4.2.0](https://github.com/mjanez/ckanext-scheming_dcat/compare/v4.2.0...v4.2.1)</small>
@@ -36,8 +49,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Fixed
 
-- Fix org label breadcrumb navigation ([ead4bfc](https://github.com/mjanez/ckanext-scheming_dcat/commit/ead4bfc79068d6a63a748bbe6bd8b6a9681f7795) by mjanez).
-- Fix DCAT_AP_HVD_CATEGORY_LEGISLATION duplicates bug ([df062da](https://github.com/mjanez/ckanext-scheming_dcat/commit/df062da16832f6e81f8e56424c15f3e742c573ca) by mjanez).
 - Fix data attributes for purge action (admin/trash.html) ([73311ba](https://github.com/mjanez/ckanext-scheming_dcat/commit/73311ba6f5be10e74acde1a5ca53e8f203cafb6b) by mjanez).
 - Fix access_rights, maintainer and author field bugs ([ef1f26c](https://github.com/mjanez/ckanext-scheming_dcat/commit/ef1f26cdc7c9cdc1e3275214d6dda0522fa1d1b7) by mjanez).
 - Fix dataset_id_field assignment in SchemingDCATXLSHarvester configuration ([1705773](https://github.com/mjanez/ckanext-scheming_dcat/commit/1705773a9a0e3e35b67f23eb3867bc0f95aa6e2b) by mjanez).
@@ -49,7 +60,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 - Removed old logic.py ([8de31b9](https://github.com/mjanez/ckanext-scheming_dcat/commit/8de31b94efc0602336cfb59952b28f82b7df13f0) by mjanez).
 
-<!-- insertion marker -->
 ## [v4.2.0](https://github.com/mjanez/ckanext-scheming_dcat/releases/tag/v4.2.0) - 2024-10-17
 
 <small>[Compare with v4.1.0](https://github.com/mjanez/ckanext-scheming_dcat/compare/v4.1.0...v4.2.0)</small>
