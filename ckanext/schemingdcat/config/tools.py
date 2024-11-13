@@ -26,6 +26,7 @@ URL_REGEX = re.compile(
 
 # Compile the regular expression
 INVALID_CHARS = re.compile(r"[^a-zñ0-9_.-]")
+TAGS_NORMALIZE_PATTERN = re.compile(r'[^a-záéíóúüñ0-9\-_\.]')
 
 # Define a dictionary to map accented characters to their unaccented equivalents except ñ
 ACCENT_MAP = str.maketrans({

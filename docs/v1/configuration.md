@@ -125,6 +125,32 @@ Base URI for spatial CSW Endpoint. By default `/csw` is used, provided it is use
 
 
 
+### API settings
+
+
+#### ckanext.schemingdcat.api.private_fields
+
+
+
+
+
+List of fields that should not be exposed in the API actions like `package_show`, `package_search` `resource_show`, etc.
+
+
+
+#### ckanext.schemingdcat.api.private_fields_roles
+
+
+
+
+Default value: `['admin', 'editor', 'member']`
+
+
+List of members that has access to private_fields. By default members of the organization with the role `admin`, `editor` and `member` have access to private fields.
+
+
+
+
 ### Facet settings
 
 

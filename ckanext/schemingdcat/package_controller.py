@@ -7,6 +7,7 @@ from ckanext.scheming.plugins import (
 )
 
 import ckanext.schemingdcat.helpers as sdct_helpers
+from ckanext.schemingdcat.utils import remove_private_keys
 
 import logging
 import sys
@@ -47,11 +48,12 @@ class PackageController():
     def before_search(self, search_params):
         return self.before_dataset_search(search_params)
 
-    # CKAN >= 2.10
     def before_dataset_search(self, search_params):
-        """Modifies search parameters before executing a search.
+        """
+        Modifies search parameters before executing a search.
     
-        This method adjusts the 'fq' (filter query) parameter based on the 'facet.field' value in the search parameters. If 'facet.field' is a list, it iterates through each field, applying the '_facet_search_operator' to modify 'fq'. If 'facet.field' is a string, it directly applies the '_facet_search_operator'. If 'facet.field' is not present or is invalid, no modification is made.
+        This method adjusts the 'fq' (filter query) parameter based on the 'facet.field' value in the search parameters.
+        It also removes private fields from 'fl' parameters.
     
         Args:
             search_params (dict): The search parameters to be modified. Expected to contain 'facet.field' and 'fq'.
@@ -62,8 +64,19 @@ class PackageController():
         Raises:
             Exception: Captures and logs any exception that occurs during the modification of search parameters.
         """
-        try:
-            #log.debug("Initial search_params: %s", search_params)
+        try:            
+            private_fields = p.toolkit.config.get('ckanext.schemingdcat.api.private_fields', [])
+            
+            # Ensure private_fields is a list of strings
+            if not isinstance(private_fields, list) or not all(isinstance(field, str) for field in private_fields):
+                private_fields = []
+
+            # Clean 'fl' parameter
+            if 'fl' in search_params and search_params['fl'] is not None:
+                fl_fields = search_params['fl']
+                fl_fields = [field for field in fl_fields if field not in private_fields and not any(field.startswith(f'extras_{pf}') for pf in private_fields)]
+                search_params.update({'fl': fl_fields})
+        
             facet_field = search_params.get('facet.field', '')
             #log.debug("facet.field: %s", facet_field)
             
@@ -79,7 +92,7 @@ class PackageController():
                 if new_fq and isinstance(new_fq, str):
                     search_params.update({'fq': new_fq})
         except Exception as e:
-            log.error("[before_search] Error: %s", e)
+            log.error("[before_dataset_search] Error: %s", e)
         return search_params
 
     # CKAN < 2.10
@@ -87,6 +100,34 @@ class PackageController():
         return self.after_dataset_search(search_results, search_params)
 
     def after_dataset_search(self, search_results, search_params):
+        """
+        Process the search results after a search, efficiently removing private keys.
+    
+        Args:
+            search_results (dict): The search results dictionary to be processed.
+            search_params (dict): The search parameters used for the search.
+    
+        Returns:
+            dict: The processed search results dictionary with private keys removed from each result.
+        """
+        try:
+            private_fields = p.toolkit.config.get('ckanext.schemingdcat.api.private_fields', [])
+            
+            # Ensure private_fields is a list of strings
+            if not isinstance(private_fields, list) or not all(isinstance(field, str) for field in private_fields):
+                private_fields = []
+    
+            # Precompute the set of fields to remove, including 'extras_' prefixed fields
+            fields_to_remove = set(private_fields + [f"extras_{field}" for field in private_fields])
+    
+            # Process each result in the search results
+            for result in search_results.get('results', []):
+                for field in fields_to_remove:
+                    result.pop(field, None)  # Removes the field if it exists
+    
+        except Exception as e:
+            log.error("[after_dataset_search] Error: %s", e)
+    
         return search_results
 
     # CKAN < 2.10
@@ -116,7 +157,58 @@ class PackageController():
         data_dict = self._before_index_dump_dicts(data_dict)
 
         return data_dict
+
+    # CKAN < 2.10
+    def before_view(self, pkg_dict):
+        return self.before_dataset_view(pkg_dict)
+
+    def before_dataset_view(self, pkg_dict):
+        return pkg_dict
+
+    # CKAN < 2.10
+    def after_create(self, context, data_dict):
+        return self.after_dataset_create(context, data_dict)
+
+    def after_dataset_create(self, context, data_dict):
+        return data_dict
+
+    # CKAN < 2.10
+    def after_update(self, context, data_dict):
+        return self.after_dataset_update(context, data_dict)
+
+    def after_dataset_update(self, context, data_dict):
+        return data_dict
+
+    # CKAN < 2.10
+    def after_delete(self, context, data_dict):
+        return self.after_dataset_delete(context, data_dict)
+
+    def after_dataset_delete(self, context, data_dict):
+        return data_dict
+
+    # CKAN < 2.10 hooks
+    def after_show(self, context, data_dict):
+        return self.after_dataset_show(context, data_dict)
     
+    def after_dataset_show(self, context, data_dict):
+        """
+        Process the dataset after it is shown, removing private keys if necessary.
+    
+        Args:
+            context (dict): The context dictionary containing user and other information.
+            data_dict (dict): The dataset dictionary to be processed.
+    
+        Returns:
+            dict: The processed dataset dictionary with private keys removed if necessary.
+        """
+        data_dict = self._clean_private_fields(context, data_dict)
+
+        return data_dict
+
+    def update_facet_titles(self, facet_titles):
+        return facet_titles
+
+    # Additional methods
     def convert_stringified_lists(self, data_dict):
         """
         Converts stringified lists in the data dictionary to actual lists.
@@ -251,44 +343,6 @@ class PackageController():
                 data_dict[key] = json.dumps(value)
         return data_dict
 
-    # CKAN < 2.10
-    def before_view(self, pkg_dict):
-        return self.before_dataset_view(pkg_dict)
-
-    def before_dataset_view(self, pkg_dict):
-        return pkg_dict
-
-    # CKAN < 2.10
-    def after_create(self, context, data_dict):
-        return self.after_dataset_create(context, data_dict)
-
-    def after_dataset_create(self, context, data_dict):
-        return data_dict
-
-    # CKAN < 2.10
-    def after_update(self, context, data_dict):
-        return self.after_dataset_update(context, data_dict)
-
-    def after_dataset_update(self, context, data_dict):
-        return data_dict
-
-    # CKAN < 2.10
-    def after_delete(self, context, data_dict):
-        return self.after_dataset_delete(context, data_dict)
-
-    def after_dataset_delete(self, context, data_dict):
-        return data_dict
-
-    # CKAN < 2.10
-    def after_show(self, context, data_dict):
-        return self.after_dataset_show(context, data_dict)
-
-    def after_dataset_show(self, context, data_dict):
-        return data_dict
-
-    def update_facet_titles(self, facet_titles):
-        return facet_titles
-
     def package_controller_config(self, default_facet_operator):
         self.default_facet_operator = default_facet_operator
 
@@ -331,3 +385,47 @@ class PackageController():
             new_fq = fq
 
         return new_fq
+    
+    def _clean_private_fields(self, context, data_dict):
+        """
+        Process the dataset after it is shown, removing private keys if necessary.
+    
+        Args:
+            context (dict): The context dictionary containing user and other information.
+            data_dict (dict): The dataset dictionary to be processed.
+    
+        Returns:
+            dict: The processed dataset dictionary with private keys removed if necessary.
+        """
+        private_fields_roles = p.toolkit.config.get('ckanext.schemingdcat.api.private_fields_roles') 
+
+        # Ensure private_fields_roles is a list of strings
+        if not isinstance(private_fields_roles, list) or not all(isinstance(role, str) for role in private_fields_roles):
+            private_fields_roles = ['admin']
+
+        try:
+            user = context.get("auth_user_obj")
+            if user is None or user.is_anonymous:
+                data_dict = remove_private_keys(data_dict)
+                return data_dict
+    
+            if hasattr(user, 'sysadmin') and user.sysadmin:
+                return data_dict
+    
+            if data_dict is not None:
+                org_id = data_dict.get("owner_org")
+                if org_id is not None:
+                    members = p.toolkit.get_action("schemingdcat_member_list")(
+                        data_dict={"id": org_id, "object_type": "user"}
+                    )
+                    for member_id, _, role in members:
+                        if member_id == user.id and role.lower() in private_fields_roles:
+                            return data_dict
+                    data_dict = remove_private_keys(data_dict)
+                else:
+                    data_dict = remove_private_keys(data_dict)
+        except Exception as e:
+            log.error('Error in after_dataset_show: %s', e)
+            data_dict = remove_private_keys(data_dict)
+        
+        return data_dict

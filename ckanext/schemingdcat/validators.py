@@ -3,6 +3,7 @@ import re
 import six
 import mimetypes
 from shapely.geometry import shape, Polygon
+from functools import lru_cache
 
 import ckanext.scheming.helpers as sh
 import ckanext.schemingdcat.helpers as helpers
@@ -35,7 +36,8 @@ from ckanext.schemingdcat.utils import parse_json
 from ckanext.schemingdcat.config import (
     OGC2CKAN_HARVESTER_MD_CONFIG,
     mimetype_base_uri,
-    DCAT_AP_HVD_CATEGORY_LEGISLATION
+    DCAT_AP_HVD_CATEGORY_LEGISLATION,
+    TAGS_NORMALIZE_PATTERN
 )
 
 log = logging.getLogger(__name__)
@@ -1159,3 +1161,69 @@ def schemingdcat_hvd_category_applicable_legislation(field, schema):
                     data[key] = [DCAT_AP_HVD_CATEGORY_LEGISLATION]
 
     return validator
+
+@scheming_validator
+@validator
+def normalize_tag_strings(field, schema):
+    """
+    Normalizes the value of a specified tag_string and tags before tag_string_convert validator using the rules determined by normalize_string
+
+    Args:
+        field (dict): Information about the field to update.
+        schema (dict): The schema for the field to update.
+
+    Returns:
+        function: A validation function to normalize the value of the key.
+    """
+    def validator(key, data, errors, context):
+        value = data.get(key)
+
+        try:
+            if value:
+                normalized_values = []
+                if isinstance(value, str):
+                    tags = value.split(',')
+                    normalized_values = [normalize_string(tag.strip()) for tag in tags]
+                    data[key] = ','.join(normalized_values)
+                elif isinstance(value, list):
+                    for tag in value:
+                        if 'name' in tag:
+                            tag['name'] = normalize_string(tag['name'].strip())
+                        if 'display_name' in tag:
+                            tag['display_name'] = normalize_string(tag['display_name'].strip())
+
+            # Normalize the tags in data
+            for data_key in data.keys():
+                if isinstance(data_key, tuple) and data_key[0] == 'tags' and data_key[2] == 'name':
+                    data[data_key] = normalize_string(data[data_key].strip())
+
+        except Exception as e:
+            log.error(f"Error normalizing tags: {e}")
+            
+    return validator
+
+@staticmethod
+@lru_cache(maxsize=44)
+def normalize_string(s):
+    """Normalizes a string according to the rules:
+        - Replaces spaces with hyphens.
+        - Converts to lowercase.
+        - Removes disallowed characters.
+        - Normalize to using only alphanumeric and spanish accents (áéíóúüñ) or hyphens "-", underscores "_" and dots "."
+        - Limits the length to 30 characters.
+
+    Args:
+        s (str): String to normalize.
+
+    Returns:
+        str: Normalized string.
+
+    Raises:
+        Invalid: If the string contains disallowed characters.
+    """    
+    s = s.strip()
+    s = s.lower()
+    s = s.replace(' ', '-')
+    s = TAGS_NORMALIZE_PATTERN.sub('', s)
+    s = s[:30]
+    return s

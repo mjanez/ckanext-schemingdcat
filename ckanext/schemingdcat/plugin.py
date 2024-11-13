@@ -50,6 +50,7 @@ class SchemingDCATPlugin(
     p.implements(p.IConfigurer)
     p.implements(p.ITemplateHelpers)
     p.implements(p.IFacets)
+    # Custom PackageController, also remove private keys from the package dict
     p.implements(p.IPackageController)
     p.implements(p.ITranslation)
     p.implements(p.IValidators)
