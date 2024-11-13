@@ -46,7 +46,7 @@ def setup():
         define_tables()
 
     if not statistics_table.exists():
-        statistics_table.create()
+        statistics_table.create(checkfirst=True)
         log.debug('SchemingDCAT statistics table defined in DB')
 
 def clean():
@@ -62,10 +62,13 @@ def clean():
     """
     global statistics_table
 
-    if statistics_table is not None and statistics_table.exists():
-        statistics_table.drop()
-        log.debug('SchemingDCAT statistics table dropped from DB')
-
+    try:
+        if statistics_table is not None and statistics_table.exists():
+            statistics_table.drop(checkfirst=True)
+            log.debug('SchemingDCAT statistics table dropped from DB')
+    except Exception as e:
+        log.error('Error dropping statistics table: %s', e)
+    
     setup()
     
 def update_table():
