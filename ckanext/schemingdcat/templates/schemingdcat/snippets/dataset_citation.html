@@ -12,11 +12,12 @@
 
     <div class="citation">
         <div id="citation-status">
-            {% if (pkg['author'] and pkg['title']) or pkg['resources'] %}
+            {% if (pkg.get('author') and pkg.get('title')) or pkg.get('resources') %}
             <h3>{{ _('Cite as') }}</h3>
             <div class="citation-string">
                 <p>
-                    {% set authors = pkg['author'].split(';') %}
+                    {% set authors = pkg.get('author', '') %}
+                    {% set authors = authors.split(';') if authors else [] %}
                     {% for author in authors %}
                         {{ format_element(author, loop.last, true) }}
                     {% endfor %}
@@ -44,7 +45,7 @@
                 <img id="clipboard-icon" src="{{ h.url_for_static('/images/default/clipboard.svg') }}" class="clipboard-icon" alt="Clipboard Icon">
             </div>
             {% endif %}
-            {% if pkg['private'] and not doi %}
+            {% if pkg.get('private') and not doi %}
             <div class="pad-v">
                 <span class="dataset-private label label-inverse"
                     title="This DOI has not yet been published">
