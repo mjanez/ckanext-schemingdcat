@@ -1990,14 +1990,15 @@ def schemingdcat_user_is_org_member(
         >>> schemingdcat_user_is_org_member("org_id", user, "editor")
         True
     """
+    if not user or not hasattr(user, 'id'):
+        return False
+
     result = False
-    if org_id is not None and user is not None:
+    if org_id is not None:
         member_list_action = p.toolkit.get_action("schemingdcat_member_list")
         org_members = member_list_action(
             data_dict={"id": org_id, "object_type": "user"}
         )
-        #log.debug(f"{user.id=}")
-        #log.debug(f"{org_members=}")
         for member_id, _, member_role in org_members:
             if user.id == member_id:
                 #log.debug('member_role: %s and role: %s', member_role, role)

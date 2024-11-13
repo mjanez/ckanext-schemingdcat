@@ -1175,8 +1175,6 @@ def normalize_tag_strings(field, schema):
     Returns:
         function: A validation function to normalize the value of the key.
     """
-    log.debug('miteco_normalize_tag_string: %s', field)
-
     def validator(key, data, errors, context):
         value = data.get(key)
 
