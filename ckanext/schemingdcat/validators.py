@@ -1202,7 +1202,6 @@ def normalize_tag_strings(field, schema):
             
     return validator
 
-@staticmethod
 @lru_cache(maxsize=44)
 def normalize_string(s):
     """Normalizes a string according to the rules:
