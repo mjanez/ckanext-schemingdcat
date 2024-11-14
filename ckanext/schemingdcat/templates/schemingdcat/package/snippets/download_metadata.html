@@ -58,8 +58,10 @@
                     {% set added_profiles = [] %}
                     {% for profile in profiles %}
                         {% if profile.profile_label not in added_profiles %}
-                            {% if 'eu_dcat_ap' in profile.profile or (pkg.theme_es and 'es_dcat' in profile.profile) %}
-                                <li class="dropdown-header" title="{{ _('RDF DCAT Endpoint') }}"><i class="fa fa-share-alt"></i> {{ profile.profile_label }} - {{ _('Linked Data') }}</li>
+                            {% if ('eu_dcat_ap' in profile.profile or (pkg.theme_es and 'es_dcat' in profile.profile)) and not ('eu_geodcat_ap' in profile.profile and pkg.dcat_type not in inspire_metadata_values) %}
+                                <li class="dropdown-header" title="{{ _('RDF DCAT Endpoint') }}">
+                                    <i class="fa fa-share-alt"></i> {{ profile.profile_label }} - {{ _('Linked Data') }}
+                                </li>
                                 {% for link in linked_data_links if link.endpoint_type == 'dcat' %}
                                     {% set url = h.url_for(link.endpoint, profiles=profile.profile, **link.endpoint_data) %}
                                     {% set format_label = '<strong>' + link.format + '</strong>' %}
