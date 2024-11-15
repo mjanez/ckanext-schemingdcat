@@ -723,6 +723,7 @@ class SchemingDCATXLSHarvester(SchemingDCATHarvester):
             self._storage_type = self.config.get("storage_type")
             self._auth = self.config.get("auth")
             self._credentials = self.config.get("credentials")
+            dataset_id_colname = self.config.get("dataset_id_colname", "dataset_id")
 
             # Get URLs for remote file
             remote_xls_base_url = self._get_storage_base_url(source_url, self._storage_type)
@@ -843,18 +844,24 @@ class SchemingDCATXLSHarvester(SchemingDCATHarvester):
 
                 for error_msg in after_cleaning_errors:
                     self._save_gather_error(error_msg, harvest_job)
-    
+
+        # Log the length of clean_datasets after after_cleaning
+        log.debug(f"Length of clean_datasets after_cleaning ISQLHarvester: {len(clean_datasets)}")
+
         # Add datasets to the database
         try:
             log.debug('Adding datasets to DB')
             datasets_to_harvest = {}
             source_dataset = model.Package.get(harvest_job.source.id)
+            skipped_datasets = 0  # Counter for omitted datasets
+            identifier_counts = {}  # To track the frequency of identifiers
+
             for dataset in clean_datasets:
+                #log.debug('dataset: %s', dataset)
 
                 # Set and update translated fields
                 dataset = self._set_translated_fields(dataset)
                 
-                # Using name as identifier. Remote table datasets doesnt have identifier
                 try:
                     if not dataset.get('name'):
                         dataset['name'] = self._gen_new_name(dataset['title'])
@@ -862,12 +869,19 @@ class SchemingDCATXLSHarvester(SchemingDCATHarvester):
                         suffix = sum(name.startswith(dataset['name'] + '-') for name in self._names_taken) + 1
                         dataset['name'] = '{}-{}'.format(dataset['name'], suffix)
                     self._names_taken.append(dataset['name'])
-
-                    # If the dataset has no identifier, use the name
+        
+                    # If the dataset has no identifier, use an UUID
                     if not dataset.get('identifier'):
-                        dataset['identifier'] = self._generate_identifier(dataset)
+                        dataset['identifier'] = str(uuid.uuid4())
+        
                 except Exception as e:
-                    self._save_gather_error('Error for the dataset identifier %s [%r]' % (dataset['identifier'], e), harvest_job)
+                    skipped_datasets += 1
+                    self._save_gather_error('Error for the dataset identifier %s [%r]' % (dataset.get('identifier'), e), harvest_job)
+                    continue
+                
+                if not dataset.get('identifier'):
+                    skipped_datasets += 1
+                    self._save_gather_error('Missing identifier for dataset with title: %s' % dataset.get('title'), harvest_job)
                     continue
                 
                 # Check if a dataset with the same identifier exists can be overridden if necessary
@@ -876,23 +890,33 @@ class SchemingDCATXLSHarvester(SchemingDCATHarvester):
                             
                 # Unless already set by the dateutil.parser.parser, get the owner organization (if any)
                 # from the harvest source dataset
-                if not dataset.get('owner_org'):
-                    if source_dataset.owner_org:
-                        dataset['owner_org'] = source_dataset.owner_org
-
+                if not dataset.get('owner_org') and source_dataset.owner_org:
+                    dataset['owner_org'] = source_dataset.owner_org
+        
                 if 'extras' not in dataset:
                     dataset['extras'] = []
 
                 # if existing_dataset:
                 #     dataset['identifier'] = existing_dataset['identifier']
-                #     guids_in_db.add(dataset['identifier'])
-                    
-                guids_in_harvest.add(dataset['identifier'])
-                datasets_to_harvest[dataset['identifier']] = dataset
 
+                identifier = dataset['identifier']
+                # Track the frequency of each identifier
+                identifier_counts[identifier] = identifier_counts.get(identifier, 0) + 1
+                if identifier_counts[identifier] > 1:
+                    log.warning(f'Duplicate identifier detected: {identifier}. This dataset will overwrite the previous one.')
+
+                #     guids_in_db.add(dataset['identifier'])
+
+                guids_in_harvest.add(identifier)
+                datasets_to_harvest[identifier] = dataset
+        
+            # Register duplicate identifiers
+            duplicates = [id for id, count in identifier_counts.items() if count > 1]
+            if duplicates:
+                log.warning(f"The following duplicate identifiers {len(duplicates)} are found: {duplicates}")
+        
         except Exception as e:
-            self._save_gather_error('Error when processsing dataset: %r / %s' % (e, traceback.format_exc()),
-                                    harvest_job)
+            self._save_gather_error('Error when processing dataset: %r / %s' % (e, traceback.format_exc()), harvest_job)
             return []
 
         # Check guids to create/update/delete
@@ -900,8 +924,13 @@ class SchemingDCATXLSHarvester(SchemingDCATHarvester):
         # Get objects/datasets to delete (ie in the DB but not in the source)
         delete = set(guids_in_db) - set(guids_in_harvest)
         change = guids_in_db & guids_in_harvest
-
-        log.debug('new: %s, delete: %s and change: %s', new, delete, change)
+        
+        log.debug(f"Number of skipped datasets: {skipped_datasets}")
+        log.debug(f'guids_in_harvest ({len(guids_in_harvest)})')
+        log.debug(f'guids_in_db ({len(guids_in_db)}): {guids_in_db}')
+        log.debug(f'new ({len(new)})')
+        log.debug(f'delete ({len(delete)})')
+        log.debug(f'change ({len(change)})')
             
         ids = []
         for guid in new:
