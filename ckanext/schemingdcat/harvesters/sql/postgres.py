@@ -147,6 +147,11 @@ class SchemingDCATPostgresHarvester(SchemingDCATSQLHarvester):
         for mapping, query in self._queries.items():
             results, column_names = self.db_manager.execute_query(query)
             results_df = pd.DataFrame(results, columns=column_names, dtype=str).fillna('')
+
+            # # Exporting the DataFrame to a CSV file
+            # log.debug('export to output.csv')
+            # filename = f'output_{mapping}.csv'
+            # results_df.to_csv(filename, index=False)
             
             # Map the result to the correct category in the results dictionary
             # Only add results_df if it is not empty
