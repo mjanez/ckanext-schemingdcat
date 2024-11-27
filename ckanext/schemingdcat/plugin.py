@@ -117,10 +117,10 @@ class SchemingDCATDatasetsPlugin(SchemingDatasetsPlugin):
     p.implements(p.IValidators)
 
     def read_template(self):
-        return "schemingdcat/package/read.html"
+        return "package/read.html"
 
     def resource_template(self):
-        return "schemingdcat/package/resource_read.html"
+        return "package/resource_read.html"
 
     def package_form(self):
         return "schemingdcat/package/snippets/package_form.html"
