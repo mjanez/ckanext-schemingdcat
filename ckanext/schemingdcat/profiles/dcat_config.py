@@ -25,8 +25,9 @@ from ckanext.dcat.profiles.base import (
     DCT,
     ADMS,
     GEOJSON_IMT,
+    ORG,
     Namespace,
-    Literal    
+    Literal   
 )
 
 EUROVOC = Namespace("http://publications.europa.eu/ontology/euvoc#")
@@ -35,6 +36,7 @@ DC = Namespace("http://purl.org/dc/elements/1.1/")
 DCAT = Namespace("http://www.w3.org/ns/dcat#")
 DCATAP = Namespace("http://data.europa.eu/r5r/")
 GEODCATAP = Namespace("http://data.europa.eu/930/")
+DCATUS = Namespace("http://resources.data.gov/ontology/dcat-us#")
 VCARD = Namespace("http://www.w3.org/2006/vcard/ns#")
 FOAF = Namespace("http://xmlns.com/foaf/0.1/")
 SCHEMA = Namespace("http://schema.org/")
