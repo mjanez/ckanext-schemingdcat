@@ -1462,7 +1462,6 @@ dataset_fields:
     es: 'Información de contacto para consultas sobre el conjunto de datos.'
   form_group_id: contact
 
-
 # GeoDCAT-AP: https://semiceu.github.io/GeoDCAT-AP/releases/3.0.0#responsible-party-and-metadata-point-of-contact---dataset-responsible-party-and-metadata-point-of-contact
 - field_name: publisher_name
   label:

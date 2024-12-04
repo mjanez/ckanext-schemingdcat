@@ -4,8 +4,8 @@ about: "Datasets/Distributions: Adaptation for CKAN of the GeoDCAT-AP metadata s
 about_url: https://github.com/mjanez/ckanext-schemingdcat
 form_languages: ["es", "en"]
 required_language: "es"
-schema_version: 3.1
-schema_date: 2024-12-04
+schema_version: 3.0
+schema_date: 2024-08-01
 schema_name: es_geodcat_ap_full
 schema_title: GeoDCAT-AP (ES)
 schema_description: "Geospatial extension to the DCAT application profile for data portals in Europe (GeoDCAT-AP). It is adapted to the Spanish context and includes compatibility with the Technical Interoperability Standard (NTI-RISP), the open data profile for Spain: https://datos.gob.es/en/documentacion/guia-de-aplicacion-de-la-norma-tecnica-de-interoperabilidad-de-reutilizacion-de"
@@ -1765,7 +1765,6 @@ dataset_fields:
     en: 'Contact information for enquiries about the dataset.'
     es: 'Información de contacto para consultas sobre el conjunto de datos.'
   form_group_id: contact
-
 
 # GeoDCAT-AP: https://semiceu.github.io/GeoDCAT-AP/releases/3.0.0#responsible-party-and-metadata-point-of-contact---dataset-responsible-party-and-metadata-point-of-contact
 - field_name: publisher_name
