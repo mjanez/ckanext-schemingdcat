@@ -1094,12 +1094,14 @@ def get_langs():
     Retrieve the list of language priorities from the CKAN configuration.
 
     This function fetches the 'ckan.locales_offered' configuration setting,
-    splits it by spaces, and returns the resulting list of language codes.
+    splits it by spaces if it's a string, and returns the resulting list of language codes.
 
     Returns:
         list: A list of language codes as strings.
     """
-    language_priorities = p.toolkit.config.get('ckan.locales_offered', '').split()
+    language_priorities = p.toolkit.config.get('ckan.locales_offered', '')
+    if isinstance(language_priorities, str):
+        language_priorities = language_priorities.split()
     return language_priorities
 
 @lru_cache(maxsize=4)
