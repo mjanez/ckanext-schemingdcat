@@ -205,7 +205,7 @@ class EsNTIRISPProfile(EuDCATAPProfile):
             )
             for key in default_translated_fields_es_dcat
         ]
-        self._add_triples_from_dict(dataset_dict, dataset_ref, items, multilang=True)
+        self._add_triples_from_dict(dataset_dict, dataset_ref, items)
 
 
         # Basic elements (Title, description, Dates)
