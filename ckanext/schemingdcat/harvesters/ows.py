@@ -1,19 +1,11 @@
-import re
 import logging
-from urllib.parse import urlparse, urlunparse, urlencode
-from owslib.fes import PropertyIsLike, PropertyIsEqualTo, SortBy, SortProperty
-
-from ckan import model
-
-from ckanext.harvest.model import HarvestObject
-from ckanext.schemingdcat.lib.ows import CswService
-from ckanext.schemingdcat.harvesters.base import SchemingDCATHarvester
+from ckanext.schemingdcat.harvesters.csw import SchemingDCATCSWHarvester
 
 log = logging.getLogger(__name__)
 
 
-# TODO: Adapt to ckanext-harvest code the improved OWS harvester from: https://github.com/mjanez/ckan-ogc/blob/main/ogc2ckan/harvesters/ogc.py
-class SchemingDCATOWSHarvester(SchemingDCATHarvester):
+# TODO: Adapt SchemingDCATCSWHarvester to using OWS (OGC Web Services/Geoserver) instead of CSW
+class SchemingDCATOWSHarvester(SchemingDCATCSWHarvester):
     '''
     An expanded Harvester for OWS servers like Geoserver
     '''
