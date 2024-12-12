@@ -468,6 +468,8 @@ class SchemingDCATCSWHarvester(CSWHarvester, SchemingDCATHarvester):
             log.error('No harvest object received')
             return False   
         
+        self._set_config(harvest_object.source.config)
+        
         if self.force_import:
             status = 'change'
         else:
