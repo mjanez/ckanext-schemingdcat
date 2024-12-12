@@ -125,12 +125,12 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
 
         #  Simple values
         for key, predicate in (
+            ("language", DCT.language),
             ("issued", DCT.issued),
             ("modified", DCT.modified),
             ("identifier", DCT.identifier),
             ("version_notes", ADMS.versionNotes),
             ("frequency", DCT.accrualPeriodicity),
-            ("provenance", DCT.provenance),
             ("dcat_type", DCT.type),
         ):
 
@@ -143,8 +143,6 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
 
         #  Lists
         for key, predicate, in (
-            ("language", DCT.language),
-            ("theme", DCAT.theme),
             ("alternate_identifier", ADMS.identifier),
             ("conforms_to", DCT.conformsTo),
             ("documentation", FOAF.page),
@@ -158,44 +156,40 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
             if values:
                 dataset_dict["extras"].append({"key": key, "value": json.dumps(values)})
 
-        # Contact details
-        if self._schema_field("contact"):
-            # This is a scheming field, will be hanlded in a separate profile
-            pass
-        else:
-            contact = self._contact_details(dataset_ref, DCAT.contactPoint)
-            if not contact:
-                # adms:contactPoint was supported on the first version of DCAT-AP
-                contact = self._contact_details(dataset_ref, ADMS.contactPoint)
-            if contact:
-                contact = contact[0]
-                for key in ("uri", "name", "email", "identifier", "url", "role"):
-                    if contact.get(key):
-                        dataset_dict["extras"].append(
-                            {
-                                "key": "contact_{0}".format(key),
-                                "value": contact.get(key)
-                            }
-                        )
+        #FIX: ckanext-schemingdcat: Contact details
+        contact = self._contact_details(dataset_ref, DCAT.contactPoint)
+        if not contact:
+            # adms:contactPoint was supported on the first version of DCAT-AP
+            contact = self._contact_details(dataset_ref, ADMS.contactPoint)
+        if contact:
+            contact = contact[0]
+            for key in ("uri", "name", "email", "identifier", "url", "role"):
+                if contact.get(key):
+                    dataset_dict["extras"].append(
+                        {
+                            "key": "contact_{0}".format(key),
+                            "value": contact.get(key)
+                        }
+                    )
 
         # Publishers and creators
         for item in [("publisher", DCT.publisher), ("creator", DCT.creator)]:
             agent_key, predicate = item
-            if self._schema_field(agent_key):
-                # This is a scheming field, will be hanlded in a separate profile
-                pass
-            else:
-                agents = self._agents_details(dataset_ref, predicate)
-                if agents:
-                    agent = agents[0]
-                    for key in ("uri", "name", "email", "url", "type", "identifier", "role"):
-                        if agent.get(key):
-                            dataset_dict["extras"].append(
-                                {
-                                    "key": f"{agent_key}_{key}",
-                                    "value": agent.get(key)
-                                }
-                            )
+            #FIX: ckanext-schemingdcat: agent details
+            agents = self._agents_details(dataset_ref, predicate)
+            if agents:
+                agent = agents[0]
+                for key in ("uri", "name", "email", "url", "type", "identifier", "role"):
+                    if agent.get(key):
+                        dataset_dict["extras"].append(
+                            {
+                                "key": f"{agent_key}_{key}",
+                                "value": agent.get(key)
+                            }
+                        )
+
+        # Publisher fallback. Use contact details for publisher if not already set
+        self._publisher_fallback_details(dataset_dict)
 
         # Temporal
         start, end = self._time_interval(dataset_ref, DCT.temporal)
@@ -231,6 +225,25 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
                 src_data = self._extract_catalog_dict(catalog_src)
                 dataset_dict["extras"].extend(src_data)
 
+
+        #TODO: DCAT-AP: Provenance
+        provenance = self._object_value(dataset_ref, DCT.provenance)
+        #log.debug('Provenance eu_dcat_ap_2: %s', provenance)
+        if provenance:
+            provenance_description = self._object_value(provenance, DCT.description)
+            if provenance_description:
+                dataset_dict["extras"].append(
+                    {"key": "provenance", "value": provenance_description}
+                )
+
+        # DCAT-AP: Themes, tags and tag_uri
+        for key, predicate in (
+            ("theme", DCAT.theme),
+        ):
+            values = self._object_value_list(dataset_ref, predicate)
+            if values:
+                self._assign_theme_tags(dataset_dict, key, values)
+
         # Resources
         for distribution in self._distributions(dataset_ref):
 
@@ -240,6 +253,7 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
 
             #  Simple values
             for key, predicate in (
+                ("language", DCT.language),
                 ("access_url", DCAT.accessURL),
                 ("download_url", DCAT.downloadURL),
                 ("issued", DCT.issued),
@@ -279,7 +293,6 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
 
             #  Lists
             for key, predicate in (
-                ("language", DCT.language),
                 ("documentation", FOAF.page),
                 ("conforms_to", DCT.conformsTo),
                 ("metadata_profile", DCT.conformsTo),
@@ -905,3 +918,29 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
         modified = self._last_catalog_modification()
         if modified:
             self._add_date_triple(catalog_ref, DCT.modified, modified)
+
+    def _assign_theme_tags(self, dataset_dict, key, values):
+        for value in values:
+            # DCAT-AP-ES themes
+            if 'datos.gob.es' in value and 'sector' in value:
+                dataset_dict[metadata_field_names["es_dcat_ap"]["theme"]] = value
+            # DCAT Themes
+            elif 'data-theme' in value:
+                dataset_dict[metadata_field_names["eu_dcat_ap"]["theme"]] = value
+            else:
+                # Ensure tag_uri and tag_string are lists
+                dataset_dict.setdefault('tag_uri', [])
+                dataset_dict.setdefault('tag_string', [])
+                
+                # Add value to tag_uri if it doesn't already exist
+                if value not in dataset_dict['tag_uri']:
+                    dataset_dict['tag_uri'].append(value)
+                
+                # Process tag_string
+                tag_value = value
+                if value.startswith('http://') or value.startswith('https://'):
+                    tag_value = value.rstrip('/').rsplit('/', 1)[-1]
+                
+                # Add processed value to tag_string if it doesn't already exist
+                if tag_value not in dataset_dict['tag_string']:
+                    dataset_dict['tag_string'].append(self._clean_name(tag_value))

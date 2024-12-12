@@ -7,6 +7,9 @@ from rdflib import term, URIRef, Literal
 from ckantoolkit import config, get_action, aslist
 
 from ckanext.dcat.profiles.base import RDFProfile, URIRefOrLiteral, CleanedURIRef, DEFAULT_SPATIAL_FORMATS, GEOJSON_IMT, InvalidGeoJSONException, wkt
+from ckanext.schemingdcat.config import (
+    translate_validator_tags
+)
 
 from ckanext.schemingdcat.helpers import get_langs
 from ckanext.schemingdcat.codelists import load_inspire_csv_codelists
@@ -170,7 +173,7 @@ class SchemingDCATRDFProfile(RDFProfile):
 
     def _contact_details(self, subject, predicate):
         """
-        Returns a dict with details about a vcard expression
+        Returns a list of dicts with details about vcard expressions
 
         Both subject and predicate must be rdflib URIRef or BNode objects
 
@@ -185,27 +188,36 @@ class SchemingDCATRDFProfile(RDFProfile):
             </vcard:Organization>
         </dcat:contactPoint>
 
-        {
+        [
+            {
             'uri': 'http://orgs.vocab.org/some-org',
             'name': 'Contact Point for dataset 1',
             'email': 'contact@some.org',
             'url': 'http://some.org',
             'role': 'pointOfContact',
-        }
+            }
+        ]
 
         Returns keys for uri, name, email and url with the values set to
         an empty string if they could not be found
         """
 
-        contact = {}
+        contacts = []
 
         for agent in self.g.objects(subject, predicate):
 
-            contact["uri"] = str(agent) if isinstance(agent, term.URIRef) else ""
+            contact = {}                
+            contact["uri"] = str(agent) if isinstance(agent, URIRef) else ""
 
             contact["name"] = self._get_vcard_property_value(
                 agent, VCARD.hasFN, VCARD.fn
             )
+
+            contact["email"] = self._without_mailto(
+                self._get_vcard_property_value(agent, VCARD.hasEmail)
+            )
+
+            contact["identifier"] = self._get_vcard_property_value(agent, VCARD.hasUID)
 
             contact["url"] = self._get_vcard_property_value(
                 agent, VCARD.hasURL
@@ -215,11 +227,9 @@ class SchemingDCATRDFProfile(RDFProfile):
                 agent, VCARD.role
             )
 
-            contact["email"] = self._without_mailto(
-                self._get_vcard_property_value(agent, VCARD.hasEmail)
-            )
+            contacts.append(contact)
 
-        return contact
+        return contacts
         
     # ckanext-schemingdcat: Multilang management
     ## Since  ckanext-dcat v2.1.0 unnecessary due to its multilingual support ##
@@ -336,7 +346,7 @@ class SchemingDCATRDFProfile(RDFProfile):
         except KeyError:
             return default_values["language"]
 
-    # ckanext-schemingdcat: Codelis management
+    # ckanext-schemingdcat: Codelist management
     def _search_values_codelist_add_to_graph(self, metadata_codelist, labels, dataset_dict, dataset_ref, dataset_tag_base, g, dcat_property, lang=None):
         """
         Adds values from a metadata codelist to a graph based on provided labels.
@@ -458,3 +468,58 @@ class SchemingDCATRDFProfile(RDFProfile):
         if "geojson" in spatial_formats:
             # GeoJSON
             self.g.add((spatial_ref, predicate, Literal(json.dumps(value), datatype=GEOJSON_IMT)))
+            
+    # ckanext-dcat enhancements
+    def _multilingual_fields(self, entity="dataset"):
+        """
+        Retrieve multilingual fields from the dataset schema.
+    
+        This function checks the dataset schema for fields that have validators
+        indicating they are multilingual. It looks for validators that start with
+        any of the tags specified in `translate_validator_tags`.
+    
+        Args:
+            entity (str, optional): The entity type to check for multilingual fields.
+                                    Defaults to "dataset".
+    
+        Returns:
+            list: A list of fields that are considered multilingual.
+        """    
+        if not self._dataset_schema:
+            return []
+    
+        out = []
+        for field in self._dataset_schema[f"{entity}_fields"]:
+            if field.get("validators") and any(
+                v for v in field["validators"].split() if any(tag for tag in translate_validator_tags if v.startswith(tag))
+            ):
+                out.append(field["field_name"])
+        return out
+    
+    def _publisher_fallback_details(self, dataset_dict):
+        """
+        Use contact details for publisher if not already set.
+    
+        This method checks if the publisher details (name, email, url, identifier, uri)
+        are present in the dataset_dict or dataset_dict["extras"]. If they are not present,
+        it uses the corresponding contact details to fill in the publisher details.
+    
+        Args:
+            dataset_dict (dict): The dataset dictionary containing metadata fields.
+    
+        Returns:
+            None
+        """
+        contact_keys = ["name", "email", "url", "identifier", "uri"]
+        for key in contact_keys:
+            contact_key = f"contact_{key}"
+            publisher_key = f"publisher_{key}"
+            if not any(extra['key'] == publisher_key for extra in dataset_dict["extras"]) and publisher_key not in dataset_dict:
+                if contact_key in dataset_dict:
+                    dataset_dict["extras"].append(
+                        {
+                            "key": publisher_key,
+                            "value": dataset_dict[contact_key]
+                        }
+                    )
+                    dataset_dict[publisher_key] = dataset_dict[contact_key]

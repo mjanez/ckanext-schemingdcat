@@ -1,5 +1,6 @@
 import json
 from decimal import Decimal, DecimalException
+import logging
 
 from rdflib import URIRef, BNode, Literal
 
@@ -30,7 +31,7 @@ from ckanext.schemingdcat.profiles.dcat_config import (
     eu_dcat_ap_default_values,
     )
 
-
+log = logging.getLogger(__name__)
 
 class EuDCATAP2Profile(BaseEuDCATAPProfile):
     """
