@@ -73,7 +73,7 @@ class SchemingDCATHarvester(HarvesterBase):
     action_api_version = 3
     force_import = False
     _site_user = None
-    _source_date_format = None
+    _source_date_format = '%Y-%m-%d'
     _dataset_default_values = {}
     _distribution_default_values = {}
     _field_mapping_validator = FieldMappingValidator()
