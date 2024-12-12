@@ -66,6 +66,7 @@ doc/harvesters/*.config.json
 !doc/harvesters/xls_template_config.json
 !doc/harvesters/csw_template_config.json
 !doc/harvesters/sql_template_config.json
+ckanext/schemingdcat/lib/csw_mapper/output
 
 # MKDocs
 docs/tools/output
