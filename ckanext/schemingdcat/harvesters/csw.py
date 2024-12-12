@@ -25,7 +25,9 @@ from ckanext.schemingdcat.config import (
     OGC2CKAN_HARVESTER_MD_CONFIG,
     XLST_MAPPINGS_DIR,
     DEFAULT_XSLT_FILE,
-    CQL_QUERY_DEFAULT
+    CQL_QUERY_DEFAULT,
+    INSPIRE_HVD_CATEGORY,
+    INSPIRE_HVD_APPLICABLE_LEGISLATION
 )
 from ckanext.schemingdcat.lib.csw_mapper.xslt_transformer import XSLTTransformer
 from ckanext.schemingdcat.interfaces import ISchemingDCATHarvester
@@ -168,13 +170,15 @@ class SchemingDCATCSWHarvester(CSWHarvester, SchemingDCATHarvester):
         
         log.debug('Using config: %r' % self.config)
 
-    #TODO: Implement the method
     def modify_package_dict(self, package_dict, harvest_object):
         '''
             Allows custom harvesters to modify the package dict before
             creating or updating the actual package.
         ''' 
         log.debug('In SchemingDCATCSWHarvester modify_package_dict')
+        
+        # Assign HVD category
+        package_dict = self.normalize_inspire_hvd_category(package_dict)
         
         # Standarize resources (dcat:Distribution)
         for resource in package_dict.get("resources", []):
@@ -468,7 +472,7 @@ class SchemingDCATCSWHarvester(CSWHarvester, SchemingDCATHarvester):
             log.error('No harvest object received')
             return False   
         
-        self._set_config(harvest_object.source.config)
+        self._set_config(harvest_object.source.config, harvest_object.source.id)
         
         if self.force_import:
             status = 'change'
@@ -744,3 +748,27 @@ class SchemingDCATCSWHarvester(CSWHarvester, SchemingDCATHarvester):
         if isinstance(value, str) and '{ckan_site_url}' in value:
             return value.format(ckan_site_url=ckan_site_url)
         return value
+    
+    def normalize_inspire_hvd_category(self, package_dict):
+        """Normalize the INSPIRE HVD category and applicable legislation in the package dictionary.
+        
+        Args:
+            package_dict (dict): The package dictionary to normalize.
+    
+        Returns:
+            dict: The normalized package dictionary.
+    
+        Raises:
+            ValueError: If there is an error updating the package dictionary.
+        """
+        try:
+            package_dict['hvd_category'] = INSPIRE_HVD_CATEGORY
+            if 'applicable_legislation' not in package_dict:
+                package_dict['applicable_legislation'] = [INSPIRE_HVD_APPLICABLE_LEGISLATION]
+            elif INSPIRE_HVD_APPLICABLE_LEGISLATION not in package_dict['applicable_legislation']:
+                package_dict['applicable_legislation'].append(INSPIRE_HVD_APPLICABLE_LEGISLATION)
+            
+            return package_dict
+            
+        except Exception as e:
+            raise ValueError(f'Error updating the package dictionary: {e}') from e

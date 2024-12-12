@@ -23,6 +23,10 @@ APP_PROTOCOL = "WWW:DOWNLOAD-APP"
 ESRI_REST_PROTOCOL = "ESRI:REST"
 MAP_PROTOCOL = 'MAP:PREVIEW'
 
+# DCAT-AP HVD
+INSPIRE_HVD_CATEGORY = "http://data.europa.eu/bna/c_ac64a52d"
+INSPIRE_HVD_APPLICABLE_LEGISLATION = "http://data.europa.eu/eli/reg_impl/2023/138/oj"
+
 # Define a comprehensive mapping of protocol identifiers to normalized protocols
 PROTOCOL_MAPPING = {
     'esri:aims-http-configuration': 'HTTP',
