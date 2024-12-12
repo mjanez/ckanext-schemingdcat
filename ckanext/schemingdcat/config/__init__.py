@@ -4,6 +4,9 @@ from ckanext.schemingdcat.config.harvest import *
 from ckanext.schemingdcat.config.metadata import *
 from ckanext.schemingdcat.config.tools import *
 
+# Harvester config
+from ckanext.schemingdcat.config.harvest_csw import *
+
 
 # Config vars allowed
 __all__ = [
@@ -13,6 +16,7 @@ __all__ = [
     'field_mapping_extras_prefix_symbol'
     'epsg_uri_template',
     'geojson_tolerance',
+    'translate_validator_tags',
 
     # From harvest.py
     'CUSTOM_FORMAT_RULES',
@@ -57,4 +61,29 @@ __all__ = [
     'TAGS_NORMALIZE_PATTERN',
     'ACCENT_MAP',
     'COMMON_DATE_FORMATS'
+    
+    # From harvest_csw.py
+    'XLST_MAPPINGS_DIR',
+    'DEFAULT_XSLT_FILE',
+    'DOWNLOAD_PROTOCOL',
+    'OGC_WMTS_PROTOCOL',
+    'OGC_WFS_PROTOCOL',
+    'OGC_WMS_PROTOCOL',
+    'LINKED_DATA_PROTOCOL',
+    'APP_PROTOCOL',
+    'ESRI_REST_PROTOCOL',
+    'MAP_PROTOCOL',
+    'PROTOCOL_MAPPING',
+    'SERVICE_FORMAT',
+    'API_FORMAT',
+    'LINKED_DATA_SERVICE',
+    'FORMAT_MAPPING',
+    'RESOURCE_TYPES',
+    'FILE_TYPES',
+    ## CSW processor configuration
+    'CSW_DEFAULT_LIMIT',
+    'CQL_QUERY_DEFAULT',
+    'CQL_SEARCH_TERM_DEFAULT',
+    'OUTPUT_SCHEMA'
+    
 ]

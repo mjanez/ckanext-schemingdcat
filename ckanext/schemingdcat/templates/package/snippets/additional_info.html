@@ -1,3 +1,7 @@
+{% if not schema %}
+    {% set schema = h.schemingdcat_get_cached_schema(dataset_type) %}
+{% endif %}
+
 {%  set exclude_fields = [
   'id',
   'name',

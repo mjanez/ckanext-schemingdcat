@@ -5,3 +5,4 @@ field_mapping_extras_prefix = 'extras'
 field_mapping_extras_prefix_symbol = '_'
 epsg_uri_template = "http://www.opengis.net/def/crs/EPSG/0/{srid}"
 geojson_tolerance = 0.001
+translate_validator_tags = ["schemingdcat_fluent", "fluent"]
