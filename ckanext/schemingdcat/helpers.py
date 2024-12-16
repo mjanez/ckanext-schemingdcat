@@ -2107,4 +2107,7 @@ def schemingdcat_user_is_org_member(
                 break
     return result
 
-
+@lru_cache(maxsize=1)
+@helper
+def schemingdcat_get_catalog_publisher_info():
+    return sdct_config.catalog_publisher_info

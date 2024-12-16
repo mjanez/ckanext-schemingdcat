@@ -4,6 +4,7 @@ import re
 linkeddata_links = None
 geometadata_links = None
 endpoints = None
+catalog_publisher_info = {}
 ## dict of local schemas dicts
 schemas = {}
 form_tabs = {}

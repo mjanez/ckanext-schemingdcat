@@ -26,6 +26,7 @@ from ckanext.schemingdcat.profiles.dcat_config import (
     ADMS,
     CNT,
     ELI,
+    FOAF,
     # Default values
     metadata_field_names,
     eu_dcat_ap_default_values,
@@ -394,7 +395,15 @@ class EuDCATAP2Profile(BaseEuDCATAPProfile):
                 ),
             ]
             self._add_list_triples_from_dict(resource_dict, distribution_ref, items)
-
+            
+            # DCAT-AP: http://publications.europa.eu/en/web/eu-vocabularies/at-dataset/-/resource/dataset/access-right
+            access_rights = self._get_resource_value(resource_dict, 'access_rights')
+            if access_rights and 'authority/access-right' in access_rights:
+                access_rights_uri = URIRef(access_rights)
+            else:
+                access_rights_uri = URIRef(eu_dcat_ap_default_values['access_rights'])
+            self.g.add((distribution_ref, DCT.accessRights, access_rights_uri))
+            
             # Access services
             access_service_list = resource_dict.get("access_services", [])
             if isinstance(access_service_list, str):
@@ -422,7 +431,6 @@ class EuDCATAP2Profile(BaseEuDCATAPProfile):
                 items = [
                     ("availability", DCATAP.availability, None, URIRefOrLiteral),
                     ("license", DCT.license, None, URIRefOrLiteral),
-                    ("access_rights", DCT.accessRights, None, URIRefOrLiteral),
                     ("title", DCT.title, None, Literal),
                     (
                         "endpoint_description",
@@ -448,21 +456,42 @@ class EuDCATAP2Profile(BaseEuDCATAPProfile):
                         RDFS.Resource,
                     ),
                     ("serves_dataset", DCAT.servesDataset, None, URIRefOrLiteral),
+                    ("uri", FOAF.page, None, URIRefOrLiteral),
                 ]
                 self._add_list_triples_from_dict(
                     access_service_dict, access_service_node, items
                 )
+                
+                
+                # ckanext-schemingdcat: DCAT-AP Enhancements
+                # Lists from resource
+                items = [
+                    (
+                        "applicable_legislation",
+                        DCATAP.applicableLegislation,
+                        None,
+                        URIRefOrLiteral,
+                        ELI.LegalResource,
+                    ),
+                ]
+                self._add_list_triples_from_dict(
+                    resource_dict, access_service_node, items
+                )
 
-                # DCAT-AP: http://publications.europa.eu/en/web/eu-vocabularies/at-dataset/-/resource/dataset/access-right
-                access_rights = self._get_resource_value(resource_dict, 'access_rights')
-                if access_rights and 'authority/access-right' in access_rights:
-                    access_rights_uri = URIRef(access_rights)
-                else:
-                    access_rights_uri = URIRef(eu_dcat_ap_default_values['access_rights'])
-                self.g.add((distribution_ref, DCT.accessRights, access_rights_uri))
+                resource_access_rights_uri = access_rights_uri if access_rights_uri else URIRef(self._get_resource_value(resource_dict, 'access_rights'))
+                dataset_hvd_category = URIRef(self._get_dataset_value(dataset_dict, 'hvd_category'))
+                
+                self.g.add((access_service_node, DCT.accessRights, resource_access_rights_uri))
+                self.g.add((access_service_node, DCATAP.hvdCategory, dataset_hvd_category))
+
+                # Add DCAT.contactPoint from dataset_ref to access_service_node
+                contact_point = self.g.value(dataset_ref, DCAT.contactPoint)
+                if contact_point:
+                    self.g.add((access_service_node, DCAT.contactPoint, contact_point))
 
             if access_service_list:
                 resource_dict["access_services"] = json.dumps(access_service_list)
+                
 
     def _graph_from_dataset_v2_only(self, dataset_dict, dataset_ref):
         """

@@ -9,8 +9,8 @@ schema_date: 2024-12-04
 schema_name: es_dcat_ap_full
 schema_title: DCAT-AP
 schema_description: DCAT Application profile for data portals in Europe (DCAT-AP)
-schema_profile_version: 2.1.1
-schema_profile_url: https://semiceu.github.io/DCAT-AP/releases/2.1.1
+schema_profile_version: 3.0.0
+schema_profile_url: https://semiceu.github.io/DCAT-AP/releases/3.0.0
 schema_form_groups:
   # Basic Info parties form_page (#1)
   - form_group_id: title
@@ -407,6 +407,16 @@ dataset_fields:
   form_slug_related: identifier
   form_group_id: identification
 
+- field_name: url
+  label: 
+    en: Dataset landing page
+    es: Página de acceso al conjunto de datos
+  preset: dataset_url
+  help_text:
+    en: Web page that can be navigated to gain access to the dataset, its distributions and/or additional information.
+    es: Página web por la que se puede navegar para acceder al conjunto de datos, sus distribuciones y/o información adicional.
+  form_group_id: identification
+
 # Dataset type (M)
 - field_name: dcat_type
   label: 
@@ -432,6 +442,11 @@ dataset_fields:
       en: Bibliographic data
       es: Datos bibliográficos
     value: http://id.loc.gov/vocabulary/marcgt/bda
+    dataset_scope: non_spatial_dataset
+  - label:
+      en: "Codelist"
+      es: "Lista controlada"
+    value: http://publications.europa.eu/resource/authority/dataset-type/CODE_LIST
     dataset_scope: non_spatial_dataset
   - label:
       en: Collection
@@ -529,9 +544,29 @@ dataset_fields:
     value: http://id.loc.gov/vocabulary/marcgt/stp
     dataset_scope: non_spatial_dataset
   - label:
+      en: "Statistical dataset"
+      es: "Conjunto de datos estadísticos"
+    value: http://publications.europa.eu/resource/authority/dataset-type/STATISTICAL
+    dataset_scope: non_spatial_dataset
+  - label:
       en: Technical report
       es: Informe técnico
     value: http://id.loc.gov/vocabulary/marcgt/ter
+    dataset_scope: non_spatial_dataset
+  - label:
+      en: "Taxonomy"
+      es: "Taxonomía"
+    value: http://publications.europa.eu/resource/authority/dataset-type/TAXONOMY
+    dataset_scope: non_spatial_dataset
+  - label:
+      en: "Test dataset"
+      es: "Conjunto de datos de prueba"
+    value: http://publications.europa.eu/resource/authority/dataset-type/TEST_DATA
+    dataset_scope: non_spatial_dataset
+  - label:
+      en: "Thesaurus"
+      es: "Tesauro"
+    value: http://publications.europa.eu/resource/authority/dataset-type/THESAURUS
     dataset_scope: non_spatial_dataset
   - label:
       en: Text
@@ -1348,7 +1383,7 @@ dataset_fields:
   display_snippet: schemingdcat/display_snippets/link_schema.html
   form_include_blank_choice: False
   required: True
-  sorted_choices: True
+  sorted_choices: False
   choices:
   - label:
       en: Spanish
@@ -1714,6 +1749,7 @@ dataset_fields:
     subfields:
       - field_name: name
   validators: schemingdcat_fill_dependent_fields
+  form_snippet: schemingdcat/form_snippets/publisher_name.html
   help_text:
     en: "A party that makes a dataset available to others."
     es: "Persona u organización que pone a disposición de otros el conjunto de datos."
@@ -1731,6 +1767,7 @@ dataset_fields:
   validators: schemingdcat_fill_dependent_fields
   display_property: dct:identifier
   form_placeholder: http://datos.gob.es/recurso/sector-publico/org/Organismo/E05068001
+  form_snippet: schemingdcat/form_snippets/publisher_identifier.html
   help_text:
     en: "Unique identifier of the publisher. Spain: Unique identifier (DIR3) of the public organization (<a href='http://datos.gob.es/es/recurso/sector-publico/org/Organismo' target='_blank'>datos.gob.es</a>)."
     es: "Identificador único del publicador. España: Identificador único (DIR3) del organismo público. (<a href='http://datos.gob.es/es/recurso/sector-publico/org/Organismo' target='_blank'>datos.gob.es</a>)"
@@ -1748,8 +1785,8 @@ dataset_fields:
       - field_name: uri
   validators: schemingdcat_fill_dependent_fields
   display_snippet: schemingdcat/display_snippets/link_name.html
-  form_snippet: schemingdcat/form_snippets/publisher_uri.html
   form_placeholder: http://orgs.vocab.org/some-org
+  form_snippet: schemingdcat/form_snippets/publisher_uri.html
   help_text:
     en: This property refers to an Agent (organisation) responsible for making the Catalogue Record available. URI
     es: Esta propiedad se refiere a un agente (organización) responsable de poner a disposición el recurso del catálogo. URI
@@ -1767,6 +1804,7 @@ dataset_fields:
   preset: schemingdcat_valid_email_dependent_fields
   display_property: foaf:mbox
   form_placeholder: joseblanco@example.com
+  form_snippet: schemingdcat/form_snippets/publisher_email.html
   form_group_id: publisher
 
 # Publisher URL (O)
@@ -1781,6 +1819,7 @@ dataset_fields:
     subfields:
       - field_name: url
   preset: valid_url_dependent_fields
+  form_snippet: schemingdcat/form_snippets/publisher_url.html
   help_text:
     en: Esta propiedad se refiere a una página web que actúa como página principal del publicador. URL
     es: Esta propiedad se refiere a una página web que actúa como página principal del publicador. URL
@@ -1798,6 +1837,7 @@ dataset_fields:
   preset: select_dependent_fields
   display_property: dct:type
   display_snippet: schemingdcat/display_snippets/link_schema.html
+  form_snippet: schemingdcat/form_snippets/publisher_type.html
   choices:
   - label:
       en: National authority
@@ -2513,9 +2553,10 @@ dataset_fields:
     subfields:
       - field_name: uri
       - field_name: text
-  display_property: dcat:theme
+  display_property: dct:spatial
   select_size: 10
   sorted_choices: False
+  form_include_blank_choice: False
   choices:
   - label:
       ca: España
@@ -3390,7 +3431,7 @@ resource_fields:
   label:
     en: Access URL
     es: URL de acceso
-  validators: if_empty_same_as(url) unicode_safe
+  validators: schemingdcat_access_url_if_empty_same_as_url unicode_safe
   form_snippet: null
   display_property: dcat:accessURL
   display_snippet: schemingdcat/display_snippets/link.html
@@ -3404,7 +3445,7 @@ resource_fields:
   label:
     en: Download URL
     es: URL de descarga
-  validators: if_empty_same_as(url) unicode_safe
+  validators: schemingdcat_download_url_if_empty_same_as_url unicode_safe
   display_property: dcat:downloadURL
   display_snippet: schemingdcat/display_snippets/link.html
   help_text:
@@ -3433,8 +3474,9 @@ resource_fields:
         es: Título del servicio de acceso
     - field_name: endpoint_description
       label:
-        en: Endpoint description
-        es: Descripción del punto final
+        en: Description of the access point (OpenAPI, Hydra, online documentation, etc.)
+        es: Descripción de las características del punto de acceso (OpenAPI, Hydra, documento online, etc.)
+      preset: valid_url
     - field_name: endpoint_url
       label:
         en: Endpoint URL
@@ -3458,7 +3500,6 @@ resource_fields:
   form_placeholder:
     en: e.g. Web Map Service
     es: ej. Web Map Service
-  display_property: dct:title
   form_group_id: resource_title
 
 #FIX: Resource abstract (M) -- description_translated field dont work

@@ -26,6 +26,7 @@ from ckanext.schemingdcat.profiles.base import (
     # Namespaces
     namespaces
 )
+from ckanext.schemingdcat.helpers import schemingdcat_get_catalog_publisher_info
 from ckanext.schemingdcat.profiles.dcat_config import (
     # Vocabs
     RDF,
@@ -259,7 +260,7 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
                 ("issued", DCT.issued),
                 ("modified", DCT.modified),
                 ("status", ADMS.status),
-                ("license", DCT.license),
+                ("license_url", DCT.license),
                 ("rights", DCT.rights),
             ):
                 multilingual = key in multilingual_fields
@@ -424,7 +425,6 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
         #  Lists
         items = [
             ("language", DCT.language, None, URIRefOrLiteral, DCT.LinguisticSystem),
-            ("theme", DCAT.theme, None, URIRef),
             ("conforms_to", DCT.conformsTo, None, URIRefOrLiteral, DCT.Standard),
             ("alternate_identifier", ADMS.identifier, None, URIRefOrLiteral, ADMS.Identifier),
             ("documentation", FOAF.page, None, URIRefOrLiteral, FOAF.Document),
@@ -437,7 +437,12 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
         self._add_list_triples_from_dict(dataset_dict, dataset_ref, items)
 
         # DCAT Themes (https://publications.europa.eu/resource/authority/data-theme)
-        # Append the final result to the graph
+        # Append the final result to the graph       
+        # Generate theme_items dynamically from metadata_field_names
+        theme_items = [("theme", DCAT.theme, None, URIRef)]
+        theme_items.extend([(profile['theme'], DCAT.theme, None, URIRef) for profile in metadata_field_names.values() if 'theme' in profile])
+
+        self._add_list_triples_from_dict(dataset_dict, dataset_ref, theme_items)
         dcat_themes = self._themes(dataset_ref)
         for theme in dcat_themes:
             g.add((dataset_ref, DCAT.theme, URIRefOrLiteral(theme)))
@@ -670,23 +675,28 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
             g.add((dataset_ref, DCT.conformsTo, crs_details))
 
         # Update licenses if it is in dcat_ap_default_licenses. DCAT-AP Compliance
+        resource_license_fallback = eu_dcat_ap_default_values["license_url"]
         if "license_url" in dataset_dict:
             license_info = dcat_ap_default_licenses.get(dataset_dict["license_url"], None)
             if license_info:
                 dataset_dict["license_id"] = license_info["fallback_license_id"]
                 dataset_dict["license_url"] = license_info["fallback_license_url"]
+                resource_license_fallback = license_info["fallback_license_url"]
 
         # Use fallback license if set in config
-        resource_license_fallback = None
         if toolkit.asbool(config.get(DISTRIBUTION_LICENSE_FALLBACK_CONFIG, False)):
-            if "license_id" in dataset_dict and isinstance(
-                URIRefOrLiteral(dataset_dict["license_id"]), URIRef
-            ):
-                resource_license_fallback = dataset_dict["license_id"]
-            elif "license_url" in dataset_dict and isinstance(
+            if "license_url" in dataset_dict and isinstance(
                 URIRefOrLiteral(dataset_dict["license_url"]), URIRef
             ):
                 resource_license_fallback = dataset_dict["license_url"]
+
+        g.add(
+            (
+                dataset_ref,
+                DCT.license,
+                URIRefOrLiteral(resource_license_fallback),
+            )
+        )
 
         # Statetements
         self._add_statement_to_graph(
@@ -728,7 +738,6 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
                 (name_key, DCT.title, None, Literal),
                 (description_key, DCT.description, None, Literal),
                 ("status", ADMS.status, None, URIRefOrLiteral),
-                ("license", DCT.license, None, URIRefOrLiteral, DCT.LicenseDocument),
                 ("access_url", DCAT.accessURL, None, URIRef, RDFS.Resource),
                 ("download_url", DCAT.downloadURL, None, URIRef, RDFS.Resource),
                 ("encoding", CNT.characterEncoding, None, Literal),
@@ -755,8 +764,7 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
             )
 
             # Set default license for distribution if needed and available
-
-            if resource_license_fallback and not (distribution, DCT.license, None) in g:
+            if resource_license_fallback or dcat_ap_default_licenses.get(resource_dict["license"], None) and not (distribution, DCT.license, None) in g:
                 g.add(
                     (
                         distribution,
@@ -881,9 +889,8 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
         g.add((catalog_ref, RDF.type, DCAT.Catalog))
 
         # Basic fields
-        license, publisher_identifier, access_rights, spatial_uri, language = [
+        license, access_rights, spatial_uri, language = [
             self._get_catalog_field(field_name='license_url'),
-            self._get_catalog_field(field_name='publisher_identifier', fallback='publisher_uri'),
             self._get_catalog_field(field_name='access_rights'),
             self._get_catalog_field(field_name='spatial_uri'),
             self._search_value_codelist(MD_EU_LANGUAGES, config.get('ckan.locale_default'), "label","id") or eu_dcat_ap_default_values['language'],
@@ -895,10 +902,11 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
             ("title", DCT.title, config.get("ckan.site_title"), Literal),
             ("encoding", CNT.characterEncoding, "UTF-8", Literal),
             ("description", DCT.description, config.get("ckan.site_description"), Literal),
-            ("publisher_identifier", DCT.publisher, publisher_identifier, URIRef),
             ("language", DCT.language, language, URIRefOrLiteral),
             ("spatial_uri", DCT.spatial, spatial_uri, URIRefOrLiteral),
             ("theme_taxonomy", DCAT.themeTaxonomy, eu_dcat_ap_default_values["theme_taxonomy"], URIRef),
+            ("theme_es_taxonomy", DCAT.themeTaxonomy, eu_dcat_ap_default_values["theme_es_taxonomy"], URIRef),
+            ("theme_eu_taxonomy", DCAT.themeTaxonomy, eu_dcat_ap_default_values["theme_eu_taxonomy"], URIRef),
             ("homepage", FOAF.homepage, config.get("ckan_url"), URIRef),
             ("license", DCT.license, license, URIRef),
             ("conforms_to", DCT.conformsTo, eu_dcat_ap_default_values["conformance"], URIRef),
@@ -918,6 +926,39 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
         modified = self._last_catalog_modification()
         if modified:
             self._add_date_triple(catalog_ref, DCT.modified, modified)
+
+        # Catalog Publisher
+        catalog_publisher_info = schemingdcat_get_catalog_publisher_info()
+        log.debug('catalog_publisher_info: %s', catalog_publisher_info)
+        
+        publisher_details = {
+            "name": catalog_publisher_info.get("name"),
+            "email": catalog_publisher_info.get("email"),
+            "url": catalog_publisher_info.get("url"),
+            "type": catalog_publisher_info.get("type"),
+            "identifier": catalog_publisher_info.get("identifier"),
+        }
+
+        publisher_ref = CleanedURIRef(publisher_details["identifier"]
+        )
+        
+        # Add to graph
+        if publisher_ref:
+            g.add((publisher_ref, RDF.type, FOAF.Organization))
+            g.add((catalog_ref, DCT.publisher, publisher_ref))
+            items = [
+                ("name", FOAF.name, None, Literal),
+                ("email", FOAF.mbox, None, Literal),
+                ("url", FOAF.homepage, None, URIRef),
+                ("type", DCT.type, None, URIRefOrLiteral),
+                ("identifier", DCT.identifier, None, URIRefOrLiteral),
+            ]
+
+            # Add publisher role
+            g.add((publisher_ref, VCARD.role, URIRef(eu_dcat_ap_default_values["publisher_role"])))
+
+            self._add_triples_from_dict(publisher_details, publisher_ref, items)
+
 
     def _assign_theme_tags(self, dataset_dict, key, values):
         for value in values:

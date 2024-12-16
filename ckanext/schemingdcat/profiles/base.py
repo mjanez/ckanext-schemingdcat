@@ -111,7 +111,7 @@ class SchemingDCATRDFProfile(RDFProfile):
                 if theme:
                     theme_eu_dcat_ap = self._search_value_codelist(MD_EU_THEMES, theme, "id","dcat_ap") or None
                     themes.add(theme_eu_dcat_ap)
-                    
+
         return themes
     
     
