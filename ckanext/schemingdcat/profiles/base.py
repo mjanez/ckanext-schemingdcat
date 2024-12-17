@@ -5,6 +5,7 @@ import json
 from rdflib import term, URIRef, Literal
 
 from ckantoolkit import config, get_action, aslist
+from ckan.lib.helpers import is_url
 
 from ckanext.dcat.profiles.base import RDFProfile, URIRefOrLiteral, CleanedURIRef, DEFAULT_SPATIAL_FORMATS, GEOJSON_IMT, InvalidGeoJSONException, wkt
 from ckanext.schemingdcat.config import (
@@ -523,3 +524,46 @@ class SchemingDCATRDFProfile(RDFProfile):
                         }
                     )
                     dataset_dict[publisher_key] = dataset_dict[contact_key]
+
+    def _add_valid_url_to_graph(self, graph, subject, predicate, url, fallback_url):
+        """
+        Add a valid URL to the graph. If the URL is not valid, use the fallback URL.
+        
+        Args:
+            graph (rdflib.Graph): The RDF graph.
+            subject (rdflib.term.URIRef): The subject of the triple.
+            predicate (rdflib.term.URIRef): The predicate of the triple.
+            url (str): The URL to validate and add.
+            fallback_url (str): The fallback URL to use if the URL is not valid.
+        """
+        valid_url = URIRef(url) if is_url(url) else None
+        if valid_url:
+            graph.add((subject, predicate, valid_url))
+        elif fallback_url:
+            graph.add((subject, predicate, URIRef(fallback_url)))
+    
+    def _is_direct_download_url(self, url):
+        """
+        Check if the URL is a direct download link.
+    
+        Args:
+            url (str): The URL to check.
+    
+        Returns:
+            bool: True if the URL is a direct download link, False otherwise.
+        """
+        # Check if the URL ends with '/download' or with an extension like '.ext'
+        if url.endswith('/download'):
+            return True
+        
+        # Check if the URL ends with a common file extension
+        if '.' in url.split('/')[-1]:
+            return True
+        
+        # Additional checks for common download patterns
+        common_download_patterns = ['/files/', '/downloads/', '/get/', '/dl/']
+        for pattern in common_download_patterns:
+            if pattern in url:
+                return True
+        
+        return False

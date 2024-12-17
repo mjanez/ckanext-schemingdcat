@@ -738,8 +738,6 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
                 (name_key, DCT.title, None, Literal),
                 (description_key, DCT.description, None, Literal),
                 ("status", ADMS.status, None, URIRefOrLiteral),
-                ("access_url", DCAT.accessURL, None, URIRef, RDFS.Resource),
-                ("download_url", DCAT.downloadURL, None, URIRef, RDFS.Resource),
                 ("encoding", CNT.characterEncoding, None, Literal),
             ]
 
@@ -826,12 +824,14 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
             url = resource_dict.get("url")
             download_url = resource_dict.get("download_url")
             access_url = resource_dict.get("access_url")
-            # Use url as fallback for access_url if access_url is not set and download_url is not equal
-            if url and not access_url:
-                if (not download_url) or (download_url and url != download_url):
-                    self._add_triple_from_dict(
-                        resource_dict, distribution, DCAT.accessURL, "url", _type=URIRef
-                    )
+
+            # Validate download_url
+            if download_url and not self._is_direct_download_url(download_url):
+                download_url = None
+
+            # Use access_url/download_url if it exists and is a valid URL, otherwise use url
+            self._add_valid_url_to_graph(g, distribution, DCAT.accessURL, access_url, url)
+            self._add_valid_url_to_graph(g, distribution, DCAT.downloadURL, download_url, url)
 
             # Dates
             items = [
