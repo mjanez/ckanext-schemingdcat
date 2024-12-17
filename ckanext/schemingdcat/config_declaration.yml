@@ -166,7 +166,7 @@ groups:
         required: false
 
       - key: ckanext.schemingdcat.dcat_ap.datastore_dataservice.endpoint_description
-        default: '{ckan_site_url}/openapi/datastore'
+        default: '{ckan_site_url}/openapi/datastore/'
         description: |
           URI of the Datastore OpenAPI or online documentation.
         required: false

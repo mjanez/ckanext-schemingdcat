@@ -193,7 +193,7 @@ DCAT_AP_HVD_CATEGORY_LEGISLATION = 'http://data.europa.eu/eli/reg_impl/2023/138/
 DCAT_AP_DATASTORE_DATASERVICE = {
     'title': 'Datastore API service',
     'description': 'This API provides live access to the Datastore portion of the Open Data Portal.',
-    'endpoint_description': '{ckan_site_url}/openapi/datastore',
+    'endpoint_description': '{ckan_site_url}/openapi/datastore/',
     'endpoint_url': [
         '{ckan_site_url}/api/3/action/datastore_search?resource_id={resource_id}'
     ],

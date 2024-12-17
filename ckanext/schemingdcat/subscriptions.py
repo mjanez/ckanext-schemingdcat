@@ -79,11 +79,19 @@ def schemingdcat_update_dcat_dataservice(sender: str, **kwargs: Any):
         try:
             res = p.toolkit.get_action('resource_show')(context, {'id': resource_id})
             dataset_id = res['package_id']
+            endpoint_description = p.toolkit.config.get(
+                "ckanext.schemingdcat.dcat_ap.datastore_dataservice.endpoint_description",
+                DCAT_AP_DATASTORE_DATASERVICE['endpoint_description']
+            ).format(ckan_site_url=ckan_site_url)
+            
+            # Ensure the endpoint_description ends with a slash
+            if not endpoint_description.endswith('/'):
+                endpoint_description += '/'
             
             access_services = [
                 {
                     "title": p.toolkit.config.get("ckanext.schemingdcat.dcat_ap.datastore_dataservice.title", DCAT_AP_DATASTORE_DATASERVICE['title']),
-                    "endpoint_description": p.toolkit.config.get("ckanext.schemingdcat.dcat_ap.datastore_dataservice.endpoint_description", DCAT_AP_DATASTORE_DATASERVICE['endpoint_description']).format(ckan_site_url=ckan_site_url),
+                    "endpoint_description": endpoint_description,
                     "endpoint_url": [url.format(ckan_site_url=ckan_site_url, resource_id=resource_id) for url in DCAT_AP_DATASTORE_DATASERVICE['endpoint_url']],
                     "serves_dataset": [url.format(ckan_site_url=ckan_site_url, dataset_id=dataset_id) for url in DCAT_AP_DATASTORE_DATASERVICE['serves_dataset']]
                 }
