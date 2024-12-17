@@ -91,7 +91,7 @@ def schemingdcat_update_dcat_dataservice(sender: str, **kwargs: Any):
             patch_data = {
                 "id": resource_id,
                 "access_url": ckan_helpers.url_for('resource.read', id=dataset_id, resource_id=resource_id, _external=True),
-                "download_url": ckan_helpers.url_for('resource.read', id=dataset_id, resource_id=resource_id, _external=True),
+                "download_url": ckan_helpers.url_for('resource.download', id=dataset_id, resource_id=resource_id, _external=True),
                 "access_services": access_services
             }
             
