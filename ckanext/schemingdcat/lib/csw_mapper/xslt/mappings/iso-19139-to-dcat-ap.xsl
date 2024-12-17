@@ -1284,7 +1284,6 @@
         </dct:provenance>
 -->
         <xsl:copy-of select="$Lineage"/>
-        <xsl:copy-of select="$Lineage"/>
       </xsl:if>
 
       <!-- INSPIRE process steps -->
