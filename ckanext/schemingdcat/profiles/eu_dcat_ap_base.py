@@ -929,7 +929,6 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
 
         # Catalog Publisher
         catalog_publisher_info = schemingdcat_get_catalog_publisher_info()
-        log.debug('catalog_publisher_info: %s', catalog_publisher_info)
         
         publisher_details = {
             "name": catalog_publisher_info.get("name"),
