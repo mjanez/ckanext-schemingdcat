@@ -1274,7 +1274,7 @@ def schemingdcat_access_url_if_empty_same_as_url(field, schema):
         dataset_id = data.get(key[:-1] + ('package_id',), None)
         resource_id = data.get(key[:-1] + ('id',), None)
         resource_url = data.get(key[:-1] + ('url',))
-        
+
         if dataset_id and resource_id:
             data[key] = ckan_helpers.url_for('resource.read', id=dataset_id, resource_id=resource_id, _external=True)
         else:
@@ -1289,18 +1289,15 @@ def schemingdcat_download_url_if_empty_same_as_url(field, schema):
     Validator to set a distribution download URL based on the resource URL type.
     """
     def validator(key, data, errors, context):
-        value = data.get(key)
-        if not value or value is missing:
-            # Get resource URL and URL type
-            resource_url = data.get(key[:-1] + ('url',))
-            resource_url_type = data.get(key[:-1] + ('url_type',))
-            dataset_id = data.get(key[:-1] + ('package_id',))
-            resource_id = data.get(key[:-1] + ('id',))
-            
-            if resource_url_type == 'upload':
-                data[key] = ckan_helpers.url_for('resource.download', id=dataset_id, resource_id=resource_id, _external=True)
-            else:
-                data[key] = resource_url
+        # Get resource URL and dataset ID
+        dataset_id = data.get(key[:-1] + ('package_id',), None)
+        resource_id = data.get(key[:-1] + ('id',), None)
+        resource_url = data.get(key[:-1] + ('url',))
+
+        if dataset_id and resource_id:
+            data[key] = ckan_helpers.url_for('resource.download', id=dataset_id, resource_id=resource_id, _external=True)
+        else:
+            data[key] = resource_url
 
     return validator
 

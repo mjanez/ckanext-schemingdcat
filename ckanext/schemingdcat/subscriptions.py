@@ -5,6 +5,7 @@ from typing import Any
 import ckan.plugins as p
 from ckan import types
 from ckan.logic import NotFound
+from ckan.lib import helpers as ckan_helpers
 
 import ckanext.schemingdcat.statistics.model as sdct_model
 from ckanext.schemingdcat.config import (
@@ -70,32 +71,32 @@ def schemingdcat_update_dcat_dataservice(sender: str, **kwargs: Any):
     try:
         log.debug(f"[{sender}] -> Update DCAT dataservice")
         data_dict = kwargs["data_dict"]
-        log.debug('resource_id: %s', data_dict['resource_id'])
+        resource_id = data_dict['resource_id']
         context = {
                 "ignore_auth": True
             }
         
         try:
-            res = p.toolkit.get_action('resource_show')(context, {'id': data_dict['resource_id']})
+            res = p.toolkit.get_action('resource_show')(context, {'id': resource_id})
             dataset_id = res['package_id']
-            log.debug('resource: %s', res)
-            log.debug('dataset_id: %s', p.toolkit.url_for("dataset.read", id=dataset_id))
             
             access_services = [
                 {
                     "title": p.toolkit.config.get("ckanext.schemingdcat.dcat_ap.datastore_dataservice.title", DCAT_AP_DATASTORE_DATASERVICE['title']),
                     "endpoint_description": p.toolkit.config.get("ckanext.schemingdcat.dcat_ap.datastore_dataservice.endpoint_description", DCAT_AP_DATASTORE_DATASERVICE['endpoint_description']).format(ckan_site_url=ckan_site_url),
-                    "endpoint_url": [url.format(ckan_site_url=ckan_site_url, resource_id=data_dict['resource_id']) for url in DCAT_AP_DATASTORE_DATASERVICE['endpoint_url']],
+                    "endpoint_url": [url.format(ckan_site_url=ckan_site_url, resource_id=resource_id) for url in DCAT_AP_DATASTORE_DATASERVICE['endpoint_url']],
                     "serves_dataset": [url.format(ckan_site_url=ckan_site_url, dataset_id=dataset_id) for url in DCAT_AP_DATASTORE_DATASERVICE['serves_dataset']]
                 }
             ]
             patch_data = {
-                "id": data_dict['resource_id'],
+                "id": resource_id,
+                "access_url": ckan_helpers.url_for('resource.read', id=dataset_id, resource_id=resource_id, _external=True),
+                "download_url": ckan_helpers.url_for('resource.read', id=dataset_id, resource_id=resource_id, _external=True),
                 "access_services": access_services
             }
             
             p.toolkit.get_action('resource_patch')(context, patch_data)
-            log.debug(f"dcat:accessService successful patched for Datastore resource_id: {data_dict['resource_id']}")
+            log.debug(f"dcat:accessService successful patched for Datastore resource_id: {resource_id}")
             
         except NotFound:
             pass
