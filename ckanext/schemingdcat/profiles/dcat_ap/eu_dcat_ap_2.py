@@ -478,12 +478,17 @@ class EuDCATAP2Profile(BaseEuDCATAPProfile):
                     resource_dict, access_service_node, items
                 )
 
+                # Resource access rights
                 resource_access_rights_uri = access_rights_uri if access_rights_uri else URIRef(self._get_resource_value(resource_dict, 'access_rights'))
-                dataset_hvd_category = URIRef(self._get_dataset_value(dataset_dict, 'hvd_category'))
-                
                 self.g.add((access_service_node, DCT.accessRights, resource_access_rights_uri))
-                self.g.add((access_service_node, DCATAP.hvdCategory, dataset_hvd_category))
-
+                
+                # Resource HVD category
+                dataset_hvd_category = self._get_dataset_value(dataset_dict, 'hvd_category')
+                
+                if dataset_hvd_category:
+                    dataset_hvd_category_uri = URIRef(dataset_hvd_category)
+                    self.g.add((access_service_node, DCATAP.hvdCategory, dataset_hvd_category_uri))
+                
                 # Add DCAT.contactPoint from dataset_ref to access_service_node
                 contact_point = self.g.value(dataset_ref, DCAT.contactPoint)
                 if contact_point:
