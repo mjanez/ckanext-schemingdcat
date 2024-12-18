@@ -44,14 +44,16 @@ Example
                   <table class="table table-striped table-bordered">
                     <thead></thead>
                     <tbody>
-                      <tr>
-                        <th scope="row">{{ _('Create') }}</th>
-                        <td><code>{{ h.url_for('api.action', ver=3, logic_function='datastore_create', qualified=True) }}</code></td>
-                      </tr>
-                      <tr>
-                        <th scope="row">{{ _('Update / Insert') }}</th>
-                        <td><code>{{ h.url_for('api.action', ver=3, logic_function='datastore_upsert', qualified=True) }}</code></td>
-                      </tr>
+                      {% if h.datastore_search_sql_enabled() %}
+                        <tr>
+                          <th scope="row">{{ _('Create') }}</th>
+                          <td><code>{{ h.url_for('api.action', ver=3, logic_function='datastore_create', qualified=True) }}</code></td>
+                        </tr>
+                        <tr>
+                          <th scope="row">{{ _('Update / Insert') }}</th>
+                          <td><code>{{ h.url_for('api.action', ver=3, logic_function='datastore_upsert', qualified=True) }}</code></td>
+                        </tr>
+                      {% endif %}
                       <tr>
                         <th scope="row">{{ _('Query') }}</th>
                         <td><code>{{ h.url_for('api.action', ver=3, logic_function='datastore_search', qualified=True) }}</code></td>

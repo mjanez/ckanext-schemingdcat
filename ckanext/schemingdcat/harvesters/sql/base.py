@@ -579,7 +579,7 @@ class SchemingDCATSQLHarvester(SchemingDCATHarvester):
             harvest_object.add()
 
         # Update dates
-        self._source_date_format = self.config.get('source_date_format', None)
+        self._source_date_format = self.config.get('source_date_format', '%Y-%m-%d')
         self._set_basic_dates(dataset)
 
         harvest_object.metadata_modified_date = dataset['modified']

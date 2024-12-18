@@ -26,6 +26,7 @@ from ckanext.schemingdcat.profiles.base import (
     # Namespaces
     namespaces
 )
+from ckanext.schemingdcat.helpers import schemingdcat_get_catalog_publisher_info
 from ckanext.schemingdcat.profiles.dcat_config import (
     # Vocabs
     RDF,
@@ -67,33 +68,39 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
 
     """
 
-    # Cache for mappings of licenses URL/title to ID built when needed in
-    # _license().
-    _translated_field_names = None
-
     def _parse_dataset_base(self, dataset_dict, dataset_ref):
 
         dataset_dict["extras"] = []
         dataset_dict["resources"] = []
 
-        # Translated fields
-        for key, field in default_translated_fields.items():
-            predicate = field['rdf_predicate']
-            value = self._object_value(dataset_ref, predicate, True)
-            if value:
-                dataset_dict[field['field_name']] = value
+        multilingual_fields = self._multilingual_dataset_fields()
 
         # Basic fields
         for key, predicate in (
-            ("title", DCT.title),
-            ("notes", DCT.description),
             ("url", DCAT.landingPage),
             ("version", OWL.versionInfo),
             ('encoding', CNT.characterEncoding),
         ):
-            value = self._object_value(dataset_ref, predicate)
+            multilingual = key in multilingual_fields
+            value = self._object_value(
+                dataset_ref, predicate, multilingual=multilingual
+            )
             if value:
                 dataset_dict[key] = value
+
+        # Multilingual core fields
+        for key, predicate in (
+            ("title", DCT.title),
+            ("notes", DCT.description)
+        ):
+            if f"{key}_translated" in multilingual_fields:
+                value = self._object_value(dataset_ref, predicate, multilingual=True)
+                dataset_dict[f"{key}_translated"] = value
+                dataset_dict[f"{key}"] = value.get(self._default_lang)
+            else:
+                value = self._object_value(dataset_ref, predicate)
+                if value:
+                    dataset_dict[key] = value
 
         if not dataset_dict.get("version"):
             # adms:version was supported on the first version of the DCAT-AP
@@ -102,34 +109,41 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
                 dataset_dict["version"] = value
 
         # Tags
-        # replace munge_tag to noop if there's no need to clean tags
-        do_clean = toolkit.asbool(config.get(DCAT_CLEAN_TAGS, False))
-        tags_val = [
-            munge_tag(tag) if do_clean else tag for tag in self._keywords(dataset_ref)
-        ]
-        tags = [{"name": tag} for tag in tags_val]
-        dataset_dict["tags"] = tags
-
-        # Extras
+        if "tags_translated" in multilingual_fields:
+            dataset_dict["tags_translated"] = self._object_value_list_multilingual(
+                dataset_ref, DCAT.keyword)
+            dataset_dict["tags"] = [
+                {"name": t } for t in dataset_dict["tags_translated"][self._default_lang]
+            ]
+        else:
+            # replace munge_tag to noop if there's no need to clean tags
+            do_clean = toolkit.asbool(config.get(DCAT_CLEAN_TAGS, False))
+            tags_val = [
+                munge_tag(tag) if do_clean else tag for tag in self._keywords(dataset_ref)
+            ]
+            tags = [{"name": tag} for tag in tags_val]
+            dataset_dict["tags"] = tags
 
         #  Simple values
         for key, predicate in (
+            ("language", DCT.language),
             ("issued", DCT.issued),
             ("modified", DCT.modified),
             ("identifier", DCT.identifier),
             ("version_notes", ADMS.versionNotes),
             ("frequency", DCT.accrualPeriodicity),
-            ("provenance", DCT.provenance),
             ("dcat_type", DCT.type),
         ):
-            value = self._object_value(dataset_ref, predicate)
+
+            multilingual = key in multilingual_fields
+            value = self._object_value(
+                dataset_ref, predicate, multilingual=multilingual
+            )
             if value:
                 dataset_dict["extras"].append({"key": key, "value": value})
 
         #  Lists
         for key, predicate, in (
-            ("language", DCT.language),
-            ("theme", DCAT.theme),
             ("alternate_identifier", ADMS.identifier),
             ("conforms_to", DCT.conformsTo),
             ("documentation", FOAF.page),
@@ -143,34 +157,40 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
             if values:
                 dataset_dict["extras"].append({"key": key, "value": json.dumps(values)})
 
-        # Contact details
+        #FIX: ckanext-schemingdcat: Contact details
         contact = self._contact_details(dataset_ref, DCAT.contactPoint)
         if not contact:
             # adms:contactPoint was supported on the first version of DCAT-AP
             contact = self._contact_details(dataset_ref, ADMS.contactPoint)
-
         if contact:
-            for key in ("uri", "name", "email", "url", "role"):
+            contact = contact[0]
+            for key in ("uri", "name", "email", "identifier", "url", "role"):
                 if contact.get(key):
                     dataset_dict["extras"].append(
-                        {"key": "contact_{0}".format(key), "value": contact.get(key)}
+                        {
+                            "key": "contact_{0}".format(key),
+                            "value": contact.get(key)
+                        }
                     )
 
-        # Publisher
-        publisher = self._publisher(dataset_ref, DCT.publisher)
-        for key in ("uri", "name", "email", "url", "type", "identifier", "role"):
-            if publisher.get(key):
-                dataset_dict["extras"].append(
-                    {"key": "publisher_{0}".format(key), "value": publisher.get(key)}
-                )
-                
-        # Author
-        author = self._author(dataset_ref, DCT.creator)
-        for key in ("uri", "name", "email", "url", "role"):
-            if author.get(key):
-                dataset_dict["extras"].append(
-                    {"key": "author_{0}".format(key), "value": author.get(key)}
-                )
+        # Publishers and creators
+        for item in [("publisher", DCT.publisher), ("creator", DCT.creator)]:
+            agent_key, predicate = item
+            #FIX: ckanext-schemingdcat: agent details
+            agents = self._agents_details(dataset_ref, predicate)
+            if agents:
+                agent = agents[0]
+                for key in ("uri", "name", "email", "url", "type", "identifier", "role"):
+                    if agent.get(key):
+                        dataset_dict["extras"].append(
+                            {
+                                "key": f"{agent_key}_{key}",
+                                "value": agent.get(key)
+                            }
+                        )
+
+        # Publisher fallback. Use contact details for publisher if not already set
+        self._publisher_fallback_details(dataset_dict)
 
         # Temporal
         start, end = self._time_interval(dataset_ref, DCT.temporal)
@@ -206,32 +226,74 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
                 src_data = self._extract_catalog_dict(catalog_src)
                 dataset_dict["extras"].extend(src_data)
 
+
+        #TODO: DCAT-AP: Provenance
+        provenance = self._object_value(dataset_ref, DCT.provenance)
+        #log.debug('Provenance eu_dcat_ap_2: %s', provenance)
+        if provenance:
+            provenance_description = self._object_value(provenance, DCT.description)
+            if provenance_description:
+                dataset_dict["extras"].append(
+                    {"key": "provenance", "value": provenance_description}
+                )
+
+        # DCAT-AP: Themes, tags and tag_uri
+        for key, predicate in (
+            ("theme", DCAT.theme),
+        ):
+            values = self._object_value_list(dataset_ref, predicate)
+            if values:
+                self._assign_theme_tags(dataset_dict, key, values)
+
         # Resources
         for distribution in self._distributions(dataset_ref):
 
             resource_dict = {}
 
+            multilingual_fields = self._multilingual_resource_fields()
+
             #  Simple values
             for key, predicate in (
-                ("name", DCT.title),
-                ("description", DCT.description),
+                ("language", DCT.language),
                 ("access_url", DCAT.accessURL),
                 ("download_url", DCAT.downloadURL),
                 ("issued", DCT.issued),
                 ("modified", DCT.modified),
                 ("status", ADMS.status),
-                ("license", DCT.license),
+                ("license_url", DCT.license),
+                ("rights", DCT.rights),
             ):
-                value = self._object_value(distribution, predicate)
+                multilingual = key in multilingual_fields
+                value = self._object_value(
+                    distribution, predicate, multilingual=multilingual
+                )
                 if value:
                     resource_dict[key] = value
+
+            # Multilingual core fields
+            for key, predicate in (
+                ("name", DCT.title),
+                ("description", DCT.description)
+            ):
+                if f"{key}_translated" in multilingual_fields:
+                    value = self._object_value(
+                        distribution, predicate, multilingual=True
+                    )
+                    resource_dict[f"{key}_translated"] = value
+                    resource_dict[f"{key}"] = value.get(self._default_lang)
+                else:
+                    value = self._object_value(distribution, predicate)
+                    if value:
+                        resource_dict[key] = value
+
+            # URL
 
             resource_dict["url"] = self._object_value(
                 distribution, DCAT.downloadURL
             ) or self._object_value(distribution, DCAT.accessURL)
+
             #  Lists
             for key, predicate in (
-                ("language", DCT.language),
                 ("documentation", FOAF.page),
                 ("conforms_to", DCT.conformsTo),
                 ("metadata_profile", DCT.conformsTo),
@@ -239,11 +301,6 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
                 values = self._object_value_list(distribution, predicate)
                 if values:
                     resource_dict[key] = json.dumps(values)
-
-            # rights
-            rights = self._access_rights(distribution, DCT.rights)
-            if rights:
-                resource_dict["rights"] = rights
 
             # Format and media type
             normalize_ckan_format = toolkit.asbool(
@@ -294,7 +351,6 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
                     "publisher_name",
                     "publisher_email",
                 ):
-
                     extra["key"] = "dcat_" + extra["key"]
 
                 if extra["key"] == "language":
@@ -311,62 +367,28 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
 
         g.add((dataset_ref, RDF.type, DCAT.Dataset))
 
-        # Translated fields
-        translated_items = [
-            (
-                default_translated_fields[key]['field_name'],
-                default_translated_fields[key]['rdf_predicate'],
-                default_translated_fields[key]['fallbacks'],
-                default_translated_fields[key]['_type'],
-                default_translated_fields[key]['_class'],
-                default_translated_fields[key]['required_lang']
-            )
-            for key in default_translated_fields
-        ]
-        
-        self._add_triples_from_dict(
-            _dict=dataset_dict,
-            subject=dataset_ref,
-            items=translated_items,
-            list_value=False,
-            date_value=False,
-            multilang=True
+        # Basic fields
+        title_key = (
+            "title_translated"
+            if "title_translated" in dataset_dict
+            else "title"
         )
-                
-        # Create a set of the translated field names
-        self._translated_field_names = {item[0] for item in translated_items}
-        
-        # Basic fields without translating fields
-        basic_items = [
-            ("title", DCT.title, None, Literal),
-            ("notes", DCT.description, None, Literal),
+        notes_key = (
+            "notes_translated"
+            if "notes_translated" in dataset_dict
+            else "notes"
+        )
+        items = [
+            (title_key, DCT.title, None, Literal),
+            (notes_key, DCT.description, None, Literal),
             ("url", DCAT.landingPage, None, URIRef, FOAF.Document),
             ("identifier", DCT.identifier, ["guid", "id"], URIRefOrLiteral),
             ("version", OWL.versionInfo, ["dcat_version"], Literal),
             ("version_notes", ADMS.versionNotes, None, Literal),
             ("frequency", DCT.accrualPeriodicity, None, URIRefOrLiteral, DCT.Frequency),
-            ("access_rights", DCT.accessRights, None, URIRefOrLiteral, DCT.AccessRights),
             ("dcat_type", DCT.type, None, URIRefOrLiteral),
-            ("provenance", DCT.provenance, None, URIRefOrLiteral, DCT.ProvenanceStatement),
         ]
-        
-        # Filter basic fields to exclude those already in the translated fields
-        filtered_basic_items = [item for item in basic_items if item[0] not in self._translated_field_names]
-        
-        self._add_triples_from_dict(dataset_dict, dataset_ref, filtered_basic_items)
-
-        # Access Rights
-        # DCAT-AP: http://publications.europa.eu/en/web/eu-vocabularies/at-dataset/-/resource/dataset/access-right
-        access_rights_value = self._get_dataset_value(dataset_dict, "access_rights")
-        
-        if access_rights_value:
-            if "authority/access-right" in access_rights_value:
-                g.add((dataset_ref, DCT.accessRights, URIRef(access_rights_value)))
-            else:
-                g.remove((dataset_ref, DCT.accessRights, URIRef(access_rights_value)))
-                g.add((dataset_ref, DCT.accessRights, URIRef(eu_dcat_ap_default_values["access_rights"])))
-        else:
-            g.add((dataset_ref, DCT.accessRights, URIRef(eu_dcat_ap_default_values["access_rights"])))
+        self._add_triples_from_dict(dataset_dict, dataset_ref, items)
             
         # Tags
         # Pre-process keywords inside INSPIRE MD Codelists and update dataset_dict
@@ -376,6 +398,22 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
         # Search for matching keywords in MD_INSPIRE_REGISTER and update dataset_dict
         if tag_names:             
             self._search_values_codelist_add_to_graph(MD_INSPIRE_REGISTER, tag_names, dataset_dict, dataset_ref, dataset_tag_base, g, DCAT.keyword)
+
+        # Tags
+        # Pre-process keywords inside INSPIRE MD Codelists and update dataset_dict
+        dataset_tag_base = f'{dataset_ref.split("/dataset/")[0]}'
+        
+        # Procesar tags_translated
+        if "tags_translated" in dataset_dict:
+            for lang in dataset_dict["tags_translated"]:
+                tag_names = [value.replace(" ", "").lower() for value in dataset_dict["tags_translated"][lang]]
+                if tag_names:
+                    self._search_values_codelist_add_to_graph(MD_INSPIRE_REGISTER, tag_names, dataset_dict, dataset_ref, dataset_tag_base, g, DCAT.keyword, lang)
+        else:
+            # Procesar tags
+            tag_names = [tag["name"].replace(" ", "").lower() for tag in dataset_dict.get("tags", [])]
+            if tag_names:
+                self._search_values_codelist_add_to_graph(MD_INSPIRE_REGISTER, tag_names, dataset_dict, dataset_ref, dataset_tag_base, g, DCAT.keyword)
 
         # Dates
         items = [
@@ -387,7 +425,6 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
         #  Lists
         items = [
             ("language", DCT.language, None, URIRefOrLiteral, DCT.LinguisticSystem),
-            ("theme", DCAT.theme, None, URIRef),
             ("conforms_to", DCT.conformsTo, None, URIRefOrLiteral, DCT.Standard),
             ("alternate_identifier", ADMS.identifier, None, URIRefOrLiteral, ADMS.Identifier),
             ("documentation", FOAF.page, None, URIRefOrLiteral, FOAF.Document),
@@ -400,7 +437,12 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
         self._add_list_triples_from_dict(dataset_dict, dataset_ref, items)
 
         # DCAT Themes (https://publications.europa.eu/resource/authority/data-theme)
-        # Append the final result to the graph
+        # Append the final result to the graph       
+        # Generate theme_items dynamically from metadata_field_names
+        theme_items = [("theme", DCAT.theme, None, URIRef)]
+        theme_items.extend([(profile['theme'], DCAT.theme, None, URIRef) for profile in metadata_field_names.values() if 'theme' in profile])
+
+        self._add_list_triples_from_dict(dataset_dict, dataset_ref, theme_items)
         dcat_themes = self._themes(dataset_ref)
         for theme in dcat_themes:
             g.add((dataset_ref, DCAT.theme, URIRefOrLiteral(theme)))
@@ -482,56 +524,6 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
             # Add maintainer role
             g.add((maintainer_details, VCARD.role, URIRef(eu_dcat_ap_default_values["maintainer_role"])))
 
-        # Resource author
-        if any([
-            self._get_dataset_value(dataset_dict, "author"),
-            self._get_dataset_value(dataset_dict, "author_uri"),
-            self._get_dataset_value(dataset_dict, "author_email"),
-            self._get_dataset_value(dataset_dict, "author_url"),
-        ]):
-            author_uri = self._get_dataset_value(dataset_dict, "author_uri")
-            if author_uri:
-                author_details = CleanedURIRef(author_uri)
-            else:
-                author_details = dataset_ref + "/author"
-                
-            g.add((author_details, RDF.type, VCARD.Organization))
-            g.add((dataset_ref, DCT.creator, author_details))
-
-            ## Add name & mail
-            self._add_triple_from_dict(
-                dataset_dict, author_details,
-                VCARD.fn, "author"
-            )
-            # Add mail address as URIRef, and ensure it has a mailto: prefix
-            self._add_triple_from_dict(
-                dataset_dict, author_details,
-                VCARD.hasEmail,
-                "author_email",
-                _type=URIRef,
-                value_modifier=self._add_mailto,
-            )
-            # Add author URL
-            self._add_triple_from_dict(
-                dataset_dict, author_details,
-                VCARD.hasURL, "author_url",
-                _type=URIRef)
-
-            # Add author role
-            g.add((author_details, VCARD.role, URIRef(eu_dcat_ap_default_values["author_role"])))
-
-        # Provenance: dataset dct:provenance dct:ProvenanceStatement
-        provenance_details = dataset_ref + "/provenance"
-        provenance_statement = self._get_dataset_value(dataset_dict, "provenance")
-        if provenance_statement:
-            g.add((dataset_ref, DCT.provenance, provenance_details))
-            g.add((provenance_details, RDF.type, DCT.ProvenanceStatement))
-            
-            if isinstance(provenance_statement, dict):
-                self._add_multilang_triple(provenance_details, RDFS.label, provenance_statement)
-            else:
-                g.add((provenance_details, RDFS.label, Literal(provenance_statement)))
-
         # Publisher
         publisher_ref = None
 
@@ -559,6 +551,7 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
                 "type": self._get_dataset_value(dataset_dict, "publisher_type"),
                 "identifier": self._get_dataset_value(dataset_dict, "publisher_identifier"),
                 "uri": publisher_uri,
+                "role": self._get_dataset_value(dataset_dict, "publisher_role")
             }
         elif dataset_dict.get("organization"):
             # Fall back to dataset org
@@ -585,7 +578,7 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
                     "type": org_dict.get("publisher_type") or org_dict.get("dcat_type"),
                     "identifier": org_dict.get("identifier"),
                 }
-        #FIXME: Review bugs when serialize. Add to graph
+        # Add to graph
         if publisher_ref:
             g.add((publisher_ref, RDF.type, FOAF.Agent))
             g.add((dataset_ref, DCT.publisher, publisher_ref))
@@ -594,12 +587,55 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
                 ("email", FOAF.mbox, None, Literal),
                 ("url", FOAF.homepage, None, URIRef),
                 ("type", DCT.type, None, URIRefOrLiteral),
+                ("identifier", DCT.identifier, None, URIRefOrLiteral),
             ]
 
             # Add publisher role
             g.add((publisher_details, VCARD.role, URIRef(eu_dcat_ap_default_values["publisher_role"])))
 
             self._add_triples_from_dict(publisher_details, publisher_ref, items)
+
+        # Creator
+        creator_ref = None
+
+        if dataset_dict.get("creator"):
+            # Scheming publisher field: will be handled in a separate profile
+            pass
+        elif any(
+            [
+                self._get_dataset_value(dataset_dict, "creator_uri"),
+                self._get_dataset_value(dataset_dict, "creator_name"),
+            ]
+        ):
+            # Legacy creator_* extras
+            creator_uri = self._get_dataset_value(dataset_dict, "creator_uri")
+            creator_name = self._get_dataset_value(dataset_dict, "creator_name")
+            if creator_uri:
+                creator_ref = CleanedURIRef(creator_uri)
+            else:
+                # No creator_uri
+                creator_ref = BNode()
+
+            creator_details = {
+                "name": creator_name,
+                "email": self._get_dataset_value(dataset_dict, "creator_email"),
+                "url": self._get_dataset_value(dataset_dict, "creator_url"),
+                "type": self._get_dataset_value(dataset_dict, "creator_type"),
+                "identifier": self._get_dataset_value(dataset_dict, "creator_identifier"),
+            }
+
+        # Add to graph
+        if creator_ref:
+            g.add((creator_ref, RDF.type, FOAF.Agent))
+            g.add((dataset_ref, DCT.creator, creator_ref))  # Use DCT.creator for creator
+            items = [
+                ("name", FOAF.name, None, Literal),
+                ("email", FOAF.mbox, None, Literal),
+                ("url", FOAF.homepage, None, URIRef),
+                ("type", DCT.type, None, URIRefOrLiteral),
+                ("identifier", DCT.identifier, None, URIRefOrLiteral),
+            ]
+            self._add_triples_from_dict(creator_details, creator_ref, items)
 
         # TODO: Deprecated: https://semiceu.github.io/GeoDCAT-AP/drafts/latest/#deprecated-properties-for-period-of-time
         # Temporal
@@ -639,23 +675,45 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
             g.add((dataset_ref, DCT.conformsTo, crs_details))
 
         # Update licenses if it is in dcat_ap_default_licenses. DCAT-AP Compliance
+        resource_license_fallback = eu_dcat_ap_default_values["license_url"]
         if "license_url" in dataset_dict:
             license_info = dcat_ap_default_licenses.get(dataset_dict["license_url"], None)
             if license_info:
                 dataset_dict["license_id"] = license_info["fallback_license_id"]
                 dataset_dict["license_url"] = license_info["fallback_license_url"]
+                resource_license_fallback = license_info["fallback_license_url"]
 
         # Use fallback license if set in config
-        resource_license_fallback = None
         if toolkit.asbool(config.get(DISTRIBUTION_LICENSE_FALLBACK_CONFIG, False)):
-            if "license_id" in dataset_dict and isinstance(
-                URIRefOrLiteral(dataset_dict["license_id"]), URIRef
-            ):
-                resource_license_fallback = dataset_dict["license_id"]
-            elif "license_url" in dataset_dict and isinstance(
+            if "license_url" in dataset_dict and isinstance(
                 URIRefOrLiteral(dataset_dict["license_url"]), URIRef
             ):
                 resource_license_fallback = dataset_dict["license_url"]
+
+        g.add(
+            (
+                dataset_ref,
+                DCT.license,
+                URIRefOrLiteral(resource_license_fallback),
+            )
+        )
+
+        # Statetements
+        self._add_statement_to_graph(
+            dataset_dict,
+            "access_rights",
+            dataset_ref,
+            DCT.accessRights,
+            DCT.RightsStatement
+        )
+
+        self._add_statement_to_graph(
+            dataset_dict,
+            "provenance",
+            dataset_ref,
+            DCT.provenance,
+            DCT.ProvenanceStatement
+        )
 
         # Resources
         for resource_dict in dataset_dict.get("resources", []):
@@ -667,14 +725,19 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
             g.add((distribution, RDF.type, DCAT.Distribution))
 
             #  Simple values
+            name_key = (
+                "name_translated" if "name_translated" in resource_dict else "name"
+            )
+            description_key = (
+                "description_translated"
+                if "description_translated" in resource_dict
+                else "description"
+            )
+
             items = [
-                ("name", DCT.title, None, Literal),
-                ("description", DCT.description, None, Literal),
+                (name_key, DCT.title, None, Literal),
+                (description_key, DCT.description, None, Literal),
                 ("status", ADMS.status, None, URIRefOrLiteral),
-                ("rights", DCT.rights, None, URIRefOrLiteral, DCT.RightsStatement),
-                ("license", DCT.license, None, URIRefOrLiteral, DCT.LicenseDocument),
-                ("access_url", DCAT.accessURL, None, URIRef, RDFS.Resource),
-                ("download_url", DCAT.downloadURL, None, URIRef, RDFS.Resource),
                 ("encoding", CNT.characterEncoding, None, Literal),
             ]
 
@@ -689,9 +752,17 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
             ]
             self._add_list_triples_from_dict(resource_dict, distribution, items)
 
-            # Set default license for distribution if needed and available
+            # Statetements
+            self._add_statement_to_graph(
+                resource_dict,
+                "rights",
+                distribution,
+                DCT.rights,
+                DCT.RightsStatement
+            )
 
-            if resource_license_fallback and not (distribution, DCT.license, None) in g:
+            # Set default license for distribution if needed and available
+            if resource_license_fallback or dcat_ap_default_licenses.get(resource_dict["license"], None) and not (distribution, DCT.license, None) in g:
                 g.add(
                     (
                         distribution,
@@ -753,12 +824,14 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
             url = resource_dict.get("url")
             download_url = resource_dict.get("download_url")
             access_url = resource_dict.get("access_url")
-            # Use url as fallback for access_url if access_url is not set and download_url is not equal
-            if url and not access_url:
-                if (not download_url) or (download_url and url != download_url):
-                    self._add_triple_from_dict(
-                        resource_dict, distribution, DCAT.accessURL, "url", _type=URIRef
-                    )
+
+            # Validate download_url
+            if download_url and not self._is_direct_download_url(download_url):
+                download_url = None
+
+            # Use access_url/download_url if it exists and is a valid URL, otherwise use url
+            self._add_valid_url_to_graph(g, distribution, DCAT.accessURL, access_url, url)
+            self._add_valid_url_to_graph(g, distribution, DCAT.downloadURL, download_url, url)
 
             # Dates
             items = [
@@ -768,18 +841,6 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
 
             self._add_date_triples_from_dict(resource_dict, distribution, items)
 
-            # Access Rights
-            # DCAT-AP: http://publications.europa.eu/en/web/eu-vocabularies/at-dataset/-/resource/dataset/access-right
-            rights_value = self._get_resource_value(resource_dict, 'rights')
-            if rights_value and 'authority/access-right' in rights_value:
-                rights_uri = URIRef(rights_value)
-            else:
-                rights_uri = URIRef(eu_dcat_ap_default_values['access_rights'])
-            
-            if rights_value:
-                g.remove((distribution, DCT.rights, URIRef(rights_value)))
-            g.add((distribution, DCT.rights, rights_uri))
-            
             # Numbers
             if resource_dict.get("size"):
                 try:
@@ -828,9 +889,8 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
         g.add((catalog_ref, RDF.type, DCAT.Catalog))
 
         # Basic fields
-        license, publisher_identifier, access_rights, spatial_uri, language = [
+        license, access_rights, spatial_uri, language = [
             self._get_catalog_field(field_name='license_url'),
-            self._get_catalog_field(field_name='publisher_identifier', fallback='publisher_uri'),
             self._get_catalog_field(field_name='access_rights'),
             self._get_catalog_field(field_name='spatial_uri'),
             self._search_value_codelist(MD_EU_LANGUAGES, config.get('ckan.locale_default'), "label","id") or eu_dcat_ap_default_values['language'],
@@ -842,10 +902,11 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
             ("title", DCT.title, config.get("ckan.site_title"), Literal),
             ("encoding", CNT.characterEncoding, "UTF-8", Literal),
             ("description", DCT.description, config.get("ckan.site_description"), Literal),
-            ("publisher_identifier", DCT.publisher, publisher_identifier, URIRef),
             ("language", DCT.language, language, URIRefOrLiteral),
             ("spatial_uri", DCT.spatial, spatial_uri, URIRefOrLiteral),
             ("theme_taxonomy", DCAT.themeTaxonomy, eu_dcat_ap_default_values["theme_taxonomy"], URIRef),
+            ("theme_es_taxonomy", DCAT.themeTaxonomy, eu_dcat_ap_default_values["theme_es_taxonomy"], URIRef),
+            ("theme_eu_taxonomy", DCAT.themeTaxonomy, eu_dcat_ap_default_values["theme_eu_taxonomy"], URIRef),
             ("homepage", FOAF.homepage, config.get("ckan_url"), URIRef),
             ("license", DCT.license, license, URIRef),
             ("conforms_to", DCT.conformsTo, eu_dcat_ap_default_values["conformance"], URIRef),
@@ -865,3 +926,61 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
         modified = self._last_catalog_modification()
         if modified:
             self._add_date_triple(catalog_ref, DCT.modified, modified)
+
+        # Catalog Publisher
+        catalog_publisher_info = schemingdcat_get_catalog_publisher_info()
+        
+        publisher_details = {
+            "name": catalog_publisher_info.get("name"),
+            "email": catalog_publisher_info.get("email"),
+            "url": catalog_publisher_info.get("url"),
+            "type": catalog_publisher_info.get("type"),
+            "identifier": catalog_publisher_info.get("identifier"),
+        }
+
+        publisher_ref = CleanedURIRef(publisher_details["identifier"]
+        )
+        
+        # Add to graph
+        if publisher_ref:
+            g.add((publisher_ref, RDF.type, FOAF.Organization))
+            g.add((catalog_ref, DCT.publisher, publisher_ref))
+            items = [
+                ("name", FOAF.name, None, Literal),
+                ("email", FOAF.mbox, None, Literal),
+                ("url", FOAF.homepage, None, URIRef),
+                ("type", DCT.type, None, URIRefOrLiteral),
+                ("identifier", DCT.identifier, None, URIRefOrLiteral),
+            ]
+
+            # Add publisher role
+            g.add((publisher_ref, VCARD.role, URIRef(eu_dcat_ap_default_values["publisher_role"])))
+
+            self._add_triples_from_dict(publisher_details, publisher_ref, items)
+
+
+    def _assign_theme_tags(self, dataset_dict, key, values):
+        for value in values:
+            # DCAT-AP-ES themes
+            if 'datos.gob.es' in value and 'sector' in value:
+                dataset_dict[metadata_field_names["es_dcat_ap"]["theme"]] = value
+            # DCAT Themes
+            elif 'data-theme' in value:
+                dataset_dict[metadata_field_names["eu_dcat_ap"]["theme"]] = value
+            else:
+                # Ensure tag_uri and tag_string are lists
+                dataset_dict.setdefault('tag_uri', [])
+                dataset_dict.setdefault('tag_string', [])
+                
+                # Add value to tag_uri if it doesn't already exist
+                if value not in dataset_dict['tag_uri']:
+                    dataset_dict['tag_uri'].append(value)
+                
+                # Process tag_string
+                tag_value = value
+                if value.startswith('http://') or value.startswith('https://'):
+                    tag_value = value.rstrip('/').rsplit('/', 1)[-1]
+                
+                # Add processed value to tag_string if it doesn't already exist
+                if tag_value not in dataset_dict['tag_string']:
+                    dataset_dict['tag_string'].append(self._clean_name(tag_value))

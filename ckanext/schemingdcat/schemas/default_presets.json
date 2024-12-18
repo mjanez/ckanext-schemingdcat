@@ -20,6 +20,15 @@
       }
     },
     {
+      "preset_name": "dataset_url",
+      "values": {
+        "form_snippet": null,
+        "display_snippet": null,
+        "display_property": "dcat:landingPage",
+        "validators": "schemingdcat_dataset_url unicode_safe"
+      }
+    },
+    {
       "preset_name": "schemingdcat_dataset_slug",
       "values": {
         "validators": "not_empty unicode_safe name_validator package_name_validator",
@@ -153,6 +162,14 @@
       }
     },
     {
+      "preset_name": "schemingdcat_dataset_type",
+      "values": {
+        "form_snippet": "select.html",
+        "display_snippet": "select.html",
+        "validators": "default(http://publications.europa.eu/resource/authority/dataset-type/STATISTICAL) scheming_required scheming_choices"
+      }
+    },
+    {
       "preset_name": "schemingdcat_xls_metadata_template",
       "values": {
         "form_snippet": null,
@@ -224,6 +241,7 @@
       "values": {
         "form_snippet": "date.html",
         "display_snippet": "schemingdcat/display_snippets/date_localised.html",
+        "display_property": "dct:format",
         "validators": "schemingdcat_if_empty_datenow scheming_required isodate convert_to_json_if_date"
       }
     },

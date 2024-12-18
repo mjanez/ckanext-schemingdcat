@@ -23,7 +23,7 @@ This CKAN extension provides functions and templates specifically designed to ex
 > [!TIP]
 > It is **recommended to use with:** [`ckan-docker`](https://github.com/mjanez/ckan-docker) deployment or only use [`ckan-pycsw`](https://github.com/mjanez/ckan-pycsw) to deploy a CSW Catalog.
 
-![image](https://github.com/mjanez/ckanext-schemingdcat/raw/main/doc/img/schemingdcat_home.png)
+![image](./docs/v1/img/schemingdcat_home.png)
 
 Enhancements:
 - Custom schemas for `ckanext-scheming` in the plugin like [CKAN GeoDCAT-AP custom schemas](ckanext/schemingdcat/schemas#readme)
@@ -31,6 +31,7 @@ Enhancements:
 - Improve metadata management forms to include tabs that make it easier to search metadata categories and simplify metadata editing.
 - Improve the search functionality in CKAN for custom schemas. It uses the fields defined in a scheming file to provide a set of tools to use these fields for scheming, and a way to include icons in their labels when displaying them. More info: [`ckanext-schemingdcat`](https://github.com/mjanez/ckanext-schemingdcat)
 - Add improved harvesters for custom metadata schemas integrated with `ckanext-harvest` in CKAN using [`mjanez/ckan-ogc`](https://github.com/mjanez/ckan-ogc).
+- Add an [expanded Harvester for CSW](#csw-inspire-iso-19139-endpoint) servers using XLST mapping ([ISO19139 to DCAT-AP](https://raw.githubusercontent.com/mjanez/iso-19139-to-dcat-ap/refs/heads/main/iso-19139-to-dcat-ap.xsl)) to transform the metadata to RDF ([DCAT-AP](https://semiceu.github.io/DCAT-AP/releases/3.0.0)/[GeoDCAT-AP](https://semiceu.github.io/GeoDCAT-AP/releases/3.0.0/) 3) and import it into CKAN.
 - Add Metadata downloads for Linked Open Data formats ([`mjanez/ckanext-dcat`](https://github.com/mjanez/ckanext-dcat)) and Geospatial Metadata (ISO 19139, Dublin Core, etc. with [`mjanez/ckan-pycsw`](https://github.com/mjanez/ckanext-pycsw))
 - Add custom i18n translations to `datasets`, `groups`, `organizations` in schemas, e.g: [GeoDCAT-AP (ES)](#geodcat-ap-es).[^1]
 - Add a set of useful helpers and templates to be used with Metadata Schemas.
@@ -38,6 +39,7 @@ Enhancements:
 - Modern UI inspired on [`datopian/ckanext-datopian`](https://github.com/datopian/ckanext-datopian).
 - LOD/OGC Endpoints based on avalaible profiles (DCAT) and CSW capabilities with [`mjanez/ckan-pycsw`](https://github.com/mjanez/ckanext-pycsw).
 - Publisher (organization `admin`) and `editor` logic to control the visibility of records in a regular metadata monitoring workflow.
+- [CSW Harvester](#csw-inspire-202-endpoint) to remote CSW catalogues using the INSPIRE ISO 19139 metadata profile.
 
 ## Requirements
 ### Compatibility
@@ -562,14 +564,58 @@ Here are some examples of configuration files:
   }
   ```
 
-###TODO: Scheming DCAT CSW INSPIRE Harvester
-A harvester for remote CSW catalogues using the INSPIRE ISO 19139 metadata profile. This harvester is a subclass of the CSW Harvester provided by `ckanext-spatial` and is designed to work with the `schemingdcat` plugin to provide a more versatile and customizable harvester for CSW endpoints and GeoDCAT-AP CKAN instances.
+### CSW INSPIRE ISO-19139 endpoint
+A harvester for remote CSW catalogues using the INSPIRE ISO 19139 metadata profile (`CSW 2.0.2`). This harvester is a subclass of the CSW Harvester provided by `ckanext-spatial` and is designed to work with the `schemingdcat` plugin to provide a more versatile and customizable harvester for CSW endpoints and GeoDCAT-AP CKAN instances using XLST mapping ([ISO19139 to DCAT-AP](https://raw.githubusercontent.com/mjanez/iso-19139-to-dcat-ap/refs/heads/main/iso-19139-to-dcat-ap.xsl)) to transform the metadata to RDF (DCAT-AP) and import it into CKAN.
 
 To use it, you need to add the `schemingdcat_csw_harvester` plugin to your options file:
 
   ```ini
 	ckan.plugins = harvest schemingdcat schemingdcat_datasets ... schemingdcat_csw_harvester
   ```
+
+Remote Google Sheet/Onedrive Excel metadata upload Harvester supports the following options:
+
+* `cql_query`: The CQL query to be used when requesting the CSW service (default: `csw:AnyText` which allows you to search for any text in the catalogue records. More info: [Common Query Language (CQL)](https://docs.eoxserver.org/en/stable/users/services/cql.html))
+* `cql_search_term`: The search term to be used with the CQL query, example: `emisiones atmosféricas` (default: `null`)
+* `cql_use_like`: Using `PropertyIsLike` query type instead default `PropertyIsEqualTo` (default: `false` (`PropertyIsEqualTo`))
+* `legal_basis_url`: Legal basis link, example: `http://data.europa.eu/eli/reg/2008/1205`. (default: `null`)
+* `csw_mapping_file`: An URL (`https://raw.githubusercontent.com/SEMICeu/iso-19139-to-dcat-ap/main/iso-19139-to-dcat-ap.xsl`) or a filename (`iso-19139-to-dcat-ap.xsl`) from `ckanext-schemingdcat/ckanext/schemingdcat/lib/iso19139/xslt/mappings` with the XSLT mapping file. (default `url`: `https://raw.githubusercontent.com/mjanez/iso-19139-to-dcat-ap/refs/heads/main/iso-19139-to-dcat-ap.xsl`)
+* `override_local_datasets`: Boolean flag (`true`/`false`) to determine if this harvester should override existing datasets that are included in. Default is `false`
+* `default_tags`: A list of tags that will be added to all harvested datasets. Tags don't need to previously exist. This field takes a list of tag dicts which allows you to optionally specify a vocabulary. Default is `[]`.
+* `default_groups`: A list of group IDs or names to which the harvested datasets will be added to. The groups must exist in the local instance. Default is `[]`.
+* `default_extras`: A dictionary of key value pairs that will be added to extras of the harvested datasets. You can use the following replacement strings, that will be replaced before creating or updating the datasets:
+    * `{dataset_id}`
+    * `{harvest_source_id}`
+    * `{harvest_source_url}` Will be stripped of trailing forward slashes (/)
+    * `{harvest_source_title}`
+    * `{harvest_job_id}`
+    * `{harvest_object_id}`
+
+And example configuration might look like this:
+
+```json
+{
+   "api_version":2,
+   "default_groups":[
+      
+   ],
+   "cql_query": "csw:anyText",
+   "cql_search_term": "medio ambiente",
+   "cql_use_like": true,
+   "default_tags": [
+      {"name": "CODSI"},
+      {"name": "INSPIRE"}
+   ],
+   "default_extras":{
+      "encoding":"UTF-8",
+      "harvest_description":"Cosechado del Catalogo CSW"
+   },
+   "default_group_dicts":[
+      
+   ]
+}
+```
+
 
 
 ### Remote Google Sheet/Onedrive Excel metadata upload Harvester

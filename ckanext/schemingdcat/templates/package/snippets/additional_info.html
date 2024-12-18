@@ -1,95 +1,332 @@
-<section class="additional-info">
-  <h3>{{ _('Additional Info') }}</h3>
-  <table class="table table-striped table-bordered table-condensed">
-    <thead>
-      <tr>
-        <th scope="col">{{ _('Field') }}</th>
-        <th scope="col">{{ _('Value') }}</th>
-      </tr>
-    </thead>
-    <tbody>
+{% if not schema %}
+    {% set schema = h.schemingdcat_get_cached_schema(dataset_type) %}
+{% endif %}
+
+{%  set exclude_fields = [
+  'id',
+  'name',
+  'url',
+  'title',
+  'title_translated',
+  'notes',
+  'notes_translated',
+  'tag_string',
+  'license_id',
+  'owner_org',
+  'graphic_overview',
+  'access_rights',
+  'publisher_uri',
+  'publisher_name',
+  'publisher_identifier',
+  'publisher_url',
+  'publisher_email',
+  'publisher_type',
+  'contact_uri',
+  'contact_name',
+  'contact_email',
+  'contact_url',
+  'reference',
+  'author_name',
+  'maintainer_name' 
+  ] %}
+
+
+  {#
+    basic_info: Sublist
+  #}
+  {%  set basic_info = [
+    'created',
+    'issued',
+    'modified',
+    'language',
+    'encoding',
+  ] %}
+
+
+{%  set md_provenance_fields = [
+  'alternate_identifier',
+  'provenance',
+  'metadata_profile',
+  'conforms_to',
+  'lineage_source',
+  'lineage_process_steps',
+  'purpose',
+  'source',
+  'reference',
+  'temporal_start',
+  'temporal_end',
+  'frequency',
+  'version_notes',
+  'version',
+  'valid',
+  ] %}
+
+
+  {#
+    md_provenance_conformance: Sublist
+  #}
+    {%  set md_provenance_conformance = [
+      'alternate_identifier',
+      'metadata_profile',
+      'conforms_to',
+    ] %}
+
+  {#
+    md_provenance_temporal_coverage: Sublist
+  #}
+    {%  set md_provenance_temporal_coverage = [
+      'temporal_start',
+      'temporal_end',
+      'frequency',
+    ] %}
+
+  {#
+    md_provenance_lineage: Sublist
+  #}
+    {%  set md_provenance_lineage = [
+      'provenance',
+      'lineage_process_steps',
+      'lineage_source',
+      'source',
+    ] %}
+
+    {#
+      md_provenance_version: Sublist
+    #}
+      {%  set md_provenance_version = [
+        'version_notes',
+        'version',
+        'valid',
+      ] %}
+
+{%  set spatial_info_fields = [
+  'inspire_id',
+  'theme',
+  'reference_system',
+  'representation_type',
+  'spatial',
+  'spatial_uri',
+  'spatial_resolution_in_meters',
+  ] %}  
+
+{%  set responsible_party_fields = [
+  'author',
+  'author_email',
+  'author_uri',
+  'author_url',
+  'maintainer',
+  'maintainer_email',
+  'maintainer_uri',
+  'maintainer_url',
+  ] %}
+
+  {#
+    responsible_party_fields: Sublists
+  #}
+      {%  set author_fields = [
+        'author',
+        'author_email',
+        'author_uri',
+        'author_url',
+      ] %}
+
+      {%  set maintainer_fields = [
+        'maintainer',
+        'maintainer_email',
+        'maintainer_uri',
+        'maintainer_url',
+      ] %}
+
       {% block package_additional_info %}
-        {% if pkg_dict.url %}
-          <tr>
-            <th scope="row" class="dataset-label">{{ _('Source') }}</th>
-            {% if h.is_url(pkg_dict.url) %}
-              <td class="dataset-details" property="foaf:homepage">
-                <a href="{{ pkg_dict.url }}" rel="foaf:homepage" target="_blank" class="truncate-link">
-                  {{ pkg_dict.url }}
-                </a>
+      <section class="additional-info">
+        {# Additional info #}
+        <table  class="table table-striped table-bordered table-condensed" style="margin-top:20px">
+          <thead class="thead-normal_table">
+            <tr>
+              <td scope="row" colspan="2">
+                {{ _('Additional info') }}
               </td>
-            {% else %}
-              <td class="dataset-details" property="foaf:homepage">{{ pkg_dict.url }}</td>
+            </tr>
+          </thead>
+          <tbody>
+            {%  for field in schema.dataset_fields %}
+            {%  if field.field_name not in exclude_fields
+                and field.field_name not in md_provenance_fields
+                and field.field_name not in spatial_info_fields
+                and field.field_name not in responsible_party_fields
+                and field.display_snippet is not none 
+                and field.field_name is not none 
+                or field.field_name in basic_info %}
+                <tr>
+                    <th scope="row" class="dataset-label">{{
+                    h.scheming_language_text(field.label) }}</td>
+                    <td class="dataset-details"{%
+                    if field.display_property %} property="{{ field.display_property
+                    }}"{% endif %}>{%  snippet 'scheming/snippets/display_field.html',
+                    field=field, data=pkg_dict, schema=schema %}</td>
+                </tr>
+              {%  endif %}
+            {%  endfor %}
+            {% if h.check_access('package_update',{'id':pkg_dict.id}) %}
             {% endif %}
-          </tr>
-        {% endif %}
+          </tbody>
+        </table>
 
-        {% if pkg_dict.author_email %}
-          <tr>
-            <th scope="row" class="dataset-label">{{ _("Author") }}</th>
-            <td class="dataset-details" property="dc:creator">{{ h.mail_to(email_address=pkg_dict.author_email, name=pkg_dict.author) }}</td>
-          </tr>
-        {% elif pkg_dict.author %}
-          <tr>
-            <th scope="row" class="dataset-label">{{ _("Author") }}</th>
-            <td class="dataset-details" property="dc:creator">{{ pkg_dict.author }}</td>
-          </tr>
-        {% endif %}
+        {# Spatial Info #}
+        <details class="toggle-table" open>
+            <summary>
+                <h3><center>{{ _('Spatial information') }}</center></h3>
+            </summary>
+            <table class="table table-striped table-bordered table-condensed">
+                <tbody>
+                    {% if pkg_dict.spatial %}
+                      {%  for field in schema.dataset_fields %}
+                      {%  if field.field_name not in exclude_fields
+                          and field.field_name in spatial_info_fields
+                          and field.display_snippet is not none 
+                          and field.field_name is not none %}
+                        <tr>
+                          <th scope="row" class="dataset-label">{{
+                            h.scheming_language_text(field.label) }}</th>
+                          <td class="dataset-details"{%
+                            if field.display_property %} property="{{ field.display_property
+                            }}"{% endif %}>{%  snippet 'scheming/snippets/display_field.html',
+                            field=field, data=pkg_dict, schema=schema %}</td>
+                        </tr>
+                      {%  endif %}
+                    {%  endfor %}
+                  {%  endif %}
+                </tbody>
+            </table>
+        </details>
 
-        {% if pkg_dict.maintainer_email %}
-          <tr>
-            <th scope="row" class="dataset-label">{{ _('Maintainer') }}</th>
-            <td class="dataset-details" property="dc:contributor">{{ h.mail_to(email_address=pkg_dict.maintainer_email, name=pkg_dict.maintainer) }}</td>
-          </tr>
-        {% elif pkg_dict.maintainer %}
-          <tr>
-            <th scope="row" class="dataset-label">{{ _('Maintainer') }}</th>
-            <td class="dataset-details" property="dc:contributor">{{ pkg_dict.maintainer }}</td>
-          </tr>
-        {% endif %}
+        {# Provenance #}
+        <details class="toggle-table">
+          <summary>
+              <h3><center>{{ _('Provenance') }}</center></h3>
+          </summary>
+          <table class="table table-striped table-bordered table-condensed">
+            <tbody>
+                {%  for field in schema.dataset_fields %}
+                {%  if field.field_name not in exclude_fields
+                    and field.field_name in md_provenance_conformance
+                    and field.display_snippet is not none 
+                    and field.field_name is not none %}
+                  <tr>
+                    <th scope="row" class="dataset-label">{{
+                      h.scheming_language_text(field.label) }}</th>
+                    <td class="dataset-details"{%
+                      if field.display_property %} property="{{ field.display_property
+                      }}"{% endif %}>{%  snippet 'scheming/snippets/display_field.html',
+                      field=field, data=pkg_dict, schema=schema %}</td>
+                  </tr>
+                {%  endif %}
+              {%  endfor %}
+              <tr>
+                <td scope="row" colspan="2"><h4><center>{{ _('Lineage') }}</center></h4></td>
+              </tr>
+              {%  for field in schema.dataset_fields %}
+                {%  if field.field_name not in exclude_fields
+                    and field.field_name in md_provenance_lineage
+                    and field.display_snippet is not none 
+                    and field.field_name is not none %}
+                  <tr>
+                    <th scope="row" class="dataset-label">{{
+                      h.scheming_language_text(field.label) }}</th>
+                    <td class="dataset-details"{%
+                      if field.display_property %} property="{{ field.display_property
+                      }}"{% endif %}>{%  snippet 'scheming/snippets/display_field.html',
+                      field=field, data=pkg_dict, schema=schema %}</td>
+                  </tr>
+                {%  endif %}
+              {%  endfor %}
+              <tr>
+                <td scope="row" colspan="2"><h4><center>{{ _('Temporal extent') }}</center></h4></td>
+              </tr>
+              {%  for field in schema.dataset_fields %}
+                {%  if field.field_name not in exclude_fields
+                    and field.field_name in md_provenance_temporal_coverage
+                    and field.display_snippet is not none 
+                    and field.field_name is not none %}
+                  <tr>
+                    <th scope="row" class="dataset-label">{{
+                      h.scheming_language_text(field.label) }}</th>
+                    <td class="dataset-details"{%
+                      if field.display_property %} property="{{ field.display_property
+                      }}"{% endif %}>{%  snippet 'scheming/snippets/display_field.html',
+                      field=field, data=pkg_dict, schema=schema %}</td>
+                </tr>
+                {%  endif %}
+              {%  endfor %}
+                <td scope="row" colspan="2"><h4><center>{{ _('Version') }}</center></h4></td>
+              </tr>
+              {%  for field in schema.dataset_fields %}
+                {%  if field.field_name not in exclude_fields
+                    and field.field_name in md_provenance_version
+                    and field.display_snippet is not none 
+                    and field.field_name is not none %}
+                  <tr>
+                    <th scope="row" class="dataset-label">{{
+                      h.scheming_language_text(field.label) }}</th>
+                    <td class="dataset-details"{%
+                      if field.display_property %} property="{{ field.display_property
+                      }}"{% endif %}>{%  snippet 'scheming/snippets/display_field.html',
+                      field=field, data=pkg_dict, schema=schema %}</td>
+                  </tr>
+                {%  endif %}
+              {%  endfor %}
+              <tr>
+                <th scope="row" class="dataset-label">{{ _("State") }}</td>
+                <td class="dataset-details">{{ _(pkg_dict.state) }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </details>
 
-        {% if pkg_dict.version %}
-          <tr>
-            <th scope="row" class="dataset-label">{{ _("Version") }}</th>
-            <td class="dataset-details">{{ pkg_dict.version }}</td>
-          </tr>
-        {% endif %}
-
-        {% if h.check_access('package_update',{'id':pkg_dict.id}) %}
-          <tr>
-            <th scope="row" class="dataset-label">{{ _("State") }}</th>
-            <td class="dataset-details">{{ _(pkg_dict.state) }}</td>
-          </tr>
-        {% endif %}
-        {% if pkg_dict.metadata_modified %}
-          <tr>
-            <th scope="row" class="dataset-label">{{ _("Last Updated") }}</th>
-            <td class="dataset-details">
-                {% snippet 'snippets/local_friendly_datetime.html', datetime_obj=pkg_dict.metadata_modified %}
-            </td>
-          </tr>
-        {% endif %}
-        {% if pkg_dict.metadata_created %}
-          <tr>
-            <th scope="row" class="dataset-label">{{ _("Created") }}</th>
-
-            <td class="dataset-details">
-                {% snippet 'snippets/local_friendly_datetime.html', datetime_obj=pkg_dict.metadata_created %}
-            </td>
-          </tr>
-        {% endif %}
-
-      {% block extras scoped %}
-        {% for extra in h.sorted_extras(pkg_dict.extras) %}
-          {% set key, value = extra %}
-          <tr rel="dc:relation" resource="_:extra{{ i }}">
-            <th scope="row" class="dataset-label" property="rdfs:label">{{ _(key|e) }}</th>
-            <td class="dataset-details truncate-td" property="rdf:value">{{ value }}</td>
-          </tr>
-        {% endfor %}
-      {% endblock %}
-
-      {% endblock %}
-    </tbody>
-  </table>
-</section>
+        {# Responsible party #}
+        <details class="toggle-table">
+          <summary>
+              <h3><center>{{ _('Responsible party') }}</center></h3>
+          </summary>
+          <table class="table table-striped table-bordered table-condensed">
+            <tbody>
+                <td scope="row" colspan="2"><h4><center>{{ _('Author') }}</center></h4></td>
+              </tr>
+              {%  for field in schema.dataset_fields %}
+                {%  if field.field_name not in exclude_fields
+                  and field.field_name in author_fields
+                  and field.display_snippet is not none 
+                  and field.field_name is not none %}
+                  <tr>
+                    <th scope="row" class="dataset-label">{{
+                      h.scheming_language_text(field.label) }}</th>
+                    <td class="dataset-details"{%
+                      if field.display_property %} property="{{ field.display_property
+                      }}"{% endif %}>{%  snippet 'scheming/snippets/display_field.html',
+                      field=field, data=pkg_dict, schema=schema %}</td>
+                  </tr>
+                {%  endif %}
+              {%  endfor %}
+              <tr>
+                <td scope="row" colspan="2"><h4><center>{{ _('Maintainer') }}</center></h4></td>
+              </tr>
+              {%  for field in schema.dataset_fields %}
+                {%  if field.field_name not in exclude_fields
+                  and field.field_name in maintainer_fields
+                  and field.display_snippet is not none 
+                  and field.field_name is not none %}
+                  <tr>
+                    <th scope="row" class="dataset-label">{{
+                      h.scheming_language_text(field.label) }}</th>
+                    <td class="dataset-details"{%
+                      if field.display_property %} property="{{ field.display_property
+                      }}"{% endif %}>{%  snippet 'scheming/snippets/display_field.html',
+                      field=field, data=pkg_dict, schema=schema %}</td>
+                  </tr>
+                {%  endif %}
+              {%  endfor %}
+            </tbody>
+          </table>
+        </details>
+      </section>
+    {% endblock %}      

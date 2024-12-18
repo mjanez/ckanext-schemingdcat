@@ -4,8 +4,8 @@ about: "Datasets/Distributions: Adaptation for CKAN of the Data Catalog Vocabula
 about_url: https://github.com/mjanez/ckanext-schemingdcat
 form_languages: ["en", "es"]
 required_language: "en"
-schema_version: 3.0
-schema_date: 2024-08-01
+schema_version: 3.1
+schema_date: 2024-12-04
 schema_name: dcat_full
 schema_title: DCAT
 schema_description: Data Catalog Vocabulary (DCAT)
@@ -1115,8 +1115,8 @@ dataset_fields:
     - field_name: name
       legacy: publisher_name
       label:
-        en: URI
-        es: URI
+        en: Name of the publisher.
+        es: Nombre del publicador.
 
     - field_name: email
       legacy: publisher_email
@@ -1223,7 +1223,11 @@ dataset_fields:
   label:
     en: Name of the dataset author
     es: Nombre del autor
-  validators: if_empty_same_as(author) unicode_safe
+  dependent_fields:
+    field_name: creator
+    subfields:
+      - field_name: name
+  validators: if_empty_same_as(author) schemingdcat_fill_dependent_fields
   preset: hide_fallback
   form_group_id: author
 
@@ -1232,6 +1236,11 @@ dataset_fields:
   label:
     en: Identifier of the dataset creator
     es: Identificador del autor
+  dependent_fields:
+    field_name: creator
+    subfields:
+      - field_name: uri
+  validators: schemingdcat_fill_dependent_fields
   display_snippet: schemingdcat/display_snippets/link_name.html
   form_placeholder: http://datos.gob.es/recurso/sector-publico/org/Organismo/E05068001
   help_text:
@@ -1245,7 +1254,11 @@ dataset_fields:
   label:
     en: Email of the dataset creator
     es: Email del autor
-  preset: schemingdcat_valid_email
+  dependent_fields:
+    field_name: creator
+    subfields:
+      - field_name: email
+  preset: schemingdcat_valid_email_dependent_fields
   display_property: vcard:hasEmail
   form_placeholder: joseblanco@example.com
   form_group_id: author
@@ -1255,12 +1268,130 @@ dataset_fields:
   label:
     en: Website of the dataset creator
     es: Web del autor
+  dependent_fields:
+    field_name: creator
+    subfields:
+      - field_name: url
+  preset: valid_url_dependent_fields
   display_property: foaf:homepage
-  preset: valid_url
   form_placeholder: http://www.example.com
   help_text:
     en: This property refers to a web page that acts as the author's homepage. URL
     es: Esta propiedad se refiere a una página web que actúa como página principal del publicador. URL
+  form_group_id: author
+
+# Author type (M)
+- field_name: author_type
+  label:
+    en: Type of the author
+    es: Tipo de autor
+  dependent_fields:
+    field_name: creator
+    subfields:
+      - field_name: type
+  preset: select_dependent_fields
+  display_property: dct:type
+  display_snippet: schemingdcat/display_snippets/link_schema.html
+  choices:
+  - label:
+      en: National authority
+      es: Autoridad nacional
+    value: http://purl.org/adms/publishertype/NationalAuthority
+  - label:
+      en: Regional authority
+      es: Autoridad regional
+    value: http://purl.org/adms/publishertype/RegionalAuthority
+  - label:
+      en: Supranational authority
+      es: Autoridad supranacional
+    value: http://purl.org/adms/publishertype/SupraNationalAuthority
+  - label:
+      en: Local authority
+      es: Autoridad local
+    value: http://purl.org/adms/publishertype/LocalAuthority
+  - label:
+      en: Academia-Scientific organisation
+      es: Organización académica-científica
+    value: http://purl.org/adms/publishertype/Academia-ScientificOrganisation
+  - label:
+      en: Non profit organisation
+      es: Organización sin animo de lucro
+    value: http://purl.org/adms/publishertype/NonProfitOrganisation
+  - label:
+      en: Company
+      es: Empresa
+    value: http://purl.org/adms/publishertype/Company
+  - label:
+      en: Industry consortium
+      es: Consorcio industrial
+    value: http://purl.org/adms/publishertype/IndustryConsortium
+  - label:
+      en: Non Governmental Organisation
+      es: Organización no gubernamental (ONG)
+    value: http://purl.org/adms/publishertype/NonGovernmentalOrganisation
+  - label:
+      en: Private individual(s)
+      es: Individuo(s) privado(s)
+    value: http://purl.org/adms/publishertype/PrivateIndividual(s)
+  - label:
+      en: Standardisation body
+      es: Organismo de normalización
+    value: http://purl.org/adms/publishertype/StandardisationBody
+  form_group_id: author
+
+- field_name: creator
+  label:
+    en: Creators
+    es: Creadores
+  repeating_label:
+    en: Creator
+    es: Creador
+  form_snippet: null
+  display_snippet: null
+  repeating_subfields:
+    - field_name: uri
+      legacy: author_uri
+      form_placeholder: http://datos.gob.es/recurso/sector-publico/org/Organismo/E05068001
+      label:
+        en: URI of the author/creator.
+        es: URI del creador/autor.
+      help_text:
+        en: "Unique identifier of the publisher. Spain: Unique identifier (DIR3) of the public organization (<a href='http://datos.gob.es/es/recurso/sector-publico/org/Organismo' target='_blank'>datos.gob.es</a>)."
+        es: "Identificador único del publicador. España: Identificador único (DIR3) del organismo público. (<a href='http://datos.gob.es/es/recurso/sector-publico/org/Organismo' target='_blank'>datos.gob.es</a>)"
+
+    - field_name: name
+      legacy: author_name
+      label:
+        en: Name of the creator.
+        es: Nombre del creador.
+
+    - field_name: email
+      legacy: author_email
+      label:
+        en: Dataset creator email.
+        es: Email del creador del conjunto de datos.
+
+    - field_name: url
+      legacy: author_url
+      label:
+        en: Website of the dataset creator.
+        es: Web del creador del conjunto de datos.
+
+    - field_name: type
+      legacy: author_type
+      label:
+        en: Type of the creator.
+        es: Tipo de creador.
+
+    - field_name: identifier
+      legacy: author_identifier
+      label:
+        en: Identifier of the creator.
+        es: Identificador del creador.
+  
+  help_text:
+      en: "A party that creates or produces a particular dataset."
+      es: "Persona u organización creadora o productora de un conjunto de datos."
   form_group_id: author
 
 # Other identifier (O))
@@ -1995,6 +2126,21 @@ dataset_fields:
   display_property: owl:versionInfo
   validators: ignore_missing unicode_safe package_version_validator
   form_placeholder: '1.0'
+  form_group_id: version_notes
+
+# Has version (O)
+- field_name: has_version
+  label:
+    en: Has version
+    es: Tiene versión
+  help_text:
+    en: This property refers to a related Dataset that is a version, edition, or adaptation of the described Dataset.
+    es: Esta propiedad se refiere a un conjunto de datos relacionado que es una versión, edición o adaptación del conjunto de datos descrito.
+  preset: multiple_text
+  display_property: dcat:hasVersion
+  validators: ignore_missing scheming_multiple_text
+  help_inline: true
+  form_placeholder: http://www.example.org/dataset/my-dataset-alpha-1.0
   form_group_id: version_notes
 
 # Version information (O)

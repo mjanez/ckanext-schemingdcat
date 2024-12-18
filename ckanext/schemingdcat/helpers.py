@@ -8,7 +8,7 @@ from yaml.loader import SafeLoader
 from pathlib import Path
 from functools import lru_cache
 import datetime
-from urllib.parse import urlparse, unquote
+from urllib.parse import urlparse, unquote, urljoin
 from urllib.error import URLError
 from six.moves.urllib.parse import urlencode
 import typing
@@ -1069,6 +1069,28 @@ def parse_json(value, default_value=None):
             return default_value
         return value
 
+@lru_cache(maxsize=2)
+@helper
+def schemingdcat_get_ckan_site_url():
+    """
+    Get the full CKAN site URL, including the root path if specified.
+
+    This function constructs the full CKAN site URL by combining the base site URL
+    with the root path if it is specified in the configuration.
+
+    Returns:
+        str: The full CKAN site URL.
+    """
+    site_url = p.toolkit.config.get('ckan.site_url')
+    root_path = get_not_lang_root_path()
+    
+    if root_path:
+        url = urljoin(site_url, root_path.lstrip('/'))
+    else:
+        url = site_url
+    
+    return url
+
 @helper
 def get_not_lang_root_path():
     """
@@ -1094,12 +1116,14 @@ def get_langs():
     Retrieve the list of language priorities from the CKAN configuration.
 
     This function fetches the 'ckan.locales_offered' configuration setting,
-    splits it by spaces, and returns the resulting list of language codes.
+    splits it by spaces if it's a string, and returns the resulting list of language codes.
 
     Returns:
         list: A list of language codes as strings.
     """
-    language_priorities = p.toolkit.config.get('ckan.locales_offered', '').split()
+    language_priorities = p.toolkit.config.get('ckan.locales_offered', '')
+    if isinstance(language_priorities, str):
+        language_priorities = language_priorities.split()
     return language_priorities
 
 @lru_cache(maxsize=4)
@@ -1385,7 +1409,7 @@ def schemingdcat_parse_localised_date(date_=None):
     else:
         return date_.strftime('%Y-%m-%d')
 
-@lru_cache(maxsize=16)
+@lru_cache(maxsize=8)
 @helper
 def schemingdcat_get_dataset_schema(schema_type="dataset"):
     """
@@ -1401,7 +1425,7 @@ def schemingdcat_get_dataset_schema(schema_type="dataset"):
         {}, {"type": schema_type}
     )   
 
-@lru_cache(maxsize=100)
+@lru_cache(maxsize=16)
 @helper
 def schemingdcat_get_cached_schema(dataset_type='dataset'):
     """
@@ -1414,9 +1438,83 @@ def schemingdcat_get_cached_schema(dataset_type='dataset'):
         dict: The schema of the dataset instance.
     """
     if sdct_config.schemas is None:
-        raise ValueError("sdct_config.schemas is not initialized")
+        sdct_config.schemas = schemingdcat_get_dataset_schema()
     
     return sdct_config.schemas.get(dataset_type, {})
+
+@lru_cache(maxsize=2)
+@helper
+def schemingdcat_get_dataset_schema_field_names(schema_type="dataset", schema=None):
+    """
+    Return a list of field names that are in the dataset_fields
+    and resource_fields of the schema.
+
+    Args:
+        dataset_type (str): The dataset_type.
+
+    Returns:
+        list: A list of field names from dataset_fields and resource_fields.
+    """
+    
+    if schema is None:
+        schema = schemingdcat_get_dataset_schema(schema_type)
+        
+    field_names = []
+
+    # Helper function to extract field names
+    def extract_field_names(fields):
+        return [field['field_name'] for field in fields]
+
+    # Extract field names from dataset_fields
+    dataset_fields = schema.get('dataset_fields', [])
+    dataset_fields_field_names = extract_field_names(dataset_fields)
+    
+    # Extract field names from resource_fields
+    resource_fields = schema.get('resource_fields', [])
+    resource_fields_field_names = extract_field_names(resource_fields)
+    
+    # Combine results into a list of dictionaries
+    field_names.append({'dataset_fields': dataset_fields_field_names})
+    field_names.append({'resource_fields': resource_fields_field_names})
+    
+    return field_names
+
+@lru_cache(maxsize=2)
+@helper
+def schemingdcat_get_dataset_schema_required_field_names(schema_type="dataset", schema=None):
+    """
+    Return a list of field names that are required in the dataset_fields
+    and resource_fields of the schema.
+
+    Args:
+        dataset_type (str): The dataset_type.
+
+    Returns:
+        list: A list of required field names from dataset_fields and resource_fields.
+    """
+    
+    if schema is None:
+        schema = schemingdcat_get_dataset_schema(schema_type)
+    
+    required_field_names = []
+
+    # Helper function to extract required field names
+    def extract_required_field_names(fields):
+        return [field['field_name'] for field in fields if field.get('required', False)]
+
+    # Extract required field names from dataset_fields
+    dataset_fields = schema.get('dataset_fields', [])
+    required_dataset_fields = extract_required_field_names(dataset_fields)
+    
+    # Extract required field names from resource_fields
+    resource_fields = schema.get('resource_fields', [])
+    required_resource_fields = extract_required_field_names(resource_fields)
+    
+    # Combine results into a list of dictionaries
+    required_field_names.append({'dataset_fields': required_dataset_fields})
+    required_field_names.append({'resource_fields': required_resource_fields})
+    
+    return required_field_names
 
 @helper
 def schemingdcat_get_schema_form_groups(entity_type=None, object_type=None, schema=None):
@@ -2008,3 +2106,8 @@ def schemingdcat_user_is_org_member(
                     result = True
                 break
     return result
+
+@lru_cache(maxsize=1)
+@helper
+def schemingdcat_get_catalog_publisher_info():
+    return sdct_config.catalog_publisher_info

@@ -25,6 +25,7 @@ from ckanext.schemingdcat.harvesters.base import (
 )
 from ckanext.schemingdcat.lib.field_mapping import FieldMappingValidator
 from ckanext.schemingdcat.interfaces import ISchemingDCATHarvester
+from ckanext.schemingdcat.helpers import schemingdcat_get_dataset_schema_field_names
 
 log = logging.getLogger(__name__)
 
@@ -177,7 +178,25 @@ class SchemingDCATCKANHarvester(SchemingDCATHarvester):
 
                 config = json.dumps({**config_obj, mapping_name: field_mapping})
 
-        return config     
+        if 'default_extras' in config_obj:
+            if not isinstance(config_obj['default_extras'], dict):
+                raise ValueError('default_extras must be a dictionary')
+        
+            # Get the field names from the schema
+            schema_field_names = schemingdcat_get_dataset_schema_field_names()
+
+            # Extract dataset_fields
+            dataset_field_names = []
+            for field_group in schema_field_names:
+                if 'dataset_fields' in field_group:
+                    dataset_field_names.extend(field_group['dataset_fields'])
+
+            # Check if any field_name in default_extras exists in dataset_fields
+            for field_name in config_obj['default_extras']:
+                if field_name in dataset_field_names:
+                    raise KeyError(f"Field name '{field_name}' in default_extras already exists in the schema")
+
+        return config
 
     def gather_stage(self, harvest_job):
         """
@@ -601,7 +620,7 @@ class SchemingDCATCKANHarvester(SchemingDCATHarvester):
                 # key.
                 resource.pop("revision_id", None)
 
-            # before_cleaning interface
+            # before_modify_package_dict interface
             for harvester in p.PluginImplementations(ISchemingDCATHarvester):
                 if hasattr(harvester, 'before_modify_package_dict'):
                     package_dict, before_modify_package_dict_errors = harvester.before_modify_package_dict(package_dict)

@@ -24,7 +24,7 @@ __all__ = [
     
     # GeoDCAT-AP profiles
     'EuGeoDCATAP2Profile',
-    'EuGeoDCATAP3Profile'
+    'EuGeoDCATAP3Profile',
     
     # Spanish profiles
     'EsNTIRISPProfile',

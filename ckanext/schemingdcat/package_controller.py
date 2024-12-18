@@ -305,9 +305,9 @@ class PackageController():
                             field_name=field["field_name"], key=key
                         )
                         if new_key not in flattened_values:
-                            flattened_values[new_key] = value
+                            flattened_values[new_key] =  str(value)
                         else:
-                            flattened_values[new_key] += ' ' + value
+                            flattened_values[new_key] += ' ' + str(value)
     
                 data_dict.update(flattened_values)
                 data_dict.pop(field['field_name'], None)

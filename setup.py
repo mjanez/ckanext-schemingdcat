@@ -37,9 +37,10 @@ setup(
         # Harvesters
         schemingdcat_ckan_harvester=ckanext.schemingdcat.harvesters:SchemingDCATCKANHarvester
         schemingdcat_xls_harvester=ckanext.schemingdcat.harvesters:SchemingDCATXLSHarvester
-        schemingdcat_ows_harvester=ckanext.schemingdcat.harvesters:SchemingDCATOWSHarvester
         schemingdcat_postgres_harvester=ckanext.schemingdcat.harvesters:SchemingDCATPostgresHarvester
-
+        schemingdcat_csw_harvester=ckanext.schemingdcat.harvesters:SchemingDCATCSWHarvester
+        #schemingdcat_ows_harvester=ckanext.schemingdcat.harvesters:SchemingDCATOWSHarvester     
+        
         [ckan.rdf.profiles]
         # Custom compatibilty profile meant to add support for ckanext-scheming
         eu_dcat_ap_scheming=ckanext.schemingdcat.profiles:EuDCATAPSchemingDCATProfile

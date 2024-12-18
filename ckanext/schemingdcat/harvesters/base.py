@@ -73,7 +73,7 @@ class SchemingDCATHarvester(HarvesterBase):
     action_api_version = 3
     force_import = False
     _site_user = None
-    _source_date_format = None
+    _source_date_format = '%Y-%m-%d'
     _dataset_default_values = {}
     _distribution_default_values = {}
     _field_mapping_validator = FieldMappingValidator()
@@ -229,7 +229,7 @@ class SchemingDCATHarvester(HarvesterBase):
 
         return config
 
-    @lru_cache(maxsize=None)
+    @lru_cache(maxsize=8)
     def _get_local_schema(self, schema_type="dataset"):
         """
         Retrieves the schema for the dataset instance and caches it using the LRU cache decorator for efficient retrieval.
@@ -889,6 +889,23 @@ class SchemingDCATHarvester(HarvesterBase):
 
         return True
 
+    def _clean_extras(self, dataset_dict, keys_to_clean):
+        """
+        Remove specified keys from extras and move their values to dataset_dict.
+    
+        Args:
+            dataset_dict (dict): The dataset dictionary.
+            keys_to_clean (list): List of keys to remove from extras and move to dataset_dict.
+        """
+        if 'extras' in dataset_dict:
+            new_extras = []
+            for extra in dataset_dict['extras']:
+                if extra['key'] in keys_to_clean:
+                    dataset_dict[extra['key']] = extra['value']
+                else:
+                    new_extras.append(extra)
+            dataset_dict['extras'] = new_extras
+
     def _remove_duplicate_keys_in_extras(self, dataset_dict):
         """
         Remove duplicate keys in the 'extras' list of dictionaries of the given dataset_dict.
@@ -1454,6 +1471,11 @@ class SchemingDCATHarvester(HarvesterBase):
         )
         local_org = source_package_dict.get("owner_org")
         package_dict["owner_org"] = local_org
+        
+        if not package_dict.get("id") or package_dict.get("id") is None and package_dict.get("identifier"):
+            package_dict["id"] = package_dict["identifier"]
+        else:
+            package_dict["id"] = str(uuid.uuid4())
 
         # Add default_extras from config
         default_extras = self.config.get('default_extras',{})

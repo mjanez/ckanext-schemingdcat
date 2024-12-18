@@ -1,5 +1,6 @@
 import json
 from decimal import Decimal, DecimalException
+import logging
 
 from rdflib import URIRef, BNode, Literal
 
@@ -25,12 +26,13 @@ from ckanext.schemingdcat.profiles.dcat_config import (
     ADMS,
     CNT,
     ELI,
+    FOAF,
     # Default values
     metadata_field_names,
     eu_dcat_ap_default_values,
     )
 
-
+log = logging.getLogger(__name__)
 
 class EuDCATAP2Profile(BaseEuDCATAPProfile):
     """
@@ -148,10 +150,23 @@ class EuDCATAP2Profile(BaseEuDCATAPProfile):
                         ("availability", DCATAP.availability),
                         ("compress_format", DCAT.compressFormat),
                         ("package_format", DCAT.packageFormat),
+                        ("temporal_resolution", DCAT.temporalResolution),
                     ):
                         value = self._object_value(distribution, predicate)
                         if value:
                             resource_dict[key] = value
+
+                    # Spatial resolution in meters
+                    spatial_resolution = self._object_value_float_list(
+                        distribution, DCAT.spatialResolutionInMeters
+                    )
+                    if spatial_resolution:
+                        value = (
+                            spatial_resolution[0]
+                            if len(spatial_resolution) == 1
+                            else json.dumps(spatial_resolution)
+                        )
+                        resource_dict["spatial_resolution_in_meters"] = value
 
                     #  Lists
                     for key, predicate in (
@@ -315,7 +330,7 @@ class EuDCATAP2Profile(BaseEuDCATAPProfile):
         # Resources
         for resource_dict in dataset_dict.get("resources", []):
 
-            distribution = CleanedURIRef(resource_uri(resource_dict))
+            distribution_ref = CleanedURIRef(resource_uri(resource_dict))
 
             #  Simple values
             items = [
@@ -336,8 +351,39 @@ class EuDCATAP2Profile(BaseEuDCATAPProfile):
                 ),
             ]
 
-            self._add_triples_from_dict(resource_dict, distribution, items)
+            self._add_triples_from_dict(resource_dict, distribution_ref, items)
 
+            # Temporal resolution
+            self._add_triple_from_dict(
+                resource_dict,
+                distribution_ref,
+                DCAT.temporalResolution,
+                "temporal_resolution",
+                _datatype=XSD.duration,
+            )
+
+            # Spatial resolution in meters
+            spatial_resolution_in_meters = self._read_list_value(
+                self._get_resource_value(resource_dict, "spatial_resolution_in_meters")
+            )
+            if spatial_resolution_in_meters:
+                for value in spatial_resolution_in_meters:
+                    try:
+                        self.g.add(
+                            (
+                                distribution_ref,
+                                DCAT.spatialResolutionInMeters,
+                                Literal(Decimal(value), datatype=XSD.decimal),
+                            )
+                        )
+                    except (ValueError, TypeError, DecimalException):
+                        self.g.add(
+                            (
+                                distribution_ref,
+                                DCAT.spatialResolutionInMeters,
+                                Literal(value),
+                            )
+                        )
             #  Lists
             items = [
                 (
@@ -348,8 +394,16 @@ class EuDCATAP2Profile(BaseEuDCATAPProfile):
                     ELI.LegalResource,
                 ),
             ]
-            self._add_list_triples_from_dict(resource_dict, distribution, items)
-
+            self._add_list_triples_from_dict(resource_dict, distribution_ref, items)
+            
+            # DCAT-AP: http://publications.europa.eu/en/web/eu-vocabularies/at-dataset/-/resource/dataset/access-right
+            access_rights = self._get_resource_value(resource_dict, 'access_rights')
+            if access_rights and 'authority/access-right' in access_rights:
+                access_rights_uri = URIRef(access_rights)
+            else:
+                access_rights_uri = URIRef(eu_dcat_ap_default_values['access_rights'])
+            self.g.add((distribution_ref, DCT.accessRights, access_rights_uri))
+            
             # Access services
             access_service_list = resource_dict.get("access_services", [])
             if isinstance(access_service_list, str):
@@ -369,7 +423,7 @@ class EuDCATAP2Profile(BaseEuDCATAPProfile):
                     # in further profiles
                     access_service_dict["access_service_ref"] = str(access_service_node)
 
-                self.g.add((distribution, DCAT.accessService, access_service_node))
+                self.g.add((distribution_ref, DCAT.accessService, access_service_node))
 
                 self.g.add((access_service_node, RDF.type, DCAT.DataService))
 
@@ -377,7 +431,6 @@ class EuDCATAP2Profile(BaseEuDCATAPProfile):
                 items = [
                     ("availability", DCATAP.availability, None, URIRefOrLiteral),
                     ("license", DCT.license, None, URIRefOrLiteral),
-                    ("access_rights", DCT.accessRights, None, URIRefOrLiteral),
                     ("title", DCT.title, None, Literal),
                     (
                         "endpoint_description",
@@ -403,21 +456,47 @@ class EuDCATAP2Profile(BaseEuDCATAPProfile):
                         RDFS.Resource,
                     ),
                     ("serves_dataset", DCAT.servesDataset, None, URIRefOrLiteral),
+                    ("uri", FOAF.page, None, URIRefOrLiteral),
                 ]
                 self._add_list_triples_from_dict(
                     access_service_dict, access_service_node, items
                 )
+                
+                
+                # ckanext-schemingdcat: DCAT-AP Enhancements
+                # Lists from resource
+                items = [
+                    (
+                        "applicable_legislation",
+                        DCATAP.applicableLegislation,
+                        None,
+                        URIRefOrLiteral,
+                        ELI.LegalResource,
+                    ),
+                ]
+                self._add_list_triples_from_dict(
+                    resource_dict, access_service_node, items
+                )
 
-                # DCAT-AP: http://publications.europa.eu/en/web/eu-vocabularies/at-dataset/-/resource/dataset/access-right
-                access_rights = self._get_resource_value(resource_dict, 'access_rights')
-                if access_rights and 'authority/access-right' in access_rights:
-                    access_rights_uri = URIRef(access_rights)
-                else:
-                    access_rights_uri = URIRef(eu_dcat_ap_default_values['access_rights'])
-                self.g.add((distribution, DCT.accessRights, access_rights_uri))
+                # Resource access rights
+                resource_access_rights_uri = access_rights_uri if access_rights_uri else URIRef(self._get_resource_value(resource_dict, 'access_rights'))
+                self.g.add((access_service_node, DCT.accessRights, resource_access_rights_uri))
+                
+                # Resource HVD category
+                dataset_hvd_category = self._get_dataset_value(dataset_dict, 'hvd_category')
+                
+                if dataset_hvd_category:
+                    dataset_hvd_category_uri = URIRef(dataset_hvd_category)
+                    self.g.add((access_service_node, DCATAP.hvdCategory, dataset_hvd_category_uri))
+                
+                # Add DCAT.contactPoint from dataset_ref to access_service_node
+                contact_point = self.g.value(dataset_ref, DCAT.contactPoint)
+                if contact_point:
+                    self.g.add((access_service_node, DCAT.contactPoint, contact_point))
 
             if access_service_list:
                 resource_dict["access_services"] = json.dumps(access_service_list)
+                
 
     def _graph_from_dataset_v2_only(self, dataset_dict, dataset_ref):
         """

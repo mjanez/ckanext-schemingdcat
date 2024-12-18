@@ -25,8 +25,9 @@ from ckanext.dcat.profiles.base import (
     DCT,
     ADMS,
     GEOJSON_IMT,
+    ORG,
     Namespace,
-    Literal    
+    Literal   
 )
 
 EUROVOC = Namespace("http://publications.europa.eu/ontology/euvoc#")
@@ -35,6 +36,7 @@ DC = Namespace("http://purl.org/dc/elements/1.1/")
 DCAT = Namespace("http://www.w3.org/ns/dcat#")
 DCATAP = Namespace("http://data.europa.eu/r5r/")
 GEODCATAP = Namespace("http://data.europa.eu/930/")
+DCATUS = Namespace("http://resources.data.gov/ontology/dcat-us#")
 VCARD = Namespace("http://www.w3.org/2006/vcard/ns#")
 FOAF = Namespace("http://xmlns.com/foaf/0.1/")
 SCHEMA = Namespace("http://schema.org/")
@@ -101,8 +103,8 @@ es_dcat_default_values = {
     'description_es': 'Recurso sin descripción.',
     'format_es': 'HTML',
     'language_code': 'es',
-    'license': 'http://www.opendefinition.org/licenses/cc-by',
-    'license_url': 'http://www.opendefinition.org/licenses/cc-by',
+    'license': 'https://publications.europa.eu/resource/authority/licence/CC_BY_4_0',
+    'license_url': 'https://publications.europa.eu/resource/authority/licence/CC_BY_4_0',
     'mimetype_es': 'text/html',
     'notes': 'Conjunto de datos sin descripción.',
     'notes_es': 'Conjunto de datos sin descripción.',
@@ -124,8 +126,8 @@ eu_dcat_ap_default_values = {
     'description': 'Resource without description.',
     'description_en': 'Resource without description.',
     'description_es': 'Recurso sin descripción.',
-    'license': 'http://www.opendefinition.org/licenses/cc-by',
-    'license_url': 'http://www.opendefinition.org/licenses/cc-by',
+    'license': 'https://publications.europa.eu/resource/authority/licence/CC_BY_4_0',
+    'license_url': 'https://publications.europa.eu/resource/authority/licence/CC_BY_4_0',
     'maintainer_role': 'http://id.loc.gov/vocabulary/relators/rpy',
     'notes': 'Dataset without description.',
     'notes_es': 'Conjunto de datos sin descripción.',
@@ -135,7 +137,9 @@ eu_dcat_ap_default_values = {
     'reference_system_type': 'http://inspire.ec.europa.eu/glossary/SpatialReferenceSystem',
     'theme_es': 'http://datos.gob.es/kos/sector-publico/sector/sector-publico',
     'theme_eu': 'http://publications.europa.eu/resource/authority/data-theme/GOVE',
-    'theme_taxonomy': 'http://publications.europa.eu/resource/authority/data-theme',
+    'theme_taxonomy': 'http://inspire.ec.europa.eu/theme',
+    'theme_es_taxonomy': 'http://datos.gob.es/kos/sector-publico/sector',
+    'theme_eu_taxonomy': 'http://publications.europa.eu/resource/authority/data-theme',
     'spatial_uri': 'http://publications.europa.eu/resource/authority/country/ESP',
 }
 
@@ -149,8 +153,8 @@ eu_geodcat_ap_default_values = {
     'description': 'Resource without description.',
     'description_en': 'Resource without description.',
     'description_es': 'Recurso sin descripción.',
-    'license': 'http://www.opendefinition.org/licenses/cc-by',
-    'license_url': 'http://www.opendefinition.org/licenses/cc-by',
+    'license': 'https://publications.europa.eu/resource/authority/licence/CC_BY_4_0',
+    'license_url': 'https://publications.europa.eu/resource/authority/licence/CC_BY_4_0',
     'maintainer_role': 'http://inspire.ec.europa.eu/metadata-codelist/ResponsiblePartyRole/custodian',
     'notes': 'Dataset without description.',
     'notes_es': 'Conjunto de datos sin descripción.',
@@ -160,7 +164,9 @@ eu_geodcat_ap_default_values = {
     'reference_system_type': 'http://inspire.ec.europa.eu/glossary/SpatialReferenceSystem',
     'theme_es': 'http://datos.gob.es/kos/sector-publico/sector/sector-publico',
     'theme_eu': 'http://publications.europa.eu/resource/authority/data-theme/GOVE',
-    'theme_taxonomy': 'http://publications.europa.eu/resource/authority/data-theme',
+    'theme_taxonomy': 'http://inspire.ec.europa.eu/theme',
+    'theme_es_taxonomy': 'http://datos.gob.es/kos/sector-publico/sector',
+    'theme_eu_taxonomy': 'http://publications.europa.eu/resource/authority/data-theme',
     'spatial_uri': 'http://publications.europa.eu/resource/authority/country/ESP',
 }
 
@@ -254,5 +260,17 @@ dcat_ap_default_licenses = {
         'license_id': 'cc-by',
         'fallback_license_url': 'http://publications.europa.eu/resource/authority/licence/CC_BY',
         'fallback_license_id': 'CC_BY'
-    }
+    },
+     'http://creativecommons.org/licenses/by/4.0/': {
+        'license_url': 'http://creativecommons.org/licenses/by/4.0/',
+        'license_id': 'cc-by',
+        'fallback_license_url': 'https://publications.europa.eu/resource/authority/licence/CC_BY_4_0',
+        'fallback_license_id': 'CC_BY_4_0'
+    },
+     'https://creativecommons.org/licenses/by/4.0/': {
+        'license_url': 'https://creativecommons.org/licenses/by/4.0/',
+        'license_id': 'CC-BY-4.0',
+        'fallback_license_url': 'https://publications.europa.eu/resource/authority/licence/CC_BY_4_0',
+        'fallback_license_id': 'CC_BY_4_0'
+    }   
 }
