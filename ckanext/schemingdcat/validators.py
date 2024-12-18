@@ -1289,15 +1289,19 @@ def schemingdcat_download_url_if_empty_same_as_url(field, schema):
     Validator to set a distribution download URL based on the resource URL type.
     """
     def validator(key, data, errors, context):
-        # Get resource URL and dataset ID
-        dataset_id = data.get(key[:-1] + ('package_id',), None)
-        resource_id = data.get(key[:-1] + ('id',), None)
-        resource_url = data.get(key[:-1] + ('url',))
+        resource_url = data.get(key[:-1] + ('url',), None)
+        value = data.get(key)
+        
+        if not value or value is missing or value == resource_url:
+            # Get resource URL and dataset ID
+            dataset_id = data.get(key[:-1] + ('package_id',), None)
+            resource_id = data.get(key[:-1] + ('id',), None)
+            resource_url = data.get(key[:-1] + ('url',))
 
-        if dataset_id and resource_id:
-            data[key] = ckan_helpers.url_for('resource.download', id=dataset_id, resource_id=resource_id, _external=True)
-        else:
-            data[key] = resource_url
+            if dataset_id and resource_id and dataset_id in resource_url:
+                data[key] = ckan_helpers.url_for('resource.download', id=dataset_id, resource_id=resource_id, _external=True)
+            else:
+                data[key] = resource_url
 
     return validator
 
