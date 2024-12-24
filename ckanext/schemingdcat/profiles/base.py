@@ -1,6 +1,7 @@
 import re
 import logging
 import json
+from urllib.parse import quote
 
 from rdflib import term, URIRef, Literal
 
@@ -536,12 +537,15 @@ class SchemingDCATRDFProfile(RDFProfile):
             url (str): The URL to validate and add.
             fallback_url (str): The fallback URL to use if the URL is not valid.
         """
-        valid_url = URIRef(url) if is_url(url) else None
-        if valid_url:
-            graph.add((subject, predicate, valid_url))
-        elif fallback_url:
-            graph.add((subject, predicate, URIRef(fallback_url)))
-    
+        if isinstance(url, str):
+            encoded_url = quote(url, safe=':/?&=')
+            valid_url = URIRef(encoded_url) if is_url(encoded_url) else None
+            if valid_url:
+                graph.add((subject, predicate, valid_url))
+            elif fallback_url and isinstance(fallback_url, str):
+                encoded_fallback_url = quote(fallback_url, safe=':/?&=')
+                graph.add((subject, predicate, URIRef(encoded_fallback_url)))
+
     def _is_direct_download_url(self, url):
         """
         Check if the URL is a direct download link.

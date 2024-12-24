@@ -831,7 +831,8 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
 
             # Use access_url/download_url if it exists and is a valid URL, otherwise use url
             self._add_valid_url_to_graph(g, distribution, DCAT.accessURL, access_url, url)
-            self._add_valid_url_to_graph(g, distribution, DCAT.downloadURL, download_url, url)
+            if download_url:
+                self._add_valid_url_to_graph(g, distribution, DCAT.downloadURL, download_url, url)
 
             # Dates
             items = [
