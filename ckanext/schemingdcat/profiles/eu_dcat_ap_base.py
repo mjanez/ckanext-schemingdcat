@@ -13,6 +13,7 @@ from ckanext.dcat.utils import (
     DCAT_EXPOSE_SUBCATALOGS,
     DCAT_CLEAN_TAGS,
     publisher_uri_organization_fallback,
+    catalog_uri
 )
 
 from ckanext.dcat.profiles.base import URIRefOrLiteral, CleanedURIRef
@@ -901,7 +902,7 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
 
         # Mandatory elements by NTI-RISP (datos.gob.es)
         items = [
-            ("identifier", DCT.identifier, f'{config.get("ckan_url")}/catalog.rdf', Literal),
+            ("identifier", DCT.identifier, catalog_uri(), URIRef),
             ("title", DCT.title, config.get("ckan.site_title"), Literal),
             ("encoding", CNT.characterEncoding, "UTF-8", Literal),
             ("description", DCT.description, config.get("ckan.site_description"), Literal),
@@ -910,10 +911,11 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
             ("theme_taxonomy", DCAT.themeTaxonomy, eu_dcat_ap_default_values["theme_taxonomy"], URIRef),
             ("theme_es_taxonomy", DCAT.themeTaxonomy, eu_dcat_ap_default_values["theme_es_taxonomy"], URIRef),
             ("theme_eu_taxonomy", DCAT.themeTaxonomy, eu_dcat_ap_default_values["theme_eu_taxonomy"], URIRef),
-            ("homepage", FOAF.homepage, config.get("ckan_url"), URIRef),
+            ("homepage", FOAF.homepage, config.get("ckan.site_url"), URIRef),
             ("license", DCT.license, license, URIRef),
             ("conforms_to", DCT.conformsTo, eu_dcat_ap_default_values["conformance"], URIRef),
             ("access_rights", DCT.accessRights, access_rights, URIRefOrLiteral),
+            #("accessUrl", DCAT.accessURL, f'{catalog_uri()}/catalog.rdf', URIRef),
         ]
                  
         for item in items:
