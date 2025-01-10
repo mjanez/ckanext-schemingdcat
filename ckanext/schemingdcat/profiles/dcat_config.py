@@ -121,7 +121,7 @@ eu_dcat_ap_default_values = {
     'availability': 'http://publications.europa.eu/resource/authority/planned-availability/AVAILABLE',
     'access_rights': 'http://publications.europa.eu/resource/authority/access-right/PUBLIC',
     'author_role': 'http://id.loc.gov/vocabulary/relators/aut',
-    'conformance': 'http://data.europa.eu/930/',
+    'conformance': 'http://data.europa.eu/r5r/',
     'contact_role': 'http://id.loc.gov/vocabulary/relators/mdc',
     'description': 'Resource without description.',
     'description_en': 'Resource without description.',

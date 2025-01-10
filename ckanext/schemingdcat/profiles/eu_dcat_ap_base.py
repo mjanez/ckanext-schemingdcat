@@ -36,6 +36,8 @@ from ckanext.schemingdcat.profiles.dcat_config import (
     RDFS,
     DCAT,
     DCATAP,
+    GEODCATAP,
+    ELI,
     DCT,
     ADMS,
     VCARD,

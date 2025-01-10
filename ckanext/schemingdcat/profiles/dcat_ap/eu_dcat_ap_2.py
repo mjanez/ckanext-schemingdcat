@@ -456,7 +456,6 @@ class EuDCATAP2Profile(BaseEuDCATAPProfile):
                         RDFS.Resource,
                     ),
                     ("serves_dataset", DCAT.servesDataset, None, URIRefOrLiteral),
-                    ("uri", FOAF.page, None, URIRefOrLiteral),
                 ]
                 self._add_list_triples_from_dict(
                     access_service_dict, access_service_node, items
@@ -477,6 +476,9 @@ class EuDCATAP2Profile(BaseEuDCATAPProfile):
                 self._add_list_triples_from_dict(
                     resource_dict, access_service_node, items
                 )
+
+                # FOAF Page
+                self.g.add((access_service_node, FOAF.page, distribution_ref))
 
                 # Resource access rights
                 resource_access_rights_uri = access_rights_uri if access_rights_uri else URIRef(self._get_resource_value(resource_dict, 'access_rights'))

@@ -12,6 +12,8 @@ from ckanext.schemingdcat.profiles.base import (
     MD_INSPIRE_REGISTER,
     MD_FORMAT,
     MD_EU_LANGUAGES,
+    # Namespaces
+    namespaces
 )
 
 from ckanext.schemingdcat.profiles.dcat_ap.eu_dcat_ap_2 import EuDCATAP2Profile
@@ -187,7 +189,26 @@ class EuGeoDCATAP2Profile(EuDCATAP2Profile):
         """
         CKAN -> DCAT Catalog properties carried forward to higher GeoDCAT-AP versions
         """
-        pass
+        g = self.g
+
+        for prefix, namespace in namespaces.items():
+            g.bind(prefix, namespace)
+
+        g.add((catalog_ref, RDF.type, DCAT.Catalog))
+        
+        # Mandatory elements by GeoDCAT-AP
+        items = [
+            ("conforms_to", DCT.conformsTo, eu_geodcat_ap_default_values["conformance"], URIRef),
+        ]
+                 
+        for item in items:
+            key, predicate, fallback, _type = item
+            if catalog_dict:
+                value = catalog_dict.get(key, fallback)
+            else:
+                value = fallback
+            if value:
+                g.add((catalog_ref, predicate, _type(value)))
     
     def _add_role(self, dataset_dict, uri_key, role_value=None, role_key=None):
         """
