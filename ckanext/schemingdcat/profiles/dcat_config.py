@@ -12,6 +12,9 @@ Default values can be overridden in resource-specific metadata.
     eu_dcat_ap_default_values: dict
         A dictionary containing the default values for the EuropeanDCATAPProfile.
         
+    es_dcat_ap_default_values: dict
+        A dictionary containing the default values for the EsDCATAP2Profile.
+        
     default_translated_fields: dict
         A dictionary containing the default translated fields for the ckanext-schemingdcat extension.
 """
@@ -116,13 +119,38 @@ es_dcat_default_values = {
     'spatial_uri': 'http://datos.gob.es/recurso/sector-publico/territorio/Pais/España',
 }
 
+
+# Spanish Profile: Mandatory elements by DCAT-AP-ES (Based on DCAT-AP 2.1.1).
+es_dcat_ap_default_values = {
+    'availability': 'http://publications.europa.eu/resource/authority/planned-availability/AVAILABLE',
+    'access_rights': 'http://publications.europa.eu/resource/authority/access-right/PUBLIC',
+    'conformance_es': 'http://www.boe.es/eli/es/res/2013/02/19/(4)',
+    'description': 'Recurso sin descripción.',
+    'description_es': 'Recurso sin descripción.',
+    'format_es': 'HTML',
+    'language_code': 'es',
+    'license': 'https://publications.europa.eu/resource/authority/licence/CC_BY_4_0',
+    'license_url': 'https://publications.europa.eu/resource/authority/licence/CC_BY_4_0',
+    'mimetype_es': 'text/html',
+    'notes': 'Conjunto de datos sin descripción.',
+    'notes_es': 'Conjunto de datos sin descripción.',
+    'notes_en': 'Dataset without description.',
+    'publisher_identifier': 'http://datos.gob.es/recurso/sector-publico/org/Organismo/EA0007777',
+    'theme_es': 'http://datos.gob.es/kos/sector-publico/sector/sector-publico',
+    'theme_eu': 'http://publications.europa.eu/resource/authority/data-theme/GOVE',
+    'theme_taxonomy': 'http://datos.gob.es/kos/sector-publico/sector/',
+    'spatial_uri': 'http://datos.gob.es/recurso/sector-publico/territorio/Pais/España',
+}
+
 # EU DCAT-AP: Mandatory catalog elements by DCAT-AP.
 eu_dcat_ap_default_values = {
     'availability': 'http://publications.europa.eu/resource/authority/planned-availability/AVAILABLE',
     'access_rights': 'http://publications.europa.eu/resource/authority/access-right/PUBLIC',
+    'access_rights_restricted': 'http://publications.europa.eu/resource/authority/access-right/RESTRICTED',
     'author_role': 'http://id.loc.gov/vocabulary/relators/aut',
     'conformance': 'http://data.europa.eu/r5r/',
     'contact_role': 'http://id.loc.gov/vocabulary/relators/mdc',
+    'checksum_algorithm': 'http://spdx.org/rdf/terms#checksumAlgorithm_sha1',
     'description': 'Resource without description.',
     'description_en': 'Resource without description.',
     'description_es': 'Recurso sin descripción.',
@@ -274,3 +302,13 @@ dcat_ap_default_licenses = {
         'fallback_license_id': 'CC_BY_4_0'
     }   
 }
+
+# DCAT-AP-ES Literals to check default lang ("es")
+eu_dcat_ap_literals_to_check = [
+            DCT.title,
+            DCT.description,
+            DCAT.keyword,
+            # Agents
+            VCARD.fn,
+            FOAF.name,          
+        ]

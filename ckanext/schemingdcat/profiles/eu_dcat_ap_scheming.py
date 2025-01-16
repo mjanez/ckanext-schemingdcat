@@ -162,7 +162,8 @@ class EuDCATAPSchemingDCATProfile(SchemingDCATRDFProfile):
                 self.g.add((contact_details, RDF.type, VCARD.Kind))
                 self.g.add((dataset_ref, DCAT.contactPoint, contact_details))
 
-                self._add_triple_from_dict(item, contact_details, VCARD.fn, "name")
+                if not self._object_value(contact_details, VCARD.fn):
+                    self._add_triple_from_dict(item, contact_details, VCARD.fn, "name")
                 # Add mail address as URIRef, and ensure it has a mailto: prefix
                 self._add_triple_from_dict(
                     item,
@@ -267,7 +268,8 @@ class EuDCATAPSchemingDCATProfile(SchemingDCATRDFProfile):
                 self.g.add((agent_ref, RDF.type, FOAF.Agent))
                 self.g.add((dataset_ref, rdf_predicate, agent_ref))
 
-                self._add_triple_from_dict(agent, agent_ref, FOAF.name, "name")
+                if not self._object_value(agent_ref, FOAF.name):
+                    self._add_triple_from_dict(agent, agent_ref, FOAF.name, "name")
                 self._add_triple_from_dict(
                     agent, agent_ref, FOAF.homepage, "url", _type=URIRef
                 )

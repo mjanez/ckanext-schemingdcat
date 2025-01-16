@@ -1,9 +1,13 @@
 import re
+from decimal import Decimal, DecimalException
 import logging
 import json
 from urllib.parse import quote
+from typing import Tuple, List, Union
+from datetime import datetime
+from dateutil.parser import parse as date_parse
 
-from rdflib import term, URIRef, Literal
+from rdflib import term, URIRef, Literal, Graph
 
 from ckantoolkit import config, get_action, aslist
 from ckan.lib.helpers import is_url
@@ -352,10 +356,12 @@ class SchemingDCATRDFProfile(RDFProfile):
             return default_values["language"]
 
     # ckanext-schemingdcat: Codelist management
-    def _search_values_codelist_add_to_graph(self, metadata_codelist, labels, dataset_dict, dataset_ref, dataset_tag_base, g, dcat_property, lang=None):
+    def _search_values_codelist_add_to_graph(self, metadata_codelist, labels, dataset_dict, dataset_ref, 
+                                           dataset_tag_base, g, dcat_property, lang=None, raw=True):
         """
         Adds values from a metadata codelist to a graph based on provided labels.
-    
+        raw=True by default, adds labels directly without processing or validation (DCAT-AP)
+
         Args:
             metadata_codelist (list): A list of dictionaries containing metadata codelist entries.
             labels (list or str): A list of labels or a single label to search for in the codelist.
@@ -365,16 +371,23 @@ class SchemingDCATRDFProfile(RDFProfile):
             g (Graph): The RDF graph to which the values will be added.
             dcat_property (URIRef): The DCAT property to be used for adding values to the graph.
             lang (str, optional): The language of the labels. Defaults to None.
-    
+            raw (bool, optional): If True, adds labels without processing. Defaults to False.
+
         """
-        # Create a dictionary with label as key and id as value for each element in metadata_codelist
-        inspire_dict = {row["label"].lower(): row.get("id", row.get("value")) for row in metadata_codelist}
-        
         # Ensure labels is a list
         if not isinstance(labels, list):
             labels = [labels]
         
-        # Get 'topic' from dataset_dict, handle NoneType
+        if raw:
+            for label in labels:
+                g.add((dataset_ref, dcat_property, URIRefOrLiteral(label)))
+            return
+            
+        # Only needed for non-raw processing
+        inspire_dict = {row["label"].lower(): row.get("id", row.get("value")) 
+                       for row in metadata_codelist}
+        
+        # Get 'topic' from dataset_dict only for non-raw
         topics = self._get_dataset_value(dataset_dict, "topic")
         if not topics:
             topics = []
@@ -383,7 +396,6 @@ class SchemingDCATRDFProfile(RDFProfile):
         
         for label in labels:
             if label not in topics:
-                # Check if label is in inspire_dict
                 if label.lower() in inspire_dict:
                     tag_val = inspire_dict[label.lower()]
                 else:
@@ -475,6 +487,37 @@ class SchemingDCATRDFProfile(RDFProfile):
             self.g.add((spatial_ref, predicate, Literal(json.dumps(value), datatype=GEOJSON_IMT)))
             
     # ckanext-dcat enhancements
+    def _add_multilingual_literal(self, g, subject, predicate, value, required_lang=None):
+        """
+        Add multilingual literal to graph with required language support
+        Args:
+            g: RDF graph
+            subject: RDF subject
+            predicate: RDF predicate
+            value: String or dict with language codes as keys
+            required_lang: Required language code (optional)
+        """
+        if not value:
+            return
+
+        if isinstance(value, dict):
+            # Check required language first
+            if required_lang and required_lang in value:
+                g.add((subject, predicate, Literal(value[required_lang], lang=required_lang)))
+            
+            # Add default language if different from required
+            if self._default_lang in value and (not required_lang or required_lang != self._default_lang):
+                g.add((subject, predicate, Literal(value[self._default_lang], lang=self._default_lang)))
+            
+            # Add other languages
+            for lang, text in value.items():
+                if lang not in [required_lang, self._default_lang]:
+                    g.add((subject, predicate, Literal(text, lang=lang)))
+        else:
+            # Single string value - use required language if specified, otherwise default
+            use_lang = required_lang if required_lang else self._default_lang
+            g.add((subject, predicate, Literal(value, lang=use_lang)))
+        
     def _multilingual_fields(self, entity="dataset"):
         """
         Retrieve multilingual fields from the dataset schema.
@@ -574,3 +617,138 @@ class SchemingDCATRDFProfile(RDFProfile):
                 return True
         
         return False
+    
+    def _ensure_datetime(self, resource_dict: dict, date_field: str, as_string: bool = True) -> None:
+        """
+        Ensure date field is datetime and optionally convert to ISO string.
+
+        Args:
+            resource_dict (dict): The dictionary containing the resource data.
+            date_field (str): The key in the dictionary for the date field.
+            as_string (bool): If True, convert the datetime to an ISO formatted string. Defaults to True.
+
+        Returns:
+            None
+        """
+        date_value = resource_dict.get(date_field)
+        
+        if not date_value:
+            return
+            
+        # Convert to datetime if string
+        if not isinstance(date_value, datetime):
+            try:
+                date_value = date_parse(date_value)
+            except (ValueError, TypeError):
+                log.warning(f"Could not parse date {date_value} for field {date_field}")
+                return
+                
+        # Store as ISO string if requested
+        if as_string:
+            resource_dict[date_field] = date_value.isoformat()
+        else:
+            resource_dict[date_field] = date_value
+    
+    def _clean_spatial_resolution(self, value: Union[str, int, float], as_type: str = 'decimal') -> Union[str, Decimal, float]:
+        """Clean spatial resolution string to extract numeric value."""
+        if not value:
+            return value
+            
+        # Fast path for numeric input
+        if isinstance(value, (int, float)):
+            return abs(Decimal(value)) if as_type == 'decimal' else abs(float(value))
+        
+        # Process string input    
+        value = str(value)
+        
+        # Handle ratio format (1:50000)
+        if ':' in value:
+            value = value.split(':')[1].strip()
+        
+        # Remove dots (Spanish thousands) and convert
+        value = value.replace('.', '')
+        
+        try:
+            if as_type == 'decimal':
+                return abs(Decimal(value))
+            return abs(float(value))
+        except (ValueError, DecimalException):
+            return value
+
+    # Graph enhancements. Fix Graph literals
+    def _process_batch(self, graph: Graph, updates: List[Tuple]) -> None:
+        """
+        Process a batch of graph updates.
+
+        Args:
+            graph (Graph): The RDF graph to be updated.
+            updates (List[Tuple]): A list of tuples where each tuple contains:
+                - s: The subject of the triple.
+                - p: The predicate of the triple.
+                - old_o: The old object of the triple to be removed.
+                - new_o: The new object of the triple to be added.
+
+        Returns:
+            None
+        """
+        for s, p, old_o, new_o in updates:
+            graph.remove((s, p, old_o))
+            graph.add((s, p, new_o))
+    
+    def _graph_add_default_language_literals(self, graph: Graph, properties: List[URIRef] = None) -> None:
+        """
+        Add default language tags using generator expression.
+        
+        Args:
+            graph (Graph): RDF Graph
+            properties (List[URIRef]): Properties to check
+        """
+        if not properties:
+            return
+    
+        # Generator for finding triples needing language tags
+        no_lang_triples = (
+            (s, p, o) for s, p, o in graph
+            if p in properties 
+            and isinstance(o, Literal)
+            and isinstance(o.value, str)
+            and not o.language
+        )
+    
+        # Generator for creating updates
+        updates = (
+            (s, p, o, Literal(o.value, lang=self._default_lang))
+            for s, p, o in no_lang_triples
+        )
+    
+        # Process updates in batches
+        BATCH_SIZE = 1000
+        batch = []
+        
+        for update in updates:
+            batch.append(update)
+            if len(batch) >= BATCH_SIZE:
+                list(map(lambda x: (graph.remove((x[0], x[1], x[2])), 
+                                  graph.add((x[0], x[1], x[3]))), batch))
+                batch = []
+        
+        # Process remaining
+        if batch:
+            list(map(lambda x: (graph.remove((x[0], x[1], x[2])), 
+                              graph.add((x[0], x[1], x[3]))), batch))
+
+    def _graph_remove_empty_language_literals(self, graph: Graph) -> None:
+        """
+        Removes empty language literals using generator expression.
+        
+        Args:
+            graph (Graph): RDF Graph.
+        """
+        empty_triples = (
+            triple for triple in graph 
+            if isinstance(triple[2], Literal) 
+            and triple[2].language 
+            and not triple[2].value.strip()
+        )
+        
+        list(map(graph.remove, empty_triples))

@@ -172,7 +172,6 @@ class EuGeoDCATAP2Profile(EuDCATAP2Profile):
             (metadata_field_names["eu_dcat_ap"]["theme"], DCAT.theme, None, URIRef),
             (metadata_field_names["es_dcat_ap"]["theme"], DCAT.theme, None, URIRef),
             ("metadata_profile", DCT.conformsTo, None, URIRef),
-            ("inspire_id", ADMS.identifier, None, URIRefOrLiteral),
             ("lineage_source", DCT.source, None, Literal),
             ("reference", DCAT.relation, None, URIRefOrLiteral),
         ]
@@ -184,6 +183,16 @@ class EuGeoDCATAP2Profile(EuDCATAP2Profile):
             ("representation_type", ADMS.representionTechnique, None, URIRefOrLiteral),
         ]
         self._add_triples_from_dict(dataset_dict, dataset_ref, basic_items)
+
+        self._add_triple_from_dict(
+            dataset_dict,
+            dataset_ref,
+            ADMS.identifier,
+            "inspire_id",
+            list_value=True,
+            _type=URIRefOrLiteral,
+            _class=ADMS.Identifier,
+        )
 
     def _graph_from_catalog_geodcat_ap_v2(self, catalog_dict, catalog_ref):
         """
