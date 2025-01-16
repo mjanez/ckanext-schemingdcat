@@ -68,6 +68,9 @@ class EuDCATAP3Profile(EuDCATAP2Profile, EuDCATAPSchemingDCATProfile):
     def graph_from_catalog(self, catalog_dict, catalog_ref):
 
         self._graph_from_catalog_base(catalog_dict, catalog_ref)
+        
+        # DCAT AP 2 catalog properties also applied to higher versions
+        self._graph_from_catalog_v2(catalog_dict, catalog_ref)
 
     def _graph_from_dataset_v3(self, dataset_dict, dataset_ref):
 

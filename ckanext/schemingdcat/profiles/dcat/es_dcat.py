@@ -341,8 +341,6 @@ class EsNTIRISPProfile(EuDCATAPProfile):
 
         # Mandatory elements by NTI-RISP (datos.gob.es)
         items_core = [
-            ('title', DCT.title, config.get('ckan.site_title'), Literal),
-            ('description', DCT.description, config.get('ckan.site_description'), Literal),
             ('identifier', DCT.identifier, f'{config.get("ckan_url")}/catalog.rdf', Literal),
             ('encoding', CNT.characterEncoding, 'UTF-8', Literal),
             ('language_code', DC.language, language_code, URIRefOrLiteral),
@@ -365,6 +363,18 @@ class EsNTIRISPProfile(EuDCATAPProfile):
             value = catalog_dict.get(key, fallback) if catalog_dict else fallback
             if value:
                 g.add((catalog_ref, predicate, _type(value)))
+
+        # Title & Description multilang
+        catalog_fields = {
+            'title': (config.get("ckan.site_title"), DCT.title),
+            'description': (config.get("ckan.site_description"), DCT.description)
+        }
+        
+        try:
+            for field, (value, predicate) in catalog_fields.items():
+                self._add_multilingual_literal(g, catalog_ref, predicate, value, es_dcat_default_values['language_code'])
+        except Exception as e:
+            log.error(f'Error adding catalog {field}: {str(e)}')
 
         #TODO: Tamaño del catálogo - dct:extent
 

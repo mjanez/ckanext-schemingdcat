@@ -1,5 +1,4 @@
 import json
-import re
 import logging
 from decimal import Decimal, DecimalException
 
@@ -273,6 +272,7 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
                 if value:
                     resource_dict[key] = value
 
+
             # Multilingual core fields
             for key, predicate in (
                 ("name", DCT.title),
@@ -290,7 +290,6 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
                         resource_dict[key] = value
 
             # URL
-
             resource_dict["url"] = self._object_value(
                 distribution, DCAT.downloadURL
             ) or self._object_value(distribution, DCAT.accessURL)
@@ -388,7 +387,7 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
             ("identifier", DCT.identifier, ["guid", "id"], URIRefOrLiteral),
             ("version", OWL.versionInfo, ["dcat_version"], Literal),
             ("version_notes", ADMS.versionNotes, None, Literal),
-            ("frequency", DCT.accrualPeriodicity, None, URIRefOrLiteral, DCT.Frequency),
+            ("frequency", DCT.accrualPeriodicity, None, URIRefOrLiteral),
             ("dcat_type", DCT.type, None, URIRefOrLiteral),
         ]
         self._add_triples_from_dict(dataset_dict, dataset_ref, items)
@@ -429,7 +428,6 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
         items = [
             ("language", DCT.language, None, URIRefOrLiteral, DCT.LinguisticSystem),
             ("conforms_to", DCT.conformsTo, None, URIRefOrLiteral, DCT.Standard),
-            ("alternate_identifier", ADMS.identifier, None, URIRefOrLiteral, ADMS.Identifier),
             ("documentation", FOAF.page, None, URIRefOrLiteral, FOAF.Document),
             ("related_resource", DCT.relation, None, URIRefOrLiteral, RDFS.Resource),
             ("has_version", DCT.hasVersion, None, URIRefOrLiteral),
@@ -704,19 +702,16 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
         # Statetements
         self._add_statement_to_graph(
             dataset_dict,
-            "access_rights",
-            dataset_ref,
-            DCT.accessRights,
-            DCT.RightsStatement
-        )
-
-        self._add_statement_to_graph(
-            dataset_dict,
             "provenance",
             dataset_ref,
             DCT.provenance,
             DCT.ProvenanceStatement
         )
+
+        # DCAT-AP: http://publications.europa.eu/en/web/eu-vocabularies/at-dataset/-/resource/dataset/access-right
+        access_rights_url = self._get_access_rights_url(dataset_dict.get('access_rights', None))
+        if access_rights_url:
+            g.add((dataset_ref, DCT.accessRights, URIRef(access_rights_url)))
 
         # Resources
         for resource_dict in dataset_dict.get("resources", []):
@@ -737,9 +732,20 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
                 else "description"
             )
 
+            # Default language for simple/not multilang values
+            resource_fields = {
+                'name': (self._get_resource_value(resource_dict, name_key), DCT.title),
+                'description': (self._get_resource_value(resource_dict, description_key), DCT.description)
+            }
+            
+            try:
+                for field, (value, predicate) in resource_fields.items():
+                    self._add_multilingual_literal(g, distribution, predicate, value, self._default_lang)
+            except Exception as e:
+                log.error(f'Error adding distribution {field}: {str(e)}')
+
+
             items = [
-                (name_key, DCT.title, None, Literal),
-                (description_key, DCT.description, None, Literal),
                 ("status", ADMS.status, None, URIRefOrLiteral),
                 ("encoding", CNT.characterEncoding, None, Literal),
             ]
@@ -754,15 +760,6 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
                 ("metadata_profile", DCT.conformsTo, None, URIRef),
             ]
             self._add_list_triples_from_dict(resource_dict, distribution, items)
-
-            # Statetements
-            self._add_statement_to_graph(
-                resource_dict,
-                "rights",
-                distribution,
-                DCT.rights,
-                DCT.RightsStatement
-            )
 
             # Set default license for distribution if needed and available
             if resource_license_fallback or dcat_ap_default_licenses.get(resource_dict["license"], None) and not (distribution, DCT.license, None) in g:
@@ -821,7 +818,7 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
                 fmt = URIRefOrLiteral(fmt)
                 g.add((distribution, DCT["format"], fmt))
                 if isinstance(fmt, URIRef):
-                    g.add((fmt, RDF.type, DCT.MediaTypeOrExtent))
+                    g.add((fmt, RDF.type, DCT.mediaType))
 
             # URL fallback and old behavior
             url = resource_dict.get("url")
@@ -838,12 +835,19 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
                 self._add_valid_url_to_graph(g, distribution, DCAT.downloadURL, download_url, url)
 
             # Dates
+            self._ensure_datetime(resource_dict, "created")
+            self._ensure_datetime(resource_dict, "modified")
             items = [
-                ("issued", DCT.issued, ["created"], Literal),
+                ("created", DCT.issued, ["issued"], Literal),
                 ("modified", DCT.modified, ["metadata_modified"], Literal),
             ]
 
             self._add_date_triples_from_dict(resource_dict, distribution, items)
+
+            # DCAT-AP: http://publications.europa.eu/en/web/eu-vocabularies/at-dataset/-/resource/dataset/access-right
+            rights_url = self._get_access_rights_url(resource_dict.get("rights", None))
+            if rights_url:
+                g.add((distribution, DCT.accessRights, URIRef(rights_url)))
 
             # Numbers
             if resource_dict.get("size"):
@@ -880,8 +884,23 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
                     )
                     if isinstance(checksum_algo, URIRef):
                         g.add((checksum_algo, RDF.type, SPDX.ChecksumAlgorithm))
+                        
+                else:
+                    checksum_algo = URIRefOrLiteral(eu_dcat_ap_default_values["checksum_algorithm"])
+                    g.add(
+                        (
+                            checksum,
+                            SPDX.algorithm,
+                            checksum_algo,
+                        )
+                    )
+                    if isinstance(checksum_algo, URIRef):
+                        g.add((checksum_algo, RDF.type, SPDX.ChecksumAlgorithm))
 
                 g.add((distribution, SPDX.checksum, checksum))
+                
+        # Remove empty language literals from graph
+        self._graph_remove_empty_language_literals(g)
 
     def _graph_from_catalog_base(self, catalog_dict, catalog_ref):
 
@@ -895,17 +914,15 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
         # Basic fields
         license, access_rights, spatial_uri, language = [
             self._get_catalog_field(field_name='license_url'),
-            self._get_catalog_field(field_name='access_rights'),
+            eu_dcat_ap_default_values['access_rights'],
             self._get_catalog_field(field_name='spatial_uri'),
             self._search_value_codelist(MD_EU_LANGUAGES, config.get('ckan.locale_default'), "label","id") or eu_dcat_ap_default_values['language'],
             ]
 
-        # Mandatory elements by NTI-RISP (datos.gob.es)
+        # Mandatory elements by NTI-RISP/DCAT-AP-ES (datos.gob.es)
         items = [
             ("identifier", DCT.identifier, catalog_uri(), URIRef),
-            ("title", DCT.title, config.get("ckan.site_title"), Literal),
             ("encoding", CNT.characterEncoding, "UTF-8", Literal),
-            ("description", DCT.description, config.get("ckan.site_description"), Literal),
             ("language", DCT.language, language, URIRefOrLiteral),
             ("spatial_uri", DCT.spatial, spatial_uri, URIRefOrLiteral),
             ("theme_taxonomy", DCAT.themeTaxonomy, eu_dcat_ap_default_values["theme_taxonomy"], URIRef),
@@ -927,10 +944,26 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
             if value:
                 g.add((catalog_ref, predicate, _type(value)))
 
+        # Title & Description multilang
+        catalog_fields = {
+            'title': (config.get("ckan.site_title"), DCT.title),
+            'description': (config.get("ckan.site_description"), DCT.description)
+        }
+        
+        try:
+            for field, (value, predicate) in catalog_fields.items():
+                self._add_multilingual_literal(g, catalog_ref, predicate, value)
+        except Exception as e:
+            log.error(f'Error adding catalog {field}: {str(e)}')
+
         # Dates
-        modified = self._last_catalog_modification()
-        if modified:
-            self._add_date_triple(catalog_ref, DCT.modified, modified)
+        modified = self._get_catalog_field(field_name='metadata_modified', default_values_dict=eu_dcat_ap_default_values)
+        issued = self._get_catalog_field(field_name='metadata_created', default_values_dict=eu_dcat_ap_default_values, order='asc')
+        if modified or issued or license:
+            if modified:
+                self._add_date_triple(catalog_ref, DCT.modified, modified)
+            if issued:
+                self._add_date_triple(catalog_ref, DCT.issued, issued)
 
         # Catalog Publisher
         catalog_publisher_info = schemingdcat_get_catalog_publisher_info()
@@ -948,7 +981,7 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
         
         # Add to graph
         if publisher_ref:
-            g.add((publisher_ref, RDF.type, FOAF.Organization))
+            g.add((publisher_ref, RDF.type, VCARD.Kind))
             g.add((catalog_ref, DCT.publisher, publisher_ref))
             items = [
                 ("name", FOAF.name, None, Literal),
@@ -989,3 +1022,16 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
                 # Add processed value to tag_string if it doesn't already exist
                 if tag_value not in dataset_dict['tag_string']:
                     dataset_dict['tag_string'].append(self._clean_name(tag_value))
+            
+    def _get_access_rights_url(self, access_rights=None):
+        """
+        Determine access rights URL based on conditions
+        """
+        if not access_rights:
+            return eu_dcat_ap_default_values['access_rights']
+            
+        return (
+            URIRef(eu_dcat_ap_default_values['access_rights'])
+            if 'noLimitations' in access_rights
+            else URIRef(eu_dcat_ap_default_values['access_rights_restricted'])
+        )

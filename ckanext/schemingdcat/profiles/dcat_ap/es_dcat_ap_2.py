@@ -1,7 +1,10 @@
+import logging
 import json
 from decimal import Decimal, DecimalException
 
 from rdflib import URIRef, BNode, Literal
+
+import ckantoolkit as toolkit
 
 from ckanext.dcat.utils import resource_uri
 from ckanext.dcat.profiles.base import URIRefOrLiteral, CleanedURIRef
@@ -12,7 +15,8 @@ from ckanext.schemingdcat.profiles.base import (
     MD_FORMAT,
     MD_EU_LANGUAGES,
 )
-from ckanext.schemingdcat.profiles.eu_dcat_ap_base import BaseEuDCATAPProfile
+from ckanext.schemingdcat.profiles.dcat_ap.eu_dcat_ap_2 import EuDCATAP2Profile
+from ckanext.schemingdcat.helpers import schemingdcat_get_catalog_publisher_info
 from ckanext.schemingdcat.profiles.dcat_config import (
     # Vocabs
     RDF,
@@ -26,18 +30,23 @@ from ckanext.schemingdcat.profiles.dcat_config import (
     CNT,
     ELI,
     EUROVOC,
+    FOAF,
+    VCARD,
+    SKOS,
     # Default values
-    metadata_field_names,
     eu_dcat_ap_default_values,
-    es_dcat_default_values, 
-    default_translated_fields,
-    default_translated_fields_es_dcat,
+    es_dcat_ap_default_values, 
+    eu_dcat_ap_literals_to_check
     )
 
-#TODO: Implement Spanish DCAT-AP 2 profile
-class EsDCATAP2Profile(BaseEuDCATAPProfile):
+config = toolkit.config
+
+log = logging.getLogger(__name__)
+
+#TODO: Implement Spanish DCAT-AP-ES (Based on DCAT-AP 2.1.1) profile
+class EsDCATAP2Profile(EuDCATAP2Profile):
     """
-    A custom RDF profile based on the DCAT-AP 2 for data portals in Europe
+    A custom RDF profile based on the DCAT-AP 2.1.1 for data portals in Spain
 
     Default values for some fields:
     
@@ -45,7 +54,7 @@ class EsDCATAP2Profile(BaseEuDCATAPProfile):
 
     More information and specification:
 
-    https://joinup.ec.europa.eu/asset/dcat_application_profile
+    https://datos.gob.es/es/doc-tags/dcat-ap
 
     """
 
@@ -71,10 +80,20 @@ class EsDCATAP2Profile(BaseEuDCATAPProfile):
         # DCAT AP v2 specific properties
         self._graph_from_dataset_v2_only(dataset_dict, dataset_ref)
 
+        # DCAT AP-ES v2 properties also applied to higher versions
+        self._graph_from_dataset_es_dcat_ap_v2(dataset_dict, dataset_ref)
+
     def graph_from_catalog(self, catalog_dict, catalog_ref):
 
+        # Call catalog base method for common properties
         self._graph_from_catalog_base(catalog_dict, catalog_ref)
 
+        # DCAT AP 2 catalog properties also applied to higher versions
+        self._graph_from_catalog_v2(catalog_dict, catalog_ref)
+
+        # DCAT AP ES v2 catalog properties also applied to higher versions
+        self._graph_from_catalog_es_dcat_ap_v2(catalog_dict, catalog_ref)
+        
     def _parse_dataset_v2(self, dataset_dict, dataset_ref):
         """
         DCAT -> CKAN properties carried forward to higher DCAT-AP versions
@@ -227,244 +246,27 @@ class EsDCATAP2Profile(BaseEuDCATAPProfile):
 
         return dataset_dict
 
-    def _graph_from_dataset_v2(self, dataset_dict, dataset_ref):
+    def _graph_from_dataset_es_dcat_ap_v2(self, dataset_dict, dataset_ref):
         """
         CKAN -> DCAT properties carried forward to higher DCAT-AP versions
         """
 
-        # Standard values
+        # Dates to Datetime      
         self._add_triple_from_dict(
             dataset_dict,
             dataset_ref,
-            DCAT.temporalResolution,
-            "temporal_resolution",
-            _datatype=XSD.duration,
+            DCT.issued,
+            "issued",
+            _datatype=XSD.date,
         )
-
-        # Lists
-        for key, predicate, fallbacks, type, datatype, _class in (
-            (
-                "is_referenced_by",
-                DCT.isReferencedBy,
-                None,
-                URIRefOrLiteral,
-                None,
-                RDFS.Resource,
-            ),
-            (
-                "applicable_legislation",
-                DCATAP.applicableLegislation,
-                None,
-                URIRefOrLiteral,
-                None,
-                ELI.LegalResource,
-            ),
-            ("hvd_category", DCATAP.hvdCategory, None, URIRefOrLiteral, None, None),
-        ):
-            self._add_triple_from_dict(
-                dataset_dict,
-                dataset_ref,
-                predicate,
-                key,
-                list_value=True,
-                fallbacks=fallbacks,
-                _type=type,
-                _datatype=datatype,
-                _class=_class,
-            )
-
-        # Temporal
-
-        # The profile for DCAT-AP 1 stored triples using schema:startDate,
-        # remove them to avoid duplication
-        for temporal in self.g.objects(dataset_ref, DCT.temporal):
-            if SCHEMA.startDate in [t for t in self.g.predicates(temporal, None)]:
-                self.g.remove((temporal, None, None))
-                self.g.remove((dataset_ref, DCT.temporal, temporal))
-
-        start = self._get_dataset_value(dataset_dict, "temporal_start")
-        end = self._get_dataset_value(dataset_dict, "temporal_end")
-        if start or end:
-            temporal_extent_dcat = BNode()
-
-            self.g.add((temporal_extent_dcat, RDF.type, DCT.PeriodOfTime))
-            if start:
-                self._add_date_triple(temporal_extent_dcat, DCAT.startDate, start)
-            if end:
-                self._add_date_triple(temporal_extent_dcat, DCAT.endDate, end)
-            self.g.add((dataset_ref, DCT.temporal, temporal_extent_dcat))
-
-        # spatial
-        spatial_bbox = self._get_dataset_value(dataset_dict, "spatial_bbox")
-        spatial_cent = self._get_dataset_value(dataset_dict, "spatial_centroid")
-
-        if spatial_bbox or spatial_cent:
-            spatial_ref = self._get_or_create_spatial_ref(dataset_dict, dataset_ref)
-
-            if spatial_bbox:
-                self._add_spatial_value_to_graph(spatial_ref, DCAT.bbox, spatial_bbox)
-
-            if spatial_cent:
-                self._add_spatial_value_to_graph(
-                    spatial_ref, DCAT.centroid, spatial_cent
-                )
-
-        # Spatial resolution in meters
-        spatial_resolution_in_meters = self._read_list_value(
-            self._get_dataset_value(dataset_dict, "spatial_resolution_in_meters")
-        )
-        if spatial_resolution_in_meters:
-            for value in spatial_resolution_in_meters:
-                try:
-                    self.g.add(
-                        (
-                            dataset_ref,
-                            DCAT.spatialResolutionInMeters,
-                            Literal(Decimal(value), datatype=XSD.decimal),
-                        )
-                    )
-                except (ValueError, TypeError, DecimalException):
-                    self.g.add(
-                        (dataset_ref, DCAT.spatialResolutionInMeters, Literal(value))
-                    )
 
         # Resources
         for resource_dict in dataset_dict.get("resources", []):
 
             distribution_ref = CleanedURIRef(resource_uri(resource_dict))
 
-            #  Simple values
-            items = [
-                ("availability", DCATAP.availability, None, URIRefOrLiteral),
-                (
-                    "compress_format",
-                    DCAT.compressFormat,
-                    None,
-                    URIRefOrLiteral,
-                    DCT.MediaType,
-                ),
-                (
-                    "package_format",
-                    DCAT.packageFormat,
-                    None,
-                    URIRefOrLiteral,
-                    DCT.MediaType,
-                ),
-            ]
-
-            self._add_triples_from_dict(resource_dict, distribution_ref, items)
-
-            # Temporal resolution
-            self._add_triple_from_dict(
-                resource_dict,
-                distribution_ref,
-                DCAT.temporalResolution,
-                "temporal_resolution",
-                _datatype=XSD.duration,
-            )
-
-            # Spatial resolution in meters
-            spatial_resolution_in_meters = self._read_list_value(
-                self._get_resource_value(resource_dict, "spatial_resolution_in_meters")
-            )
-            if spatial_resolution_in_meters:
-                for value in spatial_resolution_in_meters:
-                    try:
-                        self.g.add(
-                            (
-                                distribution_ref,
-                                DCAT.spatialResolutionInMeters,
-                                Literal(Decimal(value), datatype=XSD.decimal),
-                            )
-                        )
-                    except (ValueError, TypeError, DecimalException):
-                        self.g.add(
-                            (
-                                distribution_ref,
-                                DCAT.spatialResolutionInMeters,
-                                Literal(value),
-                            )
-                        )
-            #  Lists
-            items = [
-                (
-                    "applicable_legislation",
-                    DCATAP.applicableLegislation,
-                    None,
-                    URIRefOrLiteral,
-                    ELI.LegalResource,
-                ),
-            ]
-            self._add_list_triples_from_dict(resource_dict, distribution_ref, items)
-
-            # Access services
-            access_service_list = resource_dict.get("access_services", [])
-            if isinstance(access_service_list, str):
-                try:
-                    access_service_list = json.loads(access_service_list)
-                except ValueError:
-                    access_service_list = []
-
-            for access_service_dict in access_service_list:
-
-                access_service_uri = access_service_dict.get("uri")
-                if access_service_uri:
-                    access_service_node = CleanedURIRef(access_service_uri)
-                else:
-                    access_service_node = BNode()
-                    # Remember the (internal) access service reference for referencing
-                    # in further profiles
-                    access_service_dict["access_service_ref"] = str(access_service_node)
-
-                self.g.add((distribution_ref, DCAT.accessService, access_service_node))
-
-                self.g.add((access_service_node, RDF.type, DCAT.DataService))
-
-                #  Simple values
-                items = [
-                    ("availability", DCATAP.availability, None, URIRefOrLiteral),
-                    ("license", DCT.license, None, URIRefOrLiteral),
-                    ("access_rights", DCT.accessRights, None, URIRefOrLiteral),
-                    ("title", DCT.title, None, Literal),
-                    (
-                        "endpoint_description",
-                        DCAT.endpointDescription,
-                        None,
-                        URIRefOrLiteral,
-                        RDFS.Resource,
-                    ),
-                    ("description", DCT.description, None, Literal),
-                ]
-
-                self._add_triples_from_dict(
-                    access_service_dict, access_service_node, items
-                )
-
-                #  Lists
-                items = [
-                    (
-                        "endpoint_url",
-                        DCAT.endpointURL,
-                        None,
-                        URIRefOrLiteral,
-                        RDFS.Resource,
-                    ),
-                    ("serves_dataset", DCAT.servesDataset, None, URIRefOrLiteral),
-                ]
-                self._add_list_triples_from_dict(
-                    access_service_dict, access_service_node, items
-                )
-
-                # DCAT-AP: http://publications.europa.eu/en/web/eu-vocabularies/at-dataset/-/resource/dataset/access-right
-                access_rights = self._get_resource_value(resource_dict, 'access_rights')
-                if access_rights and 'authority/access-right' in access_rights:
-                    access_rights_uri = URIRef(access_rights)
-                else:
-                    access_rights_uri = URIRef(eu_dcat_ap_default_values['access_rights'])
-                self.g.add((distribution_ref, DCT.accessRights, access_rights_uri))
-
-            if access_service_list:
-                resource_dict["access_services"] = json.dumps(access_service_list)
+        # DCAT-AP-ES. Properties to check for at least "es" lang
+        self._graph_add_default_language_literals(self.g, eu_dcat_ap_literals_to_check)
 
     def _graph_from_dataset_v2_only(self, dataset_dict, dataset_ref):
         """
@@ -473,12 +275,60 @@ class EsDCATAP2Profile(BaseEuDCATAPProfile):
 
         # Other identifiers (these are handled differently in the
         # DCAT-AP v3 profile)
-        self._add_triple_from_dict(
-            dataset_dict,
-            dataset_ref,
-            ADMS.identifier,
-            "alternate_identifier",
-            list_value=True,
-            _type=URIRefOrLiteral,
-            _class=ADMS.Identifier,
+        value = self._get_dict_value(dataset_dict, "alternate_identifier")
+        if value:
+            items = self._read_list_value(value)
+            for item in items:
+                identifier = BNode()
+                self.g.add((dataset_ref, ADMS.identifier, identifier))
+                self.g.add((identifier, RDF.type, ADMS.Identifier))
+                self.g.add((identifier, SKOS.notation, Literal(item)))
+
+        # DCAT-AP-ES Mandatory. The publisher is a DIR3 identifier: https://datos.gob.es/es/recurso/sector-publico/org/Organismo
+        catalog_publisher_info = schemingdcat_get_catalog_publisher_info()
+        
+        publisher_details = {
+            "name": catalog_publisher_info.get("name"),
+            "email": catalog_publisher_info.get("email"),
+            "url": catalog_publisher_info.get("url"),
+            "type": catalog_publisher_info.get("type"),
+            "identifier": catalog_publisher_info.get("identifier"),
+        }
+
+        publisher_ref = CleanedURIRef(publisher_details["identifier"]
         )
+
+        # remove publisher to avoid duplication
+        for publisher_ref in self.g.objects(dataset_ref, DCT.publisher):
+            if publisher_ref:
+                self.g.remove((publisher_ref, RDF.type, None))
+
+        # Add Catalog publisher to Dataset
+        if publisher_ref:
+            self.g.add((publisher_ref, RDF.type, FOAF.Organization))
+            self.g.add((dataset_ref, DCT.publisher, publisher_ref))
+            items = [
+                ("name", FOAF.name, None, Literal),
+                ("email", FOAF.mbox, None, Literal),
+                ("url", FOAF.homepage, None, URIRef),
+                ("type", DCT.type, None, URIRefOrLiteral),
+                ("identifier", DCT.identifier, None, URIRefOrLiteral),
+            ]
+
+            # Add publisher role
+            self.g.add((publisher_ref, VCARD.role, URIRef(eu_dcat_ap_default_values["publisher_role"])))
+
+            self._add_triples_from_dict(publisher_details, publisher_ref, items)
+
+    def _graph_from_catalog_es_dcat_ap_v2(self, catalog_dict, catalog_ref):
+        # Title & Description multilang
+        catalog_fields = {
+            'title': (config.get("ckan.site_title"), DCT.title),
+            'description': (config.get("ckan.site_description"), DCT.description)
+        }
+        
+        try:
+            for field, (value, predicate) in catalog_fields.items():
+                self._add_multilingual_literal(self.g, catalog_ref, predicate, value, es_dcat_ap_default_values['language_code'])
+        except Exception as e:
+            log.error(f'Error adding catalog {field}: {str(e)}')
