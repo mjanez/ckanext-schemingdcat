@@ -676,7 +676,16 @@ class SchemingDCATRDFProfile(RDFProfile):
             return value
 
     def _is_valid_access_service(self, access_service_dict: dict) -> bool:
-        """Validate required properties for DataService"""
+        """Validate required properties for DataService.
+        Args:
+            access_service_dict (dict): Dictionary containing the access service properties.
+        Returns:
+            bool: True if all required properties are present, False otherwise.
+        Required properties:
+            - title (DCT.title)
+            - endpoint_url (DCAT.endpointURL)
+            - serves_dataset (DCAT.servesDataset)
+        """
         required = [
             ('title', DCT.title),
             ('endpoint_url', DCAT.endpointURL),
