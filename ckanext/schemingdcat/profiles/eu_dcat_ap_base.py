@@ -787,8 +787,8 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
                 )
 
             # Format
-            mimetype = resource_dict.get("mimetype")
-            fmt = resource_dict.get("format")
+            mimetype = resource_dict.get("mimetype").strip()
+            fmt = resource_dict.get("format").strip().upper()
 
             # mediaType only IANA. IANA media types (either URI or Literal) should be mapped as mediaType.
             # In case format is available and mimetype is not set or identical to format,
@@ -809,22 +809,24 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
                 # Create custom IMT format
                 if fmt:
                     format_node = BNode()
-                    fmt_label = fmt.strip().upper()
                     self.g.add((distribution, DCT["format"], format_node))
                     self.g.add((format_node, RDF.type, DCT.IMT))
 
                     # Add format value (use mimetype if available) use text/ prefix for unknown types
-                    g.add((format_node, RDF.value, Literal(f'text/{fmt_label}')))
+                    g.add((format_node, RDF.value, Literal(f'text/{fmt}')))
                         
                     # Add format label
-                    g.add((format_node, RDFS.label, Literal(fmt_label)))
-
+                    g.add((format_node, RDFS.label, Literal(fmt)))
+                    
+                    mimetype_from_imt_fmt = self._search_value_codelist(MD_FORMAT, fmt, "label", "media_type") or None
+                    if self._is_valid_iana_mediatype(mimetype_from_imt_fmt):
+                        g.add((distribution, DCAT.mediaType, URIRef(mimetype_from_imt_fmt)))  
 
             # Try to match mimetype if not exists
             if not mimetype or not self._is_valid_iana_mediatype(mimetype) and self._is_valid_eu_authority_table(fmt, 'file-type'):
                 mimetype_from_fmt = self._search_value_codelist(MD_FORMAT, fmt, "id", "media_type") or None
                 if self._is_valid_iana_mediatype(mimetype_from_fmt):
-                    g.add((distribution, DCAT.mediaType, URIRef(mimetype_from_fmt)))
+                    g.add((distribution, DCAT.mediaType, URIRef(mimetype_from_fmt)))      
 
             # URL fallback and old behavior
             url = resource_dict.get("url")
