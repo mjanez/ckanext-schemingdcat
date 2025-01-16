@@ -3,8 +3,9 @@ from decimal import Decimal, DecimalException
 import logging
 import json
 from urllib.parse import quote
-from typing import Tuple, List, Union
-from datetime import datetime
+from typing import Tuple, List, Union, Optional
+from datetime import datetime, timezone
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 from dateutil.parser import parse as date_parse
 
 from rdflib import term, URIRef, Literal, Graph
@@ -56,6 +57,8 @@ MD_ES_THEMES = codelists["MD_ES_THEMES"]
 MD_EU_THEMES = codelists["MD_EU_THEMES"]
 MD_EU_LANGUAGES = codelists["MD_EU_LANGUAGES"]
 MD_ES_FORMATS = codelists["MD_ES_FORMATS"]
+DCAT_AP_STATUS = codelists["DCAT_AP_STATUS"]
+DCAT_AP_ACCESS_RIGHTS = codelists["DCAT_AP_ACCESS_RIGHTS"]
 
 namespaces = {
     "cnt": CNT,
@@ -618,36 +621,48 @@ class SchemingDCATRDFProfile(RDFProfile):
         
         return False
     
-    def _ensure_datetime(self, resource_dict: dict, date_field: str, as_string: bool = True) -> None:
+    def _ensure_datetime(self, value_or_dict: Union[dict, str, datetime], date_field: str = None, as_string: bool = True) -> Optional[Union[str, datetime]]:
         """
-        Ensure date field is datetime and optionally convert to ISO string.
+        Ensure datetime with timezone and convert to ISO string.
+        This method checks if the given date field in the resource dictionary is a valid datetime.
+        If the date field is a string, it attempts to parse it into a datetime object. If the datetime
+        object is naive (lacking timezone information), it assigns the UTC timezone. Finally, it stores
+        the datetime as an ISO 8601 string with timezone information if `as_string` is True, otherwise
+        it stores the datetime object.
 
         Args:
-            resource_dict (dict): The dictionary containing the resource data.
-            date_field (str): The key in the dictionary for the date field.
-            as_string (bool): If True, convert the datetime to an ISO formatted string. Defaults to True.
+            value_or_dict (str or dict): The dictionary containing the resource data.
+            date_field (str): The key in the dictionary for the date field to be ensured.
+            as_string (bool): Whether to store the datetime as an ISO string. Defaults to True.
 
         Returns:
             None
         """
-        date_value = resource_dict.get(date_field)
+        # Get value from dict if provided
+        date_value = value_or_dict.get(date_field) if isinstance(value_or_dict, dict) else value_or_dict
         
         if not date_value:
-            return
+            return None
             
         # Convert to datetime if string
         if not isinstance(date_value, datetime):
             try:
                 date_value = date_parse(date_value)
             except (ValueError, TypeError):
-                log.warning(f"Could not parse date {date_value} for field {date_field}")
-                return
+                log.warning(f"Could not parse date {date_value}")
+                return None
                 
-        # Store as ISO string if requested
-        if as_string:
-            resource_dict[date_field] = date_value.isoformat()
-        else:
-            resource_dict[date_field] = date_value
+        # Add timezone if naive
+        if date_value.tzinfo is None:
+            tz_name = config.get('ckan.display_timezone', 'UTC')
+            try:
+                tz = ZoneInfo(tz_name)
+            except ZoneInfoNotFoundError:
+                log.warning(f"Invalid timezone {tz_name}, using UTC")
+                tz = timezone.utc
+            date_value = date_value.replace(tzinfo=tz)
+        
+        return date_value.isoformat() if as_string else date_value
     
     def _clean_spatial_resolution(self, value: Union[str, int, float], as_type: str = 'decimal') -> Union[str, Decimal, float]:
         """Clean spatial resolution string to extract numeric value."""
@@ -696,6 +711,14 @@ class SchemingDCATRDFProfile(RDFProfile):
             access_service_dict.get(field) 
             for field, _ in required
         )
+
+    def _normalize_format(self, fmt: str) -> str:
+        """
+        Normalize format string to uppercase, handling None values
+        """
+        if not fmt:
+            return ''
+        return fmt.strip().upper()
 
     # Graph enhancements. Fix Graph literals
     def _process_batch(self, graph: Graph, updates: List[Tuple]) -> None:

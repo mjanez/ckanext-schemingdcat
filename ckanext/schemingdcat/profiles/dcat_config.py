@@ -53,6 +53,8 @@ CNT = Namespace("http://www.w3.org/2011/content#")
 CODELISTS_DIR = Path(__file__).resolve().parent.parent / "codelists"
 EU_VOCABS_DIR = CODELISTS_DIR / "dcat"
 INSPIRE_CODELISTS_DIR = CODELISTS_DIR / "inspire"
+IANA_MEDIA_TYPES_BASE_URI = 'http://www.iana.org/assignments/media-types'
+EU_VOCAB_AUTHORITY_TABLES_BASE_URI = 'http://publications.europa.eu/resource/authority'
 
 # DCAT default elements by profile
 metadata_field_names = {
@@ -93,7 +95,13 @@ EU_VOCABULARIES = [
         "name": "licenses",
         "url": "http://op.europa.eu/o/opportal-service/euvoc-download-handler?cellarURI=http://publications.europa.eu/resource/distribution/licence/rdf/skos_ap_act/licences-skos-ap-act.rdf&fileName=licences-skos-ap-act.rdf",
         "description": "Licenses, CSV fields: URI, Label, EUVocab URI"
-    }
+    },
+    {
+        "title": "Distribution status",
+        "name": "status",
+        "url": "http://publications.europa.eu/resource/authority/distribution-status",
+        "description": "Distribution status, CSV fields: URI, EUVocab URI"
+    },
     # Add more URLs and their respective configurations here as needed
 ]
 
@@ -113,6 +121,7 @@ es_dcat_default_values = {
     'notes_es': 'Conjunto de datos sin descripción.',
     'notes_en': 'Dataset without description.',
     'publisher_identifier': 'http://datos.gob.es/recurso/sector-publico/org/Organismo/EA0007777',
+    'status': 'http://publications.europa.eu/resource/authority/distribution-status/COMPLETED',
     'theme_es': 'http://datos.gob.es/kos/sector-publico/sector/sector-publico',
     'theme_eu': 'http://publications.europa.eu/resource/authority/data-theme/GOVE',
     'theme_taxonomy': 'http://datos.gob.es/kos/sector-publico/sector/',
@@ -136,6 +145,7 @@ es_dcat_ap_default_values = {
     'notes_es': 'Conjunto de datos sin descripción.',
     'notes_en': 'Dataset without description.',
     'publisher_identifier': 'http://datos.gob.es/recurso/sector-publico/org/Organismo/EA0007777',
+    'status': 'http://publications.europa.eu/resource/authority/distribution-status/COMPLETED',
     'theme_es': 'http://datos.gob.es/kos/sector-publico/sector/sector-publico',
     'theme_eu': 'http://publications.europa.eu/resource/authority/data-theme/GOVE',
     'theme_taxonomy': 'http://datos.gob.es/kos/sector-publico/sector/',
@@ -163,6 +173,7 @@ eu_dcat_ap_default_values = {
     'publisher_identifier': 'http://datos.gob.es/recurso/sector-publico/org/Organismo/EA0007777',
     'publisher_role': 'http://id.loc.gov/vocabulary/relators/pbl',
     'reference_system_type': 'http://inspire.ec.europa.eu/glossary/SpatialReferenceSystem',
+    'status': 'http://publications.europa.eu/resource/authority/distribution-status/COMPLETED',
     'theme_es': 'http://datos.gob.es/kos/sector-publico/sector/sector-publico',
     'theme_eu': 'http://publications.europa.eu/resource/authority/data-theme/GOVE',
     'theme_taxonomy': 'http://inspire.ec.europa.eu/theme',
@@ -190,6 +201,7 @@ eu_geodcat_ap_default_values = {
     'publisher_identifier': 'http://datos.gob.es/recurso/sector-publico/org/Organismo/EA0007777',
     'publisher_role': 'http://inspire.ec.europa.eu/metadata-codelist/ResponsiblePartyRole/distributor',
     'reference_system_type': 'http://inspire.ec.europa.eu/glossary/SpatialReferenceSystem',
+    'status': 'http://publications.europa.eu/resource/authority/distribution-status/COMPLETED',
     'theme_es': 'http://datos.gob.es/kos/sector-publico/sector/sector-publico',
     'theme_eu': 'http://publications.europa.eu/resource/authority/data-theme/GOVE',
     'theme_taxonomy': 'http://inspire.ec.europa.eu/theme',
