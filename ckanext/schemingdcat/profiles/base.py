@@ -675,6 +675,19 @@ class SchemingDCATRDFProfile(RDFProfile):
         except (ValueError, DecimalException):
             return value
 
+    def _is_valid_access_service(self, access_service_dict: dict) -> bool:
+        """Validate required properties for DataService"""
+        required = [
+            ('title', DCT.title),
+            ('endpoint_url', DCAT.endpointURL),
+            ('serves_dataset', DCAT.servesDataset)
+        ]
+        
+        return all(
+            access_service_dict.get(field) 
+            for field, _ in required
+        )
+
     # Graph enhancements. Fix Graph literals
     def _process_batch(self, graph: Graph, updates: List[Tuple]) -> None:
         """

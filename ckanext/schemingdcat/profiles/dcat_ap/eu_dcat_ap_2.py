@@ -410,12 +410,14 @@ class EuDCATAP2Profile(BaseEuDCATAPProfile):
                     access_service_list = []
 
             for access_service_dict in access_service_list:
+                if not self._is_valid_access_service(access_service_dict):
+                    continue
 
                 access_service_uri = access_service_dict.get("uri")
                 if access_service_uri:
                     access_service_node = CleanedURIRef(access_service_uri)
                 else:
-                    access_service_node = BNode()
+                    access_service_node = CleanedURIRef(f"{distribution_ref}/dataservice")
                     # Remember the (internal) access service reference for referencing
                     # in further profiles
                     access_service_dict["access_service_ref"] = str(access_service_node)
@@ -459,7 +461,6 @@ class EuDCATAP2Profile(BaseEuDCATAPProfile):
                     access_service_dict, access_service_node, items
                 )
                 
-                
                 # ckanext-schemingdcat: DCAT-AP Enhancements
                 # Lists from resource
                 items = [
@@ -478,12 +479,26 @@ class EuDCATAP2Profile(BaseEuDCATAPProfile):
                 # FOAF Page
                 self.g.add((access_service_node, FOAF.page, distribution_ref))
                 
-                # Resource HVD category
-                dataset_hvd_category = self._get_dataset_value(dataset_dict, 'hvd_category')
+                # HVD DataService Mandatory properties
+                data_service_hvd_properties = [
+                    ('hvd_category', DCATAP.hvdCategory, lambda x: x),
+                    (None, DCT.license, self.g.value, dataset_ref),
+                    (None, DCT.accessRights, self.g.value, dataset_ref)
+                ]
                 
-                if dataset_hvd_category:
-                    dataset_hvd_category_uri = URIRef(dataset_hvd_category)
-                    self.g.add((access_service_node, DCATAP.hvdCategory, dataset_hvd_category_uri))
+                # Process mappings
+                for src_field, predicate, getter, *args in data_service_hvd_properties:
+                    value = (
+                        self._get_dataset_value(dataset_dict, src_field) 
+                        if src_field 
+                        else getter(*args, predicate)
+                    )
+                    if value:
+                        self.g.add((
+                            access_service_node, 
+                            predicate, 
+                            URIRef(value)
+                        ))
                 
                 # Add DCAT.contactPoint from dataset_ref to access_service_node
                 contact_point = self.g.value(dataset_ref, DCAT.contactPoint)
