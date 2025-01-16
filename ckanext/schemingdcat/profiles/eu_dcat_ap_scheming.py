@@ -188,6 +188,13 @@ class EuDCATAPSchemingDCATProfile(SchemingDCATRDFProfile):
         elif 'author' in dataset_dict:
             self._add_agents(dataset_ref, dataset_dict, "author", DCT.creator)
 
+        # Remove existing temporal triples to avoid duplication
+        temporal_nodes = list(self.g.objects(dataset_ref, DCT.temporal))
+        for temporal in temporal_nodes:
+            self.g.remove((temporal, None, None))
+            self.g.remove((dataset_ref, DCT.temporal, temporal))
+
+        # Add new temporal triples
         temporal = dataset_dict.get("temporal_coverage")
         if (
             isinstance(temporal, list)
@@ -198,9 +205,9 @@ class EuDCATAPSchemingDCATProfile(SchemingDCATRDFProfile):
                 temporal_ref = BNode()
                 self.g.add((temporal_ref, RDF.type, DCT.PeriodOfTime))
                 if item.get("start"):
-                    self._add_date_triple(temporal_ref, DCAT.startDate, item["start"])
+                    self._add_date_triple(temporal_ref, DCAT.startDate, self._ensure_datetime(item["start"]))
                 if item.get("end"):
-                    self._add_date_triple(temporal_ref, DCAT.endDate, item["end"])
+                    self._add_date_triple(temporal_ref, DCAT.endDate, self._ensure_datetime(item["end"]))
                 self.g.add((dataset_ref, DCT.temporal, temporal_ref))
 
         spatial = dataset_dict.get("spatial_coverage")

@@ -126,12 +126,6 @@ class EsDCATAP2Profile(EuDCATAP2Profile):
             values = self._object_value_list(dataset_ref, predicate)
             if values:
                 dataset_dict["extras"].append({"key": key, "value": json.dumps(values)})
-        # Temporal
-        start, end = self._time_interval(dataset_ref, DCT.temporal, dcat_ap_version=2)
-        if start:
-            self._insert_or_update_temporal(dataset_dict, "temporal_start", start)
-        if end:
-            self._insert_or_update_temporal(dataset_dict, "temporal_end", end)
 
         # Spatial
         spatial = self._spatial(dataset_ref, DCT.spatial)

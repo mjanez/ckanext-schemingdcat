@@ -3832,7 +3832,7 @@ resource_fields:
     es: 'Algoritmo utilizado para calcular la suma de comprobación.'
   form_group_id: resource_identification
 
-# Resource status (O)
+# Resource availability (O)
 - field_name: availability
   label:
     en: Resource availability
@@ -3956,18 +3956,22 @@ resource_fields:
       en: Completed
       es: Completado
     value: http://purl.org/adms/status/Completed
+    dcat_ap: http://publications.europa.eu/resource/authority/distribution-status/COMPLETED
   - label:
       en: Under development
       es: En desarrollo
     value: http://purl.org/adms/status/UnderDevelopment
+    dcat_ap: http://publications.europa.eu/resource/authority/distribution-status/DEVELOP
   - label:
       en: Deprecated
       es: Obsoleto
     value: http://purl.org/adms/status/Deprecated
+    dcat_ap: http://publications.europa.eu/resource/authority/distribution-status/DEPRECATED
   - label:
       en: Withdrawn
       es: Retirado
     value: http://purl.org/adms/status/Withdrawn
+    dcat_ap: http://publications.europa.eu/resource/authority/distribution-status/WITHDRAWN
   help_text:
     en: 'This property refers to the maturity of the Distribution. It MUST take one of the values from the <a href="http://purl.org/adms/status/" target="_blank" rel="noopener">ADMS status</a> list.'
     es: 'Esta propiedad hace referencia a la madurez de la distribución y debe tomar uno de los valores de la lista <a href="http://purl.org/adms/status/" target="_blank" rel="noopener">ADMS status</a>.'

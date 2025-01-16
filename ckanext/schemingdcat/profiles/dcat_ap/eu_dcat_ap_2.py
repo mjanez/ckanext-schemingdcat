@@ -279,7 +279,6 @@ class EuDCATAP2Profile(BaseEuDCATAPProfile):
             )
 
         # Temporal
-
         # The profile for DCAT-AP 1 stored triples using schema:startDate,
         # remove them to avoid duplication
         for temporal in self.g.objects(dataset_ref, DCT.temporal):
@@ -287,17 +286,17 @@ class EuDCATAP2Profile(BaseEuDCATAPProfile):
                 self.g.remove((temporal, None, None))
                 self.g.remove((dataset_ref, DCT.temporal, temporal))
 
-        start = self._get_dataset_value(dataset_dict, "temporal_start")
-        end = self._get_dataset_value(dataset_dict, "temporal_end")
+        start = self._ensure_datetime(self._get_dataset_value(dataset_dict, "temporal_start"))
+        end = self._ensure_datetime(self._get_dataset_value(dataset_dict, "temporal_end"))
         if start or end:
-            temporal_extent_dcat = BNode()
+            temporal_extent = BNode()
 
-            self.g.add((temporal_extent_dcat, RDF.type, DCT.PeriodOfTime))
+            self.g.add((temporal_extent, RDF.type, DCT.PeriodOfTime))
             if start:
-                self._add_date_triple(temporal_extent_dcat, DCAT.startDate, start)
+                self._add_date_triple(temporal_extent, DCAT.startDate, start)
             if end:
-                self._add_date_triple(temporal_extent_dcat, DCAT.endDate, end)
-            self.g.add((dataset_ref, DCT.temporal, temporal_extent_dcat))
+                self._add_date_triple(temporal_extent, DCAT.endDate, end)
+            self.g.add((dataset_ref, DCT.temporal, temporal_extent))
 
         # spatial
         spatial_bbox = self._get_dataset_value(dataset_dict, "spatial_bbox")
@@ -341,7 +340,6 @@ class EuDCATAP2Profile(BaseEuDCATAPProfile):
 
             #  Simple values
             items = [
-                ("availability", DCATAP.availability, None, URIRefOrLiteral),
                 (
                     "compress_format",
                     DCAT.compressFormat,
@@ -359,6 +357,11 @@ class EuDCATAP2Profile(BaseEuDCATAPProfile):
             ]
 
             self._add_triples_from_dict(resource_dict, distribution_ref, items)
+
+            # Add availability from distribution
+            distribution_availability = self._get_dataset_value(resource_dict, "availability") or eu_dcat_ap_default_values["availability"]
+            if distribution_availability:
+                self.g.add((distribution_ref, DCATAP.availability, URIRef(distribution_availability)))
 
             # Temporal resolution
             self._add_triple_from_dict(
@@ -401,7 +404,7 @@ class EuDCATAP2Profile(BaseEuDCATAPProfile):
             ]
             self._add_list_triples_from_dict(resource_dict, distribution_ref, items)
             
-            # DCAT Data Service
+            # DCAT Data Service. ckanext-schemingdcat: DCAT-AP Enhancements
             access_service_list = resource_dict.get("access_services", [])
             if isinstance(access_service_list, str):
                 try:
@@ -428,7 +431,6 @@ class EuDCATAP2Profile(BaseEuDCATAPProfile):
 
                 #  Simple values
                 items = [
-                    ("availability", DCATAP.availability, None, URIRefOrLiteral),
                     ("license", DCT.license, None, URIRefOrLiteral),
                     ("access_rights", DCT.accessRights, None, URIRefOrLiteral),
                     ("title", DCT.title, None, Literal),
@@ -460,8 +462,7 @@ class EuDCATAP2Profile(BaseEuDCATAPProfile):
                 self._add_list_triples_from_dict(
                     access_service_dict, access_service_node, items
                 )
-                
-                # ckanext-schemingdcat: DCAT-AP Enhancements
+
                 # Lists from resource
                 items = [
                     (
@@ -504,6 +505,11 @@ class EuDCATAP2Profile(BaseEuDCATAPProfile):
                 contact_point = self.g.value(dataset_ref, DCAT.contactPoint)
                 if contact_point:
                     self.g.add((access_service_node, DCAT.contactPoint, contact_point))
+                    
+                publisher = self.g.value(catalog_ref, DCT.publisher)
+                if publisher:
+                    self.g.add((access_service_node, DCT.publisher, publisher))
+
 
                 # Append dcat:DataService to dcat:Catalog
                 self.g.add((URIRef(catalog_ref), DCAT.service, access_service_node))   
@@ -531,6 +537,5 @@ class EuDCATAP2Profile(BaseEuDCATAPProfile):
     def _graph_from_catalog_v2(self, catalog_dict, catalog_ref):
         # remove publisher to avoid duplication
         for access_service in self.g.objects(catalog_ref, DCAT.DataService):
-            log.debug('Access Service: %s', access_service)
             self.g.add((catalog_ref, DCAT.service, access_service))
     

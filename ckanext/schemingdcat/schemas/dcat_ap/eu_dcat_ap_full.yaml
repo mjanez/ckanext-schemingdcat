@@ -2843,7 +2843,7 @@ resource_fields:
     es: 'Algoritmo utilizado para calcular la suma de comprobación.'
   form_group_id: resource_identification
 
-# Resource status (O)
+# Resource availability (O)
 - field_name: availability
   label:
     en: Resource availability
@@ -2967,6 +2967,7 @@ resource_fields:
       en: Completed
       es: Completado
     value: http://purl.org/adms/status/Completed
+    dcat_ap: http://publications.europa.eu/resource/authority/distribution-status/COMPLETED
   - label:
       en: Under development
       es: En desarrollo

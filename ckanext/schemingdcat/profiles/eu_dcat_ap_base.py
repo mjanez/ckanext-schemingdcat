@@ -23,6 +23,8 @@ from ckanext.schemingdcat.profiles.base import (
     MD_INSPIRE_REGISTER,
     MD_FORMAT,
     MD_EU_LANGUAGES,
+    DCAT_AP_STATUS,
+    DCAT_AP_ACCESS_RIGHTS,
     # Namespaces
     namespaces
 )
@@ -55,6 +57,9 @@ from ckanext.schemingdcat.profiles.dcat_config import (
     default_translated_fields,
     eu_dcat_ap_default_values,
     dcat_ap_default_licenses,
+    # URIS
+    IANA_MEDIA_TYPES_BASE_URI,
+    EU_VOCAB_AUTHORITY_TABLES_BASE_URI,
     )
 
 
@@ -418,11 +423,13 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
                 self._search_values_codelist_add_to_graph(MD_INSPIRE_REGISTER, tag_names, dataset_dict, dataset_ref, dataset_tag_base, g, DCAT.keyword)
 
         # Dates
-        items = [
-            ("issued", DCT.issued, ["metadata_created"], Literal),
-            ("modified", DCT.modified, ["metadata_modified"], Literal),
-        ]
-        self._add_date_triples_from_dict(dataset_dict, dataset_ref, items)
+        issued = dataset_dict.get("created") or dataset_dict.get("issued")
+        modified = dataset_dict.get("modified") or dataset_dict.get("metadata_modified")
+        if modified or issued or license:
+            if modified:
+                self._add_date_triple(dataset_ref, DCT.modified, self._ensure_datetime(modified))
+            if issued:
+                self._add_date_triple(dataset_ref, DCT.issued, self._ensure_datetime(issued))
 
         #  Lists
         items = [
@@ -640,8 +647,8 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
 
         # TODO: Deprecated: https://semiceu.github.io/GeoDCAT-AP/drafts/latest/#deprecated-properties-for-period-of-time
         # Temporal
-        start = self._get_dataset_value(dataset_dict, "temporal_start")
-        end = self._get_dataset_value(dataset_dict, "temporal_end")
+        start = self._ensure_datetime(self._get_dataset_value(dataset_dict, "temporal_start"))
+        end = self._ensure_datetime(self._get_dataset_value(dataset_dict, "temporal_end"))
         if start or end:
             temporal_extent = BNode()
 
@@ -709,7 +716,7 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
         )
 
         # DCAT-AP: http://publications.europa.eu/en/web/eu-vocabularies/at-dataset/-/resource/dataset/access-right
-        access_rights_url = self._get_access_rights_url(dataset_dict.get('access_rights', None))
+        access_rights_url = self._get_access_rights_uri(dataset_dict.get('access_rights', None))
         if access_rights_url:
             g.add((dataset_ref, DCT.accessRights, URIRef(access_rights_url)))
 
@@ -746,7 +753,6 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
 
 
             items = [
-                ("status", ADMS.status, None, URIRefOrLiteral),
                 ("encoding", CNT.characterEncoding, None, Literal),
             ]
 
@@ -784,41 +790,41 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
             mimetype = resource_dict.get("mimetype")
             fmt = resource_dict.get("format")
 
-            # IANA media types (either URI or Literal) should be mapped as mediaType.
+            # mediaType only IANA. IANA media types (either URI or Literal) should be mapped as mediaType.
             # In case format is available and mimetype is not set or identical to format,
             # check which type is appropriate.
-            if fmt and (not mimetype or mimetype == fmt):
-                if (
-                    "iana.org/assignments/media-types" in fmt
-                    or not fmt.startswith("http")
-                    and "/" in fmt
-                ):
-                    # output format value as dcat:mediaType instead of dct:format
-                    mimetype = fmt
-                    fmt = None
-                else:
-                    # Use dct:format
-                    mimetype = None
-
-            if mimetype:
-                mimetype = URIRefOrLiteral(mimetype)
+            if self._is_valid_iana_mediatype(mimetype):
+                mimetype = URIRef(mimetype)
                 g.add((distribution, DCAT.mediaType, mimetype))
-                if isinstance(mimetype, URIRef):
-                    g.add((mimetype, RDF.type, DCT.MediaType))
-            elif fmt:
-                mime_val = self._search_value_codelist(MD_FORMAT, fmt, "id", "media_type") or None
-                if mime_val and mime_val != fmt:
-                    g.add((distribution, DCAT.mediaType, URIRefOrLiteral(mime_val)))
 
             # Try to match format field
             fmt = self._search_value_codelist(MD_FORMAT, fmt, "label", "id") or fmt
 
             # Add format to graph
-            if fmt:
-                fmt = URIRefOrLiteral(fmt)
+            if self._is_valid_eu_authority_table(fmt, 'file-type'):
+                fmt = URIRef(fmt)
                 g.add((distribution, DCT["format"], fmt))
-                if isinstance(fmt, URIRef):
-                    g.add((fmt, RDF.type, DCT.mediaType))
+                
+            else:
+                # Create custom IMT format
+                if fmt:
+                    format_node = BNode()
+                    fmt_label = fmt.strip().upper()
+                    self.g.add((distribution, DCT["format"], format_node))
+                    self.g.add((format_node, RDF.type, DCT.IMT))
+
+                    # Add format value (use mimetype if available) use text/ prefix for unknown types
+                    g.add((format_node, RDF.value, Literal(f'text/{fmt_label}')))
+                        
+                    # Add format label
+                    g.add((format_node, RDFS.label, Literal(fmt_label)))
+
+
+            # Try to match mimetype if not exists
+            if not mimetype or not self._is_valid_iana_mediatype(mimetype) and self._is_valid_eu_authority_table(fmt, 'file-type'):
+                mimetype_from_fmt = self._search_value_codelist(MD_FORMAT, fmt, "id", "media_type") or None
+                if self._is_valid_iana_mediatype(mimetype_from_fmt):
+                    g.add((distribution, DCAT.mediaType, URIRef(mimetype_from_fmt)))
 
             # URL fallback and old behavior
             url = resource_dict.get("url")
@@ -835,17 +841,21 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
                 self._add_valid_url_to_graph(g, distribution, DCAT.downloadURL, download_url, url)
 
             # Dates
-            self._ensure_datetime(resource_dict, "created")
-            self._ensure_datetime(resource_dict, "modified")
-            items = [
-                ("created", DCT.issued, ["issued"], Literal),
-                ("modified", DCT.modified, ["metadata_modified"], Literal),
-            ]
+            issued = resource_dict.get("created") or resource_dict.get("issued")
+            modified = resource_dict.get("modified") or resource_dict.get("metadata_modified")
+            if modified or issued or license:
+                if modified:
+                    self._add_date_triple(distribution, DCT.modified, self._ensure_datetime(modified))
+                if issued:
+                    self._add_date_triple(distribution, DCT.issued, self._ensure_datetime(issued))
 
-            self._add_date_triples_from_dict(resource_dict, distribution, items)
+            # DCAT-AP Distribution status
+            status_url = self._get_status_uri(resource_dict.get("status", None))
+            if status_url:
+                g.add((dataset_ref, ADMS.status, URIRef(status_url)))
 
             # DCAT-AP: http://publications.europa.eu/en/web/eu-vocabularies/at-dataset/-/resource/dataset/access-right
-            rights_url = self._get_access_rights_url(resource_dict.get("rights", None))
+            rights_url = self._get_access_rights_uri(resource_dict.get("rights", None))
             if rights_url:
                 g.add((distribution, DCT.accessRights, URIRef(rights_url)))
 
@@ -961,9 +971,9 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
         issued = self._get_catalog_field(field_name='metadata_created', default_values_dict=eu_dcat_ap_default_values, order='asc')
         if modified or issued or license:
             if modified:
-                self._add_date_triple(catalog_ref, DCT.modified, modified)
+                self._add_date_triple(catalog_ref, DCT.modified, self._ensure_datetime(modified))
             if issued:
-                self._add_date_triple(catalog_ref, DCT.issued, issued)
+                self._add_date_triple(catalog_ref, DCT.issued, self._ensure_datetime(issued))
 
         # Catalog Publisher
         catalog_publisher_info = schemingdcat_get_catalog_publisher_info()
@@ -1023,15 +1033,51 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
                 if tag_value not in dataset_dict['tag_string']:
                     dataset_dict['tag_string'].append(self._clean_name(tag_value))
             
-    def _get_access_rights_url(self, access_rights=None):
+    def _get_access_rights_uri(self, value=None):
         """
-        Determine access rights URL based on conditions
+        Determine access rights URI using codelist lookup.
+
+        Args:
+            value (str, optional): The access rights value to look up. Defaults to None.
+
+        Returns:
+            URIRef: The URI reference for the access rights. If `status` is not provided or 
+            if the lookup value is 'noLimitations', it returns the default access rights URI. 
+            Otherwise, it returns the restricted access rights URI.
         """
-        if not access_rights:
+        if not value:
             return eu_dcat_ap_default_values['access_rights']
             
-        return (
-            URIRef(eu_dcat_ap_default_values['access_rights'])
-            if 'noLimitations' in access_rights
-            else URIRef(eu_dcat_ap_default_values['access_rights_restricted'])
+        dcat_ap_value = self._search_value_codelist(DCAT_AP_ACCESS_RIGHTS, value, "id", "dcat_ap")
+        
+        return URIRef(dcat_ap_value)
+        
+    def _get_status_uri(self, value=None):
+        """
+        Determine status EU Publications URI using codelist lookup.
+
+        Args:
+            value (str, optional): The status value to look up. Defaults to None.
+
+        Returns:
+            URIRef: The URI reference for the status. If `status` is not provided or 
+            if the lookup value is 'noLimitations', it returns the default status URI. 
+            Otherwise, it returns the restricted status URI.
+        """
+        if not value:
+            return eu_dcat_ap_default_values['status']
+            
+        dcat_ap_value = self._search_value_codelist(DCAT_AP_STATUS, value, "id", "dcat_ap")
+        
+        return URIRef(dcat_ap_value)
+    
+    def _is_valid_iana_mediatype(self, value: str) -> bool:
+        """Validate IANA media type URI"""
+        return value and (
+            value.startswith(IANA_MEDIA_TYPES_BASE_URI)
         )
+
+    def _is_valid_eu_authority_table(self, value: str, table: str) -> bool:
+        """Validate EU Publications authority table"""
+        return value and value.startswith(f'{EU_VOCAB_AUTHORITY_TABLES_BASE_URI}/{table}/')
+    
