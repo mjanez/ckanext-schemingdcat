@@ -787,8 +787,8 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
                 )
 
             # Format
-            mimetype = resource_dict.get("mimetype").strip()
-            fmt = resource_dict.get("format").strip().upper()
+            mimetype = self._clean_string(resource_dict.get("mimetype"))
+            fmt = self._clean_string(resource_dict.get("format"), upper=True)
 
             # mediaType only IANA. IANA media types (either URI or Literal) should be mapped as mediaType.
             # In case format is available and mimetype is not set or identical to format,
