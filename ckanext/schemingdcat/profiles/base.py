@@ -699,10 +699,10 @@ class SchemingDCATRDFProfile(RDFProfile):
             upper (bool): If True, convert the cleaned string to uppercase. Defaults to False.
 
         Returns:
-            str: The cleaned string, optionally converted to uppercase.
-        """
-        if not value:
-            return ""
+            Optional[str]: The cleaned string, optionally converted to uppercase, or None if the input is not a string.
+       """
+        if not isinstance(value, str) or not value:
+            return None
         cleaned = value.strip()
         return cleaned.upper() if upper else cleaned
 
