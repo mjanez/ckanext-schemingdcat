@@ -690,6 +690,22 @@ class SchemingDCATRDFProfile(RDFProfile):
         except (ValueError, DecimalException):
             return value
 
+    def _clean_string(self, value: str, upper: bool = False) -> str:
+        """
+        Clean string value, optionally convert to uppercase.
+
+        Args:
+            value (str): The string value to be cleaned.
+            upper (bool): If True, convert the cleaned string to uppercase. Defaults to False.
+
+        Returns:
+            str: The cleaned string, optionally converted to uppercase.
+        """
+        if not value:
+            return ""
+        cleaned = value.strip()
+        return cleaned.upper() if upper else cleaned
+
     def _is_valid_access_service(self, access_service_dict: dict) -> bool:
         """Validate required properties for DataService.
         Args:
