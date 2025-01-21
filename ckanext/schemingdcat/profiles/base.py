@@ -435,16 +435,20 @@ class SchemingDCATRDFProfile(RDFProfile):
         Returns:
             str or None: The value found in the codelist, or None if not found and return_value is False.
         """
-        inspire_dict = {row[input_field_name].lower(): row[output_field_name] for row in metadata_codelist}
-        tag_val = inspire_dict.get(label.lower(), None)
-        if not return_value and tag_val is None:
+        
+        if not label:
             return None
-        elif not return_value and tag_val:
-            return tag_val        
-        elif return_value == True and tag_val is None:
-            return label
-        else:
+        
+        inspire_dict = {
+            row[input_field_name].lower(): row[output_field_name] 
+            for row in metadata_codelist
+        }
+        tag_val = inspire_dict.get(label.lower())
+        
+        if not return_value:
             return tag_val
+        
+        return label if tag_val is None else tag_val
 
     # ckanext-dcat fixes
     ## https://github.com/mjanez/ckanext-dcat/issues/4
