@@ -740,6 +740,14 @@ class SchemingDCATRDFProfile(RDFProfile):
             return ''
         return fmt.strip().upper()
 
+    def _clean_publisher(self, dataset_ref):
+        """Remove all publisher triples before adding catalog publisher"""
+        # Get all existing publishers
+        for publisher in self.g.objects(dataset_ref, DCT.publisher):
+            # Remove publisher triple and all related triples
+            self.g.remove((dataset_ref, DCT.publisher, publisher))
+            self.g.remove((publisher, None, None))
+
     # Graph enhancements. Fix Graph literals
     def _process_batch(self, graph: Graph, updates: List[Tuple]) -> None:
         """

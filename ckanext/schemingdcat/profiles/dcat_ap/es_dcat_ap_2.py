@@ -293,9 +293,7 @@ class EsDCATAP2Profile(EuDCATAP2Profile):
         )
 
         # remove publisher to avoid duplication
-        for publisher_ref in self.g.objects(dataset_ref, DCT.publisher):
-            if publisher_ref:
-                self.g.remove((publisher_ref, RDF.type, None))
+        self._clean_publisher(dataset_ref)
 
         # Add Catalog publisher to Dataset
         if publisher_ref:

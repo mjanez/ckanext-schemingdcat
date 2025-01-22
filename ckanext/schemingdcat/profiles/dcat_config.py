@@ -321,6 +321,6 @@ eu_dcat_ap_literals_to_check = [
             DCT.description,
             DCAT.keyword,
             # Agents
-            VCARD.fn,
+            #VCARD.fn,
             FOAF.name,          
         ]

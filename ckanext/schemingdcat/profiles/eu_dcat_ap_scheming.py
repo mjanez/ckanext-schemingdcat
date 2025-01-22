@@ -181,7 +181,9 @@ class EuDCATAPSchemingDCATProfile(SchemingDCATRDFProfile):
                     _type=URIRefOrLiteral,
                 )
 
-        self._add_agents(dataset_ref, dataset_dict, "publisher", DCT.publisher)
+        if not self.g.objects(dataset_ref, DCT.publisher):
+            self._add_agents(dataset_ref, dataset_dict, "publisher", DCT.publisher)
+
         # ckanext-schemingdcat:'author' or 'creator' check
         if 'creator' in dataset_dict:
             self._add_agents(dataset_ref, dataset_dict, "creator", DCT.creator)
