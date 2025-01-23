@@ -945,7 +945,7 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
             ("homepage", FOAF.homepage, config.get("ckan.site_url"), URIRef),
             ("license", DCT.license, license, URIRef),
             ("conforms_to", DCT.conformsTo, eu_dcat_ap_default_values["conformance"], URIRef),
-            ("access_rights", DC.rights, f'{catalog_uri()}/rights', URIRefOrLiteral),
+            ("access_rights", DCT.rights, f'{catalog_uri()}/rights', URIRefOrLiteral),
             # Unnecesary properties for dcat:Catalog
             #("identifier", DCT.identifier, catalog_uri(), URIRef),
             #("accessUrl", DCAT.accessURL, f'{catalog_uri()}/catalog.rdf', URIRef),
@@ -1014,7 +1014,7 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
 
             # Create rights statement node
             rights_uri = URIRef(f'{catalog_uri()}/rights')
-            g.add((catalog_ref, DC.rights, rights_uri))
+            g.add((catalog_ref, DCT.rights, rights_uri))
 
             # Add rights statement properties
             g.add((rights_uri, RDF.type, ODRS.RightsStatement))
