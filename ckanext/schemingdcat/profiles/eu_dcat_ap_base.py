@@ -41,6 +41,8 @@ from ckanext.schemingdcat.profiles.dcat_config import (
     GEODCATAP,
     ELI,
     DCT,
+    DC,
+    ODRS,
     ADMS,
     VCARD,
     FOAF,
@@ -56,6 +58,7 @@ from ckanext.schemingdcat.profiles.dcat_config import (
     metadata_field_names,
     default_translated_fields,
     eu_dcat_ap_default_values,
+    es_dcat_ap_default_values,
     dcat_ap_default_licenses,
     # URIS
     IANA_MEDIA_TYPES_BASE_URI,
@@ -829,7 +832,7 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
                     g.add((distribution, DCAT.mediaType, URIRef(mimetype_from_fmt)))      
 
             # URL fallback and old behavior
-            url = resource_dict.get("url")
+            url = resource_dict.get("url") or distribution
             download_url = resource_dict.get("download_url")
             access_url = resource_dict.get("access_url")
 
@@ -933,7 +936,6 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
 
         # Mandatory elements by NTI-RISP/DCAT-AP-ES (datos.gob.es)
         items = [
-            ("identifier", DCT.identifier, catalog_uri(), URIRef),
             ("encoding", CNT.characterEncoding, "UTF-8", Literal),
             ("language", DCT.language, language, URIRefOrLiteral),
             ("spatial_uri", DCT.spatial, spatial_uri, URIRefOrLiteral),
@@ -943,7 +945,9 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
             ("homepage", FOAF.homepage, config.get("ckan.site_url"), URIRef),
             ("license", DCT.license, license, URIRef),
             ("conforms_to", DCT.conformsTo, eu_dcat_ap_default_values["conformance"], URIRef),
-            ("access_rights", DCT.accessRights, access_rights, URIRefOrLiteral),
+            ("access_rights", DC.rights, f'{catalog_uri()}/rights', URIRefOrLiteral),
+            # Unnecesary properties for dcat:Catalog
+            #("identifier", DCT.identifier, catalog_uri(), URIRef),
             #("accessUrl", DCAT.accessURL, f'{catalog_uri()}/catalog.rdf', URIRef),
         ]
                  
@@ -1008,6 +1012,24 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
 
             self._add_triples_from_dict(publisher_details, publisher_ref, items)
 
+            # Create rights statement node
+            rights_uri = URIRef(f'{catalog_uri()}/rights')
+            g.add((catalog_ref, DC.rights, rights_uri))
+
+            # Add rights statement properties
+            g.add((rights_uri, RDF.type, ODRS.RightsStatement))
+            
+            # Add multilingual labels
+            g.add((rights_uri, RDFS.label, Literal(eu_dcat_ap_default_values['rights_uri_label'], lang='en')))
+            g.add((rights_uri, RDFS.label, Literal(es_dcat_ap_default_values['rights_uri_label'], lang='es')))
+            
+            # Add multilingual attribution text
+            g.add((rights_uri, ODRS.attributionText, Literal(eu_dcat_ap_default_values['rights_attribution_text'], lang='en')))
+            g.add((rights_uri, ODRS.attributionText, Literal(es_dcat_ap_default_values['rights_attribution_text'], lang='es')))
+            
+            # Add non-language specific properties
+            g.add((rights_uri, ODRS.dataLicense, URIRef(eu_dcat_ap_default_values["license_url"])))
+            g.add((rights_uri, ODRS.attributionURL, URIRef(publisher_ref)))
 
     def _assign_theme_tags(self, dataset_dict, key, values):
         for value in values:

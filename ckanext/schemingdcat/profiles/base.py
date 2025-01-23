@@ -45,6 +45,7 @@ from ckanext.schemingdcat.profiles.dcat_config import (
     SPDX,
     CNT,
     ORG,
+    ODRS,
     # Default values
     eu_dcat_ap_default_values,
     )
@@ -80,6 +81,7 @@ namespaces = {
     "owl": OWL,
     "org": ORG,
     "spdx": SPDX,
+    "odrs": ODRS,
 }
 
 default_lang = config.get("ckan.locale_default", "en")
@@ -747,6 +749,26 @@ class SchemingDCATRDFProfile(RDFProfile):
             # Remove publisher triple and all related triples
             self.g.remove((dataset_ref, DCT.publisher, publisher))
             self.g.remove((publisher, None, None))
+
+    def _is_valid_temporal_resolution(self, value: str) -> bool:
+        """
+        Validate ISO-8601 duration format.
+        
+        Format: P[nY][nM][nD][T[nH][nM][nS]]
+        Examples:
+            PT1H          - 1 hour
+            P1Y           - 1 year
+            P3M           - 3 months
+            P1DT12H      - 1 day, 12 hours
+            PT30M        - 30 minutes
+        """
+        if not value or not isinstance(value, str):
+            return False
+            
+        # Simplified pattern that allows single units
+        pattern = r'^P(?:\d+Y)?(?:\d+M)?(?:\d+D)?(?:T(?:\d+H)?(?:\d+M)?(?:\d+S)?)?$|^PT(?:\d+H)?(?:\d+M)?(?:\d+S)?$'
+        
+        return bool(re.match(pattern, value))
 
     # Graph enhancements. Fix Graph literals
     def _process_batch(self, graph: Graph, updates: List[Tuple]) -> None:

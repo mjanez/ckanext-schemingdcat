@@ -49,6 +49,7 @@ GSP = Namespace("http://www.opengis.net/ont/geosparql#")
 OWL = Namespace("http://www.w3.org/2002/07/owl#")
 SPDX = Namespace("http://spdx.org/rdf/terms#")
 CNT = Namespace("http://www.w3.org/2011/content#")
+ODRS = Namespace("http://schema.theodi.org/odrs#")
 
 CODELISTS_DIR = Path(__file__).resolve().parent.parent / "codelists"
 EU_VOCABS_DIR = CODELISTS_DIR / "dcat"
@@ -125,6 +126,8 @@ es_dcat_default_values = {
     'theme_es': 'http://datos.gob.es/kos/sector-publico/sector/sector-publico',
     'theme_eu': 'http://publications.europa.eu/resource/authority/data-theme/GOVE',
     'theme_taxonomy': 'http://datos.gob.es/kos/sector-publico/sector/',
+    'rights_uri_label': 'Derechos relativos a la reutilización del Catálogo de Datos Abiertos',
+    'rights_attribution_text': 'Atribución de la autoría al organismo.',
     'spatial_uri': 'http://datos.gob.es/recurso/sector-publico/territorio/Pais/España',
 }
 
@@ -149,6 +152,8 @@ es_dcat_ap_default_values = {
     'theme_es': 'http://datos.gob.es/kos/sector-publico/sector/sector-publico',
     'theme_eu': 'http://publications.europa.eu/resource/authority/data-theme/GOVE',
     'theme_taxonomy': 'http://datos.gob.es/kos/sector-publico/sector/',
+    'rights_uri_label': 'Derechos relativos a la reutilización del Catálogo de Datos Abiertos',
+    'rights_attribution_text': 'Atribución de la autoría al organismo.',
     'spatial_uri': 'http://datos.gob.es/recurso/sector-publico/territorio/Pais/España',
 }
 
@@ -179,6 +184,8 @@ eu_dcat_ap_default_values = {
     'theme_taxonomy': 'http://inspire.ec.europa.eu/theme',
     'theme_es_taxonomy': 'http://datos.gob.es/kos/sector-publico/sector',
     'theme_eu_taxonomy': 'http://publications.europa.eu/resource/authority/data-theme',
+    'rights_uri_label': 'Rights related to the re-use of the Open Data Catalogue',
+    'rights_attribution_text': 'Attribution of authorship to the organisation.',
     'spatial_uri': 'http://publications.europa.eu/resource/authority/country/ESP',
 }
 
@@ -207,6 +214,8 @@ eu_geodcat_ap_default_values = {
     'theme_taxonomy': 'http://inspire.ec.europa.eu/theme',
     'theme_es_taxonomy': 'http://datos.gob.es/kos/sector-publico/sector',
     'theme_eu_taxonomy': 'http://publications.europa.eu/resource/authority/data-theme',
+    'rights_uri_label': 'Rights related to the re-use of the Open Data Catalogue',
+    'rights_attribution_text': 'Attribution of authorship to the organisation.',
     'spatial_uri': 'http://publications.europa.eu/resource/authority/country/ESP',
 }
 

@@ -237,15 +237,6 @@ class EuDCATAP2Profile(BaseEuDCATAPProfile):
         # Catalog URI
         catalog_ref = catalog_uri()
 
-        # Standard values
-        self._add_triple_from_dict(
-            dataset_dict,
-            dataset_ref,
-            DCAT.temporalResolution,
-            "temporal_resolution",
-            _datatype=XSD.duration,
-        )
-
         # Lists
         for key, predicate, fallbacks, type, datatype, _class in (
             (
@@ -364,13 +355,14 @@ class EuDCATAP2Profile(BaseEuDCATAPProfile):
                 self.g.add((distribution_ref, DCATAP.availability, URIRef(distribution_availability)))
 
             # Temporal resolution
-            self._add_triple_from_dict(
-                resource_dict,
-                distribution_ref,
-                DCAT.temporalResolution,
-                "temporal_resolution",
-                _datatype=XSD.duration,
-            )
+            temporal_resolution = resource_dict.get("temporal_resolution")
+            log.debug('temporal_resolution:%s', temporal_resolution)
+            if temporal_resolution and self._is_valid_temporal_resolution(temporal_resolution):
+                self.g.add((
+                    distribution_ref, 
+                    DCAT.temporalResolution, 
+                    Literal(temporal_resolution, datatype=XSD.duration)
+                ))
 
             # Spatial resolution in meters
             spatial_resolution_in_meters = self._read_list_value(
@@ -484,7 +476,7 @@ class EuDCATAP2Profile(BaseEuDCATAPProfile):
                 data_service_hvd_properties = [
                     ('hvd_category', DCATAP.hvdCategory, lambda x: x),
                     (None, DCT.license, self.g.value, dataset_ref),
-                    (None, DCT.accessRights, self.g.value, dataset_ref)
+                    (None, DCT.accessRights, self.g.value, dataset_ref),
                 ]
                 
                 # Process mappings
@@ -501,6 +493,10 @@ class EuDCATAP2Profile(BaseEuDCATAPProfile):
                             URIRef(value)
                         ))
                 
+                # Add all DCAT.theme from dataset_ref to access_service_node
+                for theme in self.g.objects(dataset_ref, DCAT.theme):
+                    self.g.add((access_service_node, DCAT.theme, theme))
+                    
                 # Add DCAT.contactPoint from dataset_ref to access_service_node
                 contact_point = self.g.value(dataset_ref, DCAT.contactPoint)
                 if contact_point:
