@@ -501,11 +501,9 @@ class EuDCATAP2Profile(BaseEuDCATAPProfile):
                 contact_point = self.g.value(dataset_ref, DCAT.contactPoint)
                 if contact_point:
                     self.g.add((access_service_node, DCAT.contactPoint, contact_point))
-                    
-                publisher = self.g.value(catalog_ref, DCT.publisher)
-                if publisher:
-                    self.g.add((access_service_node, DCT.publisher, publisher))
 
+                # Add DCAT.publisher from dataset_ref to access_service_node   
+                self._add_catalog_publisher_to_service(access_service_node)
 
                 # Append dcat:DataService to dcat:Catalog
                 self.g.add((URIRef(catalog_ref), DCAT.service, access_service_node))   

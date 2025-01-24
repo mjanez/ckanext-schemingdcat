@@ -18,7 +18,7 @@ from ckanext.schemingdcat.config import (
     translate_validator_tags
 )
 
-from ckanext.schemingdcat.helpers import get_langs
+from ckanext.schemingdcat.helpers import get_langs, schemingdcat_get_catalog_publisher_info
 from ckanext.schemingdcat.codelists import load_inspire_csv_codelists
 from ckanext.schemingdcat.profiles.dcat_config import (
     # Vocabs
@@ -749,6 +749,31 @@ class SchemingDCATRDFProfile(RDFProfile):
             # Remove publisher triple and all related triples
             self.g.remove((dataset_ref, DCT.publisher, publisher))
             self.g.remove((publisher, None, None))
+
+    def _add_catalog_publisher_to_service(self, access_service_node):
+        """Add catalog publisher to data service if not present"""
+        try:
+            # Check if node exists
+            if not access_service_node:
+                return
+                
+            # Check if publisher already exists
+            if self.g.value(access_service_node, DCT.publisher):
+                return
+                
+            # Get publisher info safely
+            catalog_publisher_info = schemingdcat_get_catalog_publisher_info() or {}
+            publisher_uri = catalog_publisher_info.get("identifier")
+            
+            # Only add if we have a valid URI
+            if publisher_uri and isinstance(publisher_uri, str):
+                self.g.add((
+                    access_service_node,
+                    DCT.publisher,
+                    CleanedURIRef(publisher_uri)
+                ))
+        except Exception as e:
+            log.warning(f"Error adding catalog publisher to service: {str(e)}")
 
     def _is_valid_temporal_resolution(self, value: str) -> bool:
         """
