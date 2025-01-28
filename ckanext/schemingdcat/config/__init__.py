@@ -83,6 +83,7 @@ __all__ = [
     'FORMAT_MAPPING',
     'RESOURCE_TYPES',
     'FILE_TYPES',
+    'FORMAT_STANDARDIZATION',
     ## CSW processor configuration
     'CSW_DEFAULT_LIMIT',
     'CQL_QUERY_DEFAULT',

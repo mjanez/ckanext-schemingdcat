@@ -3,6 +3,7 @@ import logging
 import traceback
 import uuid
 import dateutil
+import time
 
 import ckan.plugins as p
 from ckan import model
@@ -27,7 +28,9 @@ from ckanext.schemingdcat.config import (
     DEFAULT_XSLT_FILE,
     CQL_QUERY_DEFAULT,
     INSPIRE_HVD_CATEGORY,
-    INSPIRE_HVD_APPLICABLE_LEGISLATION
+    INSPIRE_HVD_APPLICABLE_LEGISLATION,
+    PROTOCOL_MAPPING,
+    FORMAT_STANDARDIZATION
 )
 from ckanext.schemingdcat.lib.csw_mapper.xslt_transformer import XSLTTransformer
 from ckanext.schemingdcat.interfaces import ISchemingDCATHarvester
@@ -152,6 +155,12 @@ class SchemingDCATCSWHarvester(CSWHarvester, SchemingDCATHarvester):
                 if field_name in dataset_field_names:
                     raise KeyError(f"Field name '{field_name}' in default_extras already exists in the schema")
 
+        if 'private_datasets' in config_obj:
+            if not isinstance(config_obj['private_datasets'], bool):
+                raise ValueError('private_datasets must be boolean')
+        else:
+            config_obj['private_datasets'] = True  # default value
+
         return config
     
     def _set_config(self, config_str, harvest_source_id):
@@ -169,33 +178,34 @@ class SchemingDCATCSWHarvester(CSWHarvester, SchemingDCATHarvester):
         self.config['ssl_verify'] = p.toolkit.asbool(p.toolkit.config.get('ckanext.schemingdcat.csw.ssl_verify', True))
         
         log.debug('Using config: %r' % self.config)
-
+    
     def modify_package_dict(self, package_dict, harvest_object):
         '''
-            Allows custom harvesters to modify the package dict before
-            creating or updating the actual package.
+        Allows custom harvesters to modify the package dict before
+        creating or updating the actual package.
         ''' 
         log.debug('In SchemingDCATCSWHarvester modify_package_dict')
         
         # Assign HVD category
         package_dict = self.normalize_inspire_hvd_category(package_dict)
-        
+
         # Standarize resources (dcat:Distribution)
         for resource in package_dict.get("resources", []):
-            # Process the format field
             format_value = resource.get('format')
-            #log.debug('format_value:%s', format_value)
+            
             if format_value:
-                # Extract the last part of the URL and convert to uppercase
-                resource['format'] = format_value.rsplit('/', 1)[-1].upper()
-            else:
-                resource.pop('format', None)
+                format_name, mimetype = self._clean_format(format_value)
+                if format_name:
+                    resource['format'] = format_name
+                    if mimetype:
+                        resource['mimetype'] = mimetype
+                else:
+                    resource.pop('format', None)
+                    resource.pop('mimetype', None)
 
         # Apply default values if required fields are empty
         self._apply_default_values(package_dict)
-
-        #log.debug('package_dict after modify_package_dict: %s', package_dict)
-
+    
         return package_dict
 
     def gather_stage(self, harvest_job):
@@ -229,6 +239,12 @@ class SchemingDCATCSWHarvester(CSWHarvester, SchemingDCATHarvester):
                 cql_search_term=self.config.get('cql_search_term', None),
                 cql_use_like=self.config.get('cql_use_like', False)
             )
+
+            # Limit to first 25 records for testing
+            if DEBUG_MODE:
+                gathered_identifiers = gathered_identifiers[:25]
+                log.debug('Limited to first 25 records for testing')
+
         except KeyError as e:
             # Handling the case of a missing key in self.config
             missing_key = e.args[0]
@@ -336,6 +352,9 @@ class SchemingDCATCSWHarvester(CSWHarvester, SchemingDCATHarvester):
                     # If the dataset has no identifier, use an UUID
                     if not dataset.get('identifier'):
                         dataset['identifier'] = str(uuid.uuid4())
+                        
+                    else:
+                        dataset['identifier'] = self._clean_identifier(dataset['identifier'])
         
                 except Exception as e:
                     skipped_datasets += 1
@@ -346,6 +365,24 @@ class SchemingDCATCSWHarvester(CSWHarvester, SchemingDCATHarvester):
                     skipped_datasets += 1
                     self._save_gather_error('Missing identifier for dataset with title: %s' % dataset.get('title'), harvest_job)
                     continue
+                
+                if not dataset.get('reference') and dataset.get('identifier'):
+                    # Build GetRecordById URL
+                    getrecord_params = {
+                        'service': 'CSW',
+                        'version': '2.0.2',
+                        'request': 'GetRecordById',
+                        'id': dataset['identifier'],
+                        'elementSetName': 'full',
+                        'outputSchema': 'http://www.isotc211.org/2005/gmd',
+                        'OutputFormat': 'application/xml'
+                    }
+                    
+                    # Convert params to URL query string
+                    query_string = '&'.join([f"{k}={v}" for k, v in getrecord_params.items()])
+                    dataset['reference'] = f"{csw_url}?{query_string}"
+                    log.debug(f"Added CSW reference URL: {dataset['reference']}")
+                    
                 
                 # Check if a dataset with the same identifier exists can be overridden if necessary
                 #existing_dataset = self._check_existing_package_by_ids(dataset)
@@ -772,3 +809,89 @@ class SchemingDCATCSWHarvester(CSWHarvester, SchemingDCATHarvester):
             
         except Exception as e:
             raise ValueError(f'Error updating the package dictionary: {e}') from e
+        
+    def _clean_identifier(self, identifier):
+        """
+        Cleans identifier by removing or replacing reserved characters.
+        
+        Args:
+            identifier (str): The identifier to clean
+
+        Returns:
+            str: The cleaned identifier
+        """
+        if not identifier:
+            return identifier
+            
+        # Define characters to replace with underscore
+        chars_to_replace = ['/', ':', '\\', ' ', '?', '#', '[', ']', '@', '!', '$', '&', "'", 
+                        '(', ')', '*', '+', ',', ';', '=']
+        
+        clean_id = identifier
+        for char in chars_to_replace:
+            clean_id = clean_id.replace(char, '_')
+            
+        # Remove multiple consecutive underscores
+        while '__' in clean_id:
+            clean_id = clean_id.replace('__', '_')
+            
+        # Remove leading/trailing underscores
+        clean_id = clean_id.strip('_')
+        
+        return clean_id
+
+    def _clean_format(self, format_value):
+        """
+        Clean and standardize format values.
+
+        This method takes a format value, cleans it by converting it to lowercase,
+        removing unnecessary description text, and then attempts to match it against
+        known format patterns and protocol mappings to standardize it.
+
+        Args:
+            format_value (str): The format value to be cleaned and standardized.
+
+        Returns:
+            tuple: A tuple containing the standardized format and its corresponding
+               MIME type. If no match is found, returns (None, None).
+        """
+        if not format_value:
+            return None, None
+    
+        # Convert to lowercase and strip whitespace
+        format_lower = format_value.lower().strip()
+    
+        # Remove IANA URL prefix if present
+        if 'www.iana.org/assignments/media-types/' in format_lower:
+            format_lower = format_lower.split('media-types/')[-1]
+            if format_lower.startswith('application/'):
+                format_lower = format_lower[12:]
+    
+        # Split by common separators
+        parts = format_lower.replace('-', ' ').replace('/', ' ').replace('_', ' ').split()
+        
+        # Try to find a valid format in any of the parts
+        for part in parts:
+            # First try direct match in format_patterns
+            if part in FORMAT_STANDARDIZATION['format_patterns']:
+                std_format = FORMAT_STANDARDIZATION['format_patterns'][part]
+                return std_format, FORMAT_STANDARDIZATION['mimetype_mapping'].get(std_format)
+    
+        # If no direct match found, try with the complete string
+        for pattern, std_format in FORMAT_STANDARDIZATION['format_patterns'].items():
+            if pattern in format_lower:
+                return std_format, FORMAT_STANDARDIZATION['mimetype_mapping'].get(std_format)
+    
+        # Check in protocol mapping as last resort
+        if format_lower in PROTOCOL_MAPPING:
+            protocol = PROTOCOL_MAPPING[format_lower]
+            if protocol in FORMAT_STANDARDIZATION['mimetype_mapping']:
+                return protocol, FORMAT_STANDARDIZATION['mimetype_mapping'][protocol]
+    
+        # If still no match but contains service keywords
+        for service_type in ['wms', 'wfs', 'wmts', 'wcs']:
+            if service_type in format_lower:
+                std_format = service_type.upper()
+                return std_format, FORMAT_STANDARDIZATION['mimetype_mapping'].get(std_format)
+
+        return None, None

@@ -2,7 +2,7 @@
 
 <!--
 
-  Copyright 2015-2023 EUROPEAN UNION
+  Copyright 2015-2025 EUROPEAN UNION
   Licensed under the EUPL, Version 1.2 or - as soon they will be approved by
   the European Commission - subsequent versions of the EUPL (the "Licence");
   You may not use this work except in compliance with the Licence.
@@ -437,7 +437,7 @@
 
   The default rule implies that HTTP URIs are specified for the metadata file identifier
   (metadata URI) and the resource identifier (resource URI).
-    
+
   Resource URI can be an http or https URI based on:
   * codeSpace + code value
   * code value
@@ -477,7 +477,9 @@
 
   <xsl:param name="MetadataUri">
     <xsl:variable name="mURI" select="gmd:fileIdentifier/gco:CharacterString"/>
+      <xsl:message>mURI: <xsl:value-of select="$mURI"/></xsl:message>
     <xsl:if test="$mURI != '' and ( starts-with($mURI, 'http://') or starts-with($mURI, 'https://') )">
+        <xsl:message>MetadataUri is valid: <xsl:value-of select="$mURI"/></xsl:message>
       <xsl:value-of select="$mURI"/>
     </xsl:if>
   </xsl:param>
@@ -765,7 +767,7 @@
               </xsl:call-template>
           </dct:MethodOfInstructionMore>
       </xsl:for-each>
-  </xsl:param>
+    </xsl:param>
 
     <xsl:param name="MetadataDate">
       <xsl:choose>
@@ -1136,7 +1138,7 @@
         <xsl:when test="$ResourceType = 'series'">
 <!-- DEPRECATED: Mapping kept for backward compatibility with GeoDCAT-AP v2.* and earlier versions -->
           <xsl:if test="$include-deprecated = 'yes'">
-            <rdf:type rdf:resource="{$dcat}Dataset"/>
+          <rdf:type rdf:resource="{$dcat}Dataset"/>
           </xsl:if>
 <!-- Mapping added for compliance with DCAT-AP 3 -->
           <rdf:type rdf:resource="{$dcat}DatasetSeries"/>
@@ -1412,7 +1414,7 @@
                 </xsl:call-template>
               </xsl:if>
             </xsl:when>
-            <!-- Distributions -->
+<!-- Distributions -->
             <xsl:when test="$ResourceType = 'dataset' or $ResourceType = 'series'">
               <xsl:variable name="points-to-service">
                 <xsl:call-template name="detect-service">
@@ -1425,7 +1427,7 @@
                 <xsl:when test="$points-to-service = 'yes' or $function = 'download' or $function = 'offlineAccess' or $function = 'order' or $function = 'information'">
                   <dcat:distribution>
                     <dcat:Distribution>
-                      <!-- Title and description -->
+<!-- Title and description -->
                       <xsl:copy-of select="$TitleAndDescription"/>
 <!-- Access URL -->
 <!--
@@ -1471,13 +1473,13 @@
                       </xsl:variable>
                       <dcat:mediaType rdf:resource="{$media-type}"/>
                       <dct:format rdf:resource="{$format-uri}"/>
-                      <!-- Constraints related to access and use -->
+<!-- Constraints related to access and use -->
                       <xsl:copy-of select="$ConstraintsRelatedToAccessAndUse"/>
-                      <!-- Spatial representation type (tentative) -->
+<!-- Spatial representation type (tentative) -->
                       <xsl:if test="$profile = $extended">
                         <xsl:copy-of select="$SpatialRepresentationType"/>
                       </xsl:if>
-                      <!-- Resource character encoding -->
+<!-- Resource character encoding -->
                       <xsl:if test="$profile = $extended">
                         <xsl:copy-of select="$ResourceCharacterEncoding"/>
                       </xsl:if>
@@ -1485,7 +1487,7 @@
                   </dcat:distribution>
                 </xsl:when>
                 <xsl:when test="$function = 'information' or $function = 'search'">
-                  <!-- ?? Should foaf:page be detailed with title, description, etc.? -->
+<!-- ?? Should foaf:page be detailed with title, description, etc.? -->
                   <xsl:for-each select="gmd:linkage/gmd:URL">
                     <foaf:page>
                       <foaf:Document rdf:about="{.}">
@@ -1494,7 +1496,7 @@
                     </foaf:page>
                   </xsl:for-each>
                 </xsl:when>
-                <!-- ?? Should dcat:landingPage be detailed with title, description, etc.? -->
+<!-- ?? Should dcat:landingPage be detailed with title, description, etc.? -->
                 <xsl:otherwise>
                   <xsl:for-each select="gmd:linkage/gmd:URL">
                     <dcat:landingPage>
@@ -2172,14 +2174,17 @@
     <xsl:param name="code">
       <xsl:choose>
         <xsl:when test="$CoupledResourceLookUp = 'enabled' and $href != '' and (starts-with($href, 'http://') or starts-with($href, 'https://'))">
-          <xsl:value-of select="document($href)//gmd:identificationInfo/*/gmd:citation/*/gmd:identifier/*/gmd:code/gco:CharacterString"/>
+        <xsl:value-of select="normalize-space(document($href)//gmd:identificationInfo/*/gmd:citation/*/gmd:identifier/*/gmd:code/gco:CharacterString)"/>
         </xsl:when>
-        <xsl:when test="*/gmd:citation/*/gmd:identifier/*/gmd:code/gco:CharacterString != ''">
-          <xsl:value-of select="*/gmd:citation/*/gmd:identifier/*/gmd:code/gco:CharacterString"/>
+      <xsl:when test="normalize-space(*/gmd:citation/*/gmd:identifier/*/gmd:code/gco:CharacterString) != ''">
+        <xsl:value-of select="normalize-space(*/gmd:citation/*/gmd:identifier/*/gmd:code/gco:CharacterString)"/>
         </xsl:when>
         <xsl:when test="@uuidref != ''">
           <xsl:value-of select="@uuidref"/>
         </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="''"/>
+      </xsl:otherwise>
       </xsl:choose>
     </xsl:param>
     <xsl:param name="codespace">
@@ -2698,7 +2703,7 @@
     <xsl:param name="date">
       <xsl:choose>
         <xsl:when test="gmd:date/gco:Date">
-          <xsl:value-of select="normalize-space(gmd:date/gco:Date)"/>
+      <xsl:value-of select="normalize-space(gmd:date/gco:Date)"/>
         </xsl:when>
         <xsl:when test="gmd:date/gco:DateTime">
           <xsl:value-of select="normalize-space(gmd:date/gco:DateTime)"/>
@@ -2714,23 +2719,23 @@
       </xsl:call-template>
     </xsl:param>
     <xsl:if test="$date != ''">
-      <xsl:choose>
-        <xsl:when test="$type = 'publication'">
-          <dct:issued rdf:datatype="{$xsd}{$data-type}">
-            <xsl:value-of select="$date"/>
-          </dct:issued>
-        </xsl:when>
-        <xsl:when test="$type = 'revision'">
-          <dct:modified rdf:datatype="{$xsd}{$data-type}">
-            <xsl:value-of select="$date"/>
-          </dct:modified>
-        </xsl:when>
-        <xsl:when test="$type = 'creation' and $profile = $extended">
-          <dct:created rdf:datatype="{$xsd}{$data-type}">
-            <xsl:value-of select="$date"/>
-          </dct:created>
-        </xsl:when>
-      </xsl:choose>
+    <xsl:choose>
+      <xsl:when test="$type = 'publication'">
+        <dct:issued rdf:datatype="{$xsd}{$data-type}">
+          <xsl:value-of select="$date"/>
+        </dct:issued>
+      </xsl:when>
+      <xsl:when test="$type = 'revision'">
+        <dct:modified rdf:datatype="{$xsd}{$data-type}">
+          <xsl:value-of select="$date"/>
+        </dct:modified>
+      </xsl:when>
+      <xsl:when test="$type = 'creation' and $profile = $extended">
+        <dct:created rdf:datatype="{$xsd}{$data-type}">
+          <xsl:value-of select="$date"/>
+        </dct:created>
+      </xsl:when>
+    </xsl:choose>
     </xsl:if>
   </xsl:template>
 
@@ -3422,11 +3427,11 @@
       <xsl:choose>
         <xsl:when test="@xlink:href != ''">
           <xsl:value-of select="@xlink:href"/>
-        </xsl:when>
-        <xsl:otherwise>
+      </xsl:when>
+      <xsl:otherwise>
           <xsl:value-of select="normalize-space(.)"/>
-        </xsl:otherwise>
-      </xsl:choose>
+      </xsl:otherwise>
+    </xsl:choose>
     </xsl:param>
 
     <!-- Output both dcat:mediaType and dct:format -->
@@ -3929,7 +3934,7 @@
 
   <xsl:template name="ReferenceSystem" match="gmd:referenceSystemInfo/gmd:MD_ReferenceSystem/gmd:referenceSystemIdentifier/gmd:RS_Identifier">
     <xsl:param name="MetadataLanguage"/>
-    <xsl:param name="code" select="gmd:code/*[self::gco:CharacterString|gmx:Anchor]"/>
+    <xsl:param name="code" select="gmd:code/*[self::gco:CharacterString|self::gmx:Anchor]"/>
     <xsl:param name="link" select="gmd:code/gmx:Anchor/@xlink:href"/>
     <xsl:param name="codespace" select="gmd:codeSpace/*[self::gco:CharacterString|gmx:Anchor]"/>
     <xsl:param name="version" select="gmd:version/*[self::gco:CharacterString|gmx:Anchor]"/>
@@ -4008,7 +4013,7 @@
       </xsl:when>
       <xsl:otherwise>
         <xsl:choose>
-          <xsl:when test="number($code) = number($code) and (translate($codespace,$uppercase,$lowercase) = 'epsg' or starts-with(translate($codespace,$uppercase,$lowercase),translate($EpsgSrsBaseUrn,$uppercase,$lowercase)))">
+          <xsl:when test="$code != '' and number($code) = number($code) and (translate($codespace,$uppercase,$lowercase) = 'epsg' or starts-with(translate($codespace,$uppercase,$lowercase),translate($EpsgSrsBaseUrn,$uppercase,$lowercase)))">
             <geodcatap:referenceSystem>
               <rdf:Description rdf:about="{$EpsgSrsBaseUri}/{$code}">
                 <rdf:type rdf:resource="{$dct}Standard"/>
@@ -4207,20 +4212,20 @@
 <!-- Templates for services and distributions pointing to services -->
 <xsl:variable name="service-keywords" select="'request=getcapabilities|rest/services'" />
 
-<xsl:template name="detect-service">
-  <xsl:param name="function"/>
-  <xsl:param name="protocol"/>
-  <xsl:param name="url"/>
+  <xsl:template name="detect-service">
+    <xsl:param name="function"/>
+    <xsl:param name="protocol"/>
+    <xsl:param name="url"/>
   <xsl:variable name="lowercase-url" select="substring-after(translate($url, $uppercase, $lowercase), '?')" />
-  <xsl:choose>
+    <xsl:choose>
     <xsl:when test="matches($lowercase-url, $service-keywords)">
-      <xsl:text>yes</xsl:text>
-    </xsl:when>
-    <xsl:otherwise>
-      <xsl:text>no</xsl:text>
-    </xsl:otherwise>
-  </xsl:choose>
-</xsl:template>
+        <xsl:text>yes</xsl:text>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:text>no</xsl:text>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
   <xsl:template name="service-protocol-code">
     <xsl:param name="function"/>
     <xsl:param name="protocol"/>
@@ -4550,6 +4555,6 @@
       <xsl:value-of select="concat($iana-mt, 'application/', translate($protocol, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'))"/>
     </xsl:otherwise>
   </xsl:choose>
-</xsl:template>
+  </xsl:template>
 
 </xsl:transform>

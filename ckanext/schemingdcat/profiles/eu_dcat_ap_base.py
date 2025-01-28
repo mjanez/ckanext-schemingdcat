@@ -141,7 +141,6 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
             ("modified", DCT.modified),
             ("identifier", DCT.identifier),
             ("version_notes", ADMS.versionNotes),
-            ("frequency", DCT.accrualPeriodicity),
             ("dcat_type", DCT.type),
         ):
 
@@ -246,6 +245,24 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
                 dataset_dict["extras"].append(
                     {"key": "provenance", "value": provenance_description}
                 )
+        
+        # Frequency
+        frequency = self._object_value(dataset_ref, DCT.accrualPeriodicity)
+        if frequency:
+            if isinstance(frequency, URIRef):
+                # Handle direct URI case
+                dataset_dict["extras"].append(
+                    {"key": "frequency", "value": str(frequency)}
+                )
+            else:
+                # Try to get frequency from Frequency node
+                for freq in self.g.subjects(RDF.type, DCT.Frequency):
+                    freq_uri = self.g.value(freq, None, any=False)
+                    if freq_uri:
+                        dataset_dict["extras"].append(
+                            {"key": "frequency", "value": str(freq_uri)}
+                        )
+                        break
 
         # DCAT-AP: Themes, tags and tag_uri
         for key, predicate in (
@@ -271,7 +288,6 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
                 ("modified", DCT.modified),
                 ("status", ADMS.status),
                 ("license_url", DCT.license),
-                ("rights", DCT.rights),
             ):
                 multilingual = key in multilingual_fields
                 value = self._object_value(
@@ -348,6 +364,23 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
             # Remember the (internal) distribution reference for referencing in
             # further profiles, e.g. for adding more properties
             resource_dict["distribution_ref"] = str(distribution)
+
+            # Handle rights separately to support RightsStatement nodes
+            rights = None
+            for obj in self.g.objects(distribution, DCT.accessRights):
+                if isinstance(obj, URIRef):
+                    rights = str(obj)
+                    break
+                else:
+                    # Check if it's a RightsStatement node
+                    if self.g.value(obj, RDF.type) == DCT.RightsStatement:
+                        rights_uri = self.g.value(obj, None, any=False)
+                        if rights_uri:
+                            rights = str(rights_uri)
+                            break
+
+            if rights:
+                resource_dict["rights"] = rights
 
             dataset_dict["resources"].append(resource_dict)
 
@@ -440,6 +473,7 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
             ("conforms_to", DCT.conformsTo, None, URIRefOrLiteral, DCT.Standard),
             ("documentation", FOAF.page, None, URIRefOrLiteral, FOAF.Document),
             ("related_resource", DCT.relation, None, URIRefOrLiteral, RDFS.Resource),
+            ("reference", DCT.isReferencedBy, None, URIRefOrLiteral, RDFS.Resource),
             ("has_version", DCT.hasVersion, None, URIRefOrLiteral),
             ("is_version_of", DCT.isVersionOf, None, URIRefOrLiteral),
             ("source", DCT.source, None, URIRefOrLiteral),
@@ -1104,4 +1138,3 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
     def _is_valid_eu_authority_table(self, value: str, table: str) -> bool:
         """Validate EU Publications authority table"""
         return value and value.startswith(f'{EU_VOCAB_AUTHORITY_TABLES_BASE_URI}/{table}/')
-    

@@ -5,7 +5,8 @@ BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../..'))
 
 # XLSTransformer configuration
 XLST_MAPPINGS_DIR = os.path.join(BASE_DIR, 'ckanext/schemingdcat/lib/csw_mapper/xslt/mappings')
-DEFAULT_XSLT_FILE = 'https://raw.githubusercontent.com/mjanez/iso-19139-to-dcat-ap/refs/heads/main/iso-19139-to-dcat-ap.xsl'
+# GeoDCAT-AP official XSLT
+DEFAULT_XSLT_FILE = 'https://raw.githubusercontent.com/SEMICeu/iso-19139-to-dcat-ap/refs/heads/geodcat-ap-2.0.0/iso-19139-to-dcat-ap.xsl'
 
 # CSW processor configuration
 CSW_DEFAULT_LIMIT = None
@@ -64,7 +65,52 @@ PROTOCOL_MAPPING = {
     'www:link-1.0-http-rss': 'HTTP',                # rss news feed (url)
     'www:link-1.0-http-samples': 'HTTP',            # showcase product (url)
     'www:link-1.0-http-opendap': 'HTTP',            # opendap url
+    'web map service': 'WMS',
+    'web feature service': 'WFS',
+    'web coverage service': 'WCS',
+    'web map tile service': 'WMTS',
+    'html': 'HTML',
+    'htm': 'HTML',
+    'octet-stream': 'BINARY',
+    'aspx': 'HTML',
+    'www:download': 'HTTP',
+    'www:link': 'HTTP',
+    'application/octet-stream': 'BINARY',
+    'application/html': 'HTML',
+    'text/html': 'HTML',
     # Add other mappings as needed
+}
+
+FORMAT_STANDARDIZATION = {
+    'format_patterns': {
+        'wms': 'WMS',
+        'web map service': 'WMS',
+        'ogc:wms': 'WMS',
+        'wfs': 'WFS',
+        'web feature service': 'WFS',
+        'ogc:wfs': 'WFS',
+        'wmts': 'WMTS',
+        'web map tile service': 'WMTS',
+        'html': 'HTML',
+        'htm': 'HTML',
+        'binary': 'BINARY',
+        'octet-stream': 'BINARY',
+        'application/octet-stream': 'BINARY',
+        'visor': 'HTML',
+        'viewer': 'HTML',
+        'enlace': 'HTML',
+        'link': 'HTML',
+        'html': 'HTML',
+        'htm': 'HTML',
+        'web': 'HTML',
+    },
+    'mimetype_mapping': {
+        'WMS': 'application/vnd.ogc.wms_xml',
+        'WFS': 'application/gml+xml',
+        'WMTS': 'application/vnd.ogc.wmts+xml',
+        'HTML': 'text/html',
+        'BINARY': 'application/octet-stream',
+    }
 }
 
 SERVICE_FORMAT = 'SERVICE'

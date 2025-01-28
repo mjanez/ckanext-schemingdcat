@@ -324,6 +324,11 @@ class EuDCATAP2Profile(BaseEuDCATAPProfile):
                         (dataset_ref, DCAT.spatialResolutionInMeters, Literal(spatial_resolution))
                     )
 
+        # Clean up applicable_legislation that are not URIs
+        for legislation in self.g.objects(dataset_ref, DCATAP.applicableLegislation):
+            if not isinstance(legislation, URIRef):
+                self.g.remove((dataset_ref, DCATAP.applicableLegislation, legislation))
+
         # Resources
         for resource_dict in dataset_dict.get("resources", []):
 
@@ -395,6 +400,11 @@ class EuDCATAP2Profile(BaseEuDCATAPProfile):
                 ),
             ]
             self._add_list_triples_from_dict(resource_dict, distribution_ref, items)
+            
+            # Clean up applicable_legislation that are not URIs
+            for legislation in self.g.objects(distribution_ref, DCATAP.applicableLegislation):
+                if not isinstance(legislation, URIRef):
+                    self.g.remove((distribution_ref, DCATAP.applicableLegislation, legislation))
             
             # DCAT Data Service. ckanext-schemingdcat: DCAT-AP Enhancements
             access_service_list = resource_dict.get("access_services", [])
@@ -507,6 +517,11 @@ class EuDCATAP2Profile(BaseEuDCATAPProfile):
 
                 # Append dcat:DataService to dcat:Catalog
                 self.g.add((URIRef(catalog_ref), DCAT.service, access_service_node))   
+
+                # Clean up applicable_legislation that are not URIs
+                for legislation in self.g.objects(access_service_node, DCATAP.applicableLegislation):
+                    if not isinstance(legislation, URIRef):
+                        self.g.remove((access_service_node, DCATAP.applicableLegislation, legislation))
 
             if access_service_list:
                 resource_dict["access_services"] = json.dumps(access_service_list)
