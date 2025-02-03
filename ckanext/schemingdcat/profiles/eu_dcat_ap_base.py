@@ -334,9 +334,8 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
             )
             imt, label = self._distribution_format(distribution, normalize_ckan_format)
 
-            if imt:
+            if imt and self._is_valid_iana_mediatype(imt):
                 resource_dict["mimetype"] = imt
-
             if label:
                 resource_dict["format"] = label
             elif imt:
@@ -830,9 +829,12 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
             # mediaType only IANA. IANA media types (either URI or Literal) should be mapped as mediaType.
             # In case format is available and mimetype is not set or identical to format,
             # check which type is appropriate.
-            if self._is_valid_iana_mediatype(mimetype):
-                mimetype = URIRef(mimetype)
-                g.add((distribution, DCAT.mediaType, mimetype))
+            if mimetype and self._is_valid_iana_mediatype(mimetype):
+                try:
+                    mimetype_uri = URIRef(mimetype)
+                    g.add((distribution, DCAT.mediaType, mimetype_uri))
+                except Exception as e:
+                    log.warning(f"Failed to create URIRef for mediaType {mimetype}: {str(e)}")
 
             # Try to match format field
             fmt = self._search_value_codelist(MD_FORMAT, fmt, "label", "id") or fmt
@@ -1130,10 +1132,37 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
         return URIRef(dcat_ap_value)
     
     def _is_valid_iana_mediatype(self, value: str) -> bool:
-        """Validate IANA media type URI"""
-        return value and (
-            value.startswith(IANA_MEDIA_TYPES_BASE_URI)
+        """
+        Validate if a string is a valid IANA media type URI or exists in MD_FORMAT media_type column.
+        
+        Args:
+            value (str): The value to validate
+            
+        Returns:
+            bool: True if valid IANA media type URI or exists in MD_FORMAT, False otherwise
+        """
+        if not value:
+            return False
+    
+        # First check if it's a valid IANA URI
+        if value.startswith(IANA_MEDIA_TYPES_BASE_URI) and ' ' not in value:
+            try:
+                from urllib.parse import urlparse
+                result = urlparse(value)
+                return all([result.scheme, result.netloc])
+            except:
+                return False
+                
+        # If not a URI, check if it exists in MD_FORMAT media_type column
+        media_type_exists = self._search_value_codelist(
+            MD_FORMAT,
+            value, 
+            "media_type",  # input field is media_type 
+            "media_type",  # output field also media_type
+            return_value=False  # we just want to know if it exists
         )
+        
+        return media_type_exists is not None
 
     def _is_valid_eu_authority_table(self, value: str, table: str) -> bool:
         """Validate EU Publications authority table"""
