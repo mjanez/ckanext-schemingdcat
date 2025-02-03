@@ -329,6 +329,19 @@ class EuDCATAP2Profile(BaseEuDCATAPProfile):
             if not isinstance(legislation, URIRef):
                 self.g.remove((dataset_ref, DCATAP.applicableLegislation, legislation))
 
+        # DCAT 2: byteSize decimal
+        for subject, predicate, object in self.g.triples((None, DCAT.byteSize, None)):
+            if object and object.datatype != XSD.decimal or not object.datatype:
+                self.g.remove((subject, predicate, object))
+
+                self.g.add(
+                    (
+                        subject,
+                        predicate,
+                        Literal(int(object), datatype=XSD.decimal),
+                    )
+                )
+
         # Resources
         for resource_dict in dataset_dict.get("resources", []):
 
