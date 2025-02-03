@@ -592,14 +592,36 @@ class SchemingDCATRDFProfile(RDFProfile):
             url (str): The URL to validate and add
             fallback_url (str): The fallback URL to use if the URL is not valid
         """
+        
+        def normalize_url(url_str):
+            if not url_str:
+                return None
+    
+            url_str = url_str.strip()
+    
+            # Fix missing slash after protocol if needed
+            if re.match(r'^https?:/?[^/]', url_str):
+                url_str = re.sub(r'^(https?:/?)', r'\1/', url_str)
+    
+            # Add protocol if missing but looks like a URL
+            if not url_str.startswith(('http://', 'https://')) and re.match(r'^[^/]+\.[^/]+/', url_str):
+                url_str = 'https://' + url_str
+    
+            # Remove excessive slashes after the protocol
+            url_str = re.sub(r'(?<!:)/{2,}', '/', url_str)
+            
+            return url_str
+        
         if isinstance(url, str):
-            encoded_url = quote(url, safe=':/?&=')
+            normal_url = normalize_url(url)
+            encoded_url = quote(normal_url, safe=':/?&=')
             if is_url(encoded_url):
                 graph.add((subject, predicate, URIRef(encoded_url)))
                 return True
                 
         if fallback_url and isinstance(fallback_url, str):
-            encoded_fallback = quote(fallback_url, safe=':/?&=')
+            normal_url = normalize_url(fallback_url)
+            encoded_fallback = quote(normal_url, safe=':/?&=')
             if is_url(encoded_fallback):
                 graph.add((subject, predicate, URIRef(encoded_fallback)))
                 return True
