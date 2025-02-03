@@ -69,8 +69,11 @@ from ckanext.schemingdcat.profiles.dcat_config import (
 config = toolkit.config
 
 DISTRIBUTION_LICENSE_FALLBACK_CONFIG = "ckanext.dcat.resource.inherit.license"
+CATALOG_PUBLISHER_IDENTIFIER_CONFIG = 'ckanext.schemingdcat.dcat_ap.publisher.identifier'
+CATALOG_PUBLISHER_TYPE_CONFIG = 'ckanext.schemingdcat.dcat_ap.publisher.type'
 
 log = logging.getLogger(__name__)
+
 
 class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
     """
@@ -409,6 +412,10 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
 
         g.add((dataset_ref, RDF.type, DCAT.Dataset))
 
+        # Catalog publisher details
+        catalog_publisher_identifier = config.get(CATALOG_PUBLISHER_IDENTIFIER_CONFIG, None)
+        catalog_publisher_type = config.get(CATALOG_PUBLISHER_TYPE_CONFIG, eu_dcat_ap_default_values["publisher_type"])
+
         # Basic fields
         title_key = (
             "title_translated"
@@ -639,34 +646,61 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
 
             self._add_triples_from_dict(publisher_details, publisher_ref, items)
 
-        # Creator
+        # dct:Creator (Creator/Author)
         creator_ref = None
-
-        if dataset_dict.get("creator"):
-            # Scheming publisher field: will be handled in a separate profile
-            pass
-        elif any(
-            [
-                self._get_dataset_value(dataset_dict, "creator_uri"),
-                self._get_dataset_value(dataset_dict, "creator_name"),
-            ]
-        ):
-            # Legacy creator_* extras
-            creator_uri = self._get_dataset_value(dataset_dict, "creator_uri")
-            creator_name = self._get_dataset_value(dataset_dict, "creator_name")
-            if creator_uri:
-                creator_ref = CleanedURIRef(creator_uri)
-            else:
-                # No creator_uri
-                creator_ref = BNode()
-
+        creator_details = {}
+        
+        # Check for creator/author in dataset_dict
+        creator_name = (dataset_dict.get("creator_name") or 
+                        dataset_dict.get("author_name"))
+        
+        if creator_name:
+            # Get creator details with fallbacks
+            creator_uri = (self._get_dataset_value(dataset_dict, "creator_uri") or 
+                          self._get_dataset_value(dataset_dict, "author_uri"))
+            
+            # Create reference
+            creator_ref = CleanedURIRef(creator_uri) if creator_uri else BNode()
+            
+            # Build details with publisher fallbacks
             creator_details = {
                 "name": creator_name,
-                "email": self._get_dataset_value(dataset_dict, "creator_email"),
-                "url": self._get_dataset_value(dataset_dict, "creator_url"),
-                "type": self._get_dataset_value(dataset_dict, "creator_type"),
-                "identifier": self._get_dataset_value(dataset_dict, "creator_identifier"),
+                "email": (self._get_dataset_value(dataset_dict, "creator_email") or 
+                         self._get_dataset_value(dataset_dict, "author_email") or 
+                         publisher_details.get("email")),
+                "url": (self._get_dataset_value(dataset_dict, "creator_url") or 
+                       self._get_dataset_value(dataset_dict, "author_url")),
+                "type": (self._get_dataset_value(dataset_dict, "creator_type") or 
+                        self._get_dataset_value(dataset_dict, "author_type") or 
+                        catalog_publisher_type if catalog_publisher_type else None),
+                "identifier": (self._get_dataset_value(dataset_dict, "creator_identifier") or 
+                              self._get_dataset_value(dataset_dict, "author_identifier") or 
+                              catalog_publisher_identifier if catalog_publisher_identifier else None)
             }
+            
+            # Remove None values
+            creator_details = {k: v for k, v in creator_details.items() if v is not None}
+        
+        # Add to graph
+        if creator_ref and creator_details:
+            g.add((creator_ref, RDF.type, FOAF.Agent))
+            g.add((dataset_ref, DCT.creator, creator_ref))
+            
+            # Handle email with mailto: prefix
+            if "email" in creator_details:
+                email = creator_details["email"]
+                if email and not str(email).startswith("mailto:"):
+                    creator_details["email"] = f"mailto:{email}"
+        
+            items = [
+                ("name", FOAF.name, None, Literal),
+                ("email", FOAF.mbox, None, URIRef),
+                ("url", FOAF.homepage, None, URIRef),
+                ("type", DCT.type, None, URIRefOrLiteral),
+                ("identifier", DCT.identifier, None, URIRefOrLiteral),
+            ]
+            
+            self._add_triples_from_dict(creator_details, creator_ref, items)
 
         # Add to graph
         if creator_ref:
@@ -832,7 +866,8 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
             if mimetype and self._is_valid_iana_mediatype(mimetype):
                 try:
                     mimetype_uri = URIRef(mimetype)
-                    g.add((distribution, DCAT.mediaType, mimetype_uri))
+                    g.add((distribution, DCAT.mediaType, mimetype_uri, DCT.MediaType))                    
+                    
                 except Exception as e:
                     log.warning(f"Failed to create URIRef for mediaType {mimetype}: {str(e)}")
 

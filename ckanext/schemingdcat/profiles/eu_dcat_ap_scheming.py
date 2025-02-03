@@ -185,9 +185,9 @@ class EuDCATAPSchemingDCATProfile(SchemingDCATRDFProfile):
             self._add_agents(dataset_ref, dataset_dict, "publisher", DCT.publisher)
 
         # ckanext-schemingdcat:'author' or 'creator' check
-        if 'creator' in dataset_dict:
+        if 'creator' in dataset_dict and not self.g.objects(dataset_ref, DCT.creator):
             self._add_agents(dataset_ref, dataset_dict, "creator", DCT.creator)
-        elif 'author' in dataset_dict:
+        elif 'author' in dataset_dict and not self.g.objects(dataset_ref, DCT.creator):
             self._add_agents(dataset_ref, dataset_dict, "author", DCT.creator)
 
         # Remove existing temporal triples to avoid duplication
