@@ -374,7 +374,6 @@ class EuDCATAP2Profile(BaseEuDCATAPProfile):
 
             # Temporal resolution
             temporal_resolution = resource_dict.get("temporal_resolution")
-            log.debug('temporal_resolution:%s', temporal_resolution)
             if temporal_resolution and self._is_valid_temporal_resolution(temporal_resolution):
                 self.g.add((
                     distribution_ref, 
