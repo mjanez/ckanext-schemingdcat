@@ -581,25 +581,30 @@ class SchemingDCATRDFProfile(RDFProfile):
                     )
                     dataset_dict[publisher_key] = dataset_dict[contact_key]
 
-    def _add_valid_url_to_graph(self, graph, subject, predicate, url, fallback_url):
+    def _add_valid_url_to_graph(self, graph, subject, predicate, url, fallback_url=None):
         """
-        Add a valid URL to the graph. If the URL is not valid, use the fallback URL.
+        Add a valid URL to the graph. Only adds if URL is valid or fallback exists.
         
         Args:
-            graph (rdflib.Graph): The RDF graph.
-            subject (rdflib.term.URIRef): The subject of the triple.
-            predicate (rdflib.term.URIRef): The predicate of the triple.
-            url (str): The URL to validate and add.
-            fallback_url (str): The fallback URL to use if the URL is not valid.
+            graph (rdflib.Graph): The RDF graph
+            subject (rdflib.term.URIRef): The subject of the triple
+            predicate (rdflib.term.URIRef): The predicate of the triple
+            url (str): The URL to validate and add
+            fallback_url (str): The fallback URL to use if the URL is not valid
         """
         if isinstance(url, str):
             encoded_url = quote(url, safe=':/?&=')
-            valid_url = URIRef(encoded_url) if is_url(encoded_url) else None
-            if valid_url:
-                graph.add((subject, predicate, valid_url))
-            elif fallback_url and isinstance(fallback_url, str):
-                encoded_fallback_url = quote(fallback_url, safe=':/?&=')
-                graph.add((subject, predicate, URIRef(encoded_fallback_url)))
+            if is_url(encoded_url):
+                graph.add((subject, predicate, URIRef(encoded_url)))
+                return True
+                
+        if fallback_url and isinstance(fallback_url, str):
+            encoded_fallback = quote(fallback_url, safe=':/?&=')
+            if is_url(encoded_fallback):
+                graph.add((subject, predicate, URIRef(encoded_fallback)))
+                return True
+                
+        return False
 
     def _is_direct_download_url(self, url):
         """
