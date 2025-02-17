@@ -899,6 +899,7 @@ class SchemingDCATRDFProfile(RDFProfile):
         )
         
         list(map(graph.remove, empty_triples))
+
     def _add_provenance_statement_to_graph(self, data_dict, key, subject, predicate, _class=None):
         """
         Adds a provenance statement property to the graph.
@@ -940,3 +941,27 @@ class SchemingDCATRDFProfile(RDFProfile):
         # Añade cada descripción
         for _literal in _objects:
             self.g.add((statement_ref, DCT.description, _literal))
+
+    def _ensure_language_triple(self, subject_ref, default_lang_uri):
+        """
+        Ensures a DCT.language triple exists for the subject_ref, adding default if missing.
+
+        Checks if DCT.language exists for the given subject reference. If it doesn't exist,
+        adds the default language URI. If it exists but doesn't match the default, adds 
+        the default language as an additional value.
+
+        Args:
+            subject_ref (rdflib.term.URIRef): The subject reference (dataset or distribution)
+            default_lang_uri (str): The default language URI to add if missing
+
+        Returns:
+            None: Modifies the graph in place
+        """
+        existing_langs = list(self.g.objects(subject_ref, DCT.language))
+        default_uri = URIRef(default_lang_uri)
+        if not existing_langs:
+            # No language -> add default language
+            self.g.add((subject_ref, DCT.language, default_uri))
+        elif default_uri not in existing_langs:
+            # there are languages, but not the one we want -> add it
+            self.g.add((subject_ref, DCT.language, default_uri))
