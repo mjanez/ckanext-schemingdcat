@@ -776,14 +776,16 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
             )
         )
 
-        # Statetements
-        self._add_statement_to_graph(
-            dataset_dict,
-            "provenance",
-            dataset_ref,
-            DCT.provenance,
-            DCT.ProvenanceStatement
-        )
+        # Statetements   
+        provenance_info = self._get_dataset_value(dataset_dict, "provenance")
+        if provenance_info:
+            self._add_provenance_statement_to_graph(
+                dataset_dict,
+                "provenance",
+                dataset_ref,
+                DCT.provenance,
+                DCT.ProvenanceStatement
+            )
 
         # DCAT-AP: http://publications.europa.eu/en/web/eu-vocabularies/at-dataset/-/resource/dataset/access-right
         access_rights_url = self._get_access_rights_uri(dataset_dict.get('access_rights', None))

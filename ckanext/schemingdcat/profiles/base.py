@@ -8,7 +8,7 @@ from datetime import datetime, timezone
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 from dateutil.parser import parse as date_parse
 
-from rdflib import term, URIRef, Literal, Graph
+from rdflib import term, URIRef, Literal, Graph, BNode
 
 from ckantoolkit import config, get_action, aslist
 from ckan.lib.helpers import is_url
@@ -899,3 +899,44 @@ class SchemingDCATRDFProfile(RDFProfile):
         )
         
         list(map(graph.remove, empty_triples))
+    def _add_provenance_statement_to_graph(self, data_dict, key, subject, predicate, _class=None):
+        """
+        Adds a provenance statement property to the graph.
+        If it is a Literal value, it is added as a node (with a class if provided)
+        with a DCT.description property, eg:
+
+            <your-dataset> dct:provenance [
+            rdf:type dct:ProvenanceStatement ;
+            dct:description "Texto del dataset_dict['provenance']"@en
+            ] .
+
+        """
+        value = self._get_dict_value(data_dict, key)
+        if not value:
+            return
+
+        if isinstance(value, dict):
+            _objects = []
+            for lang_code, text_val in value.items():
+                if text_val and text_val.strip():
+                    _objects.append(Literal(text_val.strip(), lang=lang_code))
+        else:
+            # Para cadenas simples, se anexa sólo si no está vacío
+            if value and value.strip():
+                # Por defecto sin idioma, o podrías usar el CFG default_lang
+                _objects = [Literal(value.strip(), lang="en")]
+            else:
+                _objects = []
+    
+        # Si no hay contenido válido, no creamos nodo
+        if not _objects:
+            return
+    
+        statement_ref = BNode()
+        self.g.add((subject, predicate, statement_ref))
+        if _class:
+            self.g.add((statement_ref, RDF.type, _class))
+    
+        # Añade cada descripción
+        for _literal in _objects:
+            self.g.add((statement_ref, DCT.description, _literal))
