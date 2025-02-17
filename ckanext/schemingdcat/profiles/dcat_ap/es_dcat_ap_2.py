@@ -259,11 +259,7 @@ class EsDCATAP2Profile(EuDCATAP2Profile):
 
         # Resources
         for resource_dict in dataset_dict.get("resources", []):
-
             distribution_ref = CleanedURIRef(resource_uri(resource_dict))
-
-            # Ensure ES language exists in dct:language props
-            self._ensure_language_triple(distribution_ref, 'http://publications.europa.eu/resource/authority/language/ENG')
 
         # DCAT-AP-ES. Properties to check for at least "es" lang
         self._graph_add_default_language_literals(self.g, eu_dcat_ap_literals_to_check)
