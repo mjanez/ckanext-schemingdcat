@@ -13,6 +13,7 @@ from rdflib import term, URIRef, Literal, Graph, BNode
 from ckantoolkit import config, get_action, aslist
 from ckan.lib.helpers import is_url
 
+from ckanext.dcat.utils import catalog_uri
 from ckanext.dcat.profiles.base import RDFProfile, URIRefOrLiteral, CleanedURIRef, DEFAULT_SPATIAL_FORMATS, GEOJSON_IMT, InvalidGeoJSONException, wkt
 from ckanext.schemingdcat.config import (
     translate_validator_tags
@@ -85,6 +86,7 @@ namespaces = {
 }
 
 default_lang = config.get("ckan.locale_default", "en")
+catalog_base_ref =  config.get('ckan.site_url', None)
 
 log = logging.getLogger(__name__)
 
@@ -965,3 +967,92 @@ class SchemingDCATRDFProfile(RDFProfile):
         elif default_uri not in existing_langs:
             # there are languages, but not the one we want -> add it
             self.g.add((subject_ref, DCT.language, default_uri))
+            
+    def _process_dct_identifier(self, identifier, mandatory=False):
+        """
+        Process dct:identifier to ensure it's a valid literal.
+        
+        Args:
+            identifier (str): The identifier to process
+            mandatory (bool): If True, always return last part of URI as string
+                            If False, return None if no valid identifier found
+            
+        Returns:
+            str or None: Processed identifier or None if invalid and not mandatory
+        """
+        try:
+            if not identifier:
+                return None if not mandatory else identifier
+                
+            # If it's a URI, extract the last part
+            if identifier.startswith(('http://', 'https://')):
+                # Remove trailing slashes and get last part
+                parts = identifier.rstrip('/').split('/')
+                if len(parts) > 1:
+                    return str(parts[-1])  # Force string type
+                return identifier if mandatory else None
+                
+            # If it's not a URI, return as-is
+            return str(identifier)  # Force string type
+            
+        except Exception as e:
+            log.warning(f"Error processing publisher identifier: {str(e)}")
+            return identifier if mandatory else None
+        
+    def _create_uri_ref(self, identifier, role="contact", base_ref=None):
+        """
+        Create a reference URI for entities like contacts or other vcard roles.
+        
+        This function creates a URI reference using a provided identifier and role.
+        If the identifier is valid, it constructs a URI in the format:
+        {base_ref}/kos/role/{processed_identifier}/{role}
+        
+        Args:
+            identifier (str): The identifier to use in the URI. Can be a full URI 
+                or a simple string.
+            role (str, optional): The role to append to the URI path. Used to 
+                categorize different types of entities. Defaults to "contact".
+            base_ref (str, optional): The base URI to use. If not provided, uses
+                cached value or falls back to ckan.site_url config.
+                
+        Returns:
+            URIRef or BNode: A cleaned URI reference if successful, or a blank node
+                if the creation fails.
+                
+        Notes:
+            - Uses caching for base_ref to improve performance
+            - Handles various edge cases like empty/invalid identifiers
+            - Always returns either a valid URIRef or a BNode
+            - Processes identifiers to extract meaningful parts from URIs
+            
+        Examples:
+            >>> _create_uri_ref("123", "publisher")
+            URIRef('http://example.com/kos/role/123/publisher')
+            
+            >>> _create_uri_ref("http://data.ex.com/org/123", "contact")
+            URIRef('http://example.com/kos/role/123/contact')
+            
+            >>> _create_uri_ref(None)
+            BNode('Nxxx')
+        """
+        try:
+            if not base_ref:
+                base_ref = catalog_base_ref or config.get('ckan.site_url')
+            
+            if identifier:
+                # Process the identifier with mandatory=True to always get a string
+                processed_id = self._process_dct_identifier(identifier, mandatory=True)
+                if processed_id:
+                    # Clean and normalize components
+                    base = base_ref.rstrip('/')
+                    role = role.strip().lower() if role else 'contact'
+                    processed_id = processed_id.strip()
+                    
+                    # Construct URI
+                    uri = f"{base}/kos/role/{processed_id}/{role}"
+                    return CleanedURIRef(uri)
+                
+            return BNode()
+            
+        except Exception as e:
+            return BNode()

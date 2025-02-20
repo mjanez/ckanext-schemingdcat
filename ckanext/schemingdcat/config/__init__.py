@@ -45,7 +45,8 @@ __all__ = [
     'DCAT_AP_HVD_CATEGORY_LEGISLATION',
     'DCAT_AP_DATASTORE_DATASERVICE',
     'CONTACT_PUBLISHER_FALLBACK',
-    
+    'BASE_VOCABS',
+
     # From tools.py
     'linkeddata_links',
     'geometadata_links',
@@ -84,6 +85,7 @@ __all__ = [
     'RESOURCE_TYPES',
     'FILE_TYPES',
     'FORMAT_STANDARDIZATION',
+    'LANGUAGE_MAPPINGS',
     ## CSW processor configuration
     'CSW_DEFAULT_LIMIT',
     'CQL_QUERY_DEFAULT',

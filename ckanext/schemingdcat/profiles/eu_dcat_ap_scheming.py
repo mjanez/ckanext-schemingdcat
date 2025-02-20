@@ -148,26 +148,28 @@ class EuDCATAPSchemingDCATProfile(SchemingDCATRDFProfile):
         """
         contact = dataset_dict.get("contact")
         if (
-            isinstance(contact, list)
+            len(list(self.g.objects(dataset_ref, DCAT.contactPoint))) == 0
+            and isinstance(contact, list)            
             and len(contact)
             and self._not_empty_dict(contact[0])
         ):
             for item in contact:
                 contact_uri = item.get("uri")
                 if contact_uri:
-                    contact_details = CleanedURIRef(contact_uri)
+                    contact_ref = CleanedURIRef(self._create_uri_ref(contact_uri, "contact"))
                 else:
-                    contact_details = BNode()
+                    # No publisher_uri
+                    contact_ref = BNode()
 
-                self.g.add((contact_details, RDF.type, VCARD.Kind))
-                self.g.add((dataset_ref, DCAT.contactPoint, contact_details))
+                self.g.add((contact_ref, RDF.type, VCARD.Kind))
+                self.g.add((dataset_ref, DCAT.contactPoint, contact_ref))
 
-                if not self._object_value(contact_details, VCARD.fn):
-                    self._add_triple_from_dict(item, contact_details, VCARD.fn, "name")
+                if not self._object_value(contact_ref, VCARD.fn):
+                    self._add_triple_from_dict(item, contact_ref, VCARD.fn, "name")
                 # Add mail address as URIRef, and ensure it has a mailto: prefix
                 self._add_triple_from_dict(
                     item,
-                    contact_details,
+                    contact_ref,
                     VCARD.hasEmail,
                     "email",
                     _type=URIRef,
@@ -175,19 +177,19 @@ class EuDCATAPSchemingDCATProfile(SchemingDCATRDFProfile):
                 )
                 self._add_triple_from_dict(
                     item,
-                    contact_details,
+                    contact_ref,
                     VCARD.hasUID,
                     "identifier",
                     _type=URIRefOrLiteral,
                 )
-
-        if not self.g.objects(dataset_ref, DCT.publisher):
+        # If publisher not already present
+        if len(list(self.g.objects(dataset_ref, DCT.publisher))) == 0:
             self._add_agents(dataset_ref, dataset_dict, "publisher", DCT.publisher)
 
         # ckanext-schemingdcat:'author' or 'creator' check
-        if 'creator' in dataset_dict and not self.g.objects(dataset_ref, DCT.creator):
+        if 'creator' in dataset_dict and len(list(self.g.objects(dataset_ref, DCT.creator))) == 0:
             self._add_agents(dataset_ref, dataset_dict, "creator", DCT.creator)
-        elif 'author' in dataset_dict and not self.g.objects(dataset_ref, DCT.creator):
+        elif 'author' in dataset_dict and len(list(self.g.objects(dataset_ref, DCT.creator))) == 0:
             self._add_agents(dataset_ref, dataset_dict, "author", DCT.creator)
 
         # Remove existing temporal triples to avoid duplication

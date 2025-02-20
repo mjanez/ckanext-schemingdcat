@@ -304,7 +304,7 @@ class EuDCATAP2Profile(BaseEuDCATAPProfile):
                     spatial_ref, DCAT.centroid, spatial_cent
                 )
 
-        # Spatial resolution in meters
+        # Spatial resolution in meters (0..1)
         spatial_resolution_in_meters = self._read_list_value(
             self._get_dataset_value(dataset_dict, "spatial_resolution_in_meters")
         )
@@ -381,25 +381,22 @@ class EuDCATAP2Profile(BaseEuDCATAPProfile):
                     Literal(temporal_resolution, datatype=XSD.duration)
                 ))
 
-            # Spatial resolution in meters
-            spatial_resolution_in_meters = self._read_list_value(
-                self._get_dataset_value(resource_dict, "spatial_resolution_in_meters")
-            )
+            # Spatial resolution in meters (0..1)
+            spatial_resolution_in_meters = resource_dict.get("spatial_resolution_in_meters")
             if spatial_resolution_in_meters:
-                for value in spatial_resolution_in_meters:
-                    spatial_resolution = self._clean_spatial_resolution(value, 'decimal')
-                    try:
-                        self.g.add(
-                            (
-                                dataset_ref,
-                                DCAT.spatialResolutionInMeters,
-                                Literal(Decimal(spatial_resolution), datatype=XSD.decimal),
-                            )
+                spatial_resolution = self._clean_spatial_resolution(spatial_resolution_in_meters, 'decimal')
+                try:
+                    self.g.add(
+                        (
+                            distribution_ref,
+                            DCAT.spatialResolutionInMeters,
+                            Literal(Decimal(spatial_resolution), datatype=XSD.decimal),
                         )
-                    except (ValueError, TypeError, DecimalException):
-                        self.g.add(
-                            (dataset_ref, DCAT.spatialResolutionInMeters, Literal(spatial_resolution))
-                        )
+                    )
+                except (ValueError, TypeError, DecimalException):
+                    self.g.add(
+                        (distribution_ref, DCAT.spatialResolutionInMeters, Literal(spatial_resolution))
+                    )
 
             #  Lists
             items = [

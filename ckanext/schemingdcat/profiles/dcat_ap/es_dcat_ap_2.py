@@ -299,18 +299,20 @@ class EsDCATAP2Profile(EuDCATAP2Profile):
 
         # Add Catalog publisher to Dataset
         if publisher_ref:
-            self.g.add((publisher_ref, RDF.type, FOAF.Organization))
+            self.g.add((publisher_ref, RDF.type, FOAF.Agent))
             self.g.add((dataset_ref, DCT.publisher, publisher_ref))
+            
+            # Process identifier
+            if "identifier" in publisher_details and publisher_details["identifier"]:
+                publisher_details["identifier"] = self._process_dct_identifier(publisher_details["identifier"], mandatory=True)
+            
             items = [
                 ("name", FOAF.name, None, Literal),
                 ("email", FOAF.mbox, None, Literal),
                 ("url", FOAF.homepage, None, URIRef),
                 ("type", DCT.type, None, URIRefOrLiteral),
-                ("identifier", DCT.identifier, None, URIRefOrLiteral),
+                ("identifier", DCT.identifier, None, Literal),
             ]
-
-            # Add publisher role
-            self.g.add((publisher_ref, VCARD.role, URIRef(eu_dcat_ap_default_values["publisher_role"])))
 
             self._add_triples_from_dict(publisher_details, publisher_ref, items)
 

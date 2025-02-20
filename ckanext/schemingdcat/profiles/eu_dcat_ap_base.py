@@ -499,30 +499,33 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
             g.add((dataset_ref, DCAT.theme, URIRefOrLiteral(theme)))
 
         # Contact details
-        if any([
-            self._get_dataset_value(dataset_dict, "contact_uri"),
-            self._get_dataset_value(dataset_dict, "contact_name"),
-            self._get_dataset_value(dataset_dict, "contact_email"),
-            self._get_dataset_value(dataset_dict, "contact_url"),
-        ]):
+        if (len(list(self.g.objects(dataset_ref, DCAT.contactPoint))) == 0 and 
+            any([
+                self._get_dataset_value(dataset_dict, "contact_uri"),
+                self._get_dataset_value(dataset_dict, "contact_name"),
+                self._get_dataset_value(dataset_dict, "contact_email"),
+                self._get_dataset_value(dataset_dict, "contact_url"),
+            ])):
 
             contact_uri = self._get_dataset_value(dataset_dict, "contact_uri")
+            log.debug('contact_uri: %s', contact_uri)
             if contact_uri:
-                contact_details = CleanedURIRef(contact_uri)
+                contact_ref = CleanedURIRef(self._create_uri_ref(contact_uri, "contact"))
             else:
-                contact_details = BNode()
+                # No publisher_uri
+                contact_ref = BNode()
 
-            g.add((contact_details, RDF.type, VCARD.Kind))
-            g.add((dataset_ref, DCAT.contactPoint, contact_details))
+            g.add((contact_ref, RDF.type, VCARD.Kind))
+            g.add((dataset_ref, DCAT.contactPoint, contact_ref))
 
             # Add name
             self._add_triple_from_dict(
-                dataset_dict, contact_details,
+                dataset_dict, contact_ref,
                 VCARD.fn, "contact_name"
             )
             # Add mail address as URIRef, and ensure it has a mailto: prefix
             self._add_triple_from_dict(
-                dataset_dict, contact_details,
+                dataset_dict, contact_ref,
                 VCARD.hasEmail,
                 "contact_email",
                 _type=URIRef,
@@ -530,50 +533,12 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
             )
             # Add contact URL
             self._add_triple_from_dict(
-                dataset_dict, contact_details,
+                dataset_dict, contact_ref,
                 VCARD.hasURL, "contact_url",
                 _type=URIRef)
 
             # Add contact role
-            g.add((contact_details, VCARD.role, URIRef(eu_dcat_ap_default_values["contact_role"])))
-
-        # Resource maintainer/contact 
-        if any([
-            self._get_dataset_value(dataset_dict, "maintainer"),
-            self._get_dataset_value(dataset_dict, "maintainer_uri"),
-            self._get_dataset_value(dataset_dict, "maintainer_email"),
-            self._get_dataset_value(dataset_dict, "maintainer_url"),
-        ]):
-            maintainer_uri = self._get_dataset_value(dataset_dict, "maintainer_uri")
-            if maintainer_uri:
-                maintainer_details = CleanedURIRef(maintainer_uri)
-            else:
-                maintainer_details = dataset_ref + "/maintainer"
-                
-            g.add((maintainer_details, RDF.type, VCARD.Kind))
-            g.add((dataset_ref, DCAT.contactPoint, maintainer_details))
-
-            ## Add name & mail
-            self._add_triple_from_dict(
-                dataset_dict, maintainer_details,
-                VCARD.fn, "maintainer"
-            )
-            # Add mail address as URIRef, and ensure it has a mailto: prefix
-            self._add_triple_from_dict(
-                dataset_dict, maintainer_details,
-                VCARD.hasEmail,
-                "maintainer_email",
-                _type=URIRef,
-                value_modifier=self._add_mailto,
-            )
-            # Add maintainer URL
-            self._add_triple_from_dict(
-                dataset_dict, maintainer_details,
-                VCARD.hasURL, "maintainer_url",
-                _type=URIRef)
-
-            # Add maintainer role
-            g.add((maintainer_details, VCARD.role, URIRef(eu_dcat_ap_default_values["maintainer_role"])))
+            g.add((contact_ref, VCARD.role, URIRef(eu_dcat_ap_default_values["contact_role"])))
 
         # Publisher
         publisher_ref = None
@@ -590,11 +555,14 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
             # Legacy publisher_* extras
             publisher_uri = self._get_dataset_value(dataset_dict, "publisher_uri")
             publisher_name = self._get_dataset_value(dataset_dict, "publisher_name")
+
+            # Create reference
             if publisher_uri:
-                publisher_ref = CleanedURIRef(publisher_uri)
+                publisher_ref = CleanedURIRef(self._create_uri_ref(publisher_uri, "publisher"))
             else:
                 # No publisher_uri
                 publisher_ref = BNode()
+
             publisher_details = {
                 "name": publisher_name,
                 "email": self._get_dataset_value(dataset_dict, "publisher_email"),
@@ -619,6 +587,17 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
                 except toolkit.ObjectNotFound:
                     pass
             if org_dict:
+                org_ref = CleanedURIRef(
+                    publisher_uri_organization_fallback(dataset_dict)
+                )
+                log.debug('org_ref: %s', org_ref)
+                # Create reference
+                if org_ref:
+                    publisher_ref = CleanedURIRef(self._create_uri_ref(org_ref, "publisher"))
+                else:
+                    # No publisher_uri
+                    publisher_ref = BNode()
+                
                 publisher_ref = CleanedURIRef(
                     publisher_uri_organization_fallback(dataset_dict)
                 )
@@ -632,17 +611,19 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
         # Add to graph
         if publisher_ref:
             g.add((publisher_ref, RDF.type, FOAF.Agent))
-            g.add((dataset_ref, DCT.publisher, publisher_ref))
+            self.g.add((dataset_ref, DCT.publisher, publisher_ref))
+            
+            # Process identifier
+            if "identifier" in publisher_details and publisher_details["identifier"]:
+                publisher_details["identifier"] = self._process_dct_identifier(publisher_details["identifier"], mandatory=True)
+
             items = [
                 ("name", FOAF.name, None, Literal),
                 ("email", FOAF.mbox, None, Literal),
                 ("url", FOAF.homepage, None, URIRef),
                 ("type", DCT.type, None, URIRefOrLiteral),
-                ("identifier", DCT.identifier, None, URIRefOrLiteral),
+                ("identifier", DCT.identifier, None, Literal),
             ]
-
-            # Add publisher role
-            g.add((publisher_details, VCARD.role, URIRef(eu_dcat_ap_default_values["publisher_role"])))
 
             self._add_triples_from_dict(publisher_details, publisher_ref, items)
 
@@ -660,7 +641,11 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
                           self._get_dataset_value(dataset_dict, "author_uri"))
             
             # Create reference
-            creator_ref = CleanedURIRef(creator_uri) if creator_uri else BNode()
+            if creator_uri:
+                publisher_ref = CleanedURIRef(self._create_uri_ref(creator_uri, "creator"))
+            else:
+                # No publisher_uri
+                creator_uri = BNode()
             
             # Build details with publisher fallbacks
             creator_details = {
@@ -692,27 +677,18 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
                 if email and not str(email).startswith("mailto:"):
                     creator_details["email"] = f"mailto:{email}"
         
+            # Process identifier
+            if "identifier" in creator_details and creator_details["identifier"]:
+                creator_details["identifier"] = self._process_dct_identifier(creator_details["identifier"], mandatory=True)
+
             items = [
                 ("name", FOAF.name, None, Literal),
                 ("email", FOAF.mbox, None, URIRef),
                 ("url", FOAF.homepage, None, URIRef),
                 ("type", DCT.type, None, URIRefOrLiteral),
-                ("identifier", DCT.identifier, None, URIRefOrLiteral),
+                ("identifier", DCT.identifier, None, Literal),
             ]
             
-            self._add_triples_from_dict(creator_details, creator_ref, items)
-
-        # Add to graph
-        if creator_ref:
-            g.add((creator_ref, RDF.type, FOAF.Agent))
-            g.add((dataset_ref, DCT.creator, creator_ref))  # Use DCT.creator for creator
-            items = [
-                ("name", FOAF.name, None, Literal),
-                ("email", FOAF.mbox, None, Literal),
-                ("url", FOAF.homepage, None, URIRef),
-                ("type", DCT.type, None, URIRefOrLiteral),
-                ("identifier", DCT.identifier, None, URIRefOrLiteral),
-            ]
             self._add_triples_from_dict(creator_details, creator_ref, items)
 
         # TODO: Deprecated: https://semiceu.github.io/GeoDCAT-AP/drafts/latest/#deprecated-properties-for-period-of-time
@@ -1070,18 +1046,20 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
         
         # Add to graph
         if publisher_ref:
-            g.add((publisher_ref, RDF.type, VCARD.Kind))
+            g.add((publisher_ref, RDF.type, FOAF.Agent))
             g.add((catalog_ref, DCT.publisher, publisher_ref))
+            
+            # Process identifier
+            if "identifier" in publisher_details and publisher_details["identifier"]:
+                publisher_details["identifier"] = self._process_dct_identifier(publisher_details["identifier"], mandatory=True)
+            
             items = [
                 ("name", FOAF.name, None, Literal),
                 ("email", FOAF.mbox, None, Literal),
                 ("url", FOAF.homepage, None, URIRef),
                 ("type", DCT.type, None, URIRefOrLiteral),
-                ("identifier", DCT.identifier, None, URIRefOrLiteral),
+                ("identifier", DCT.identifier, None, Literal),
             ]
-
-            # Add publisher role
-            g.add((publisher_ref, VCARD.role, URIRef(eu_dcat_ap_default_values["publisher_role"])))
 
             self._add_triples_from_dict(publisher_details, publisher_ref, items)
 

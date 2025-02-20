@@ -210,3 +210,13 @@ CONTACT_PUBLISHER_FALLBACK = {
     'contact_uri': 'ckanext.schemingdcat.dcat_ap.publisher.identifier',
     'contact_role': 'http://inspire.ec.europa.eu/metadata-codelist/ResponsiblePartyRole/pointOfContact'
 }
+
+BASE_VOCABS = {
+    'eu_publications': 'http://publications.europa.eu/resource/authority/',
+    'eu_inspire': 'http://inspire.ec.europa.eu/metadata-codelist',
+    'eu_inspire_theme': 'http://inspire.ec.europa.eu/theme/',
+    'publisher_type_purl': '"http://purl.org/adms/publishertype/',
+    'iana_mimetype': 'http://www.iana.org/assignments/media-types/',
+    'epsg_opengis': 'http://www.opengis.net/def/crs/EPSG/0/',
+    'es_publisher_org': 'http://datos.gob.es/recurso/sector-publico/org/Organismo/',
+}
