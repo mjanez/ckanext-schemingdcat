@@ -12,6 +12,9 @@ Default values can be overridden in resource-specific metadata.
     eu_dcat_ap_default_values: dict
         A dictionary containing the default values for the EuropeanDCATAPProfile.
         
+    es_dcat_ap_default_values: dict
+        A dictionary containing the default values for the EsDCATAP2Profile.
+        
     default_translated_fields: dict
         A dictionary containing the default translated fields for the ckanext-schemingdcat extension.
 """
@@ -25,8 +28,9 @@ from ckanext.dcat.profiles.base import (
     DCT,
     ADMS,
     GEOJSON_IMT,
+    ORG,
     Namespace,
-    Literal    
+    Literal   
 )
 
 EUROVOC = Namespace("http://publications.europa.eu/ontology/euvoc#")
@@ -35,6 +39,7 @@ DC = Namespace("http://purl.org/dc/elements/1.1/")
 DCAT = Namespace("http://www.w3.org/ns/dcat#")
 DCATAP = Namespace("http://data.europa.eu/r5r/")
 GEODCATAP = Namespace("http://data.europa.eu/930/")
+DCATUS = Namespace("http://resources.data.gov/ontology/dcat-us#")
 VCARD = Namespace("http://www.w3.org/2006/vcard/ns#")
 FOAF = Namespace("http://xmlns.com/foaf/0.1/")
 SCHEMA = Namespace("http://schema.org/")
@@ -44,10 +49,13 @@ GSP = Namespace("http://www.opengis.net/ont/geosparql#")
 OWL = Namespace("http://www.w3.org/2002/07/owl#")
 SPDX = Namespace("http://spdx.org/rdf/terms#")
 CNT = Namespace("http://www.w3.org/2011/content#")
+ODRS = Namespace("http://schema.theodi.org/odrs#")
 
 CODELISTS_DIR = Path(__file__).resolve().parent.parent / "codelists"
 EU_VOCABS_DIR = CODELISTS_DIR / "dcat"
 INSPIRE_CODELISTS_DIR = CODELISTS_DIR / "inspire"
+IANA_MEDIA_TYPES_BASE_URI = 'http://www.iana.org/assignments/media-types'
+EU_VOCAB_AUTHORITY_TABLES_BASE_URI = 'http://publications.europa.eu/resource/authority'
 
 # DCAT default elements by profile
 metadata_field_names = {
@@ -88,7 +96,13 @@ EU_VOCABULARIES = [
         "name": "licenses",
         "url": "http://op.europa.eu/o/opportal-service/euvoc-download-handler?cellarURI=http://publications.europa.eu/resource/distribution/licence/rdf/skos_ap_act/licences-skos-ap-act.rdf&fileName=licences-skos-ap-act.rdf",
         "description": "Licenses, CSV fields: URI, Label, EUVocab URI"
-    }
+    },
+    {
+        "title": "Distribution status",
+        "name": "status",
+        "url": "http://publications.europa.eu/resource/authority/distribution-status",
+        "description": "Distribution status, CSV fields: URI, EUVocab URI"
+    },
     # Add more URLs and their respective configurations here as needed
 ]
 
@@ -101,16 +115,49 @@ es_dcat_default_values = {
     'description_es': 'Recurso sin descripción.',
     'format_es': 'HTML',
     'language_code': 'es',
-    'license': 'http://www.opendefinition.org/licenses/cc-by',
-    'license_url': 'http://www.opendefinition.org/licenses/cc-by',
+    'language': 'http://publications.europa.eu/resource/authority/language/SPA',
+    'license': 'http://publications.europa.eu/resource/authority/licence/CC_BY_4_0',
+    'license_url': 'http://publications.europa.eu/resource/authority/licence/CC_BY_4_0',
     'mimetype_es': 'text/html',
     'notes': 'Conjunto de datos sin descripción.',
     'notes_es': 'Conjunto de datos sin descripción.',
     'notes_en': 'Dataset without description.',
     'publisher_identifier': 'http://datos.gob.es/recurso/sector-publico/org/Organismo/EA0007777',
+    'publisher_type': 'http://purl.org/adms/publishertype/NonProfitOrganisation',
+    'status': 'http://publications.europa.eu/resource/authority/distribution-status/COMPLETED',
     'theme_es': 'http://datos.gob.es/kos/sector-publico/sector/sector-publico',
     'theme_eu': 'http://publications.europa.eu/resource/authority/data-theme/GOVE',
     'theme_taxonomy': 'http://datos.gob.es/kos/sector-publico/sector/',
+    'rights_uri_label': 'Derechos relativos a la reutilización del Catálogo de Datos Abiertos',
+    'rights_attribution_text': 'Atribución de la autoría al organismo.',
+    'spatial_uri': 'http://datos.gob.es/recurso/sector-publico/territorio/Pais/España',
+}
+
+
+# Spanish Profile: Mandatory elements by DCAT-AP-ES (Based on DCAT-AP 2.1.1).
+es_dcat_ap_default_values = {
+    'availability': 'http://publications.europa.eu/resource/authority/planned-availability/AVAILABLE',
+    'access_rights': 'http://publications.europa.eu/resource/authority/access-right/PUBLIC',
+    'conformance_es': 'http://www.boe.es/eli/es/res/2013/02/19/(4)',
+    'description': 'Recurso sin descripción.',
+    'description_es': 'Recurso sin descripción.',
+    'format_es': 'HTML',
+    'language_code': 'es',
+    'language': 'http://publications.europa.eu/resource/authority/language/SPA',
+    'license': 'http://publications.europa.eu/resource/authority/licence/CC_BY_4_0',
+    'license_url': 'http://publications.europa.eu/resource/authority/licence/CC_BY_4_0',
+    'mimetype_es': 'text/html',
+    'notes': 'Conjunto de datos sin descripción.',
+    'notes_es': 'Conjunto de datos sin descripción.',
+    'notes_en': 'Dataset without description.',
+    'publisher_identifier': 'http://datos.gob.es/recurso/sector-publico/org/Organismo/EA0007777',
+    'publisher_type': 'http://purl.org/adms/publishertype/NonProfitOrganisation',
+    'status': 'http://publications.europa.eu/resource/authority/distribution-status/COMPLETED',
+    'theme_es': 'http://datos.gob.es/kos/sector-publico/sector/sector-publico',
+    'theme_eu': 'http://publications.europa.eu/resource/authority/data-theme/GOVE',
+    'theme_taxonomy': 'http://datos.gob.es/kos/sector-publico/sector/',
+    'rights_uri_label': 'Derechos relativos a la reutilización del Catálogo de Datos Abiertos',
+    'rights_attribution_text': 'Atribución de la autoría al organismo.',
     'spatial_uri': 'http://datos.gob.es/recurso/sector-publico/territorio/Pais/España',
 }
 
@@ -118,24 +165,33 @@ es_dcat_default_values = {
 eu_dcat_ap_default_values = {
     'availability': 'http://publications.europa.eu/resource/authority/planned-availability/AVAILABLE',
     'access_rights': 'http://publications.europa.eu/resource/authority/access-right/PUBLIC',
+    'access_rights_restricted': 'http://publications.europa.eu/resource/authority/access-right/RESTRICTED',
     'author_role': 'http://id.loc.gov/vocabulary/relators/aut',
-    'conformance': 'http://data.europa.eu/930/',
+    'conformance': 'http://data.europa.eu/r5r/',
     'contact_role': 'http://id.loc.gov/vocabulary/relators/mdc',
+    'checksum_algorithm': 'http://spdx.org/rdf/terms#checksumAlgorithm_sha1',
     'description': 'Resource without description.',
     'description_en': 'Resource without description.',
     'description_es': 'Recurso sin descripción.',
-    'license': 'http://www.opendefinition.org/licenses/cc-by',
-    'license_url': 'http://www.opendefinition.org/licenses/cc-by',
+    'language': 'http://publications.europa.eu/resource/authority/language/ENG',
+    'license': 'http://publications.europa.eu/resource/authority/licence/CC_BY_4_0',
+    'license_url': 'http://publications.europa.eu/resource/authority/licence/CC_BY_4_0',
     'maintainer_role': 'http://id.loc.gov/vocabulary/relators/rpy',
     'notes': 'Dataset without description.',
     'notes_es': 'Conjunto de datos sin descripción.',
     'notes_en': 'Dataset without description.',
     'publisher_identifier': 'http://datos.gob.es/recurso/sector-publico/org/Organismo/EA0007777',
+    'publisher_type': 'http://purl.org/adms/publishertype/NonProfitOrganisation',
     'publisher_role': 'http://id.loc.gov/vocabulary/relators/pbl',
     'reference_system_type': 'http://inspire.ec.europa.eu/glossary/SpatialReferenceSystem',
+    'status': 'http://publications.europa.eu/resource/authority/distribution-status/COMPLETED',
     'theme_es': 'http://datos.gob.es/kos/sector-publico/sector/sector-publico',
     'theme_eu': 'http://publications.europa.eu/resource/authority/data-theme/GOVE',
-    'theme_taxonomy': 'http://publications.europa.eu/resource/authority/data-theme',
+    'theme_taxonomy': 'http://inspire.ec.europa.eu/theme',
+    'theme_es_taxonomy': 'http://datos.gob.es/kos/sector-publico/sector',
+    'theme_eu_taxonomy': 'http://publications.europa.eu/resource/authority/data-theme',
+    'rights_uri_label': 'Rights related to the re-use of the Open Data Catalogue',
+    'rights_attribution_text': 'Attribution of authorship to the organisation.',
     'spatial_uri': 'http://publications.europa.eu/resource/authority/country/ESP',
 }
 
@@ -149,18 +205,25 @@ eu_geodcat_ap_default_values = {
     'description': 'Resource without description.',
     'description_en': 'Resource without description.',
     'description_es': 'Recurso sin descripción.',
-    'license': 'http://www.opendefinition.org/licenses/cc-by',
-    'license_url': 'http://www.opendefinition.org/licenses/cc-by',
+    'language': 'http://publications.europa.eu/resource/authority/language/ENG',
+    'license': 'http://publications.europa.eu/resource/authority/licence/CC_BY_4_0',
+    'license_url': 'http://publications.europa.eu/resource/authority/licence/CC_BY_4_0',
     'maintainer_role': 'http://inspire.ec.europa.eu/metadata-codelist/ResponsiblePartyRole/custodian',
     'notes': 'Dataset without description.',
     'notes_es': 'Conjunto de datos sin descripción.',
     'notes_en': 'Dataset without description.',
     'publisher_identifier': 'http://datos.gob.es/recurso/sector-publico/org/Organismo/EA0007777',
+    'publisher_type': 'http://purl.org/adms/publishertype/NonProfitOrganisation',
     'publisher_role': 'http://inspire.ec.europa.eu/metadata-codelist/ResponsiblePartyRole/distributor',
     'reference_system_type': 'http://inspire.ec.europa.eu/glossary/SpatialReferenceSystem',
+    'status': 'http://publications.europa.eu/resource/authority/distribution-status/COMPLETED',
     'theme_es': 'http://datos.gob.es/kos/sector-publico/sector/sector-publico',
     'theme_eu': 'http://publications.europa.eu/resource/authority/data-theme/GOVE',
-    'theme_taxonomy': 'http://publications.europa.eu/resource/authority/data-theme',
+    'theme_taxonomy': 'http://inspire.ec.europa.eu/theme',
+    'theme_es_taxonomy': 'http://datos.gob.es/kos/sector-publico/sector',
+    'theme_eu_taxonomy': 'http://publications.europa.eu/resource/authority/data-theme',
+    'rights_uri_label': 'Rights related to the re-use of the Open Data Catalogue',
+    'rights_attribution_text': 'Attribution of authorship to the organisation.',
     'spatial_uri': 'http://publications.europa.eu/resource/authority/country/ESP',
 }
 
@@ -254,5 +317,27 @@ dcat_ap_default_licenses = {
         'license_id': 'cc-by',
         'fallback_license_url': 'http://publications.europa.eu/resource/authority/licence/CC_BY',
         'fallback_license_id': 'CC_BY'
-    }
+    },
+     'http://creativecommons.org/licenses/by/4.0/': {
+        'license_url': 'http://creativecommons.org/licenses/by/4.0/',
+        'license_id': 'cc-by',
+        'fallback_license_url': 'http://publications.europa.eu/resource/authority/licence/CC_BY_4_0',
+        'fallback_license_id': 'CC_BY_4_0'
+    },
+     'https://creativecommons.org/licenses/by/4.0/': {
+        'license_url': 'https://creativecommons.org/licenses/by/4.0/',
+        'license_id': 'CC-BY-4.0',
+        'fallback_license_url': 'http://publications.europa.eu/resource/authority/licence/CC_BY_4_0',
+        'fallback_license_id': 'CC_BY_4_0'
+    }   
 }
+
+# DCAT-AP-ES Literals to check default lang ("es")
+eu_dcat_ap_literals_to_check = [
+            DCT.title,
+            DCT.description,
+            DCAT.keyword,
+            # Agents
+            VCARD.fn,
+            FOAF.name,          
+        ]

@@ -4,8 +4,8 @@ about: "Datasets/Distributions: Adaptation for CKAN of the GeoDCAT-AP metadata s
 about_url: https://github.com/mjanez/ckanext-schemingdcat
 form_languages: ["en", "es"]
 required_language: "en"
-schema_version: 3.0
-schema_date: 2024-08-01
+schema_version: 3.1
+schema_date: 2024-12-04
 schema_name: es_geodcat_ap_full
 schema_title: GeoDCAT-AP
 schema_description: Geospatial extension for the DCAT application profile for data portals in Europe (GeoDCAT-AP)
@@ -413,6 +413,16 @@ dataset_fields:
   form_slug_related: identifier
   form_group_id: identification
 
+- field_name: url
+  label: 
+    en: Dataset landing page
+    es: Página de acceso al conjunto de datos
+  preset: dataset_url
+  help_text:
+    en: Web page that can be navigated to gain access to the dataset, its distributions and/or additional information.
+    es: Página web por la que se puede navegar para acceder al conjunto de datos, sus distribuciones y/o información adicional.
+  form_group_id: identification
+
 # Dataset type (M)
 - field_name: dcat_type
   label: 
@@ -438,6 +448,11 @@ dataset_fields:
       en: Bibliographic data
       es: Datos bibliográficos
     value: http://id.loc.gov/vocabulary/marcgt/bda
+    dataset_scope: non_spatial_dataset
+  - label:
+      en: "Codelist"
+      es: "Lista controlada"
+    value: http://publications.europa.eu/resource/authority/dataset-type/CODE_LIST
     dataset_scope: non_spatial_dataset
   - label:
       en: Collection
@@ -535,9 +550,29 @@ dataset_fields:
     value: http://id.loc.gov/vocabulary/marcgt/stp
     dataset_scope: non_spatial_dataset
   - label:
+      en: "Statistical dataset"
+      es: "Conjunto de datos estadísticos"
+    value: http://publications.europa.eu/resource/authority/dataset-type/STATISTICAL
+    dataset_scope: non_spatial_dataset
+  - label:
       en: Technical report
       es: Informe técnico
     value: http://id.loc.gov/vocabulary/marcgt/ter
+    dataset_scope: non_spatial_dataset
+  - label:
+      en: "Taxonomy"
+      es: "Taxonomía"
+    value: http://publications.europa.eu/resource/authority/dataset-type/TAXONOMY
+    dataset_scope: non_spatial_dataset
+  - label:
+      en: "Test dataset"
+      es: "Conjunto de datos de prueba"
+    value: http://publications.europa.eu/resource/authority/dataset-type/TEST_DATA
+    dataset_scope: non_spatial_dataset
+  - label:
+      en: "Thesaurus"
+      es: "Tesauro"
+    value: http://publications.europa.eu/resource/authority/dataset-type/THESAURUS
     dataset_scope: non_spatial_dataset
   - label:
       en: Text
@@ -1287,6 +1322,7 @@ dataset_fields:
     es: 'ej: Registro de listas controladas de metadatos (INSPIRE): http://inspire.ec.europa.eu/metadata-codelist'
   form_group_id: vocabs
 
+# TODO: Probably better include contact_role and contact_organization (boolean) to distinguish between vcard:Individual and vcard:Organizationto use in ckanext-dcat/profiles.py
 # Metadata point of contact URI (M)
 - field_name: contact_uri
   label:
@@ -1462,7 +1498,6 @@ dataset_fields:
     es: 'Información de contacto para consultas sobre el conjunto de datos.'
   form_group_id: contact
 
-
 # GeoDCAT-AP: https://semiceu.github.io/GeoDCAT-AP/releases/3.0.0#responsible-party-and-metadata-point-of-contact---dataset-responsible-party-and-metadata-point-of-contact
 - field_name: publisher_name
   label:
@@ -1475,6 +1510,7 @@ dataset_fields:
     subfields:
       - field_name: name
   validators: schemingdcat_fill_dependent_fields
+  form_snippet: schemingdcat/form_snippets/publisher_name.html
   help_text:
     en: "A party that makes a dataset available to others."
     es: "Persona u organización que pone a disposición de otros el conjunto de datos."
@@ -1492,6 +1528,7 @@ dataset_fields:
   validators: schemingdcat_fill_dependent_fields
   display_property: dct:identifier
   form_placeholder: http://datos.gob.es/recurso/sector-publico/org/Organismo/E05068001
+  form_snippet: schemingdcat/form_snippets/publisher_identifier.html
   help_text:
     en: "Unique identifier of the publisher. Spain: Unique identifier (DIR3) of the public organization (<a href='http://datos.gob.es/es/recurso/sector-publico/org/Organismo' target='_blank'>datos.gob.es</a>)."
     es: "Identificador único del publicador. España: Identificador único (DIR3) del organismo público. (<a href='http://datos.gob.es/es/recurso/sector-publico/org/Organismo' target='_blank'>datos.gob.es</a>)"
@@ -1509,8 +1546,8 @@ dataset_fields:
       - field_name: uri
   validators: schemingdcat_fill_dependent_fields
   display_snippet: schemingdcat/display_snippets/link_name.html
-  form_snippet: schemingdcat/form_snippets/publisher_uri.html
   form_placeholder: http://orgs.vocab.org/some-org
+  form_snippet: schemingdcat/form_snippets/publisher_uri.html
   help_text:
     en: This property refers to an Agent (organisation) responsible for making the Catalogue Record available. URI
     es: Esta propiedad se refiere a un agente (organización) responsable de poner a disposición el recurso del catálogo. URI
@@ -1528,6 +1565,7 @@ dataset_fields:
   preset: schemingdcat_valid_email_dependent_fields
   display_property: foaf:mbox
   form_placeholder: joseblanco@example.com
+  form_snippet: schemingdcat/form_snippets/publisher_email.html
   form_group_id: publisher
 
 # Publisher URL (O)
@@ -1542,6 +1580,7 @@ dataset_fields:
     subfields:
       - field_name: url
   preset: valid_url_dependent_fields
+  form_snippet: schemingdcat/form_snippets/publisher_url.html
   help_text:
     en: Esta propiedad se refiere a una página web que actúa como página principal del publicador. URL
     es: Esta propiedad se refiere a una página web que actúa como página principal del publicador. URL
@@ -1559,6 +1598,7 @@ dataset_fields:
   preset: select_dependent_fields
   display_property: dct:type
   display_snippet: schemingdcat/display_snippets/link_schema.html
+  form_snippet: schemingdcat/form_snippets/publisher_type.html
   choices:
   - label:
       en: National authority
@@ -1624,8 +1664,8 @@ dataset_fields:
     - field_name: name
       legacy: publisher_name
       label:
-        en: URI
-        es: URI
+        en: Name of the publisher.
+        es: Nombre del publicador.
 
     - field_name: email
       legacy: publisher_email
@@ -1732,7 +1772,11 @@ dataset_fields:
   label:
     en: Name of the dataset author
     es: Nombre del autor
-  validators: if_empty_same_as(author) unicode_safe
+  dependent_fields:
+    field_name: creator
+    subfields:
+      - field_name: name
+  validators: if_empty_same_as(author) schemingdcat_fill_dependent_fields
   preset: hide_fallback
   form_group_id: author
 
@@ -1741,6 +1785,11 @@ dataset_fields:
   label:
     en: Identifier of the dataset creator
     es: Identificador del autor
+  dependent_fields:
+    field_name: creator
+    subfields:
+      - field_name: uri
+  validators: schemingdcat_fill_dependent_fields
   display_snippet: schemingdcat/display_snippets/link_name.html
   form_placeholder: http://datos.gob.es/recurso/sector-publico/org/Organismo/E05068001
   help_text:
@@ -1754,7 +1803,11 @@ dataset_fields:
   label:
     en: Email of the dataset creator
     es: Email del autor
-  preset: schemingdcat_valid_email
+  dependent_fields:
+    field_name: creator
+    subfields:
+      - field_name: email
+  preset: schemingdcat_valid_email_dependent_fields
   display_property: vcard:hasEmail
   form_placeholder: joseblanco@example.com
   form_group_id: author
@@ -1764,12 +1817,130 @@ dataset_fields:
   label:
     en: Website of the dataset creator
     es: Web del autor
+  dependent_fields:
+    field_name: creator
+    subfields:
+      - field_name: url
+  preset: valid_url_dependent_fields
   display_property: foaf:homepage
-  preset: valid_url
   form_placeholder: http://www.example.com
   help_text:
     en: This property refers to a web page that acts as the author's homepage. URL
     es: Esta propiedad se refiere a una página web que actúa como página principal del publicador. URL
+  form_group_id: author
+
+# Author type (M)
+- field_name: author_type
+  label:
+    en: Type of the author
+    es: Tipo de autor
+  dependent_fields:
+    field_name: creator
+    subfields:
+      - field_name: type
+  preset: select_dependent_fields
+  display_property: dct:type
+  display_snippet: schemingdcat/display_snippets/link_schema.html
+  choices:
+  - label:
+      en: National authority
+      es: Autoridad nacional
+    value: http://purl.org/adms/publishertype/NationalAuthority
+  - label:
+      en: Regional authority
+      es: Autoridad regional
+    value: http://purl.org/adms/publishertype/RegionalAuthority
+  - label:
+      en: Supranational authority
+      es: Autoridad supranacional
+    value: http://purl.org/adms/publishertype/SupraNationalAuthority
+  - label:
+      en: Local authority
+      es: Autoridad local
+    value: http://purl.org/adms/publishertype/LocalAuthority
+  - label:
+      en: Academia-Scientific organisation
+      es: Organización académica-científica
+    value: http://purl.org/adms/publishertype/Academia-ScientificOrganisation
+  - label:
+      en: Non profit organisation
+      es: Organización sin animo de lucro
+    value: http://purl.org/adms/publishertype/NonProfitOrganisation
+  - label:
+      en: Company
+      es: Empresa
+    value: http://purl.org/adms/publishertype/Company
+  - label:
+      en: Industry consortium
+      es: Consorcio industrial
+    value: http://purl.org/adms/publishertype/IndustryConsortium
+  - label:
+      en: Non Governmental Organisation
+      es: Organización no gubernamental (ONG)
+    value: http://purl.org/adms/publishertype/NonGovernmentalOrganisation
+  - label:
+      en: Private individual(s)
+      es: Individuo(s) privado(s)
+    value: http://purl.org/adms/publishertype/PrivateIndividual(s)
+  - label:
+      en: Standardisation body
+      es: Organismo de normalización
+    value: http://purl.org/adms/publishertype/StandardisationBody
+  form_group_id: author
+
+- field_name: creator
+  label:
+    en: Creators
+    es: Creadores
+  repeating_label:
+    en: Creator
+    es: Creador
+  form_snippet: null
+  display_snippet: null
+  repeating_subfields:
+    - field_name: uri
+      legacy: author_uri
+      form_placeholder: http://datos.gob.es/recurso/sector-publico/org/Organismo/E05068001
+      label:
+        en: URI of the author/creator.
+        es: URI del creador/autor.
+      help_text:
+        en: "Unique identifier of the publisher. Spain: Unique identifier (DIR3) of the public organization (<a href='http://datos.gob.es/es/recurso/sector-publico/org/Organismo' target='_blank'>datos.gob.es</a>)."
+        es: "Identificador único del publicador. España: Identificador único (DIR3) del organismo público. (<a href='http://datos.gob.es/es/recurso/sector-publico/org/Organismo' target='_blank'>datos.gob.es</a>)"
+
+    - field_name: name
+      legacy: author_name
+      label:
+        en: Name of the creator.
+        es: Nombre del creador.
+
+    - field_name: email
+      legacy: author_email
+      label:
+        en: Dataset creator email.
+        es: Email del creador del conjunto de datos.
+
+    - field_name: url
+      legacy: author_url
+      label:
+        en: Website of the dataset creator.
+        es: Web del creador del conjunto de datos.
+
+    - field_name: type
+      legacy: author_type
+      label:
+        en: Type of the creator.
+        es: Tipo de creador.
+
+    - field_name: identifier
+      legacy: author_identifier
+      label:
+        en: Identifier of the creator.
+        es: Identificador del creador.
+  
+  help_text:
+      en: "A party that creates or produces a particular dataset."
+      es: "Persona u organización creadora o productora de un conjunto de datos."
   form_group_id: author
 
 # Other identifier (O))
@@ -2333,7 +2504,7 @@ dataset_fields:
     subfields:
       - field_name: uri
       - field_name: text
-  display_property: dcat:theme
+  display_property: dct:spatial
   select_size: 10
   sorted_choices: False
   choices:
@@ -2705,38 +2876,47 @@ dataset_fields:
       en: No limitations to public access
       es: No hay limitaciones al acceso del público
     value: http://inspire.ec.europa.eu/metadata-codelist/LimitationsOnPublicAccess/noLimitations
+    dcat_ap: http://publications.europa.eu/resource/authority/access-right/PUBLIC
   - label:
       en: Public access limited according to Article 13(1)(a) of the INSPIRE Directive
       es: Acceso público limitado según el artículo 13(1)(a) de la Directiva INSPIRE
     value: http://inspire.ec.europa.eu/metadata-codelist/LimitationsOnPublicAccess/INSPIRE_Directive_Article13_1a
+    dcat_ap: http://publications.europa.eu/resource/authority/access-right/RESTRICTED
   - label:
       en: Public access limited according to Article 13(1)(b) of the INSPIRE Directive
       es: Acceso público limitado según el artículo 13(1)(b) de la Directiva INSPIRE
     value: http://inspire.ec.europa.eu/metadata-codelist/LimitationsOnPublicAccess/INSPIRE_Directive_Article13_1b
+    dcat_ap: http://publications.europa.eu/resource/authority/access-right/RESTRICTED
   - label:
       en: Public access limited according to Article 13(1)(c) of the INSPIRE Directive
       es: Acceso público limitado según el artículo 13(1)(c) de la Directiva INSPIRE
     value: http://inspire.ec.europa.eu/metadata-codelist/LimitationsOnPublicAccess/INSPIRE_Directive_Article13_1c
+    dcat_ap: http://publications.europa.eu/resource/authority/access-right/RESTRICTED
   - label:
       en: Public access limited according to Article 13(1)(d) of the INSPIRE Directive
       es: Acceso público limitado según el artículo 13(1)(d) de la Directiva INSPIRE
     value: http://inspire.ec.europa.eu/metadata-codelist/LimitationsOnPublicAccess/INSPIRE_Directive_Article13_1d
+    dcat_ap: http://publications.europa.eu/resource/authority/access-right/RESTRICTED
   - label:
       en: Public access limited according to Article 13(1)(e) of the INSPIRE Directive
       es: Acceso público limitado según el artículo 13(1)(e) de la Directiva INSPIRE
     value: http://inspire.ec.europa.eu/metadata-codelist/LimitationsOnPublicAccess/INSPIRE_Directive_Article13_1e
+    dcat_ap: http://publications.europa.eu/resource/authority/access-right/RESTRICTED
   - label:
       en: Public access limited according to Article 13(1)(f) of the INSPIRE Directive
       es: Acceso público limitado según el artículo 13(1)(f) de la Directiva INSPIRE
     value: http://inspire.ec.europa.eu/metadata-codelist/LimitationsOnPublicAccess/INSPIRE_Directive_Article13_1f
+    dcat_ap: http://publications.europa.eu/resource/authority/access-right/RESTRICTED
   - label:
       en: Public access limited according to Article 13(1)(g) of the INSPIRE Directive
       es: Acceso público limitado según el artículo 13(1)(g) de la Directiva INSPIRE
     value: http://inspire.ec.europa.eu/metadata-codelist/LimitationsOnPublicAccess/INSPIRE_Directive_Article13_1g
+    dcat_ap: http://publications.europa.eu/resource/authority/access-right/RESTRICTED
   - label:
       en: Public access limited according to Article 13(1)(h) of the INSPIRE Directive
       es: Acceso público limitado según el artículo 13(1)(h) de la Directiva INSPIRE
     value: http://inspire.ec.europa.eu/metadata-codelist/LimitationsOnPublicAccess/INSPIRE_Directive_Article13_1h
+    dcat_ap: http://publications.europa.eu/resource/authority/access-right/RESTRICTED
   help_text:
     en: 'Conditions for access and use and <a href="http://inspire.ec.europa.eu/metadata-codelist/LimitationsOnPublicAccess" target="_blank" rel="noopener">limitations on public access</a> (INSPIRE)'
     es: 'Condiciones de acceso y utilización y <a href="http://inspire.ec.europa.eu/metadata-codelist/LimitationsOnPublicAccess" target="_blank" rel="noopener">limitaciones de acceso público</a> (INSPIRE)'
@@ -2754,6 +2934,21 @@ dataset_fields:
   display_property: owl:versionInfo
   validators: ignore_missing unicode_safe package_version_validator
   form_placeholder: '1.0'
+  form_group_id: version_notes
+
+# Has version (O)
+- field_name: has_version
+  label:
+    en: Has version
+    es: Tiene versión
+  help_text:
+    en: This property refers to a related Dataset that is a version, edition, or adaptation of the described Dataset.
+    es: Esta propiedad se refiere a un conjunto de datos relacionado que es una versión, edición o adaptación del conjunto de datos descrito.
+  preset: multiple_text
+  display_property: dcat:hasVersion
+  validators: ignore_missing scheming_multiple_text
+  help_inline: true
+  form_placeholder: http://www.example.org/dataset/my-dataset-alpha-1.0
   form_group_id: version_notes
 
 # Version information (O)
@@ -2798,7 +2993,7 @@ resource_fields:
   label:
     en: Access URL
     es: URL de acceso
-  validators: if_empty_same_as(url) unicode_safe
+  validators: schemingdcat_access_url_if_empty_same_as_url unicode_safe
   form_snippet: null
   display_property: dcat:accessURL
   display_snippet: schemingdcat/display_snippets/link.html
@@ -2812,7 +3007,7 @@ resource_fields:
   label:
     en: Download URL
     es: URL de descarga
-  validators: if_empty_same_as(url) unicode_safe
+  validators: schemingdcat_download_url_if_empty_same_as_url unicode_safe
   display_property: dcat:downloadURL
   display_snippet: schemingdcat/display_snippets/link.html
   help_text:
@@ -2841,8 +3036,9 @@ resource_fields:
         es: Título del servicio de acceso
     - field_name: endpoint_description
       label:
-        en: Endpoint description
-        es: Descripción del punto final
+        en: Description of the access point (OpenAPI, Hydra, online documentation, etc.)
+        es: Descripción de las características del punto de acceso (OpenAPI, Hydra, documento online, etc.)
+      preset: valid_url
     - field_name: endpoint_url
       label:
         en: Endpoint URL
@@ -2866,7 +3062,6 @@ resource_fields:
   form_placeholder:
     en: e.g. Web Map Service
     es: ej. Web Map Service
-  display_property: dct:title
   form_group_id: resource_title
 
 #FIX: Resource abstract (M) -- description_translated field dont work
@@ -2923,7 +3118,7 @@ resource_fields:
     es: 'Algoritmo utilizado para calcular la suma de comprobación.'
   form_group_id: resource_identification
 
-# Resource status (O)
+# Resource availability (O)
 - field_name: availability
   label:
     en: Resource availability
@@ -2957,6 +3152,31 @@ resource_fields:
     en: 'This property indicates how long it is planned to keep the Distribution of the Dataset available acording to <a href="http://publications.europa.eu/resource/authority/planned-availability" target="_blank" rel="noopener">Distribution availability vocabulary</a>.'
     es: 'Esta propiedad indica durante cuánto tiempo se prevé mantener disponible la distribución del conjunto de datos de acuerdo con el <a href="http://publications.europa.eu/resource/authority/planned-availability" target="_blank" rel="noopener">Vocabulario de disponibilidad de la distribución</a>.'
   help_allow_html: True
+  form_group_id: resource_lineage
+
+##TODO: temporal_resolution
+## Add codelist or validator to check ISO 8601: http://www.google.com/url?q=http://www.w3.org/TR/xmlschema11-2/%23duration&sa=D&source=editors&ust=1677159514756434&usg=AOvVaw3Xyh6wn0UVcwFCy3-_9P8i
+- field_name: temporal_resolution
+  label:
+    en: Temporal resolution
+    es: Resolución Temporal
+  help_text:
+    en: 'Minimum time period resolvable in the dataset,<a href="http://www.w3.org/TR/xmlschema11-2/%23duration&sa=D&source=editors&ust=1677159514756434&" target="_blank" rel="noopener">[ISO 8601]</a>.'
+    es: 'Período de tiempo mínimo resoluble en el conjunto de datos, ISO 8601., <a href="http://www.w3.org/TR/xmlschema11-2/%23duration&sa=D&source=editors&ust=1677159514756434&" target="_blank" rel="noopener">[ISO 8601]</a>.'
+  help_allow_html: True
+  form_group_id: resource_lineage
+
+# Spatial resolution (C)
+- field_name: spatial_resolution_in_meters
+  label: 
+    en: Spatial resolution of the dataset
+    es: Resolución espacial del dataset
+  display_snippet: schemingdcat/display_snippets/spatial_resolution_in_meters.html
+  display_property: dcat:spatialResolutionInMeters
+  form_placeholder: 5000
+  help_text:
+    en: The minimum spatial separation resolvable in a dataset, measured in meters (m).
+    es: La separación espacial mínima resoluble en un conjunto de datos, medida en metros (m).
   form_group_id: resource_lineage
 
 # Resource format (O)
@@ -3022,18 +3242,22 @@ resource_fields:
       en: Completed
       es: Completado
     value: http://purl.org/adms/status/Completed
+    dcat_ap: http://publications.europa.eu/resource/authority/distribution-status/COMPLETED
   - label:
       en: Under development
       es: En desarrollo
     value: http://purl.org/adms/status/UnderDevelopment
+    dcat_ap: http://publications.europa.eu/resource/authority/distribution-status/DEVELOP
   - label:
       en: Deprecated
       es: Obsoleto
     value: http://purl.org/adms/status/Deprecated
+    dcat_ap: http://publications.europa.eu/resource/authority/distribution-status/DEPRECATED
   - label:
       en: Withdrawn
       es: Retirado
     value: http://purl.org/adms/status/Withdrawn
+    dcat_ap: http://publications.europa.eu/resource/authority/distribution-status/WITHDRAWN
   help_text:
     en: 'This property refers to the maturity of the Distribution. It MUST take one of the values from the <a href="http://purl.org/adms/status/" target="_blank" rel="noopener">ADMS status</a> list.'
     es: 'Esta propiedad hace referencia a la madurez de la distribución y debe tomar uno de los valores de la lista <a href="http://purl.org/adms/status/" target="_blank" rel="noopener">ADMS status</a>.'
@@ -3224,38 +3448,47 @@ resource_fields:
       en: No limitations to public access
       es: No hay limitaciones al acceso del público
     value: http://inspire.ec.europa.eu/metadata-codelist/LimitationsOnPublicAccess/noLimitations
+    dcat_ap: http://publications.europa.eu/resource/authority/access-right/PUBLIC
   - label:
       en: Public access limited according to Article 13(1)(a) of the INSPIRE Directive
       es: Acceso público limitado según el artículo 13(1)(a) de la Directiva INSPIRE
     value: http://inspire.ec.europa.eu/metadata-codelist/LimitationsOnPublicAccess/INSPIRE_Directive_Article13_1a
+    dcat_ap: http://publications.europa.eu/resource/authority/access-right/RESTRICTED
   - label:
       en: Public access limited according to Article 13(1)(b) of the INSPIRE Directive
       es: Acceso público limitado según el artículo 13(1)(b) de la Directiva INSPIRE
     value: http://inspire.ec.europa.eu/metadata-codelist/LimitationsOnPublicAccess/INSPIRE_Directive_Article13_1b
+    dcat_ap: http://publications.europa.eu/resource/authority/access-right/RESTRICTED
   - label:
       en: Public access limited according to Article 13(1)(c) of the INSPIRE Directive
       es: Acceso público limitado según el artículo 13(1)(c) de la Directiva INSPIRE
     value: http://inspire.ec.europa.eu/metadata-codelist/LimitationsOnPublicAccess/INSPIRE_Directive_Article13_1c
+    dcat_ap: http://publications.europa.eu/resource/authority/access-right/RESTRICTED
   - label:
       en: Public access limited according to Article 13(1)(d) of the INSPIRE Directive
       es: Acceso público limitado según el artículo 13(1)(d) de la Directiva INSPIRE
     value: http://inspire.ec.europa.eu/metadata-codelist/LimitationsOnPublicAccess/INSPIRE_Directive_Article13_1d
+    dcat_ap: http://publications.europa.eu/resource/authority/access-right/RESTRICTED
   - label:
       en: Public access limited according to Article 13(1)(e) of the INSPIRE Directive
       es: Acceso público limitado según el artículo 13(1)(e) de la Directiva INSPIRE
     value: http://inspire.ec.europa.eu/metadata-codelist/LimitationsOnPublicAccess/INSPIRE_Directive_Article13_1e
+    dcat_ap: http://publications.europa.eu/resource/authority/access-right/RESTRICTED
   - label:
       en: Public access limited according to Article 13(1)(f) of the INSPIRE Directive
       es: Acceso público limitado según el artículo 13(1)(f) de la Directiva INSPIRE
     value: http://inspire.ec.europa.eu/metadata-codelist/LimitationsOnPublicAccess/INSPIRE_Directive_Article13_1f
+    dcat_ap: http://publications.europa.eu/resource/authority/access-right/RESTRICTED
   - label:
       en: Public access limited according to Article 13(1)(g) of the INSPIRE Directive
       es: Acceso público limitado según el artículo 13(1)(g) de la Directiva INSPIRE
     value: http://inspire.ec.europa.eu/metadata-codelist/LimitationsOnPublicAccess/INSPIRE_Directive_Article13_1g
+    dcat_ap: http://publications.europa.eu/resource/authority/access-right/RESTRICTED
   - label:
       en: Public access limited according to Article 13(1)(h) of the INSPIRE Directive
       es: Acceso público limitado según el artículo 13(1)(h) de la Directiva INSPIRE
     value: http://inspire.ec.europa.eu/metadata-codelist/LimitationsOnPublicAccess/INSPIRE_Directive_Article13_1h
+    dcat_ap: http://publications.europa.eu/resource/authority/access-right/RESTRICTED
   help_text:
     en: 'Conditions for access and use and <a href="http://inspire.ec.europa.eu/metadata-codelist/LimitationsOnPublicAccess" target="_blank" rel="noopener">limitations on public access</a> (INSPIRE)'
     es: 'Condiciones de acceso y utilización y <a href="http://inspire.ec.europa.eu/metadata-codelist/LimitationsOnPublicAccess" target="_blank" rel="noopener">limitaciones de acceso público</a> (INSPIRE)'

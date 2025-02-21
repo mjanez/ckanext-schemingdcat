@@ -52,7 +52,9 @@ def load_inspire_csv_codelists():
         'MD_ES_THEMES': codelists_dfs.get('theme_es'),
         'MD_EU_THEMES': codelists_dfs.get('theme-dcat_ap'),
         'MD_EU_LANGUAGES': codelists_dfs.get('languages'),
-        'MD_ES_FORMATS': codelists_dfs.get('format_es')
+        'MD_ES_FORMATS': codelists_dfs.get('format_es'),
+        'DCAT_AP_STATUS': codelists_dfs.get('status'),
+        'DCAT_AP_ACCESS_RIGHTS': codelists_dfs.get('rights')
     }
     
 class RdfFile:

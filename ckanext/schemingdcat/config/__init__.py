@@ -4,6 +4,9 @@ from ckanext.schemingdcat.config.harvest import *
 from ckanext.schemingdcat.config.metadata import *
 from ckanext.schemingdcat.config.tools import *
 
+# Harvester config
+from ckanext.schemingdcat.config.harvest_csw import *
+
 
 # Config vars allowed
 __all__ = [
@@ -13,6 +16,7 @@ __all__ = [
     'field_mapping_extras_prefix_symbol'
     'epsg_uri_template',
     'geojson_tolerance',
+    'translate_validator_tags',
 
     # From harvest.py
     'CUSTOM_FORMAT_RULES',
@@ -39,11 +43,15 @@ __all__ = [
     'SCHEMINGDCAT_ISO19115_TOPICS_VOCAB',
     'INSPIRE_DCAT_TYPES',
     'DCAT_AP_HVD_CATEGORY_LEGISLATION',
-    
+    'DCAT_AP_DATASTORE_DATASERVICE',
+    'CONTACT_PUBLISHER_FALLBACK',
+    'BASE_VOCABS',
+
     # From tools.py
     'linkeddata_links',
     'geometadata_links',
     'endpoints',
+    'catalog_publisher_info',
     'schemas',
     'form_tabs',
     'form_tabs_grouping',
@@ -57,4 +65,32 @@ __all__ = [
     'TAGS_NORMALIZE_PATTERN',
     'ACCENT_MAP',
     'COMMON_DATE_FORMATS'
+    
+    # From harvest_csw.py
+    'XLST_MAPPINGS_DIR',
+    'DEFAULT_XSLT_FILE',
+    'DOWNLOAD_PROTOCOL',
+    'OGC_WMTS_PROTOCOL',
+    'OGC_WFS_PROTOCOL',
+    'OGC_WMS_PROTOCOL',
+    'LINKED_DATA_PROTOCOL',
+    'APP_PROTOCOL',
+    'ESRI_REST_PROTOCOL',
+    'MAP_PROTOCOL',
+    'PROTOCOL_MAPPING',
+    'SERVICE_FORMAT',
+    'API_FORMAT',
+    'LINKED_DATA_SERVICE',
+    'FORMAT_MAPPING',
+    'RESOURCE_TYPES',
+    'FILE_TYPES',
+    'FORMAT_STANDARDIZATION',
+    'LANGUAGE_MAPPINGS',
+    ## CSW processor configuration
+    'CSW_DEFAULT_LIMIT',
+    'CQL_QUERY_DEFAULT',
+    'CQL_SEARCH_TERM_DEFAULT',
+    'OUTPUT_SCHEMA',
+    'INSPIRE_HVD_CATEGORY',
+    'INSPIRE_HVD_APPLICABLE_LEGISLATION',
 ]

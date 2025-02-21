@@ -98,7 +98,7 @@ class EuDCATAPSchemingDCATProfile(SchemingDCATRDFProfile):
                 check_name = new_fields_mapping.get(field_name, field_name)
                 for extra in dataset_dict.get("extras", []):
                     if extra["key"].startswith(f"{check_name}_"):
-                        subfield = extra["key"][extra["key"].index("_") + 1:]
+                        subfield = extra["key"][extra["key"].index("_") + 1 :]
                         if subfield in [
                             f["field_name"] for f in schema_field["repeating_subfields"]
                         ]:
@@ -110,6 +110,18 @@ class EuDCATAPSchemingDCATProfile(SchemingDCATRDFProfile):
                 if new_dict:
                     dataset_dict[field_name] = [new_dict]
                     dataset_dict["extras"] = new_extras
+
+        # Contact details
+        contacts = self._contact_details(dataset_ref, DCAT.contactPoint)
+        if contacts:
+            dataset_dict["contact"] = contacts
+
+        # Publishers and creators
+        for item in [("publisher", DCT.publisher), ("creator", DCT.creator)]:
+            key, predicate = item
+            agents = self._agents_details(dataset_ref, predicate)
+            if agents:
+                dataset_dict[key] = agents
 
         # Repeating subfields: resources
         for schema_field in self._dataset_schema["resource_fields"]:
@@ -134,97 +146,80 @@ class EuDCATAPSchemingDCATProfile(SchemingDCATRDFProfile):
         """
         Add triples to the graph from new repeating subfields
         """
-
-        def _not_empty_dict(data_dict):
-            return any(data_dict.values())
-
-        # Contact details
         contact = dataset_dict.get("contact")
-        if isinstance(contact, list) and len(contact) and _not_empty_dict(contact[0]):
+        if (
+            len(list(self.g.objects(dataset_ref, DCAT.contactPoint))) == 0
+            and isinstance(contact, list)            
+            and len(contact)
+            and self._not_empty_dict(contact[0])
+        ):
             for item in contact:
                 contact_uri = item.get("uri")
                 if contact_uri:
-                    contact_details = CleanedURIRef(contact_uri)
+                    contact_ref = CleanedURIRef(self._create_uri_ref(contact_uri, "contact"))
                 else:
-                    contact_details = BNode()
+                    # No publisher_uri
+                    contact_ref = BNode()
 
-                self.g.add((contact_details, RDF.type, VCARD.Kind))
-                self.g.add((dataset_ref, DCAT.contactPoint, contact_details))
+                self.g.add((contact_ref, RDF.type, VCARD.Kind))
+                self.g.add((dataset_ref, DCAT.contactPoint, contact_ref))
 
-                self._add_triple_from_dict(item, contact_details, VCARD.fn, "name")
+                if not self._object_value(contact_ref, VCARD.fn):
+                    self._add_triple_from_dict(item, contact_ref, VCARD.fn, "name")
                 # Add mail address as URIRef, and ensure it has a mailto: prefix
                 self._add_triple_from_dict(
                     item,
-                    contact_details,
+                    contact_ref,
                     VCARD.hasEmail,
                     "email",
                     _type=URIRef,
                     value_modifier=self._add_mailto,
                 )
+                self._add_triple_from_dict(
+                    item,
+                    contact_ref,
+                    VCARD.hasUID,
+                    "identifier",
+                    _type=URIRefOrLiteral,
+                )
+        # If publisher not already present
+        if len(list(self.g.objects(dataset_ref, DCT.publisher))) == 0:
+            self._add_agents(dataset_ref, dataset_dict, "publisher", DCT.publisher)
 
-        publisher = dataset_dict.get("publisher")
-        if (
-            isinstance(publisher, list)
-            and len(publisher)
-            and _not_empty_dict(publisher[0])
-        ):
-            publisher = publisher[0]
-            publisher_uri = publisher.get("uri")
-            if publisher_uri:
-                publisher_ref = CleanedURIRef(publisher_uri)
-            else:
-                publisher_ref = BNode()
+        # ckanext-schemingdcat:'author' or 'creator' check
+        if 'creator' in dataset_dict and len(list(self.g.objects(dataset_ref, DCT.creator))) == 0:
+            self._add_agents(dataset_ref, dataset_dict, "creator", DCT.creator)
+        elif 'author' in dataset_dict and len(list(self.g.objects(dataset_ref, DCT.creator))) == 0:
+            self._add_agents(dataset_ref, dataset_dict, "author", DCT.creator)
 
-            self.g.add((publisher_ref, RDF.type, FOAF.Agent))
-            self.g.add((dataset_ref, DCT.publisher, publisher_ref))
+        # Remove existing temporal triples to avoid duplication
+        temporal_nodes = list(self.g.objects(dataset_ref, DCT.temporal))
+        for temporal in temporal_nodes:
+            self.g.remove((temporal, None, None))
+            self.g.remove((dataset_ref, DCT.temporal, temporal))
 
-            self._add_triple_from_dict(publisher, publisher_ref, FOAF.name, "name")
-            self._add_triple_from_dict(
-                publisher, publisher_ref, FOAF.homepage, "url", _type=URIRef
-            )
-            self._add_triple_from_dict(
-                publisher,
-                publisher_ref,
-                DCT.type,
-                "type",
-                _type=URIRefOrLiteral,
-                # TODO: fix prefLabel stuff
-                # _class=SKOS.Concept,
-            )
-            self._add_triple_from_dict(
-                publisher,
-                publisher_ref,
-                VCARD.hasEmail,
-                "email",
-                _type=URIRef,
-                value_modifier=self._add_mailto,
-            )
-
-            self._add_triple_from_dict(
-                publisher,
-                publisher_ref,
-                DCT.identifier,
-                "identifier",
-                _type=URIRefOrLiteral
-            )
-
+        # Add new temporal triples
         temporal = dataset_dict.get("temporal_coverage")
         if (
             isinstance(temporal, list)
             and len(temporal)
-            and _not_empty_dict(temporal[0])
+            and self._not_empty_dict(temporal[0])
         ):
             for item in temporal:
                 temporal_ref = BNode()
                 self.g.add((temporal_ref, RDF.type, DCT.PeriodOfTime))
                 if item.get("start"):
-                    self._add_date_triple(temporal_ref, DCAT.startDate, item["start"])
+                    self._add_date_triple(temporal_ref, DCAT.startDate, self._ensure_datetime(item["start"]))
                 if item.get("end"):
-                    self._add_date_triple(temporal_ref, DCAT.endDate, item["end"])
+                    self._add_date_triple(temporal_ref, DCAT.endDate, self._ensure_datetime(item["end"]))
                 self.g.add((dataset_ref, DCT.temporal, temporal_ref))
 
         spatial = dataset_dict.get("spatial_coverage")
-        if isinstance(spatial, list) and len(spatial) and _not_empty_dict(spatial[0]):
+        if (
+            isinstance(spatial, list)
+            and len(spatial)
+            and self._not_empty_dict(spatial[0])
+        ):
             for item in spatial:
                 if item.get("uri"):
                     spatial_ref = CleanedURIRef(item["uri"])
@@ -256,3 +251,62 @@ class EuDCATAPSchemingDCATProfile(SchemingDCATRDFProfile):
                         )
                     except ValueError:
                         pass
+
+    def _add_agents(
+        self, dataset_ref, dataset_dict, agent_key, rdf_predicate, first_only=False
+    ):
+        """
+        Adds one or more agents (e.g. publisher or creator) to the RDF graph.
+
+        :param dataset_ref: The RDF reference of the dataset
+        :param dataset_dict: The dataset dictionary containing agent information
+        :param agent_key: field name in the CKAN dict (.e.g. "publisher", "creator", etc)
+        :param rdf_predicate: The RDF predicate (DCT.publisher, DCT.creator, etc)
+        :first_only: Add the first item found only (used for 0..1 properties)
+        """
+        agent = dataset_dict.get(agent_key)
+        if isinstance(agent, list) and len(agent) and self._not_empty_dict(agent[0]):
+            agents = [agent[0]] if first_only else agent
+
+            for agent in agents:
+
+                agent_uri = agent.get("uri")
+                if agent_uri:
+                    agent_ref = CleanedURIRef(agent_uri)
+                else:
+                    agent_ref = BNode()
+
+                self.g.add((agent_ref, RDF.type, FOAF.Agent))
+                self.g.add((dataset_ref, rdf_predicate, agent_ref))
+
+                if not self._object_value(agent_ref, FOAF.name):
+                    self._add_triple_from_dict(agent, agent_ref, FOAF.name, "name")
+                self._add_triple_from_dict(
+                    agent, agent_ref, FOAF.homepage, "url", _type=URIRef
+                )
+                self._add_triple_from_dict(
+                    agent,
+                    agent_ref,
+                    DCT.type,
+                    "type",
+                    _type=URIRefOrLiteral,
+                )
+                self._add_triple_from_dict(
+                    agent,
+                    agent_ref,
+                    VCARD.hasEmail,
+                    "email",
+                    _type=URIRef,
+                    value_modifier=self._add_mailto,
+                )
+                self._add_triple_from_dict(
+                    agent,
+                    agent_ref,
+                    DCT.identifier,
+                    "identifier",
+                    _type=URIRefOrLiteral,
+                )
+
+    @staticmethod
+    def _not_empty_dict(data_dict):
+        return any(data_dict.values())

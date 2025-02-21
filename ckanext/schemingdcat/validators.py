@@ -37,7 +37,8 @@ from ckanext.schemingdcat.config import (
     OGC2CKAN_HARVESTER_MD_CONFIG,
     mimetype_base_uri,
     DCAT_AP_HVD_CATEGORY_LEGISLATION,
-    TAGS_NORMALIZE_PATTERN
+    TAGS_NORMALIZE_PATTERN,
+    CONTACT_PUBLISHER_FALLBACK
 )
 
 log = logging.getLogger(__name__)
@@ -1226,3 +1227,99 @@ def normalize_string(s):
     s = TAGS_NORMALIZE_PATTERN.sub('', s)
     s = s[:30]
     return s
+
+@scheming_validator
+@validator
+def schemingdcat_contact_as_default_publisher(field, schema):
+    """
+    Validator to set a default publisher contact information if not provided.
+
+    Args:
+        field (str): The field name.
+        schema (dict): The schema definition.
+
+    Returns:
+        function: The validator function.
+    """
+    def validator(key, data, errors, context):
+        try: 
+            # Convert key to string if it is a tuple
+            if isinstance(key, tuple):
+                field_name = key[0]
+            else:
+                field_name = key
+            
+            fallback_value = CONTACT_PUBLISHER_FALLBACK.get(field_name, None)
+            
+            if fallback_value and 'ckanext.schemingdcat' in fallback_value:
+                data[key] = config.get(fallback_value)
+            elif fallback_value:
+                data[key] = fallback_value
+            
+            if fallback_value is None:
+                data[key] = None
+        except Exception as e:
+            raise ValueError(f"Unable to set default publisher value {fallback_value} for contact field: {field_name}. Error: {e}")
+
+    return validator
+
+@scheming_validator
+@validator
+def schemingdcat_access_url_if_empty_same_as_url(field, schema):
+    """
+    Validator to set a distribution access URL based on the resource URL type.
+    """
+    def validator(key, data, errors, context):
+        # Get resource URL and dataset ID
+        dataset_id = data.get(key[:-1] + ('package_id',), None)
+        resource_id = data.get(key[:-1] + ('id',), None)
+        resource_url = data.get(key[:-1] + ('url',))
+
+        if dataset_id and resource_id:
+            data[key] = ckan_helpers.url_for('resource.read', id=dataset_id, resource_id=resource_id, _external=True)
+        else:
+            data[key] = resource_url
+
+    return validator
+
+@scheming_validator
+@validator
+def schemingdcat_download_url_if_empty_same_as_url(field, schema):
+    """
+    Validator to set a distribution download URL based on the resource URL type.
+    """
+    def validator(key, data, errors, context):
+        resource_url = data.get(key[:-1] + ('url',), None)
+        value = data.get(key)
+        
+        if not value or value is missing or value == resource_url:
+            # Get resource URL and dataset ID
+            dataset_id = data.get(key[:-1] + ('package_id',), None)
+            resource_id = data.get(key[:-1] + ('id',), None)
+            resource_url = data.get(key[:-1] + ('url',))
+
+            if dataset_id and resource_id and dataset_id in resource_url:
+                data[key] = ckan_helpers.url_for('resource.download', id=dataset_id, resource_id=resource_id, _external=True)
+            else:
+                data[key] = resource_url
+
+    return validator
+
+@scheming_validator
+@validator
+def schemingdcat_dataset_url(field, schema):
+    """
+    Validator to set a dataset URL based on the dataset ID.
+
+    Args:
+        field (str): The field name.
+        schema (dict): The schema definition.
+
+    Returns:
+        function: The validator function.
+    """
+    def validator(key, data, errors, context):
+        dataset_id = data.get(('id', ))
+        data[key] = ckan_helpers.url_for('dataset.read', id=dataset_id, _external=True)
+
+    return validator

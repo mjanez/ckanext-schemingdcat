@@ -1,6 +1,7 @@
 import ckan.logic as logic
 import ckan.plugins as p
 import logging
+import uuid
 import os
 import inspect
 import json
@@ -156,6 +157,13 @@ def init_config():
     sdct_config.linkeddata_links = _load_yaml('linkeddata_links.yaml')
     sdct_config.geometadata_links = _load_yaml('geometadata_links.yaml')
     sdct_config.endpoints = _load_yaml(p.toolkit.config.get('ckanext.schemingdcat.endpoints_yaml'))
+    sdct_config.catalog_publisher_info = {
+        'name': p.toolkit.config.get('ckanext.schemingdcat.dcat_ap.publisher.name'),
+        'email': p.toolkit.config.get('ckanext.schemingdcat.dcat_ap.publisher.email'),
+        'identifier': p.toolkit.config.get('ckanext.schemingdcat.dcat_ap.publisher.identifier'),
+        'type': p.toolkit.config.get('ckanext.schemingdcat.dcat_ap.publisher.type'),
+        'url': p.toolkit.config.get('ckanext.schemingdcat.dcat_ap.publisher.url')
+    }
     
     # Cache scheming schemas of local instance
     sdct_config.schemas = _get_schemas()
@@ -643,3 +651,38 @@ def remove_private_keys(data, private_keys=None):
             del data[key]
     #log.debug('Processed data: %s', data)
     return data
+
+def dataservice_uri(dataservice_dict, catalog_uri):
+    '''
+    Returns an URI for the dataservice
+
+    This will be used to uniquely reference the dataset on the RDF
+    serializations.
+
+    The value will be the first found of:
+
+        1. The value of the `uri` field
+        2. The value of an extra with key `uri`
+        3. `catalog_uri` + '/dataservice/' + `id` field
+
+    Check the documentation for `catalog_uri()` for the recommended ways of
+    setting it.
+
+    Returns a string with the dataset URI.
+    '''
+
+    uri = dataservice_dict.get('uri')
+    if not uri:
+        for extra in dataservice_dict.get('extras', []):
+            if extra['key'] == 'uri' and extra['value'] != 'None':
+                uri = extra['value']
+                break
+    if not uri and dataservice_dict.get('id'):
+        uri = '{0}/dataservice/{1}'.format(catalog_uri.rstrip('/'),
+                                       dataservice_dict['id'])
+    if not uri:
+        uri = '{0}/dataservice/{1}'.format(catalog_uri.rstrip('/'),
+                                       str(uuid.uuid4()))
+        log.warning('Using a random id for dataset URI')
+
+    return uri

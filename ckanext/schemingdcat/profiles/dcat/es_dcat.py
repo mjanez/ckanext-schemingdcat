@@ -205,7 +205,7 @@ class EsNTIRISPProfile(EuDCATAPProfile):
             )
             for key in default_translated_fields_es_dcat
         ]
-        self._add_triples_from_dict(dataset_dict, dataset_ref, items, multilang=True)
+        self._add_triples_from_dict(dataset_dict, dataset_ref, items)
 
 
         # Basic elements (Title, description, Dates)
@@ -332,9 +332,8 @@ class EsNTIRISPProfile(EuDCATAPProfile):
         g.add((catalog_ref, RDF.type, DCAT.Catalog))
         
         # Basic fields
-        license, publisher_identifier, access_rights, spatial_uri, language_code = [
+        license, access_rights, spatial_uri, language_code = [
             self._get_catalog_field(field_name='license_url', fallback='license_id', default_values_dict=es_dcat_default_values),
-            es_dcat_default_values['publisher_identifier'] or self._get_catalog_field(field_name='publisher_identifier', default_values_dict=es_dcat_default_values),
             self._get_catalog_field(field_name='access_rights', default_values_dict=es_dcat_default_values),
             self._get_catalog_field(field_name='spatial_uri', default_values_dict=es_dcat_default_values),
             es_dcat_default_values['language_code'] or config.get('ckan.locale_default')
@@ -342,9 +341,6 @@ class EsNTIRISPProfile(EuDCATAPProfile):
 
         # Mandatory elements by NTI-RISP (datos.gob.es)
         items_core = [
-            ('title', DCT.title, config.get('ckan.site_title'), Literal),
-            ('description', DCT.description, config.get('ckan.site_description'), Literal),
-            ('publisher_identifier', DCT.publisher, publisher_identifier, URIRef),
             ('identifier', DCT.identifier, f'{config.get("ckan_url")}/catalog.rdf', Literal),
             ('encoding', CNT.characterEncoding, 'UTF-8', Literal),
             ('language_code', DC.language, language_code, URIRefOrLiteral),
@@ -367,6 +363,18 @@ class EsNTIRISPProfile(EuDCATAPProfile):
             value = catalog_dict.get(key, fallback) if catalog_dict else fallback
             if value:
                 g.add((catalog_ref, predicate, _type(value)))
+
+        # Title & Description multilang
+        catalog_fields = {
+            'title': (config.get("ckan.site_title"), DCT.title),
+            'description': (config.get("ckan.site_description"), DCT.description)
+        }
+        
+        try:
+            for field, (value, predicate) in catalog_fields.items():
+                self._add_multilingual_literal(g, catalog_ref, predicate, value, es_dcat_default_values['language_code'])
+        except Exception as e:
+            log.error(f'Error adding catalog {field}: {str(e)}')
 
         #TODO: Tamaño del catálogo - dct:extent
 

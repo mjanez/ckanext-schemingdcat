@@ -26,6 +26,7 @@ from ckanext.schemingdcat.config import (
     COMMON_DATE_FORMATS,
     XLS_HARVESTER_FIELDS_NOT_LIST
 )
+from ckanext.schemingdcat.helpers import schemingdcat_get_dataset_schema_field_names
 
 log = logging.getLogger(__name__)
 
@@ -628,6 +629,20 @@ class SchemingDCATXLSHarvester(SchemingDCATHarvester):
         if 'default_extras' in config_obj:
             if not isinstance(config_obj['default_extras'], dict):
                 raise ValueError('default_extras must be a dictionary')
+        
+            # Get the field names from the schema
+            schema_field_names = schemingdcat_get_dataset_schema_field_names()
+
+            # Extract dataset_fields
+            dataset_field_names = []
+            for field_group in schema_field_names:
+                if 'dataset_fields' in field_group:
+                    dataset_field_names.extend(field_group['dataset_fields'])
+
+            # Check if any field_name in default_extras exists in dataset_fields
+            for field_name in config_obj['default_extras']:
+                if field_name in dataset_field_names:
+                    raise KeyError(f"Field name '{field_name}' in default_extras already exists in the schema")
 
         if 'user' in config_obj:
             # Check if user exists
@@ -1087,7 +1102,7 @@ class SchemingDCATXLSHarvester(SchemingDCATHarvester):
             harvest_object.add()
 
         # Update dates
-        self._source_date_format = self.config.get('source_date_format', None)
+        self._source_date_format = self.config.get('source_date_format', '%Y-%m-%d')
         self._set_basic_dates(dataset)
 
         harvest_object.metadata_modified_date = dataset['modified']
@@ -1147,26 +1162,27 @@ class SchemingDCATXLSHarvester(SchemingDCATHarvester):
 
         elif status == 'change':
             # Check if the modified date is more recent
-            if not self.force_import and previous_object and dateutil.parser.parse(harvest_object.metadata_modified_date) <= previous_object.metadata_modified_date:
+            if not self.force_import and previous_object and previous_object.metadata_modified_date and dateutil.parser.parse(harvest_object.metadata_modified_date) <= previous_object.metadata_modified_date:
                 log.info('Package with GUID: %s unchanged, skipping...' % harvest_object.guid)
                 return 'unchanged'
             else:
-                log.info("Dataset dates - Harvest date: %s and Previous date: %s", harvest_object.metadata_modified_date, previous_object.metadata_modified_date)
-
+                log.info("Dataset dates - Harvest date: %s and Previous date: %s", harvest_object.metadata_modified_date, previous_object.metadata_modified_date if previous_object else 'None')
+        
                 # update_package_schema_for_update interface
                 package_schema = logic.schema.default_update_package_schema()
                 for harvester in p.PluginImplementations(ISchemingDCATHarvester):
                     if hasattr(harvester, 'update_package_schema_for_update'):
                         package_schema = harvester.update_package_schema_for_update(package_schema)
                 context['schema'] = package_schema
-
+        
                 package_dict['id'] = harvest_object.package_id
+                
                 try:
                     # before_update interface
                     for harvester in p.PluginImplementations(ISchemingDCATHarvester):
                         if hasattr(harvester, 'before_update'):
                             err = harvester.before_update(harvest_object, package_dict, harvester_tmp_dict)
-
+        
                             if err:
                                 self._save_object_error(f'TableHarvester plugin error: {err}', harvest_object, 'Import')
                                 return False
@@ -1174,21 +1190,21 @@ class SchemingDCATXLSHarvester(SchemingDCATHarvester):
                     result = self._create_or_update_package(
                         package_dict, harvest_object, 
                         package_dict_form='package_show')
-
+        
                     # after_update interface
                     for harvester in p.PluginImplementations(ISchemingDCATHarvester):
                         if hasattr(harvester, 'after_update'):
                             err = harvester.after_update(harvest_object, package_dict, harvester_tmp_dict)
-
+        
                             if err:
                                 self._save_object_error(f'TableHarvester plugin error: {err}', harvest_object, 'Import')
                                 return False
-
+        
                     log.info('Updated package %s with GUID: %s' % (package_dict["id"], harvest_object.guid))
                     
                 except p.toolkit.ValidationError as e:
                     error_message = ', '.join(f'{k}: {v}' for k, v in e.error_dict.items())
                     self._save_object_error(f'Validation Error: {error_message}', harvest_object, 'Import')
                     return False
-
+        
         return result

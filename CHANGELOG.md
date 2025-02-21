@@ -6,21 +6,60 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 <!-- insertion marker -->
-## [v4.2.3](https://github.com/mjanez/ckanext-scheming_dcat/releases/tag/v4.2.3) - 2024-11-12
+## Unreleased
 
-<small>[Compare with latest](https://github.com/mjanez/ckanext-scheming_dcat/compare/v4.2.3...v4.2.2)</small>
+<small>[Compare with latest](https://github.com/mjanez/ckanext-scheming_dcat/compare/v4.3.0...HEAD)</small>
+
+<!-- insertion marker -->
+## [v4.3.0](https://github.com/mjanez/ckanext-scheming_dcat/releases/tag/v4.3.0) - 2024-12-12
+
+<small>[Compare with v4.2.3](https://github.com/mjanez/ckanext-scheming_dcat/compare/v4.2.3...v4.3.0)</small>
 
 ### Added
 
+- Add HVD category and applicable legislation to all INSPIRE records & fix bug ([886c58e](https://github.com/mjanez/ckanext-scheming_dcat/commit/886c58e291ab8722988f06c869c9787f82428359) by mjanez).
+- Add root user option to GitHub Actions workflow container ([510fcfc](https://github.com/mjanez/ckanext-scheming_dcat/commit/510fcfc1e88571fd721f5c5d0fc2c14fea5ae02c) by mjanez).
+- Add CSW harvester to the list of available harvesters ([66f4ad1](https://github.com/mjanez/ckanext-scheming_dcat/commit/66f4ad15d684e94d3b25be58c41f6540196e7c1c) by mjanez).
+- Add temporal and spatial resolution fields to DCAT-AP 2 profiles ([fe9bf54](https://github.com/mjanez/ckanext-scheming_dcat/commit/fe9bf542a371c39f556872541c80b25c0a374581) by mjanez).
+- Add schema  to additional_info template to avoid bugs ([277553f](https://github.com/mjanez/ckanext-scheming_dcat/commit/277553faad8b3fe8d412480839bf0b64f245b5d4) by mjanez).
+- Add about and harvest info templates for dataset sources ([98fdce6](https://github.com/mjanez/ckanext-scheming_dcat/commit/98fdce659c54927614279c3d8d0eff7cb7cedf7e) by mjanez).
+
+### Fixed
+
+- FIx resource_read template ([e4da5d6](https://github.com/mjanez/ckanext-scheming_dcat/commit/e4da5d64c250972e34e33cf0b189fb1d608bde74) by mjanez).
+- Fix bug when source_date_format is None. ([1b25c9e](https://github.com/mjanez/ckanext-scheming_dcat/commit/1b25c9eb71521e4b046b003ae5830b8316444a2a) by mjanez).
+- Fix image ([0122653](https://github.com/mjanez/ckanext-scheming_dcat/commit/0122653135e5ba2222a66507c2b042ef568b086f) by mjanez).
+- Fix image url ([325a0c2](https://github.com/mjanez/ckanext-scheming_dcat/commit/325a0c220938ee49f06e77ca48d666db98a4b92b) by mjanez).
+- Fix GeoDCAT-AP Schemas ([64f6e28](https://github.com/mjanez/ckanext-scheming_dcat/commit/64f6e28fa46a6b5ffdaea99a6a2c9c0dbd5d599b) by mjanez).
+- Fix formatting in __init__.py by adding a trailing comma for EuGeoDCATAP3Profile ([980edd2](https://github.com/mjanez/ckanext-scheming_dcat/commit/980edd28d9521da3a395a17e320915b15c82a14c) by mjanez).
+- Fix language priorities retrieval to handle non-string values ([1fefbab](https://github.com/mjanez/ckanext-scheming_dcat/commit/1fefbaba0c5d09eb067400fb0e8c7649163e9a7a) by mjanez).
+
+### Removed
+
+- Remove unnecessary multilang flag from _add_triples_from_dict method in EsNTIRISPProfile (es_dcat) ([b6f65e1](https://github.com/mjanez/ckanext-scheming_dcat/commit/b6f65e198db5a037b2e4de292840f52543944f1e) by mjanez).
+- Remove unncesary multilang methods since ckanext-dcat v2.1.0 ([e7eff22](https://github.com/mjanez/ckanext-scheming_dcat/commit/e7eff2200894c557057be13d8c5a150f3c9ce0ed) by mjanez).
+
+## [v4.2.3](https://github.com/mjanez/ckanext-scheming_dcat/releases/tag/v4.2.3) - 2024-11-19
+
+<small>[Compare with v4.2.2](https://github.com/mjanez/ckanext-scheming_dcat/compare/v4.2.2...v4.2.3)</small>
+
+### Added
+
+- Add UUID generation for dataset identifiers instead of adhoc generation and improve logging for harvesters ([41fb759](https://github.com/mjanez/ckanext-scheming_dcat/commit/41fb7590c3eeb0045891484e653cb5b9b4a2e497) by mjanez).
+- Add new preset for optional date validation in default_presets.json ([4ebbb30](https://github.com/mjanez/ckanext-scheming_dcat/commit/4ebbb3022a46aebc7814e34fe191dd27674dee9b) by mjanez).
 - Add private_fields logic to package_show, package_search, etc. and config options ([ad8172d](https://github.com/mjanez/ckanext-scheming_dcat/commit/ad8172dae84714f970057fe516a8d75f40ed9865) by mjanez).
 - Add validators and presets for tag_string normalization (normalize_tag_string_autocomplete) ([e606499](https://github.com/mjanez/ckanext-scheming_dcat/commit/e606499c8f3300d15fda9b20446dfff371478ac1) by mjanez).
 - Add custom identifier template and update translations for metadata completion message ([eba6c0d](https://github.com/mjanez/ckanext-scheming_dcat/commit/eba6c0dea0d3ad690979f8e552374f0cfbc421c4) by mjanez).
 
 ### Fixed
 
+- Fix Spanish label for dataset author field in schemas ([be095dd](https://github.com/mjanez/ckanext-scheming_dcat/commit/be095ddbf76323f79d72eddcca7d192d043faa12) by mjanez).
 - Fix user organization membership check and clean up tag normalization logging ([404b838](https://github.com/mjanez/ckanext-scheming_dcat/commit/404b83887e35d817a9e4c806865fe0fb2032fae0) by mjanez).
 
-<!-- insertion marker -->
+### Removed
+
+- Remove unnecessary static method decorator from normalize_string function ([8d7ab4b](https://github.com/mjanez/ckanext-scheming_dcat/commit/8d7ab4bfe9dab493bc55164c16f5eaa7de8bec25) by mjanez).
+
 ## [v4.2.2](https://github.com/mjanez/ckanext-scheming_dcat/releases/tag/v4.2.2) - 2024-11-11
 
 <small>[Compare with v4.2.1](https://github.com/mjanez/ckanext-scheming_dcat/compare/v4.2.1...v4.2.2)</small>

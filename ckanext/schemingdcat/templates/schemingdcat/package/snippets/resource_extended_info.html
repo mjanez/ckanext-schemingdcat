@@ -107,6 +107,17 @@
     </tr>
 {% endblock %}
 
+{% block access_url %}
+    {% set field_name ='access_url' %}
+    {% set field = h.scheming_field_by_name(schema.resource_fields, 'access_url') %}
+    <tr>
+        <th scope="row">{{ h.scheming_language_text(field.label) }}</th>
+        <td class="truncate-text">
+            {{ h.link_to(res[field_name], res[field_name], target='_blank') }}
+        </td>
+    </tr>
+{% endblock %}
+
 {% block download_url %}
     {% set field_name ='download_url' %}
     {% set field = h.scheming_field_by_name(schema.resource_fields, 'download_url') %}

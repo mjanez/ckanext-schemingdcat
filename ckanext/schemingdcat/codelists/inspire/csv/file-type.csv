@@ -1,4 +1,5 @@
 id,label,media_type
+,API,http://www.iana.org/assignments/media-types/application/vnd.api+json
 ,3DGEOVOLUMES,http://www.opengis.net/def/interface/ogcapi-3d-geo-volumes
 http://publications.europa.eu/resource/authority/file-type/7Z,7Z,
 http://publications.europa.eu/resource/authority/file-type/AAB,AAB,

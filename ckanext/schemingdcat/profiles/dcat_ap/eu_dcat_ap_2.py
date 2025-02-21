@@ -1,9 +1,10 @@
 import json
 from decimal import Decimal, DecimalException
+import logging
 
 from rdflib import URIRef, BNode, Literal
 
-from ckanext.dcat.utils import resource_uri
+from ckanext.dcat.utils import resource_uri, catalog_uri
 from ckanext.dcat.profiles.base import URIRefOrLiteral, CleanedURIRef
 
 from ckanext.schemingdcat.profiles.base import (
@@ -25,12 +26,13 @@ from ckanext.schemingdcat.profiles.dcat_config import (
     ADMS,
     CNT,
     ELI,
+    FOAF,
     # Default values
     metadata_field_names,
     eu_dcat_ap_default_values,
     )
 
-
+log = logging.getLogger(__name__)
 
 class EuDCATAP2Profile(BaseEuDCATAPProfile):
     """
@@ -71,6 +73,9 @@ class EuDCATAP2Profile(BaseEuDCATAPProfile):
     def graph_from_catalog(self, catalog_dict, catalog_ref):
 
         self._graph_from_catalog_base(catalog_dict, catalog_ref)
+
+        # DCAT AP 2 catalog properties also applied to higher versions
+        self._graph_from_catalog_v2(catalog_dict, catalog_ref)
 
     def _parse_dataset_v2(self, dataset_dict, dataset_ref):
         """
@@ -148,10 +153,23 @@ class EuDCATAP2Profile(BaseEuDCATAPProfile):
                         ("availability", DCATAP.availability),
                         ("compress_format", DCAT.compressFormat),
                         ("package_format", DCAT.packageFormat),
+                        ("temporal_resolution", DCAT.temporalResolution),
                     ):
                         value = self._object_value(distribution, predicate)
                         if value:
                             resource_dict[key] = value
+
+                    # Spatial resolution in meters
+                    spatial_resolution = self._object_value_float_list(
+                        distribution, DCAT.spatialResolutionInMeters
+                    )
+                    if spatial_resolution:
+                        value = (
+                            spatial_resolution[0]
+                            if len(spatial_resolution) == 1
+                            else json.dumps(spatial_resolution)
+                        )
+                        resource_dict["spatial_resolution_in_meters"] = value
 
                     #  Lists
                     for key, predicate in (
@@ -216,14 +234,8 @@ class EuDCATAP2Profile(BaseEuDCATAPProfile):
         CKAN -> DCAT properties carried forward to higher DCAT-AP versions
         """
 
-        # Standard values
-        self._add_triple_from_dict(
-            dataset_dict,
-            dataset_ref,
-            DCAT.temporalResolution,
-            "temporal_resolution",
-            _datatype=XSD.duration,
-        )
+        # Catalog URI
+        catalog_ref = catalog_uri()
 
         # Lists
         for key, predicate, fallbacks, type, datatype, _class in (
@@ -258,7 +270,6 @@ class EuDCATAP2Profile(BaseEuDCATAPProfile):
             )
 
         # Temporal
-
         # The profile for DCAT-AP 1 stored triples using schema:startDate,
         # remove them to avoid duplication
         for temporal in self.g.objects(dataset_ref, DCT.temporal):
@@ -266,17 +277,17 @@ class EuDCATAP2Profile(BaseEuDCATAPProfile):
                 self.g.remove((temporal, None, None))
                 self.g.remove((dataset_ref, DCT.temporal, temporal))
 
-        start = self._get_dataset_value(dataset_dict, "temporal_start")
-        end = self._get_dataset_value(dataset_dict, "temporal_end")
+        start = self._ensure_datetime(self._get_dataset_value(dataset_dict, "temporal_start"))
+        end = self._ensure_datetime(self._get_dataset_value(dataset_dict, "temporal_end"))
         if start or end:
-            temporal_extent_dcat = BNode()
+            temporal_extent = BNode()
 
-            self.g.add((temporal_extent_dcat, RDF.type, DCT.PeriodOfTime))
+            self.g.add((temporal_extent, RDF.type, DCT.PeriodOfTime))
             if start:
-                self._add_date_triple(temporal_extent_dcat, DCAT.startDate, start)
+                self._add_date_triple(temporal_extent, DCAT.startDate, start)
             if end:
-                self._add_date_triple(temporal_extent_dcat, DCAT.endDate, end)
-            self.g.add((dataset_ref, DCT.temporal, temporal_extent_dcat))
+                self._add_date_triple(temporal_extent, DCAT.endDate, end)
+            self.g.add((dataset_ref, DCT.temporal, temporal_extent))
 
         # spatial
         spatial_bbox = self._get_dataset_value(dataset_dict, "spatial_bbox")
@@ -293,33 +304,51 @@ class EuDCATAP2Profile(BaseEuDCATAPProfile):
                     spatial_ref, DCAT.centroid, spatial_cent
                 )
 
-        # Spatial resolution in meters
+        # Spatial resolution in meters (0..1)
         spatial_resolution_in_meters = self._read_list_value(
             self._get_dataset_value(dataset_dict, "spatial_resolution_in_meters")
         )
         if spatial_resolution_in_meters:
             for value in spatial_resolution_in_meters:
+                spatial_resolution = self._clean_spatial_resolution(value, 'decimal')
                 try:
                     self.g.add(
                         (
                             dataset_ref,
                             DCAT.spatialResolutionInMeters,
-                            Literal(Decimal(value), datatype=XSD.decimal),
+                            Literal(Decimal(spatial_resolution), datatype=XSD.decimal),
                         )
                     )
                 except (ValueError, TypeError, DecimalException):
                     self.g.add(
-                        (dataset_ref, DCAT.spatialResolutionInMeters, Literal(value))
+                        (dataset_ref, DCAT.spatialResolutionInMeters, Literal(spatial_resolution))
                     )
+
+        # Clean up applicable_legislation that are not URIs
+        for legislation in self.g.objects(dataset_ref, DCATAP.applicableLegislation):
+            if not isinstance(legislation, URIRef):
+                self.g.remove((dataset_ref, DCATAP.applicableLegislation, legislation))
+
+        # DCAT 2: byteSize decimal
+        for subject, predicate, object in self.g.triples((None, DCAT.byteSize, None)):
+            if object and object.datatype != XSD.decimal or not object.datatype:
+                self.g.remove((subject, predicate, object))
+
+                self.g.add(
+                    (
+                        subject,
+                        predicate,
+                        Literal(int(object), datatype=XSD.decimal),
+                    )
+                )
 
         # Resources
         for resource_dict in dataset_dict.get("resources", []):
 
-            distribution = CleanedURIRef(resource_uri(resource_dict))
+            distribution_ref = CleanedURIRef(resource_uri(resource_dict))
 
             #  Simple values
             items = [
-                ("availability", DCATAP.availability, None, URIRefOrLiteral),
                 (
                     "compress_format",
                     DCAT.compressFormat,
@@ -336,7 +365,38 @@ class EuDCATAP2Profile(BaseEuDCATAPProfile):
                 ),
             ]
 
-            self._add_triples_from_dict(resource_dict, distribution, items)
+            self._add_triples_from_dict(resource_dict, distribution_ref, items)
+
+            # Add availability from distribution
+            distribution_availability = self._get_dataset_value(resource_dict, "availability") or eu_dcat_ap_default_values["availability"]
+            if distribution_availability:
+                self.g.add((distribution_ref, DCATAP.availability, URIRef(distribution_availability)))
+
+            # Temporal resolution
+            temporal_resolution = resource_dict.get("temporal_resolution")
+            if temporal_resolution and self._is_valid_temporal_resolution(temporal_resolution):
+                self.g.add((
+                    distribution_ref, 
+                    DCAT.temporalResolution, 
+                    Literal(temporal_resolution, datatype=XSD.duration)
+                ))
+
+            # Spatial resolution in meters (0..1)
+            spatial_resolution_in_meters = resource_dict.get("spatial_resolution_in_meters")
+            if spatial_resolution_in_meters:
+                spatial_resolution = self._clean_spatial_resolution(spatial_resolution_in_meters, 'decimal')
+                try:
+                    self.g.add(
+                        (
+                            distribution_ref,
+                            DCAT.spatialResolutionInMeters,
+                            Literal(Decimal(spatial_resolution), datatype=XSD.decimal),
+                        )
+                    )
+                except (ValueError, TypeError, DecimalException):
+                    self.g.add(
+                        (distribution_ref, DCAT.spatialResolutionInMeters, Literal(spatial_resolution))
+                    )
 
             #  Lists
             items = [
@@ -348,9 +408,14 @@ class EuDCATAP2Profile(BaseEuDCATAPProfile):
                     ELI.LegalResource,
                 ),
             ]
-            self._add_list_triples_from_dict(resource_dict, distribution, items)
-
-            # Access services
+            self._add_list_triples_from_dict(resource_dict, distribution_ref, items)
+            
+            # Clean up applicable_legislation that are not URIs
+            for legislation in self.g.objects(distribution_ref, DCATAP.applicableLegislation):
+                if not isinstance(legislation, URIRef):
+                    self.g.remove((distribution_ref, DCATAP.applicableLegislation, legislation))
+            
+            # DCAT Data Service. ckanext-schemingdcat: DCAT-AP Enhancements
             access_service_list = resource_dict.get("access_services", [])
             if isinstance(access_service_list, str):
                 try:
@@ -359,23 +424,24 @@ class EuDCATAP2Profile(BaseEuDCATAPProfile):
                     access_service_list = []
 
             for access_service_dict in access_service_list:
+                if not self._is_valid_access_service(access_service_dict):
+                    continue
 
                 access_service_uri = access_service_dict.get("uri")
                 if access_service_uri:
                     access_service_node = CleanedURIRef(access_service_uri)
                 else:
-                    access_service_node = BNode()
+                    access_service_node = CleanedURIRef(f"{distribution_ref}/dataservice")
                     # Remember the (internal) access service reference for referencing
                     # in further profiles
                     access_service_dict["access_service_ref"] = str(access_service_node)
 
-                self.g.add((distribution, DCAT.accessService, access_service_node))
+                self.g.add((distribution_ref, DCAT.accessService, access_service_node))
 
                 self.g.add((access_service_node, RDF.type, DCAT.DataService))
 
                 #  Simple values
                 items = [
-                    ("availability", DCATAP.availability, None, URIRefOrLiteral),
                     ("license", DCT.license, None, URIRefOrLiteral),
                     ("access_rights", DCT.accessRights, None, URIRefOrLiteral),
                     ("title", DCT.title, None, Literal),
@@ -408,13 +474,63 @@ class EuDCATAP2Profile(BaseEuDCATAPProfile):
                     access_service_dict, access_service_node, items
                 )
 
-                # DCAT-AP: http://publications.europa.eu/en/web/eu-vocabularies/at-dataset/-/resource/dataset/access-right
-                access_rights = self._get_resource_value(resource_dict, 'access_rights')
-                if access_rights and 'authority/access-right' in access_rights:
-                    access_rights_uri = URIRef(access_rights)
-                else:
-                    access_rights_uri = URIRef(eu_dcat_ap_default_values['access_rights'])
-                self.g.add((distribution, DCT.accessRights, access_rights_uri))
+                # Lists from resource
+                items = [
+                    (
+                        "applicable_legislation",
+                        DCATAP.applicableLegislation,
+                        None,
+                        URIRefOrLiteral,
+                        ELI.LegalResource,
+                    ),
+                ]
+                self._add_list_triples_from_dict(
+                    resource_dict, access_service_node, items
+                )
+
+                # FOAF Page
+                self.g.add((access_service_node, FOAF.page, distribution_ref))
+                
+                # HVD DataService Mandatory properties
+                data_service_hvd_properties = [
+                    ('hvd_category', DCATAP.hvdCategory, lambda x: x),
+                    (None, DCT.license, self.g.value, dataset_ref),
+                    (None, DCT.accessRights, self.g.value, dataset_ref),
+                ]
+                
+                # Process mappings
+                for src_field, predicate, getter, *args in data_service_hvd_properties:
+                    value = (
+                        self._get_dataset_value(dataset_dict, src_field) 
+                        if src_field 
+                        else getter(*args, predicate)
+                    )
+                    if value:
+                        self.g.add((
+                            access_service_node, 
+                            predicate, 
+                            URIRef(value)
+                        ))
+                
+                # Add all DCAT.theme from dataset_ref to access_service_node
+                for theme in self.g.objects(dataset_ref, DCAT.theme):
+                    self.g.add((access_service_node, DCAT.theme, theme))
+                    
+                # Add DCAT.contactPoint from dataset_ref to access_service_node
+                contact_point = self.g.value(dataset_ref, DCAT.contactPoint)
+                if contact_point:
+                    self.g.add((access_service_node, DCAT.contactPoint, contact_point))
+
+                # Add DCAT.publisher from dataset_ref to access_service_node   
+                self._add_catalog_publisher_to_service(access_service_node)
+
+                # Append dcat:DataService to dcat:Catalog
+                self.g.add((URIRef(catalog_ref), DCAT.service, access_service_node))   
+
+                # Clean up applicable_legislation that are not URIs
+                for legislation in self.g.objects(access_service_node, DCATAP.applicableLegislation):
+                    if not isinstance(legislation, URIRef):
+                        self.g.remove((access_service_node, DCATAP.applicableLegislation, legislation))
 
             if access_service_list:
                 resource_dict["access_services"] = json.dumps(access_service_list)
@@ -435,3 +551,9 @@ class EuDCATAP2Profile(BaseEuDCATAPProfile):
             _type=URIRefOrLiteral,
             _class=ADMS.Identifier,
         )
+
+    def _graph_from_catalog_v2(self, catalog_dict, catalog_ref):
+        # remove publisher to avoid duplication
+        for access_service in self.g.objects(catalog_ref, DCAT.DataService):
+            self.g.add((catalog_ref, DCAT.service, access_service))
+    

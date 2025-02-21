@@ -7,13 +7,13 @@ OGC2CKAN_HARVESTER_MD_CONFIG = {
         'http://inspire.ec.europa.eu/documents/inspire-metadata-regulation','http://inspire.ec.europa.eu/documents/commission-regulation-eu-no-13122014-10-december-2014-amending-regulation-eu-no-10892010-0'
     ],
     'author_name': 'ckanext-schemingdcat',
-    'author_email': 'admin@{ckan_instance}',
-    'author_url': '{ckan_instance}/organization/test',
-    'author_uri': '{ckan_instance}/organization/test',
+    'author_email': 'admin@{ckan_site_url}',
+    'author_url': '{ckan_site_url}/organization/test',
+    'author_uri': '{ckan_site_url}/organization/test',
     'contact_name': 'ckanext-schemingdcat',
-    'contact_email': 'admin@{ckan_instance}',
-    'contact_url': '{ckan_instance}/organization/test',
-    'contact_uri': '{ckan_instance}/organization/test',
+    'contact_email': 'admin@{ckan_site_url}',
+    'contact_url': '{ckan_site_url}/organization/test',
+    'contact_uri': '{ckan_site_url}/organization/test',
     'dcat_type': {
         'series': 'http://inspire.ec.europa.eu/metadata-codelist/ResourceType/series',
         'dataset': 'http://inspire.ec.europa.eu/metadata-codelist/ResourceType/dataset',
@@ -36,21 +36,22 @@ OGC2CKAN_HARVESTER_MD_CONFIG = {
     'inspireid_theme': 'HB',
     'language': 'http://publications.europa.eu/resource/authority/language/ENG',
     'license': 'http://creativecommons.org/licenses/by/4.0/',
-    'license_id': 'cc-by',
+    'license_id': 'CC-BY-4.0',
+    'license_url': 'https://publications.europa.eu/resource/authority/licence/CC_BY_4_0',
     'lineage_process_steps': 'ckanext-schemingdcat lineage process steps.',
     'maintainer_name': 'ckanext-schemingdcat',
-    'maintainer_email': 'admin@{ckan_instance}',
-    'maintainer_url': '{ckan_instance}/organization/test',
-    'maintainer_uri': '{ckan_instance}/organization/test',
+    'maintainer_email': 'admin@{ckan_site_url}',
+    'maintainer_url': '{ckan_site_url}/organization/test',
+    'maintainer_uri': '{ckan_site_url}/organization/test',
     'metadata_profile': [
-        "http://semiceu.github.io/GeoDCAT-AP/releases/2.0.0","http://inspire.ec.europa.eu/document-tags/metadata"
+        'http://semiceu.github.io/GeoDCAT-AP/releases/2.0.0','http://inspire.ec.europa.eu/document-tags/metadata'
     ],
     'provenance': 'ckanext-schemingdcat provenance statement.',
     'publisher_name': 'ckanext-schemingdcat',
-    'publisher_email': 'admin@{ckan_instance}',
-    'publisher_url': '{ckan_instance}/organization/test',
-    'publisher_identifier': '{ckan_instance}/organization/test',
-    'publisher_uri': '{ckan_instance}/organization/test',
+    'publisher_email': 'admin@{ckan_site_url}',
+    'publisher_url': '{ckan_site_url}/organization/test',
+    'publisher_identifier': '{ckan_site_url}/organization/test',
+    'publisher_uri': '{ckan_site_url}/organization/test',
     'publisher_type': 'http://purl.org/adms/publishertype/NonProfitOrganisation',
     'reference_system': 'http://www.opengis.net/def/crs/EPSG/0/4258',
     'representation_type': {
@@ -161,7 +162,7 @@ DATASET_DEFAULT_FIELDS = [
 ]
 
 RESOURCE_DEFAULT_FIELDS = [
-    {'field_name': 'url', 'fallback': None, 'default_value': "", 'override': False, 'dtype': str},
+    {'field_name': 'url', 'fallback': None, 'default_value': '', 'override': False, 'dtype': str},
     {'field_name': 'name', 'fallback': None, 'default_value': None, 'override': False, 'dtype': str},
     {'field_name': 'format', 'fallback': None, 'default_value': None, 'override': False, 'dtype': str},
     {'field_name': 'protocol', 'fallback': None, 'default_value': None, 'override': False, 'dtype': str},
@@ -176,10 +177,10 @@ RESOURCE_DEFAULT_FIELDS = [
 ]
 
 # Vocabs
-SCHEMINGDCAT_DEFAULT_DATASET_SCHEMA_NAME: typing.Final[str] = "dataset"
-SCHEMINGDCAT_INSPIRE_THEMES_VOCAB: typing.Final[str] = "theme"
-SCHEMINGDCAT_DCAT_THEMES_VOCAB: typing.Final[list] = ["theme_es", "theme_eu"]
-SCHEMINGDCAT_ISO19115_TOPICS_VOCAB: typing.Final[list] = "topic"
+SCHEMINGDCAT_DEFAULT_DATASET_SCHEMA_NAME: typing.Final[str] = 'dataset'
+SCHEMINGDCAT_INSPIRE_THEMES_VOCAB: typing.Final[str] = 'theme'
+SCHEMINGDCAT_DCAT_THEMES_VOCAB: typing.Final[list] = ['theme_es', 'theme_eu']
+SCHEMINGDCAT_ISO19115_TOPICS_VOCAB: typing.Final[list] = 'topic'
 
 INSPIRE_DCAT_TYPES = [
     'http://inspire.ec.europa.eu/metadata-codelist/ResourceType/dataset',
@@ -187,4 +188,35 @@ INSPIRE_DCAT_TYPES = [
     'http://inspire.ec.europa.eu/metadata-codelist/ResourceType/service'
 ]
 
-DCAT_AP_HVD_CATEGORY_LEGISLATION = "http://data.europa.eu/eli/reg_impl/2023/138/oj"
+DCAT_AP_HVD_CATEGORY_LEGISLATION = 'http://data.europa.eu/eli/reg_impl/2023/138/oj'
+
+DCAT_AP_DATASTORE_DATASERVICE = {
+    'uri': '{ckan_site_url}/api/3/action/datastore_search?resource_id={resource_id}',
+    'title': 'Datastore API service',
+    'description': 'This API provides live access to the Datastore portion of the Open Data Portal.',
+    'endpoint_description': '{ckan_site_url}/openapi/datastore/',
+    'endpoint_url': [
+        '{ckan_site_url}/api/3/'
+    ],
+    'serves_dataset': [
+        '{ckan_site_url}/dataset/{dataset_id}'
+    ]
+}
+
+CONTACT_PUBLISHER_FALLBACK = {
+    'contact_name': 'ckanext.schemingdcat.dcat_ap.publisher.name',
+    'contact_email': 'ckanext.schemingdcat.dcat_ap.publisher.email',
+    'contact_url': 'ckanext.schemingdcat.dcat_ap.publisher.url',
+    'contact_uri': 'ckanext.schemingdcat.dcat_ap.publisher.identifier',
+    'contact_role': 'http://inspire.ec.europa.eu/metadata-codelist/ResponsiblePartyRole/pointOfContact'
+}
+
+BASE_VOCABS = {
+    'eu_publications': 'http://publications.europa.eu/resource/authority/',
+    'eu_inspire': 'http://inspire.ec.europa.eu/metadata-codelist',
+    'eu_inspire_theme': 'http://inspire.ec.europa.eu/theme/',
+    'publisher_type_purl': '"http://purl.org/adms/publishertype/',
+    'iana_mimetype': 'http://www.iana.org/assignments/media-types/',
+    'epsg_opengis': 'http://www.opengis.net/def/crs/EPSG/0/',
+    'es_publisher_org': 'http://datos.gob.es/recurso/sector-publico/org/Organismo/',
+}
