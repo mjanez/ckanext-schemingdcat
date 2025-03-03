@@ -405,6 +405,7 @@ And example configuration might look like this:
       {
       "api_version": 2,
       "clean_tags": false,
+      "ssl_verify": true,
       "default_tags": [{"name": "inspire"}, {"name": "geodcatap"}],
       "default_groups": ["transportation", "hb"],
       "default_extras": {"encoding":"utf8", "harvest_description":"Harvesting from Sample Catalog", "harvest_url": "{harvest_source_url}/dataset/{dataset_id}"},
@@ -519,6 +520,7 @@ Here are some examples of configuration files:
   ```json
   {
     "api_version": 2,
+    "ssl_verify": true,
     "clean_tags": false,
 
     ...
@@ -614,19 +616,28 @@ And example configuration might look like this:
    "default_groups":[
       
    ],
-   "cql_query": "csw:anyText",
-   "cql_search_term": "medio ambiente",
-   "cql_use_like": true,
-   "default_tags": [
-      {"name": "CODSI"},
-      {"name": "INSPIRE"}
+   "cql_query":"csw:AnyText",
+   "cql_search_term":"Ministerio",
+   "cql_use_like":false,
+   "legal_basis_url":"http://data.europa.eu/eli/reg/2008/1205",
+   "delete_missing_datasets":false,
+   "default_tags":[
+      {
+         "name":"PYCSW"
+      },
+      {
+         "name":"INSPIRE"
+      }
    ],
    "default_extras":{
-      "harvest_description":"Cosechado del Catalogo CSW"
+      "harvest_description":"Cosechado del Catalogo PyCSW"
    },
    "default_group_dicts":[
       
-   ]
+   ],
+   "csw_harvest_type":"owslib",
+   "private_datasets":false,
+   "ssl_verify": true,
 }
 ```
 
