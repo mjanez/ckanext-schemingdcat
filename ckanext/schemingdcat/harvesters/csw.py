@@ -4,6 +4,7 @@ import traceback
 import uuid
 import dateutil
 import time
+import pprint
 
 import ckan.plugins as p
 from ckan import model
@@ -17,7 +18,8 @@ from ckanext.dcat.processors import RDFParserException, RDFParser
 
 from ckanext.schemingdcat.harvesters.base import SchemingDCATHarvester
 from ckanext.schemingdcat.lib.csw.processor import SchemingDCATCatalogueServiceWeb
-from ckanext.schemingdcat.lib.csw.cswharvester_utils import (
+from ckanext.schemingdcat.lib.csw.csw_metadata_extractor import CSWMetadataExtractor
+from ckanext.schemingdcat.lib.csw.csw_harvester_utils import (
     is_valid_url,
     get_organization_slug_for_harvest_source,
     check_existing_package_by_identifier
@@ -38,6 +40,8 @@ from ckanext.schemingdcat.helpers import schemingdcat_get_dataset_schema_require
 
 log = logging.getLogger(__name__)
 
+CSW_HARVESTER_TYPES = ['xsl', 'owslib']
+DEFAULT_CSW_HARVESTER_TYPE = 'owslib'
 DEFAULT_RDF_PROFILES = ['eu_geodcat_ap_3']
 DEBUG_MODE = p.toolkit.asbool(p.toolkit.config.get('debug', False))
 
@@ -66,6 +70,20 @@ class SchemingDCATCSWHarvester(CSWHarvester, SchemingDCATHarvester):
         # Check basic validation config
         self._set_basic_validate_config(config)
 
+        # Check SSL verification configuration
+        if "ssl_verify" in config_obj:
+            if not isinstance(config_obj["ssl_verify"], bool):
+                config = json.dumps({**config_obj, "ssl_verify": True})
+        else:
+            config = json.dumps({**config_obj, "ssl_verify": True})
+
+        # Add private_datasets validation
+        if 'private_datasets' in config_obj:
+            if not isinstance(config_obj['private_datasets'], bool):
+                raise ValueError('private_datasets must be "True" or "False"')
+        else:
+            config_obj['private_datasets'] = True
+
         if 'cql_query' in config_obj:
             cql_query = config_obj['cql_query']
             if cql_query is not None:
@@ -86,7 +104,19 @@ class SchemingDCATCSWHarvester(CSWHarvester, SchemingDCATHarvester):
         if 'legal_basis_url' in config_obj:
             if config_obj['legal_basis_url'] is not None and not is_valid_url(config_obj['legal_basis_url']):
                 raise ValueError('legal_basis_url must be a valid URL or null')
-            
+
+        #TODO: Add `xsl` csw_harvest_type when becomes available
+        if 'csw_harvest_type' in config_obj:
+            if config_obj['csw_harvest_type'] not in CSW_HARVESTER_TYPES:
+                raise ValueError('csw_harvest_type must be one of the following: %s' % ', '.join(CSW_HARVESTER_TYPES))
+            elif config_obj['csw_harvest_type'] == 'xsl':
+                raise NotImplementedError(
+                    "XSLT-based harvesting is currently disabled. This functionality will remain disabled until the official ISO19139 to DCAT-AP XSLT (https://github.com/SEMICeu/iso-19139-to-dcat-ap) becomes available."
+                )
+        else:
+            # Default to owslib if not specified
+            config_obj['csw_harvest_type'] = DEFAULT_CSW_HARVESTER_TYPE
+
         if 'csw_mapping_file' in config_obj:
             csw_mapping_file = config_obj['csw_mapping_file']
             if csw_mapping_file is not None:
@@ -173,19 +203,16 @@ class SchemingDCATCSWHarvester(CSWHarvester, SchemingDCATHarvester):
             get_organization_slug_for_harvest_source(
                 harvest_source_id)
         self.config['organization'] = organization_slug
-
-        # Add SSL verify option
-        self.config['ssl_verify'] = p.toolkit.asbool(p.toolkit.config.get('ckanext.schemingdcat.csw.ssl_verify', True))
-        
+       
         log.debug('Using config: %r' % self.config)
     
     def modify_package_dict(self, package_dict, harvest_object):
         '''
         Allows custom harvesters to modify the package dict before
         creating or updating the actual package.
-        ''' 
+        '''
         log.debug('In SchemingDCATCSWHarvester modify_package_dict')
-        
+
         # Assign HVD category
         package_dict = self.normalize_inspire_hvd_category(package_dict)
 
@@ -205,10 +232,28 @@ class SchemingDCATCSWHarvester(CSWHarvester, SchemingDCATHarvester):
 
         # Apply default values if required fields are empty
         self._apply_default_values(package_dict)
+        
+        package_dict['private'] = self.config.get('private_datasets', True)
     
         return package_dict
 
     def gather_stage(self, harvest_job):
+        """Harvests CSW records using specified method"""
+        self._set_config(harvest_job.source.config, harvest_job.source.id)
+        
+        harvest_type = self.config.get('csw_harvest_type', 'owslib')
+        
+        if harvest_type == 'xsl':
+            log.warning(
+                "XSLT-based harvesting is currently disabled. This functionality will remain disabled until the official ISO19139 to DCAT-AP XSLT (https://github.com/SEMICeu/iso-19139-to-dcat-ap) becomes available."
+            )
+            raise NotImplementedError(
+                "XSLT-based harvesting is currently disabled. This functionality will remain disabled until the official ISO19139 to DCAT-AP XSLT (https://github.com/SEMICeu/iso-19139-to-dcat-ap) becomes available."
+            )
+        else:
+            return self._gather_with_owslib(harvest_job)
+
+    def _gather_with_owslib(self, harvest_job):
         """
         Performs the gather stage of the SchemingDCATCSWHarvester. This method is responsible for accesing the CSW Catalog and reading its contents. The contents are then processed, cleaned, and added to the database.
 
@@ -222,18 +267,18 @@ class SchemingDCATCSWHarvester(CSWHarvester, SchemingDCATHarvester):
         harvest_source_title = harvest_job.source.title
         csw_url = harvest_job.source.url.rstrip("/")
 
-        log.debug('In SchemingDCATCSWHarvester gather_stage with harvest source: %s and URL: %s', harvest_source_title, csw_url)
+        log.debug('In SchemingDCATCSWHarvester OWSLib-gather_stage with harvest source: %s and URL: %s', harvest_source_title, csw_url)
         self._set_config(harvest_job.source.config, harvest_job.source.id)
         
         try:
-            # Obtain required configuration values
-            ssl_verify = self.config['ssl_verify']
-            csw_mapping_file = self.config.get('csw_mapping_file', None)
+            # Get SSL verification setting from config (default to True)
+            ssl_verify = self.config.get("ssl_verify", True)
             if not ssl_verify:
                 log.warning('SSL Verify is set to False. SSL certificate verification is disabled.')
 
-            csw_data = SchemingDCATCatalogueServiceWeb(url=csw_url, ssl_verify=ssl_verify)
-            gathered_identifiers = csw_data.get_csw_records(
+            csw_client = SchemingDCATCatalogueServiceWeb(url=csw_url, ssl_verify=ssl_verify)
+            csw_extractor = CSWMetadataExtractor(debug=DEBUG_MODE)
+            gathered_identifiers = csw_client.get_csw_records(
                 cql=self.config.get('cql', None),
                 cql_query=self.config.get('cql_query', None),
                 cql_search_term=self.config.get('cql_search_term', None),
@@ -244,6 +289,271 @@ class SchemingDCATCSWHarvester(CSWHarvester, SchemingDCATHarvester):
             if DEBUG_MODE:
                 gathered_identifiers = gathered_identifiers[:25]
                 log.debug('Limited to first 25 records for testing')
+
+        except KeyError as e:
+            # Handling the case of a missing key in self.config
+            missing_key = e.args[0]
+            self._save_gather_error(
+                'Configuration error: Missing required configuration key "{}"'.format(missing_key),
+                harvest_job
+            )
+            return []
+        except Exception as e:
+            self._save_gather_error(
+                'Unable to get content for URL: {}: {} / {}'.format(csw_url, str(e), traceback.format_exc()),
+                harvest_job
+            )
+            return []
+
+        # Get the previous guids for this source
+        query = \
+            model.Session.query(HarvestObject.guid, HarvestObject.package_id) \
+            .filter(HarvestObject.current == True) \
+            .filter(HarvestObject.harvest_source_id == harvest_job.source.id)
+        guid_to_package_id = {}
+
+        for guid, package_id in query:
+            guid_to_package_id[guid] = package_id
+
+        guids_in_db = set(guid_to_package_id.keys())
+        guids_in_harvest = set()
+
+        log.debug('Extract CSW XML records using OWSLib')
+        
+        parser_datasets = []
+        
+        # Extract CSW XML records using OWSLib
+        for id in gathered_identifiers:
+            try:
+                log.debug("Fetching CSW record for ID: %s", id)
+                csw_metadata, csw_record_xml = csw_client.get_metadata_record(id)
+                
+                # Extract all metadata
+                complete_metadata = csw_extractor.extract_from_csw(csw_metadata, csw_record_xml)
+                
+                for harvester in p.PluginImplementations(SchemingDCATHarvester):
+                    complete_metadata, after_parsing_errors = harvester.after_parsing(complete_metadata, harvest_job)
+
+                    for error_msg in after_parsing_errors:
+                        self._save_gather_error(error_msg, harvest_job)
+                
+
+                parser_datasets.append(complete_metadata)
+                log.debug('Append record: %s', complete_metadata.get('title'))
+
+                if not complete_metadata:
+                    return None
+
+            except Exception as e:
+                self._save_gather_error(f'Error processing record {id}: {str(e)}', harvest_job)
+                continue
+
+        dataset_titles = [dataset['title'] for dataset in parser_datasets]
+
+        # Log the length of datasets after parser
+        if DEBUG_MODE:
+            log.debug('parser_datasets: %s', dataset_titles)
+        log.debug(f"Length of parser after_cleaning ISQLHarvester: {len(parser_datasets)}")
+
+        # Add datasets to the database
+        try:
+            log.debug('Adding datasets to DB')
+            datasets_to_harvest = {}
+            source_dataset = model.Package.get(harvest_job.source.id)
+            skipped_datasets = 0  # Counter for omitted datasets
+            identifier_counts = {}  # To track the frequency of identifiers
+
+            for dataset in parser_datasets:
+                #log.debug('dataset: %s', dataset['title'])
+
+                # Set and update translated fields
+                dataset = self._set_translated_fields(dataset)
+                
+                try:
+                    if not dataset.get('name'):
+                        dataset['name'] = self._gen_new_name(dataset['title'])
+                    while dataset['name'] in self._names_taken:
+                        suffix = sum(name.startswith(dataset['name'] + '-') for name in self._names_taken) + 1
+                        dataset['name'] = '{}-{}'.format(dataset['name'], suffix)
+                    self._names_taken.append(dataset['name'])
+        
+                    # If the dataset has no identifier, use an UUID
+                    if not dataset.get('identifier'):
+                        dataset['identifier'] = str(uuid.uuid4())
+                        
+                    else:
+                        dataset['identifier'] = self._clean_identifier(dataset['identifier'])
+        
+                except Exception as e:
+                    skipped_datasets += 1
+                    self._save_gather_error('Error for the dataset identifier %s [%r]' % (dataset.get('identifier'), e), harvest_job)
+                    continue
+                
+                if not dataset.get('identifier'):
+                    skipped_datasets += 1
+                    self._save_gather_error('Missing identifier for dataset with title: %s' % dataset.get('title'), harvest_job)
+                    continue
+                
+                # If exists identifier, add Metadata URL to references
+                if dataset.get('identifier'):
+                    # Build GetRecordById URL
+                    getrecord_params = {
+                        'service': 'CSW',
+                        'version': '2.0.2',
+                        'request': 'GetRecordById',
+                        'id': dataset['identifier'],
+                        'elementSetName': 'full',
+                        'outputSchema': 'http://www.isotc211.org/2005/gmd',
+                        'OutputFormat': 'application/xml'
+                    }
+                    
+                    # Convert params to URL query string
+                    query_string = '&'.join([f"{k}={v}" for k, v in getrecord_params.items()])
+                    csw_url_reference = f"{csw_url}?{query_string}"
+                    
+                    # Append as first element
+                    dataset['reference'].insert(0, csw_url_reference)            
+                
+                # Check if a dataset with the same identifier exists can be overridden if necessary
+                #existing_dataset = self._check_existing_package_by_ids(dataset)
+                #log.debug('existing_dataset: %s', existing_dataset)
+                            
+                # Unless already set by the dateutil.parser.parser, get the owner organization (if any)
+                # from the harvest source dataset
+                if not dataset.get('owner_org') and source_dataset.owner_org:
+                    dataset['owner_org'] = source_dataset.owner_org
+        
+                if 'extras' not in dataset:
+                    dataset['extras'] = []
+
+                # if existing_dataset:
+                #     dataset['identifier'] = existing_dataset['identifier']
+
+                identifier = dataset['identifier']
+                # Track the frequency of each identifier
+                identifier_counts[identifier] = identifier_counts.get(identifier, 0) + 1
+                if identifier_counts[identifier] > 1:
+                    log.warning(f'Duplicate identifier detected: {identifier}. This dataset will overwrite the previous one.')
+
+                #     guids_in_db.add(dataset['identifier'])
+
+                guids_in_harvest.add(identifier)
+                datasets_to_harvest[identifier] = dataset
+        
+            # Register duplicate identifiers
+            duplicates = [id for id, count in identifier_counts.items() if count > 1]
+            if duplicates:
+                log.warning(f"The following duplicate identifiers {len(duplicates)} are found: {duplicates}")
+        
+        except Exception as e:
+            self._save_gather_error('Error when processing dataset: %r / %s' % (e, traceback.format_exc()), harvest_job)
+            return []
+
+        # Check guids to create/update/delete
+        new = guids_in_harvest - guids_in_db
+        # Get objects/datasets to delete (ie in the DB but not in the source)
+        delete = set(guids_in_db) - set(guids_in_harvest)
+        change = guids_in_db & guids_in_harvest
+        
+        log.debug(f"Number of skipped datasets: {skipped_datasets}")
+        log.debug(f'guids_in_harvest ({len(guids_in_harvest)})')
+        log.debug(f'guids_in_db ({len(guids_in_db)}): {guids_in_db}')
+        log.debug(f'new ({len(new)})')
+        log.debug(f'delete ({len(delete)})')
+        log.debug(f'change ({len(change)})')
+        
+        ids = []
+        for guid in new:
+            dataset = datasets_to_harvest.get(guid)
+            if dataset:
+                obj = HarvestObject(guid=guid, job=harvest_job, content=json.dumps(dataset),
+                                    extras=[HarvestObjectExtra(key='status', value='new')])
+                obj.save()
+                ids.append({'id': obj.id, 'name': dataset['name'], 'identifier': dataset['identifier']})
+            else:
+                log.warning(f'Dataset for GUID {guid} not found in datasets_to_harvest')
+        
+        for guid in change:
+            dataset = datasets_to_harvest.get(guid)
+            if dataset:
+                obj = HarvestObject(guid=guid, job=harvest_job, content=json.dumps(dataset),
+                                    package_id=guid_to_package_id[guid],
+                                    extras=[HarvestObjectExtra(key='status', value='change')])
+                obj.save()
+                ids.append({'id': obj.id, 'name': dataset['name'], 'identifier': dataset['identifier']})
+            else:
+                log.warning(f'Dataset for GUID {guid} not found in datasets_to_harvest')
+        
+        for guid in delete:
+            dataset = datasets_to_harvest.get(guid)
+            if dataset:
+                obj = HarvestObject(guid=guid, job=harvest_job, content=json.dumps(dataset),
+                                    package_id=guid_to_package_id[guid],
+                                    extras=[HarvestObjectExtra(key='status', value='delete')])
+                model.Session.query(HarvestObject).\
+                    filter_by(guid=guid).\
+                    update({'current': False}, False)
+                obj.save()
+                ids.append({'id': obj.id, 'name': dataset['name'], 'identifier': dataset['identifier']})
+            else:
+                log.warning(f'Dataset for GUID {guid} not found in datasets_to_harvest')
+        
+        log.debug('Number of elements in parser_datasets: %s and object_ids: %s', len(parser_datasets), len(ids))
+        
+        # Log parser_datasets/ ids
+        #self._log_export_parser_datasets_and_ids(harvest_source_title, parser_datasets, ids)
+
+        return [id_dict['id'] for id_dict in ids]
+
+    #TODO: Disable until https://github.com/SEMICeu/iso-19139-to-dcat-ap
+    def _gather_with_xsl(self, harvest_job):
+        """
+        Performs the gather stage of the SchemingDCATCSWHarvester. This method is responsible for accessing the CSW Catalog and reading its contents. The contents are then processed, cleaned, and added to the database.
+  
+        The method performs the following steps:
+        1. Retrieves the CSW URL and configuration settings.
+        2. Connects to the CSW service and gathers record identifiers.
+        3. Transforms the CSW records using XSLT mappings.
+        4. Parses the transformed records into RDF datasets.
+        5. Adds the datasets to the database, handling new, changed, and deleted records.
+        6. Logs relevant information and errors throughout the process.
+
+        Args:
+            harvest_job (HarvestJob): The harvest job object.
+
+        Raises:
+            KeyError: If a required configuration key is missing.
+            Exception: If there is an error during the gathering or processing of the CSW records.
+
+        Returns:
+            list: A list of object IDs for the harvested datasets.
+        """
+        # Get file contents of source url
+        harvest_source_title = harvest_job.source.title
+        csw_url = harvest_job.source.url.rstrip("/")
+
+        log.debug('In SchemingDCATCSWHarvester XSLT-gather_stage with harvest source: %s and URL: %s', harvest_source_title, csw_url)
+        self._set_config(harvest_job.source.config, harvest_job.source.id)
+        
+        try:
+            # Obtain required configuration values
+            ssl_verify = self.config['ssl_verify']
+            csw_mapping_file = self.config.get('csw_mapping_file', None)
+            if not ssl_verify:
+                log.warning('SSL Verify is set to False. SSL certificate verification is disabled.')
+
+            csw_client = SchemingDCATCatalogueServiceWeb(url=csw_url, ssl_verify=ssl_verify)
+            gathered_identifiers = csw_client.get_csw_records(
+                cql=self.config.get('cql', None),
+                cql_query=self.config.get('cql_query', None),
+                cql_search_term=self.config.get('cql_search_term', None),
+                cql_use_like=self.config.get('cql_use_like', False)
+            )
+
+            # Limit to first 20 records for testing
+            if DEBUG_MODE:
+                gathered_identifiers = gathered_identifiers[:20]
+                log.debug('Limited to first 20 records for testing')
 
         except KeyError as e:
             # Handling the case of a missing key in self.config
@@ -298,7 +608,7 @@ class SchemingDCATCSWHarvester(CSWHarvester, SchemingDCATHarvester):
         # Transform CSW XML records to RDF
         for id in gathered_identifiers:
             try:
-                csw_record_xml = csw_data.get_record_by_id(id)
+                csw_record_xml = csw_client.get_record_by_id(id)
                 transformed_xml = transformer.transform(csw_record_xml)
                 try:
                     parser.parse(transformed_xml, _format='xml')
