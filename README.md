@@ -39,7 +39,7 @@ Enhancements:
 - Modern UI inspired on [`datopian/ckanext-datopian`](https://github.com/datopian/ckanext-datopian).
 - LOD/OGC Endpoints based on avalaible profiles (DCAT) and CSW capabilities with [`mjanez/ckan-pycsw`](https://github.com/mjanez/ckanext-pycsw).
 - Publisher (organization `admin`) and `editor` logic to control the visibility of records in a regular metadata monitoring workflow.
-- [CSW Harvester](#csw-inspire-202-endpoint) to remote CSW catalogues using the INSPIRE ISO 19139 metadata profile.
+- [CSW Harvester](#csw-inspire-iso-19139-endpoint) to remote CSW catalogues using the INSPIRE ISO 19139 metadata profile.
 
 ## Requirements
 ### Compatibility
@@ -391,6 +391,13 @@ The Scheming DCAT CKAN Harvester supports the same configuration options as the 
 * `remote_orgs` (Optional): [WIP]. Only `only_local`.
 * `remote_groups` (Optional): [WIP]. Only `only_local`.
 * `clean_tags`: By default, tags are stripped of accent characters, spaces and capital letters for display. Setting this option to `False` will keep the original tag names. Default is `True`.
+* `ssl_verify`: Controls SSL certificate verification when making requests to remote services. Default is `True`.
+  * When set to `True` (default and recommended), SSL certificates will be verified, ensuring secure connections.
+  * When set to `False`, SSL certificate verification is disabled. **Use this option with extreme caution** as it bypasses important security checks.
+  
+  > [!WARNING] 
+  > Setting `ssl_verify` to `False` is **not recommended** for production environments as it creates significant security vulnerabilities.
+  > Instead of disabling verification, the preferred approach is to properly configure your system's certificate store with the required certificates.
 
 And example configuration might look like this:
 
@@ -398,6 +405,7 @@ And example configuration might look like this:
       {
       "api_version": 2,
       "clean_tags": false,
+      "ssl_verify": true,
       "default_tags": [{"name": "inspire"}, {"name": "geodcatap"}],
       "default_groups": ["transportation", "hb"],
       "default_extras": {"encoding":"utf8", "harvest_description":"Harvesting from Sample Catalog", "harvest_url": "{harvest_source_url}/dataset/{dataset_id}"},
@@ -512,6 +520,7 @@ Here are some examples of configuration files:
   ```json
   {
     "api_version": 2,
+    "ssl_verify": true,
     "clean_tags": false,
 
     ...
@@ -575,6 +584,7 @@ To use it, you need to add the `schemingdcat_csw_harvester` plugin to your optio
 
 Remote Google Sheet/Onedrive Excel metadata upload Harvester supports the following options:
 
+* `private_datasets`: Boolean flag (`true`/`false`) to determine if the harvested datasets should be private. Default is `true`.
 * `cql_query`: The CQL query to be used when requesting the CSW service (default: `csw:AnyText` which allows you to search for any text in the catalogue records. More info: [Common Query Language (CQL)](https://docs.eoxserver.org/en/stable/users/services/cql.html))
 * `cql_search_term`: The search term to be used with the CQL query, example: `emisiones atmosféricas` (default: `null`)
 * `cql_use_like`: Using `PropertyIsLike` query type instead default `PropertyIsEqualTo` (default: `false` (`PropertyIsEqualTo`))
@@ -590,6 +600,13 @@ Remote Google Sheet/Onedrive Excel metadata upload Harvester supports the follow
     * `{harvest_source_title}`
     * `{harvest_job_id}`
     * `{harvest_object_id}`
+* `ssl_verify`: Controls SSL certificate verification when making requests to remote services. Default is `True`.
+  * When set to `True` (default and recommended), SSL certificates will be verified, ensuring secure connections.
+  * When set to `False`, SSL certificate verification is disabled. **Use this option with extreme caution** as it bypasses important security checks.
+  
+  > [!WARNING] 
+  > Setting `ssl_verify` to `False` is **not recommended** for production environments as it creates significant security vulnerabilities.
+  > Instead of disabling verification, the preferred approach is to properly configure your system's certificate store with the required certificates.
 
 And example configuration might look like this:
 
@@ -599,24 +616,30 @@ And example configuration might look like this:
    "default_groups":[
       
    ],
-   "cql_query": "csw:anyText",
-   "cql_search_term": "medio ambiente",
-   "cql_use_like": true,
-   "default_tags": [
-      {"name": "CODSI"},
-      {"name": "INSPIRE"}
+   "cql_query":"csw:AnyText",
+   "cql_search_term":"Ministerio",
+   "cql_use_like":false,
+   "legal_basis_url":"http://data.europa.eu/eli/reg/2008/1205",
+   "delete_missing_datasets":false,
+   "default_tags":[
+      {
+         "name":"PYCSW"
+      },
+      {
+         "name":"INSPIRE"
+      }
    ],
    "default_extras":{
-      "encoding":"UTF-8",
-      "harvest_description":"Cosechado del Catalogo CSW"
+      "harvest_description":"Cosechado del Catalogo PyCSW"
    },
    "default_group_dicts":[
       
-   ]
+   ],
+   "csw_harvest_type":"owslib",
+   "private_datasets":false,
+   "ssl_verify": true,
 }
 ```
-
-
 
 ### Remote Google Sheet/Onedrive Excel metadata upload Harvester
 A harvester for remote [Google spreadsheets](https://docs.gspread.org/en/v6.0.0/oauth2.html) and Onedrive Excel files with Metadata records. This harvester is a subclass of the Scheming DCAT Base Harvester provided by `ckanext-schemingdcat` to provide a more versatile and customizable harvester for Excel files that have metadata records in them.

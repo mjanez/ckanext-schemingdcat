@@ -1,4 +1,5 @@
 import json
+import logging
 
 from rdflib import URIRef, BNode, Literal
 from ckanext.dcat.profiles.base import URIRefOrLiteral, CleanedURIRef
@@ -20,6 +21,7 @@ from ckanext.schemingdcat.profiles.dcat_config import (
     LOCN,
     )
 
+log = logging.getLogger(__name__)
 
 class EuDCATAPSchemingDCATProfile(SchemingDCATRDFProfile):
     """
@@ -191,28 +193,24 @@ class EuDCATAPSchemingDCATProfile(SchemingDCATRDFProfile):
             self._add_agents(dataset_ref, dataset_dict, "creator", DCT.creator)
         elif 'author' in dataset_dict and len(list(self.g.objects(dataset_ref, DCT.creator))) == 0:
             self._add_agents(dataset_ref, dataset_dict, "author", DCT.creator)
-
-        # Remove existing temporal triples to avoid duplication
-        temporal_nodes = list(self.g.objects(dataset_ref, DCT.temporal))
-        for temporal in temporal_nodes:
-            self.g.remove((temporal, None, None))
-            self.g.remove((dataset_ref, DCT.temporal, temporal))
-
-        # Add new temporal triples
-        temporal = dataset_dict.get("temporal_coverage")
-        if (
-            isinstance(temporal, list)
-            and len(temporal)
-            and self._not_empty_dict(temporal[0])
-        ):
-            for item in temporal:
-                temporal_ref = BNode()
-                self.g.add((temporal_ref, RDF.type, DCT.PeriodOfTime))
-                if item.get("start"):
-                    self._add_date_triple(temporal_ref, DCAT.startDate, self._ensure_datetime(item["start"]))
-                if item.get("end"):
-                    self._add_date_triple(temporal_ref, DCAT.endDate, self._ensure_datetime(item["end"]))
-                self.g.add((dataset_ref, DCT.temporal, temporal_ref))
+            
+        # Add new temporal triples if not exists
+        if 'temporal_coverage' in dataset_dict and len(list(self.g.objects(dataset_ref, DCT.temporal))) == 0:
+            temporal = dataset_dict.get("temporal_coverage")
+            if (
+                isinstance(temporal, list)
+                and len(temporal)
+                and self._not_empty_dict(temporal[0])
+            ):
+                log.debug('temporal: %s', temporal)
+                for item in temporal:
+                    temporal_ref = BNode()
+                    self.g.add((temporal_ref, RDF.type, DCT.PeriodOfTime))
+                    if item.get("start"):
+                        self._add_date_triple(temporal_ref, DCAT.startDate, self._ensure_datetime(item["start"]))
+                    if item.get("end"):
+                        self._add_date_triple(temporal_ref, DCAT.endDate, self._ensure_datetime(item["end"]))
+                    self.g.add((dataset_ref, DCT.temporal, temporal_ref))
 
         spatial = dataset_dict.get("spatial_coverage")
         if (
@@ -253,10 +251,11 @@ class EuDCATAPSchemingDCATProfile(SchemingDCATRDFProfile):
                         pass
 
     def _add_agents(
-        self, dataset_ref, dataset_dict, agent_key, rdf_predicate, first_only=False
-    ):
+            self, dataset_ref, dataset_dict, agent_key, rdf_predicate, first_only=False
+        ):
         """
         Adds one or more agents (e.g. publisher or creator) to the RDF graph.
+        Only adds agents that have a name field.
 
         :param dataset_ref: The RDF reference of the dataset
         :param dataset_dict: The dataset dictionary containing agent information
@@ -265,11 +264,18 @@ class EuDCATAPSchemingDCATProfile(SchemingDCATRDFProfile):
         :first_only: Add the first item found only (used for 0..1 properties)
         """
         agent = dataset_dict.get(agent_key)
-        if isinstance(agent, list) and len(agent) and self._not_empty_dict(agent[0]):
-            agents = [agent[0]] if first_only else agent
+        if isinstance(agent, list) and len(agent):
+            # Filter the agents list to only include ones with a name
+            valid_agents = [a for a in agent if a.get('name')]
+            
+            # If no valid agents remain, return early
+            if not valid_agents:
+                return
+                
+            # Apply first_only filter if requested
+            agents = [valid_agents[0]] if first_only and valid_agents else valid_agents
 
             for agent in agents:
-
                 agent_uri = agent.get("uri")
                 if agent_uri:
                     agent_ref = CleanedURIRef(agent_uri)
@@ -279,8 +285,10 @@ class EuDCATAPSchemingDCATProfile(SchemingDCATRDFProfile):
                 self.g.add((agent_ref, RDF.type, FOAF.Agent))
                 self.g.add((dataset_ref, rdf_predicate, agent_ref))
 
-                if not self._object_value(agent_ref, FOAF.name):
-                    self._add_triple_from_dict(agent, agent_ref, FOAF.name, "name")
+                # Name is guaranteed to exist by our filter
+                self._add_triple_from_dict(agent, agent_ref, FOAF.name, "name")
+                
+                # Add additional properties if they exist
                 self._add_triple_from_dict(
                     agent, agent_ref, FOAF.homepage, "url", _type=URIRef
                 )

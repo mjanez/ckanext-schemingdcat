@@ -508,7 +508,6 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
             ])):
 
             contact_uri = self._get_dataset_value(dataset_dict, "contact_uri")
-            log.debug('contact_uri: %s', contact_uri)
             if contact_uri:
                 contact_ref = CleanedURIRef(self._create_uri_ref(contact_uri, "contact"))
             else:
@@ -590,7 +589,6 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
                 org_ref = CleanedURIRef(
                     publisher_uri_organization_fallback(dataset_dict)
                 )
-                log.debug('org_ref: %s', org_ref)
                 # Create reference
                 if org_ref:
                     publisher_ref = CleanedURIRef(self._create_uri_ref(org_ref, "publisher"))
@@ -693,16 +691,16 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
 
         # TODO: Deprecated: https://semiceu.github.io/GeoDCAT-AP/drafts/latest/#deprecated-properties-for-period-of-time
         # Temporal
-        start = self._ensure_datetime(self._get_dataset_value(dataset_dict, "temporal_start"))
-        end = self._ensure_datetime(self._get_dataset_value(dataset_dict, "temporal_end"))
+        start = self._get_dataset_value(dataset_dict, "temporal_start")
+        end = self._get_dataset_value(dataset_dict, "temporal_end")
         if start or end:
             temporal_extent = BNode()
 
             g.add((temporal_extent, RDF.type, DCT.PeriodOfTime))
             if start:
-                self._add_date_triple(temporal_extent, SCHEMA.startDate, start)
+                self._add_date_triple(temporal_extent, SCHEMA.startDate, self._ensure_datetime(start))
             if end:
-                self._add_date_triple(temporal_extent, SCHEMA.endDate, end)
+                self._add_date_triple(temporal_extent, SCHEMA.endDate, self._ensure_datetime(end))
             g.add((dataset_ref, DCT.temporal, temporal_extent))
 
         # Spatial
@@ -995,7 +993,7 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
             ("license", DCT.license, license, URIRef),
             ("conforms_to", DCT.conformsTo, eu_dcat_ap_default_values["conformance"], URIRef),
             ("access_rights", DCT.rights, f'{catalog_uri()}/rights', URIRefOrLiteral),
-            # Unnecesary properties for dcat:Catalog
+            # Unnecesary properties for dcat:Catalog. DCAT-AP deprecated
             #("identifier", DCT.identifier, catalog_uri(), URIRef),
             #("accessUrl", DCAT.accessURL, f'{catalog_uri()}/catalog.rdf', URIRef),
         ]
@@ -1022,8 +1020,8 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
             log.error(f'Error adding catalog {field}: {str(e)}')
 
         # Dates
-        modified = self._get_catalog_field(field_name='metadata_modified', default_values_dict=eu_dcat_ap_default_values)
-        issued = self._get_catalog_field(field_name='metadata_created', default_values_dict=eu_dcat_ap_default_values, order='asc')
+        modified = self._get_catalog_field(field_name='metadata_modified', default_values_dict=eu_dcat_ap_default_values, fallback='modified')
+        issued = self._get_catalog_field(field_name='metadata_created', default_values_dict=eu_dcat_ap_default_values, fallback='issued', order='asc')
         if modified or issued or license:
             if modified:
                 self._add_date_triple(catalog_ref, DCT.modified, self._ensure_datetime(modified))

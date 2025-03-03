@@ -116,6 +116,8 @@ es_dcat_default_values = {
     'format_es': 'HTML',
     'language_code': 'es',
     'language': 'http://publications.europa.eu/resource/authority/language/SPA',
+    'catalog_language_codes': ['es'],
+    'catalog_languages': ['http://publications.europa.eu/resource/authority/language/ENG', 'http://publications.europa.eu/resource/authority/language/SPA'],
     'license': 'http://publications.europa.eu/resource/authority/licence/CC_BY_4_0',
     'license_url': 'http://publications.europa.eu/resource/authority/licence/CC_BY_4_0',
     'mimetype_es': 'text/html',
@@ -144,6 +146,8 @@ es_dcat_ap_default_values = {
     'format_es': 'HTML',
     'language_code': 'es',
     'language': 'http://publications.europa.eu/resource/authority/language/SPA',
+    'catalog_language_codes': ['en', 'es'],
+    'catalog_languages': ['http://publications.europa.eu/resource/authority/language/ENG', 'http://publications.europa.eu/resource/authority/language/SPA'],
     'license': 'http://publications.europa.eu/resource/authority/licence/CC_BY_4_0',
     'license_url': 'http://publications.europa.eu/resource/authority/licence/CC_BY_4_0',
     'mimetype_es': 'text/html',
@@ -174,6 +178,7 @@ eu_dcat_ap_default_values = {
     'description_en': 'Resource without description.',
     'description_es': 'Recurso sin descripción.',
     'language': 'http://publications.europa.eu/resource/authority/language/ENG',
+    'catalog_languages': ['http://publications.europa.eu/resource/authority/language/ENG', 'http://publications.europa.eu/resource/authority/language/SPA'],
     'license': 'http://publications.europa.eu/resource/authority/licence/CC_BY_4_0',
     'license_url': 'http://publications.europa.eu/resource/authority/licence/CC_BY_4_0',
     'maintainer_role': 'http://id.loc.gov/vocabulary/relators/rpy',
@@ -206,6 +211,7 @@ eu_geodcat_ap_default_values = {
     'description_en': 'Resource without description.',
     'description_es': 'Recurso sin descripción.',
     'language': 'http://publications.europa.eu/resource/authority/language/ENG',
+    'catalog_languages': ['http://publications.europa.eu/resource/authority/language/ENG', 'http://publications.europa.eu/resource/authority/language/SPA'],
     'license': 'http://publications.europa.eu/resource/authority/licence/CC_BY_4_0',
     'license_url': 'http://publications.europa.eu/resource/authority/licence/CC_BY_4_0',
     'maintainer_role': 'http://inspire.ec.europa.eu/metadata-codelist/ResponsiblePartyRole/custodian',
@@ -332,12 +338,29 @@ dcat_ap_default_licenses = {
     }   
 }
 
+# NTI-RISP Literals to check default lang ("es")
+es_dcat_literals_to_check = [
+            DCT.title,
+            DCT.description,
+            DCAT.keyword,
+            RDFS.label,        
+        ]
+
 # DCAT-AP-ES Literals to check default lang ("es")
 eu_dcat_ap_literals_to_check = [
             DCT.title,
             DCT.description,
             DCAT.keyword,
-            # Agents
+            # Vcards
             VCARD.fn,
+            # Agents
             FOAF.name,          
         ]
+
+frequency_mapping = {
+    "http://publications.europa.eu/resource/authority/frequency/ANNUAL": ("years", "1", "year"),
+    "http://publications.europa.eu/resource/authority/frequency/MONTHLY": ("months", "1", "month"),
+    "http://publications.europa.eu/resource/authority/frequency/WEEKLY": ("days", "7", "week"),
+    "http://publications.europa.eu/resource/authority/frequency/DAILY": ("days", "1", "day"),
+    # ...otros mapeos a convenir...
+}
