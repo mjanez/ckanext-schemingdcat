@@ -94,6 +94,13 @@ class SchemingDCATCKANHarvester(SchemingDCATHarvester):
         # Instance field_mapping validator
         field_mapping_validator = FieldMappingValidator()
 
+        # Check SSL verification configuration
+        if "ssl_verify" in config_obj:
+            if not isinstance(config_obj["ssl_verify"], bool):
+                config = json.dumps({**config_obj, "ssl_verify": True})
+        else:
+            config = json.dumps({**config_obj, "ssl_verify": True})
+
         # Check if the schema is specified
         if "schema" in config_obj:
             schema = config_obj["schema"]
@@ -383,6 +390,29 @@ class SchemingDCATCKANHarvester(SchemingDCATHarvester):
             return object_ids
         except Exception as e:
             self._save_gather_error("%r" % e, harvest_job)
+
+    def _get_content(self, url):
+            headers = {}
+            api_key = self.config.get("api_key")
+            if api_key:
+                headers["Authorization"] = api_key
+
+            # Get SSL verification setting from config (default to True)
+            ssl_verify = self.config.get("ssl_verify", True)
+            if not ssl_verify:
+                log.warning('SSL Verify is set to False. SSL certificate verification is disabled.')
+
+            try:
+                http_request = requests.get(url, headers=headers, verify=ssl_verify)
+            except HTTPError as e:
+                raise ContentFetchError(
+                    "HTTP error: %s %s" % (e.response.status_code, e.request.url)
+                )
+            except RequestException as e:
+                raise ContentFetchError("Request error: %s" % e)
+            except Exception as e:
+                raise ContentFetchError("HTTP general exception: %s" % e)
+            return http_request.text
 
     def _search_for_datasets(self, remote_ckan_base_url, fq_terms=None):
         """Does a dataset search on a remote CKAN and returns the results.

@@ -220,3 +220,24 @@ BASE_VOCABS = {
     'epsg_opengis': 'http://www.opengis.net/def/crs/EPSG/0/',
     'es_publisher_org': 'http://datos.gob.es/recurso/sector-publico/org/Organismo/',
 }
+
+FREQUENCY_MAPPING = {
+    "http://publications.europa.eu/resource/authority/frequency/ANNUAL": ("years", "1", "año"),
+    "http://publications.europa.eu/resource/authority/frequency/ANNUAL_2": ("months", "6", "meses"),
+    "http://publications.europa.eu/resource/authority/frequency/ANNUAL_3": ("months", "4", "meses"),
+    "http://publications.europa.eu/resource/authority/frequency/MONTHLY": ("months", "1", "mes"),
+    "http://publications.europa.eu/resource/authority/frequency/BIMONTHLY": ("months", "2", "meses"),
+    "http://publications.europa.eu/resource/authority/frequency/WEEKLY": ("days", "7", "días"),
+    "http://publications.europa.eu/resource/authority/frequency/BIWEEKLY": ("days", "14", "días"),
+    "http://publications.europa.eu/resource/authority/frequency/DAILY": ("days", "1", "día"),
+    "http://publications.europa.eu/resource/authority/frequency/QUARTERLY": ("months", "3", "meses"),
+    "http://publications.europa.eu/resource/authority/frequency/BIENNIAL": ("years", "2", "años"),
+    "http://publications.europa.eu/resource/authority/frequency/TRIENNIAL": ("years", "3", "años"),
+    "http://publications.europa.eu/resource/authority/frequency/CONT": ("days", "1", "día"),
+    "http://publications.europa.eu/resource/authority/frequency/UPDATE_CONT": ("days", "1", "día"),
+    "http://publications.europa.eu/resource/authority/frequency/DAILY": ("days", "1", "día"),
+    "http://publications.europa.eu/resource/authority/frequency/NEVER": ("days", "0", "día"),
+    # ...otros mapeos a convenir...
+    # Valor por defecto si no existe mapeo
+    "DEFAULT": ("days", "9999", "continuous")
+}
