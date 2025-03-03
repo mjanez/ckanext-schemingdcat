@@ -6,17 +6,20 @@ from urllib.parse import quote
 from typing import Tuple, List, Union, Optional
 from datetime import datetime, timezone
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
-from dateutil.parser import parse as date_parse
+from dateutil.parser import parse as parse_date
 
 from rdflib import term, URIRef, Literal, Graph, BNode
 
 from ckantoolkit import config, get_action, aslist
 from ckan.lib.helpers import is_url
 
+from ckanext.dcat.validators import is_year, is_year_month, is_date
 from ckanext.dcat.utils import catalog_uri
 from ckanext.dcat.profiles.base import RDFProfile, URIRefOrLiteral, CleanedURIRef, DEFAULT_SPATIAL_FORMATS, GEOJSON_IMT, InvalidGeoJSONException, wkt
 from ckanext.schemingdcat.config import (
-    translate_validator_tags
+    translate_validator_tags,
+    ISO19115_LANGUAGE,
+    BASE_VOCABS,
 )
 
 from ckanext.schemingdcat.helpers import get_langs, schemingdcat_get_catalog_publisher_info
@@ -47,6 +50,7 @@ from ckanext.schemingdcat.profiles.dcat_config import (
     CNT,
     ORG,
     ODRS,
+    XSD,
     # Default values
     eu_dcat_ap_default_values,
     )
@@ -362,6 +366,177 @@ class SchemingDCATRDFProfile(RDFProfile):
         except KeyError:
             return default_values["language"]
 
+    def _get_catalog_languages_paginated(
+        self, 
+        default_values=eu_dcat_ap_default_values,
+        batch_size=100, 
+        default_values_property='catalog_languages',
+        output_format='uri'  # Options: 'iso2', 'iso3', 'uri'
+    ):
+        """
+        Returns a set of language codes in the specified format.
+    
+        Args:
+            default_values (dict): Dictionary of default values
+            batch_size (int): Number of records to process per batch
+            default_values_property (str): Property name for default languages
+            output_format (str): Desired output format:
+                - 'iso2': 2-letter codes (e.g., 'es', 'en')
+                - 'iso3': 3-letter codes (e.g., 'spa', 'eng')
+                - 'uri': Language URIs (e.g., 'http://publications.europa.eu/resource/authority/language/ENG')
+    
+        Returns:
+            set: Set of language codes in requested format
+    
+        Example:
+            >>> # Get 2-letter codes
+            >>> languages = _get_catalog_languages_paginated(output_format='iso2')
+            >>> print(languages)
+            {'es', 'en'}
+            
+            >>> # Get URI format
+            >>> languages = _get_catalog_languages_paginated(output_format='uri')
+            >>> print(languages)
+            {'http://publications.europa.eu/resource/authority/language/ENG'}
+        """
+        try:
+            context = {"ignore_auth": True}
+            languages = set()
+            start = 0
+    
+            while True:
+                result = get_action("package_search")(context, {
+                    "start": start,
+                    "rows": batch_size,
+                    "fl": "language"
+                })
+    
+                if not result or not result.get("results"):
+                    break
+    
+                for dataset in result["results"]:
+                    lang = dataset.get("language")
+                    
+                    lang_codes = set()
+                    if isinstance(lang, list):
+                        lang_codes.update(lang)
+                    elif isinstance(lang, str):
+                        lang_codes.add(lang)
+                    elif isinstance(lang, dict):
+                        lang_codes.update(lang.keys())
+    
+                    # Process each code
+                    for code in lang_codes:
+                        formatted_code = self._format_language_code(code, output_format)
+                        if formatted_code:
+                            languages.add(formatted_code)
+    
+                start += batch_size
+                if start >= result["count"]:
+                    break
+    
+            # Add default if needed
+            if not languages and default_values.get(default_values_property):
+                default_lang = self._format_language_code(
+                    default_values[default_values_property], 
+                    output_format
+                )
+                if default_lang:
+                    languages.add(default_lang)    
+            return languages
+    
+        except Exception as e:
+            return set()
+    
+    def _format_language_code(self, code, output_format='iso2'):
+        """
+        Formats language code to desired output format.
+        """
+        if not code:
+            return None
+
+        # For URI input, just return it if output_format is also 'uri'
+        if is_url(code) and output_format == 'uri' and 'publications.europa.eu' in code:
+            return code
+
+        # First get the raw language code
+        raw_code = None
+        
+        # Handle URIs
+        if is_url(code):
+            if 'publications.europa.eu' in code:
+                raw_code = code.split('/')[-1].upper()
+        else:
+            raw_code = code.upper()
+
+        if not raw_code:
+            return None
+
+        # Convert to desired format
+        if output_format == 'iso2':
+            if len(raw_code) == 2:
+                result = raw_code.lower()
+            else:
+                result = ISO19115_LANGUAGE.get(raw_code.lower())
+            return result
+            
+        elif output_format == 'iso3':
+            if len(raw_code) == 3:
+                result = raw_code.lower()
+            else:
+                # Convert from ISO2 to ISO3
+                for iso3, iso2 in ISO19115_LANGUAGE.items():
+                    if iso2.upper() == raw_code.upper():
+                        result = iso3.lower()
+                        break
+            return result
+                
+        elif output_format == 'uri':
+            iso3_code = None
+            if len(raw_code) == 3:
+                iso3_code = raw_code
+            else:
+                # Convert from ISO2 to ISO3
+                for iso3, iso2 in ISO19115_LANGUAGE.items():
+                    if iso2.upper() == raw_code.upper():
+                        iso3_code = iso3.upper()
+                        break
+            
+            if iso3_code:
+                result = f"{BASE_VOCABS['eu_publications']}language/{iso3_code}"
+                return result
+
+        return None
+
+    def _normalize_language_code(self, code):
+        """
+        Normalizes language codes from various formats to ISO 639-1.
+        
+        Args:
+            code (str): Language code or URI
+            
+        Returns:
+            str: Normalized ISO 639-1 code or None if invalid
+        """
+        if not code:
+            return None
+
+        # Handle URIs
+        if is_url(code):
+            # Extract code from URI
+            code = code.split('/')[-1].lower()
+
+        # Convert to 3-letter code if needed
+        code = code.lower()
+        if len(code) == 2:
+            # Find 3-letter code for 2-letter input
+            for three_letter, two_letter in ISO19115_LANGUAGE.items():
+                if two_letter == code:
+                    return code
+        
+        # Map 3-letter code to 2-letter
+        return ISO19115_LANGUAGE.get(code)
+
     # ckanext-schemingdcat: Codelist management
     def _search_values_codelist_add_to_graph(self, metadata_codelist, labels, dataset_dict, dataset_ref, 
                                            dataset_tag_base, g, dcat_property, lang=None, raw=True):
@@ -454,7 +629,81 @@ class SchemingDCATRDFProfile(RDFProfile):
         
         return label if tag_val is None else tag_val
 
-    # ckanext-dcat fixes
+    def _add_date_triple(self, subject, predicate, value, _type=Literal):
+        """
+        Adds a new triple with a date object
+    
+        If the value is one of xsd:gYear, xsd:gYearMonth or xsd:date. If not
+        the value will be parsed using dateutil, and if the date obtained is correct,
+        added to the graph as an xsd:dateTime value.
+    
+        If there are parsing errors, the literal string value is added.
+        """
+        if not value:
+            return
+    
+        # Handle special case for problematic 1900-01-01 with strange timezone
+        if isinstance(value, str) and value.startswith('1900-01-01'):
+            # Special case - convert to simple date format without time component
+            simple_date = value.split('T')[0]  # Just take the date part
+            self.g.add((subject, predicate, _type(simple_date, datatype=XSD.date)))
+            return
+    
+        if is_year(value):
+            self.g.add((subject, predicate, _type(value, datatype=XSD.gYear)))
+            return
+        elif is_year_month(value):
+            self.g.add((subject, predicate, _type(value, datatype=XSD.gYearMonth)))
+            return
+        elif is_date(value):
+            self.g.add((subject, predicate, _type(value, datatype=XSD.date)))
+            return
+    
+        # For any other format, try to parse and format correctly
+        try:
+            default_datetime = datetime(1, 1, 1, 0, 0, 0)
+            _date = parse_date(value, default=default_datetime)
+            
+            # Special handling for dates before 1900
+            if _date.year < 1900 or (_date.year == 1900 and _date.month == 1 and _date.day == 1):
+                # Format as just the date part (YYYY-MM-DD) without time component
+                date_str = _date.strftime("%Y-%m-%d")
+                self.g.add((subject, predicate, _type(date_str, datatype=XSD.date)))
+                return
+                
+            # For modern dates (>=1900), ensure proper timezone formatting
+            if _date.tzinfo is not None:
+                # Convert to UTC
+                try:
+                    _date = _date.astimezone(timezone.utc)
+                    # Format with Z for UTC timezone (ISO 8601)
+                    date_str = _date.strftime("%Y-%m-%dT%H:%M:%SZ")
+                except (ValueError, OverflowError):
+                    # If timezone conversion fails, use simple date format
+                    date_str = _date.strftime("%Y-%m-%d")
+                    self.g.add((subject, predicate, _type(date_str, datatype=XSD.date)))
+                    return
+            else:
+                # Use ISO format without timezone for naive datetimes
+                date_str = _date.strftime("%Y-%m-%dT%H:%M:%S")
+                
+            self.g.add((subject, predicate, _type(date_str, datatype=XSD.dateTime)))
+                
+        except (ValueError, TypeError, OverflowError) as e:
+            # If parsing fails, try to extract just the date part for dates before 1900
+            try:
+                if isinstance(value, str) and ('1900-' in value or value < '1900-'):
+                    date_part = value.split('T')[0]
+                    if re.match(r'^\d{4}-\d{2}-\d{2}$', date_part):
+                        self.g.add((subject, predicate, _type(date_part, datatype=XSD.date)))
+                        return
+            except Exception:
+                pass
+                
+            # If all else fails, log and add as literal string
+            log.warning(f"Failed to parse date '{value}': {str(e)}")
+            self.g.add((subject, predicate, _type(value)))
+    
     ## https://github.com/mjanez/ckanext-dcat/issues/4
     def _add_spatial_value_to_graph(self, spatial_ref, predicate, value):
         """
@@ -664,14 +913,14 @@ class SchemingDCATRDFProfile(RDFProfile):
         object is naive (lacking timezone information), it assigns the UTC timezone. Finally, it stores
         the datetime as an ISO 8601 string with timezone information if `as_string` is True, otherwise
         it stores the datetime object.
-
+    
         Args:
             value_or_dict (str or dict): The dictionary containing the resource data.
             date_field (str): The key in the dictionary for the date field to be ensured.
             as_string (bool): Whether to store the datetime as an ISO string. Defaults to True.
-
+    
         Returns:
-            None
+            str or datetime or None: Formatted date string, datetime object or None if invalid
         """
         # Get value from dict if provided
         date_value = value_or_dict.get(date_field) if isinstance(value_or_dict, dict) else value_or_dict
@@ -679,13 +928,48 @@ class SchemingDCATRDFProfile(RDFProfile):
         if not date_value:
             return None
             
+        # Special case for 1900-01-01 with problematic timezone
+        if isinstance(date_value, str) and date_value.startswith('1900-01-01'):
+            # If we're dealing with a string that's a 1900-01-01 date
+            # Just return the date part without time component
+            if as_string:
+                return '1900-01-01'
+            return datetime(1900, 1, 1)
+            
         # Convert to datetime if string
         if not isinstance(date_value, datetime):
             try:
-                date_value = date_parse(date_value)
+                # For simple date formats (YYYY-MM-DD), ensure we don't add time component
+                if isinstance(date_value, str) and re.match(r'^\d{4}-\d{2}-\d{2}$', date_value):
+                    # Parse as date
+                    date_obj = datetime.strptime(date_value, '%Y-%m-%d')
+                    if date_obj.year <= 1900:
+                        # For historical dates, return just the date string
+                        return date_value if as_string else date_obj
+                
+                # Normal parsing for more complex date formats
+                date_value = parse_date(date_value)
             except (ValueError, TypeError):
                 log.warning(f"Could not parse date {date_value}")
+                # Last resort - if it's a string with a date format, try to extract just the date part
+                if isinstance(date_value, str):
+                    match = re.search(r'(\d{4}-\d{2}-\d{2})', date_value)
+                    if match:
+                        date_part = match.group(1)
+                        if as_string:
+                            return date_part
+                        try:
+                            return datetime.strptime(date_part, '%Y-%m-%d')
+                        except (ValueError, TypeError):
+                            pass
                 return None
+        
+        # Special handling for dates in 1900 or earlier
+        if date_value.year <= 1900:
+            if as_string:
+                # Return just the date part for historical dates
+                return date_value.strftime('%Y-%m-%d')
+            return date_value
                 
         # Add timezone if naive
         if date_value.tzinfo is None:
@@ -697,7 +981,14 @@ class SchemingDCATRDFProfile(RDFProfile):
                 tz = timezone.utc
             date_value = date_value.replace(tzinfo=tz)
         
-        return date_value.isoformat() if as_string else date_value
+        if as_string:
+            # For modern dates with timezone, use proper ISO format with Z for UTC
+            if date_value.tzinfo == timezone.utc:
+                return date_value.strftime('%Y-%m-%dT%H:%M:%SZ')
+            # Otherwise use ISO format with proper timezone offset
+            return date_value.isoformat()
+        
+        return date_value
     
     def _clean_spatial_resolution(self, value: Union[str, int, float], as_type: str = 'decimal') -> Union[str, Decimal, float]:
         """Clean spatial resolution string to extract numeric value."""
@@ -844,47 +1135,192 @@ class SchemingDCATRDFProfile(RDFProfile):
             graph.remove((s, p, old_o))
             graph.add((s, p, new_o))
     
-    def _graph_add_default_language_literals(self, graph: Graph, properties: List[URIRef] = None) -> None:
+    def _graph_add_default_language_literals(
+            self, 
+            graph: Graph, 
+            properties: List[URIRef] = None,
+            lang: str = None
+        ) -> None:
         """
-        Add default language tags using generator expression.
+        Add default language tags to literals, ensuring all specified properties 
+        have literals in the default language.
         
         Args:
             graph (Graph): RDF Graph
             properties (List[URIRef]): Properties to check
+            lang (str, optional): Language code to use. If None, uses self._default_lang
         """
         if not properties:
             return
     
-        # Generator for finding triples needing language tags
-        no_lang_triples = (
+        target_lang = lang or self._default_lang
+    
+        # Process each property and subject
+        for s, p, o in graph:
+            if p not in properties:
+                continue
+                
+            # Get all language variants for this subject-predicate pair
+            existing_langs = set(
+                o.language 
+                for _, _, o in graph.triples((s, p, None)) 
+                if isinstance(o, Literal) and o.language
+            )
+            
+            # If target language missing, add it
+            if target_lang not in existing_langs:
+                # Find any literal value to use (preferably without language tag)
+                value_literal = None
+                for _, _, o in graph.triples((s, p, None)):
+                    if isinstance(o, Literal):
+                        if not o.language:
+                            value_literal = o
+                            break
+                        elif not value_literal:
+                            value_literal = o
+                
+                if value_literal:
+                    graph.add((s, p, Literal(value_literal.value, lang=target_lang)))
+    
+        # Handle literals without language tags
+        no_lang_triples = [
             (s, p, o) for s, p, o in graph
             if p in properties 
             and isinstance(o, Literal)
             and isinstance(o.value, str)
             and not o.language
-        )
+        ]
     
-        # Generator for creating updates
-        updates = (
-            (s, p, o, Literal(o.value, lang=self._default_lang))
-            for s, p, o in no_lang_triples
-        )
-    
-        # Process updates in batches
-        BATCH_SIZE = 1000
-        batch = []
+        # Remove literals without language tags after adding localized versions
+        for s, p, o in no_lang_triples:
+            graph.remove((s, p, o))
+
+    def _get_graph_required_languages(
+            self, 
+            graph: Graph, 
+            properties: List[URIRef] = None,
+            required_languages: List[str] = None
+        ) -> List[str]:
+        """
+        Check which languages are present for all specified properties across the graph.
+        Returns the list of languages that are consistently present.
         
-        for update in updates:
-            batch.append(update)
-            if len(batch) >= BATCH_SIZE:
-                list(map(lambda x: (graph.remove((x[0], x[1], x[2])), 
-                                  graph.add((x[0], x[1], x[3]))), batch))
-                batch = []
+        Args:
+            graph (Graph): RDF Graph to analyze
+            properties (List[URIRef]): Properties to check (e.g., [DCT.title, DCT.description])
+            required_languages (List[str]): List of language codes to consider.
+                                        If None, retrieves all languages in the graph.
         
-        # Process remaining
-        if batch:
-            list(map(lambda x: (graph.remove((x[0], x[1], x[2])), 
-                              graph.add((x[0], x[1], x[3]))), batch))
+        Returns:
+            List[str]: List of language codes that are present for all specified properties
+        
+        Example:
+            >>> # Get languages that exist for all titles and descriptions
+            >>> languages = self._get_graph_required_languages(
+            ...     graph, 
+            ...     [DCT.title, DCT.description],
+            ...     ['es', 'en', 'ca']
+            ... )
+            >>> # If 'es' is present for all but 'en' is missing for some,
+            >>> # the result would be ['es']
+        """
+        if not properties:
+            return []
+        
+        # Get all languages present in the graph if required_languages not specified
+        if not required_languages:
+            all_langs = set()
+            for _, _, o in graph:
+                if isinstance(o, Literal) and o.language:
+                    all_langs.add(o.language)
+            required_languages = list(all_langs)
+        
+        # If there are no languages to check, return empty list
+        if not required_languages:
+            return []
+        
+        # Track which languages are missing for each property+subject combination
+        missing_languages = {lang: False for lang in required_languages}
+        
+        # For each subject and property combination, check if all required languages exist
+        subject_property_pairs = set((s, p) for s, p, _ in graph if p in properties)
+        
+        # Skip check if there are no subject-property pairs to analyze
+        if not subject_property_pairs:
+            return []
+        
+        for s, p in subject_property_pairs:
+            # Get the languages present for this subject+property
+            existing_langs = set(
+                o.language 
+                for _, _, o in graph.triples((s, p, None)) 
+                if isinstance(o, Literal) and o.language
+            )
+            
+            # Mark languages that are missing
+            for lang in required_languages:
+                if lang not in existing_langs:
+                    missing_languages[lang] = True
+        
+        # Return only languages that are present for all properties (not marked as missing)
+        consistent_languages = [lang for lang, is_missing in missing_languages.items() if not is_missing]
+        
+        return consistent_languages
+
+    def _graph_remove_non_target_language_literals(
+            self, 
+            graph: Graph, 
+            properties: List[URIRef] = None,
+            langs: List[str] = None
+        ) -> None:
+        """
+        Remove literals with languages not in the target list, keeping only specified languages.
+        
+        Args:
+            graph (Graph): RDF Graph to process
+            properties (List[URIRef]): Properties to check. If None, checks all properties.
+            langs (List[str]): List of language codes to keep. If None, uses [self._default_lang].
+        
+        Example:
+            >>> # Keep only Spanish and English literals for title and description
+            >>> self._graph_remove_non_target_language_literals(
+            ...     graph, 
+            ...     [DCT.title, DCT.description],
+            ...     ['es', 'en']
+            ... )
+        """
+        if not langs:
+            langs = [self._default_lang]
+        
+        # Ensure we have properties to check
+        if not properties:
+            return
+        
+        # Find all triples with language tags not in the target list
+        triples_to_remove = []
+        
+        for s, p, o in graph:
+            # Check if this is a property we're interested in
+            if p not in properties:
+                continue
+                
+            # Check if this is a literal with a language tag
+            if isinstance(o, Literal) and o.language and o.language not in langs:
+                triples_to_remove.append((s, p, o))
+        
+        # Remove the identified triples
+        for triple in triples_to_remove:
+            graph.remove(triple)
+        
+        # Check each subject-predicate pair to ensure at least one value remains
+        for s, p in set((s, p) for s, p, _ in graph if p in properties):
+            # Get remaining literals for this subject-predicate pair
+            remaining = list(graph.objects(s, p))
+            
+            # If no literals remain, restore the highest priority language if available
+            if not remaining:
+                log.warning(f"All literals removed for {s} {p}, nothing to restore.")
+                continue
 
     def _graph_remove_empty_language_literals(self, graph: Graph) -> None:
         """

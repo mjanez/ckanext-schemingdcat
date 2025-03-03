@@ -262,7 +262,7 @@ class EsDCATAP2Profile(EuDCATAP2Profile):
             distribution_ref = CleanedURIRef(resource_uri(resource_dict))
 
         # DCAT-AP-ES. Properties to check for at least "es" lang
-        self._graph_add_default_language_literals(self.g, eu_dcat_ap_literals_to_check)
+        self._graph_add_default_language_literals(self.g, properties=eu_dcat_ap_literals_to_check, lang='es')
 
     def _graph_from_dataset_v2_only(self, dataset_dict, dataset_ref):
         """
@@ -271,9 +271,9 @@ class EsDCATAP2Profile(EuDCATAP2Profile):
 
         # Other identifiers (these are handled differently in the
         # DCAT-AP v3 profile)
-        value = self._get_dict_value(dataset_dict, "alternate_identifier")
-        if value:
-            items = self._read_list_value(value)
+        alternate_identifier = self._get_dict_value(dataset_dict, "alternate_identifier")
+        if alternate_identifier:
+            items = self._read_list_value(alternate_identifier)
             for item in items:
                 identifier = BNode()
                 self.g.add((dataset_ref, ADMS.identifier, identifier))
@@ -316,7 +316,27 @@ class EsDCATAP2Profile(EuDCATAP2Profile):
 
             self._add_triples_from_dict(publisher_details, publisher_ref, items)
 
+        # Clean up applicable_legislation that are not URIs
+        for legislation in self.g.objects(dataset_ref, DCATAP.applicableLegislation):
+            if not isinstance(legislation, URIRef):
+                self.g.remove((dataset_ref, DCATAP.applicableLegislation, legislation))
+
+        # Resources
+        for resource_dict in dataset_dict.get("resources", []):
+
+            distribution_ref = CleanedURIRef(resource_uri(resource_dict))
+
+            # Clean up applicable_legislation that are not URIs
+            for legislation in self.g.objects(distribution_ref, DCATAP.applicableLegislation):
+                if not isinstance(legislation, URIRef):
+                    self.g.remove((distribution_ref, DCATAP.applicableLegislation, legislation))
+
     def _graph_from_catalog_es_dcat_ap_v2(self, catalog_dict, catalog_ref):
+        # Catalog languages
+        catalog_language_codes = self._get_catalog_languages_paginated(default_values_property='catalog_languages', default_values=es_dcat_ap_default_values, output_format='uri')
+        for catalog_lang in catalog_language_codes:
+            self.g.add((catalog_ref, DCT.language, URIRef(catalog_lang)))
+        
         # Title & Description multilang
         catalog_fields = {
             'title': (config.get("ckan.site_title"), DCT.title),

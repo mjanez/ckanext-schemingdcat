@@ -277,16 +277,16 @@ class EuDCATAP2Profile(BaseEuDCATAPProfile):
                 self.g.remove((temporal, None, None))
                 self.g.remove((dataset_ref, DCT.temporal, temporal))
 
-        start = self._ensure_datetime(self._get_dataset_value(dataset_dict, "temporal_start"))
-        end = self._ensure_datetime(self._get_dataset_value(dataset_dict, "temporal_end"))
+        start = self._get_dataset_value(dataset_dict, "temporal_start")
+        end = self._get_dataset_value(dataset_dict, "temporal_end")
         if start or end:
             temporal_extent = BNode()
 
             self.g.add((temporal_extent, RDF.type, DCT.PeriodOfTime))
             if start:
-                self._add_date_triple(temporal_extent, DCAT.startDate, start)
+                self._add_date_triple(temporal_extent, DCAT.startDate, self._ensure_datetime(start))
             if end:
-                self._add_date_triple(temporal_extent, DCAT.endDate, end)
+                self._add_date_triple(temporal_extent, DCAT.endDate, self._ensure_datetime(end))
             self.g.add((dataset_ref, DCT.temporal, temporal_extent))
 
         # spatial
