@@ -1,10 +1,10 @@
 import json
 import logging
 
-from rdflib import URIRef, Literal
+from rdflib import URIRef, Literal, BNode
 import ckantoolkit as toolkit
 
-from ckanext.dcat.utils import resource_uri
+from ckanext.dcat.utils import resource_uri, catalog_uri
 from ckanext.dcat.profiles.base import URIRefOrLiteral, CleanedURIRef
 
 from ckanext.schemingdcat.profiles.base import (
@@ -13,6 +13,10 @@ from ckanext.schemingdcat.profiles.base import (
     # Namespaces
     namespaces,
 )
+from ckanext.schemingdcat.config import (
+    FREQUENCY_MAPPING
+)
+from ckanext.schemingdcat.helpers import schemingdcat_get_catalog_publisher_info
 from ckanext.schemingdcat.profiles.dcat_ap.eu_dcat_ap import EuDCATAPProfile
 from ckanext.schemingdcat.profiles.dcat_config import (
     # Vocabs
@@ -27,10 +31,12 @@ from ckanext.schemingdcat.profiles.dcat_config import (
     ADMS,
     CNT,
     FOAF,
+    TIME,
     # Default values
     default_translated_fields,
     es_dcat_default_values, 
     default_translated_fields_es_dcat,
+    es_dcat_literals_to_check,
     )
 
 config = toolkit.config
@@ -147,7 +153,6 @@ class EsNTIRISPProfile(EuDCATAPProfile):
                                     ('availability', DCATAP.availability),
                                     ('title', DCT.title),
                                     ('endpoint_description', DCAT.endpointDescription),
-                                    ('license', DCT.license),
                                     ('access_rights', DCT.accessRights),
                                     ('description', DCT.description),
                                     ):
@@ -215,14 +220,34 @@ class EsNTIRISPProfile(EuDCATAPProfile):
         
         dates = [
             ('created', DCT.created, ['metadata_created'], Literal),
-            ('issued', DCT.issued, ['metadata_created'], Literal),
-            ('modified', DCT.modified, ['metadata_modified'], Literal),
             ('valid', DCT.valid, None, Literal),
         ]
         
         self._add_date_triples_from_dict(dataset_dict, dataset_ref, dates)
         self._add_list_triples_from_dict(dataset_dict, dataset_ref, basic_elements)
+
+        # Remove identifier without URI if exists
+        for dataset_identifier in self.g.objects(dataset_ref, DCT.identifier):
+            if not isinstance(dataset_identifier, URIRef):
+                self.g.remove((dataset_ref, DCT.identifier, dataset_identifier))
         
+        # Remove language with URI if exists
+        for language_uri in self.g.objects(dataset_ref, DCT.language):
+            self.g.remove((dataset_ref, DCT.language, language_uri))
+
+        # NTI-RISP Mandatory. The publisher is a DIR3 identifier: https://datos.gob.es/es/recurso/sector-publico/org/Organismo
+        catalog_publisher_info = schemingdcat_get_catalog_publisher_info()
+        
+        publisher_ref = CleanedURIRef(catalog_publisher_info.get("identifier"))
+
+        # remove publisher to avoid duplication
+        self._clean_publisher(dataset_ref)
+
+        # Add Catalog publisher to Dataset
+        if publisher_ref:
+            self.g.add((publisher_ref, RDF.type, FOAF.Agent))
+            self.g.add((dataset_ref, DCT.publisher, publisher_ref))
+
         # NTI-RISP Core elements
         items = {
             'notes': (DCT.description, es_dcat_default_values['notes']),
@@ -231,7 +256,7 @@ class EsNTIRISPProfile(EuDCATAPProfile):
             'license_url': (DCT.license, es_dcat_default_values['license_url']),
             'language_code': (DC.language, es_dcat_default_values['language_code'] or config.get('ckan.locale_default')),
             'spatial_uri': (DCT.spatial, es_dcat_default_values['spatial_uri']),
-            'publisher_identifier_es': (DCT.publisher,  es_dcat_default_values['publisher_identifier'] or dataset_dict['publisher_identifier']),
+            'publisher_identifier_es': (DCT.publisher,  publisher_ref or es_dcat_default_values['publisher_identifier']),
         }
 
         self._add_dataset_triples_from_dict(dataset_dict, dataset_ref, items)      
@@ -256,6 +281,13 @@ class EsNTIRISPProfile(EuDCATAPProfile):
         self._add_list_triples_from_dict(dataset_dict, dataset_ref, items_list)
          
         #FIXME Frequency - Frecuencia ('frequency', DCT.accrualPeriodicity, None, URIRefOrLiteral): https://github.com/ctt-gob-es/datos.gob.es/blob/30c4a0d97356e0caf948aff2bb74790f4885c67f/ckan/ckanext-dge-harvest/ckanext/dge_harvest/profiles.py#L2508
+        # Remove dct:accrualPeriodicity if exists
+        for old_freq in self.g.objects(dataset_ref, DCT.accrualPeriodicity):
+            self.g.remove((dataset_ref, DCT.accrualPeriodicity, old_freq))
+        freq_uri = dataset_dict.get('frequency')
+
+        if freq_uri:
+            self._get_frequency_value(dataset_ref, freq_uri)
 
         # Temporal - Cobertura temporal
         self._temporal_graph(dataset_dict, dataset_ref)
@@ -275,12 +307,16 @@ class EsNTIRISPProfile(EuDCATAPProfile):
         # Resources
         for resource_dict in dataset_dict.get('resources', []):
 
-            distribution = CleanedURIRef(resource_uri(resource_dict))
+            distribution_ref = CleanedURIRef(resource_uri(resource_dict))
 
-            g.add((dataset_ref, DCAT.distribution, distribution))
+            g.add((dataset_ref, DCAT.distribution, distribution_ref))
 
-            g.add((distribution, RDF.type, DCAT.Distribution))
-            
+            g.add((distribution_ref, RDF.type, DCAT.Distribution))
+
+            # Remove any accessURL if exists
+            for access_url in self.g.objects(distribution_ref, DCAT["accessURL"]):
+                self.g.remove((distribution_ref, DCAT["accessURL"], access_url))
+
             # NTI-RISP Core elements
             items = {
                 'url': (DCAT.accessURL, None),
@@ -288,31 +324,48 @@ class EsNTIRISPProfile(EuDCATAPProfile):
                 'description': (DCT.description, es_dcat_default_values['description']),
                 'language_code': (DC.language, es_dcat_default_values['language_code'] or config.get('ckan.locale_default')),
                 'license': (DCT.license, es_dcat_default_values['license']),
-                'identifier_uri': (DCT.identifier, distribution),
+                'identifier_uri': (DCT.identifier, distribution_ref),
                 'size': (DCT.byteSize, None),
             }
 
-            if resource_license_fallback and not (distribution, DCT.license, None) in g:
+            if resource_license_fallback and not (distribution_ref, DCT.license, None) in g:
                 g.add(
                     (
-                        distribution,
+                        distribution_ref,
                         DCT.license,
                         URIRefOrLiteral(resource_license_fallback),
                     )
                 )
 
-            self._add_dataset_triples_from_dict(resource_dict, distribution, items)   
+            self._add_dataset_triples_from_dict(resource_dict, distribution_ref, items)   
 
             # Lists
             items_lists = [
                 ('resource_relation', DCT.relation, None, URIRef),
             ]
 
-            self._add_list_triples_from_dict(resource_dict, distribution, items_lists)
+            self._add_list_triples_from_dict(resource_dict, distribution_ref, items_lists)
 
             # Format/Mimetype - Formato de la distribución
-            self._distribution_format(resource_dict, distribution)
+            # Remove format with URI if exists
+            for format_uri in self.g.objects(distribution_ref, DCT["format"]):
+                self.g.remove((distribution_ref, DCT["format"], format_uri))
 
+            self._distribution_format(resource_dict, distribution_ref)
+
+            # Remove language with URI if exists
+            for language_uri in self.g.objects(distribution_ref, DCT.language):
+                self.g.remove((distribution_ref, DCT.language, language_uri))
+
+            # Remove dcat:mediaType if exists
+            for media_type in self.g.objects(distribution_ref, DCAT.mediaType):
+                self.g.remove((distribution_ref, DCAT.mediaType, media_type))
+
+        # DCAT-AP-ES. Properties to check for at least "es" lang
+        self._graph_add_default_language_literals(self.g, properties=es_dcat_literals_to_check, lang='es')
+        
+        # Remove empty language literals from graph
+        self._graph_remove_empty_language_literals(g)
 
     def _graph_from_dataset_nti_risp_only(self, dataset_dict, dataset_ref):
         """
@@ -339,11 +392,19 @@ class EsNTIRISPProfile(EuDCATAPProfile):
             es_dcat_default_values['language_code'] or config.get('ckan.locale_default')
             ]
 
+        # Remove homepage without root_path
+        for homepage in self.g.objects(catalog_ref, FOAF.homepage):
+            self.g.remove((catalog_ref, FOAF.homepage, homepage))
+
+        # Remove language with URI if exists
+        for language_uri in self.g.objects(catalog_ref, DCT.language):
+            self.g.remove((catalog_ref, DCT.language, language_uri))
+
         # Mandatory elements by NTI-RISP (datos.gob.es)
         items_core = [
-            ('identifier', DCT.identifier, f'{config.get("ckan_url")}/catalog.rdf', Literal),
+            ("identifier", DCT.identifier, catalog_uri(), URIRef),
             ('encoding', CNT.characterEncoding, 'UTF-8', Literal),
-            ('language_code', DC.language, language_code, URIRefOrLiteral),
+            ('language_code', DC.language, language_code, Literal),
             ('spatial_uri', DCT.spatial, spatial_uri, URIRefOrLiteral),
             ('theme_taxonomy', DCAT.themeTaxonomy, es_dcat_default_values['theme_taxonomy'], URIRef),
             ('homepage', FOAF.homepage, config.get('ckan_url'), URIRef),
@@ -377,15 +438,38 @@ class EsNTIRISPProfile(EuDCATAPProfile):
             log.error(f'Error adding catalog {field}: {str(e)}')
 
         #TODO: Tamaño del catálogo - dct:extent
+        # <dct:extent> 
+        #     <dct:SizeOrDuration> 
+        #         <rdf:value rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">850</rdf:value> 
+        #         <rdfs:label xml:lang="es">850 documentos o recursos de información</rdfs:label> 
+        #     </dct:SizeOrDuration> 
+        # </dct:extent> 
 
         # Dates
         modified = self._get_catalog_field(field_name='metadata_modified', default_values_dict=es_dcat_default_values)
         issued = self._get_catalog_field(field_name='metadata_created', default_values_dict=es_dcat_default_values, order='asc')
         if modified or issued or license:
             if modified:
-                self._add_date_triple(catalog_ref, DCT.modified, modified)
+                self._add_date_triple(catalog_ref, DCT.modified, self._ensure_datetime(modified))
             if issued:
-                self._add_date_triple(catalog_ref, DCT.issued, issued)
+                self._add_date_triple(catalog_ref, DCT.issued, self._ensure_datetime(issued))
+
+        #TODO: Catalog languages, only when NTI-RISP accepted not include all fields in all of catalog languages.
+        catalog_language_codes = self._get_catalog_languages_paginated(default_values_property='catalog_language_codes', default_values=es_dcat_default_values, output_format='iso2')
+        consistent_catalog_language_codes = self._get_graph_required_languages(
+            self.g, 
+            [DCT.title, DCT.description],
+            catalog_language_codes
+        )
+        
+        # Make sure Spanish language is included (without duplicating)
+        default_lang = es_dcat_default_values['language_code']
+        if default_lang not in consistent_catalog_language_codes:
+            consistent_catalog_language_codes.append(default_lang)
+        
+        #log.debug('consistent_catalog_language_codes: %s', consistent_catalog_language_codes)
+        for catalog_lang in consistent_catalog_language_codes:
+            g.add((catalog_ref, DC.language, Literal(catalog_lang)))
 
     def _add_dataset_triples_from_dict(self, dataset_dict, dataset_ref, items):
         """Adds triples to the RDF graph for the given dataset.
@@ -430,13 +514,13 @@ class EsNTIRISPProfile(EuDCATAPProfile):
             self.g.add((temporal_extent, RDF.type, DCT.PeriodOfTime))
             if start:
                 self._add_date_triple(
-                    temporal_extent, SCHEMA.startDate, start)
+                    temporal_extent, SCHEMA.startDate, self._ensure_datetime(start))
             if end:
                 self._add_date_triple(
-                    temporal_extent, SCHEMA.endDate, end)
+                    temporal_extent, SCHEMA.endDate, self._ensure_datetime(end))
             self.g.add((dataset_ref, DCT.temporal, temporal_extent))
 
-    def _distribution_format(self, resource_dict, distribution):
+    def _distribution_format(self, resource_dict, distribution_ref):
         """
         Generates an RDF triple for the format of a resource.
 
@@ -446,36 +530,44 @@ class EsNTIRISPProfile(EuDCATAPProfile):
 
         Returns:
             str: The RDF triple for the format.
-        """
+        """        
         resource_format = resource_dict.get('format', es_dcat_default_values['format_es'])
 
         format_es = self._search_value_codelist(MD_ES_FORMATS, resource_format, 'label','label', False) or es_dcat_default_values['format_es']
         mime_type = self._search_value_codelist(MD_ES_FORMATS, format_es, 'label','id') or es_dcat_default_values['mimetype_es']
 
         if format_es:
-            imt = URIRef("%s/format" % distribution)
+            imt = BNode()
             self.g.add((imt, RDF.type, DCT.IMT))
-            self.g.add((distribution, DCT['format'], imt))
+            self.g.add((distribution_ref, DCT['format'], imt))
             self.g.add((imt, RDFS.label, Literal(format_es)))
 
         if mime_type:
             self.g.add((imt, RDF.value, Literal(mime_type)))
 
-    def _check_resource_url(self, resource_url, distribution):
+    def _get_frequency_value(self, dataset_ref, frequency_uri):
         """
-        Verifies if the URL of a resource is a download URL and adds the corresponding triple to the RDF graph.
-
-        Args:
-            resource_url (str): The URL of the resource.
-            distribution (URIRef): The URI of the distribution in the RDF graph.
-
-        Returns:
-            None
         """
-        
-        download_keywords = ['descarga', 'download', 'get', 'file', 'data', 'archive', 'zip', 'rar', 'tar', 'gz', 'tgz', '7z', 'exe', 'msi', 'dmg', 'pkg', 'deb', 'rpm', 'iso', 'img', 'bin', 'cue', 'torrent', 'magnet', 'shp', 'gpkg', 'tiff']
+        mapped_value = FREQUENCY_MAPPING.get(frequency_uri)
+        if not mapped_value:
+            return
 
-        if any(keyword in resource_url.lower() for keyword in download_keywords):
-            self.g.add((distribution, DCAT.downloadURL, URIRef(resource_url)))
-        else:
-            self.g.add((distribution, DCAT.accessURL, URIRef(resource_url)))
+        time_prop, time_val, time_label = mapped_value
+
+        freq_blank = BNode()
+        dur_blank = BNode()
+
+        # dct:accrualPeriodicity [ a dct:Frequency; rdf:value [ a time:DurationDescription; ... ] ]
+        self.g.add((dataset_ref, DCT.accrualPeriodicity, freq_blank))
+        self.g.add((freq_blank, RDF.type, DCT.Frequency))
+
+        # rdf:value => Duración
+        self.g.add((freq_blank, RDF.value, dur_blank))
+        self.g.add((dur_blank, RDF.type, TIME.DurationDescription))
+
+        # time:prop -> valor
+        self.g.add((dur_blank, getattr(TIME, time_prop), Literal(time_val, datatype=XSD.decimal)))
+
+        # Etiquetas
+        self.g.add((dur_blank, RDFS.label, Literal(time_label, datatype=XSD.string)))
+        self.g.add((freq_blank, RDFS.label, Literal(f"Cada {time_val} {time_label}", datatype=XSD.string)))
