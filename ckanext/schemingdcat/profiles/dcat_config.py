@@ -43,7 +43,7 @@ DCATUS = Namespace("http://resources.data.gov/ontology/dcat-us#")
 VCARD = Namespace("http://www.w3.org/2006/vcard/ns#")
 FOAF = Namespace("http://xmlns.com/foaf/0.1/")
 SCHEMA = Namespace("http://schema.org/")
-TIME = Namespace("http://www.w3.org/2006/time")
+TIME = Namespace("http://www.w3.org/2006/time#")  # correct with trailing #
 LOCN = Namespace("http://www.w3.org/ns/locn#")
 GSP = Namespace("http://www.opengis.net/ont/geosparql#")
 OWL = Namespace("http://www.w3.org/2002/07/owl#")
@@ -342,8 +342,7 @@ dcat_ap_default_licenses = {
 es_dcat_literals_to_check = [
             DCT.title,
             DCT.description,
-            DCAT.keyword,
-            RDFS.label,        
+            DCAT.keyword,     
         ]
 
 # DCAT-AP-ES Literals to check default lang ("es")

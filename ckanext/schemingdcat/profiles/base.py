@@ -20,6 +20,7 @@ from ckanext.schemingdcat.config import (
     translate_validator_tags,
     ISO19115_LANGUAGE,
     BASE_VOCABS,
+    FREQUENCY_MAPPING
 )
 
 from ckanext.schemingdcat.helpers import get_langs, schemingdcat_get_catalog_publisher_info
@@ -1492,3 +1493,89 @@ class SchemingDCATRDFProfile(RDFProfile):
             
         except Exception as e:
             return BNode()
+        
+    def _add_frequency_value(self, dataset_ref, frequency_uri):
+        """
+        Adds frequency metadata to dataset using TIME ontology with multilingual labels.
+        
+        This method generates RDF triples that describe the dataset's update frequency
+        using the TIME ontology. It maps frequency URIs from the EU Publications Office
+        to appropriate TIME duration descriptions with labels in multiple languages.
+        
+        Args:
+            dataset_ref (URIRef): The URI reference for the dataset.
+            frequency_uri (str): The frequency URI from the EU Publications Office
+                authority list (e.g., "http://publications.europa.eu/resource/authority/frequency/ANNUAL").
+        
+        Returns:
+            None: Updates the RDF graph in-place.
+        
+        Note:
+            The FREQUENCY_MAPPING dictionary must contain entries with the format:
+            (time_property, time_value, language_labels_dict, show_value_in_label)
+            
+            Example mapping:
+            "http://publications.europa.eu/resource/authority/frequency/ANNUAL": 
+                ("years", "1", {"es": "año", "en": "year"}, True)
+        """
+        # Early return if no mapping exists
+        mapped_value = FREQUENCY_MAPPING.get(frequency_uri)
+        if not mapped_value:
+            log.debug(f"No frequency mapping found for {frequency_uri}")
+            return
+        
+        # Extract values based on mapping structure
+        if len(mapped_value) == 4:
+            time_prop, time_val, time_labels, show_value = mapped_value
+        else:
+            # Legacy format support
+            time_prop, time_val, time_labels = mapped_value
+            show_value = time_val != "0"
+        
+        # Create stable, predictable URIs for the frequency components
+        frequency_node = BNode()
+        duration_node = BNode()
+        
+        # Add the frequency structure to the graph
+        g = self.g
+        g.add((dataset_ref, DCT.accrualPeriodicity, frequency_node))
+        g.add((frequency_node, RDF.type, DCT.Frequency))
+        g.add((frequency_node, RDF.value, duration_node))
+        
+        # Add the duration description with proper datatype
+        g.add((duration_node, RDF.type, TIME.DurationDescription))
+        g.add((duration_node, getattr(TIME, time_prop), Literal(time_val, datatype=XSD.decimal)))
+        
+        # Process multilingual labels for both frequency_node and duration_node
+        if isinstance(time_labels, dict):
+            # Add labels to duration_node
+            self._add_multilingual_frequency_labels(
+                duration_node, time_val, time_labels, show_value
+            )
+
+        elif time_labels:  # Fallback for string labels (legacy support)
+            label = f"{time_val} {time_labels}" if show_value and time_val != "0" else time_labels
+            g.add((duration_node, RDFS.label, Literal(label, lang="es")))
+            g.add((frequency_node, RDFS.label, Literal(label, lang="es")))
+
+    def _add_multilingual_frequency_labels(self, node, value, labels_dict, show_value):
+        """
+        Helper method to add multilingual labels to a frequency node.
+        
+        Args:
+            node (URIRef): The node to add labels to
+            value (str): The time value
+            labels_dict (dict): Dictionary of language codes to label texts
+            show_value (bool): Whether to show the value in the label
+        """
+        g = self.g
+        for lang, label in labels_dict.items():
+            if not label:
+                continue
+                
+            if show_value and value != "0":
+                # Format: "1 year", "30 minutes", etc.
+                g.add((node, RDFS.label, Literal(f"{value} {label}", lang=lang)))
+            else:
+                # Format: "year", "never", "irregular", etc.
+                g.add((node, RDFS.label, Literal(label, lang=lang)))

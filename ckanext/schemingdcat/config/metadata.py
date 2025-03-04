@@ -221,23 +221,57 @@ BASE_VOCABS = {
     'es_publisher_org': 'http://datos.gob.es/recurso/sector-publico/org/Organismo/',
 }
 
-FREQUENCY_MAPPING = {
-    "http://publications.europa.eu/resource/authority/frequency/ANNUAL": ("years", "1", "año"),
-    "http://publications.europa.eu/resource/authority/frequency/ANNUAL_2": ("months", "6", "meses"),
-    "http://publications.europa.eu/resource/authority/frequency/ANNUAL_3": ("months", "4", "meses"),
-    "http://publications.europa.eu/resource/authority/frequency/MONTHLY": ("months", "1", "mes"),
-    "http://publications.europa.eu/resource/authority/frequency/BIMONTHLY": ("months", "2", "meses"),
-    "http://publications.europa.eu/resource/authority/frequency/WEEKLY": ("days", "7", "días"),
-    "http://publications.europa.eu/resource/authority/frequency/BIWEEKLY": ("days", "14", "días"),
-    "http://publications.europa.eu/resource/authority/frequency/DAILY": ("days", "1", "día"),
-    "http://publications.europa.eu/resource/authority/frequency/QUARTERLY": ("months", "3", "meses"),
-    "http://publications.europa.eu/resource/authority/frequency/BIENNIAL": ("years", "2", "años"),
-    "http://publications.europa.eu/resource/authority/frequency/TRIENNIAL": ("years", "3", "años"),
-    "http://publications.europa.eu/resource/authority/frequency/CONT": ("days", "1", "día"),
-    "http://publications.europa.eu/resource/authority/frequency/UPDATE_CONT": ("days", "1", "día"),
-    "http://publications.europa.eu/resource/authority/frequency/DAILY": ("days", "1", "día"),
-    "http://publications.europa.eu/resource/authority/frequency/NEVER": ("days", "0", "día"),
-    # ...otros mapeos a convenir...
-    # Valor por defecto si no existe mapeo
-    "DEFAULT": ("days", "9999", "continuous")
+FREQUENCY_MAPPING = {      
+    # Minutes
+    "http://publications.europa.eu/resource/authority/frequency/1MIN": ("minutes", "1", {"es": "minuto", "en": "minute"}, True),
+    "http://publications.europa.eu/resource/authority/frequency/5MIN": ("minutes", "5", {"es": "minutos", "en": "minutes"}, True),
+    "http://publications.europa.eu/resource/authority/frequency/10MIN": ("minutes", "10", {"es": "minutos", "en": "minutes"}, True),
+    "http://publications.europa.eu/resource/authority/frequency/15MIN": ("minutes", "15", {"es": "minutos", "en": "minutes"}, True),
+    "http://publications.europa.eu/resource/authority/frequency/30MIN": ("minutes", "30", {"es": "minutos", "en": "minutes"}, True),
+    
+    # Hours
+    "http://publications.europa.eu/resource/authority/frequency/HOURLY": ("hours", "1", {"es": "hora", "en": "hour"}, True),
+    "http://publications.europa.eu/resource/authority/frequency/BIHOURLY": ("hours", "2", {"es": "horas", "en": "hours"}, True),
+    "http://publications.europa.eu/resource/authority/frequency/TRIHOURLY": ("hours", "3", {"es": "horas", "en": "hours"}, True),
+    "http://publications.europa.eu/resource/authority/frequency/12HRS": ("hours", "12", {"es": "horas", "en": "hours"}, True),
+    
+    # Days
+    "http://publications.europa.eu/resource/authority/frequency/MONTHLY_2": ("days", "15", {"es": "días", "en": "days"}, True),
+    "http://publications.europa.eu/resource/authority/frequency/MONTHLY_3": ("days", "10", {"es": "días", "en": "days"}, True),
+    "http://publications.europa.eu/resource/authority/frequency/WEEKLY": ("days", "7", {"es": "días", "en": "days"}, True),
+    "http://publications.europa.eu/resource/authority/frequency/WEEKLY_2": ("days", "3", {"es": "días", "en": "days"}, True),
+    "http://publications.europa.eu/resource/authority/frequency/WEEKLY_3": ("days", "2", {"es": "días", "en": "days"}, True),
+    "http://publications.europa.eu/resource/authority/frequency/BIWEEKLY": ("days", "14", {"es": "días", "en": "days"}, True),
+    "http://publications.europa.eu/resource/authority/frequency/DAILY": ("days", "1", {"es": "día", "en": "day"}, True),
+    "http://publications.europa.eu/resource/authority/frequency/DAILY_2": ("hours", "12", {"es": "horas", "en": "hours"}, True),
+    "http://publications.europa.eu/resource/authority/frequency/CONT": ("days", "1", {"es": "día", "en": "day"}, True),
+    "http://publications.europa.eu/resource/authority/frequency/UPDATE_CONT": ("days", "1", {"es": "día", "en": "day"}, True),
+    
+    # Months
+    "http://publications.europa.eu/resource/authority/frequency/MONTHLY": ("months", "1", {"es": "mes", "en": "month"}, True),
+    "http://publications.europa.eu/resource/authority/frequency/BIMONTHLY": ("months", "2", {"es": "meses", "en": "months"}, True),
+    "http://publications.europa.eu/resource/authority/frequency/ANNUAL_2": ("months", "6", {"es": "meses", "en": "months"}, True),
+    "http://publications.europa.eu/resource/authority/frequency/ANNUAL_3": ("months", "4", {"es": "meses", "en": "months"}, True),
+    "http://publications.europa.eu/resource/authority/frequency/QUARTERLY": ("months", "3", {"es": "meses", "en": "months"}, True),
+
+    # Years
+    "http://publications.europa.eu/resource/authority/frequency/ANNUAL": ("years", "1", {"es": "año", "en": "year"}, True),
+    "http://publications.europa.eu/resource/authority/frequency/BIENNIAL": ("years", "2", {"es": "años", "en": "years"}, True),
+    "http://publications.europa.eu/resource/authority/frequency/TRIENNIAL": ("years", "3", {"es": "años", "en": "years"}, True),
+    "http://publications.europa.eu/resource/authority/frequency/QUADRENNIAL": ("years", "4", {"es": "años", "en": "years"}, True),
+    "http://publications.europa.eu/resource/authority/frequency/QUINQUENNIAL": ("years", "5", {"es": "años", "en": "years"}, True),
+    "http://publications.europa.eu/resource/authority/frequency/DECENNIAL": ("years", "10", {"es": "años", "en": "years"}, True),
+    "http://publications.europa.eu/resource/authority/frequency/BIDECENNIAL": ("years", "20", {"es": "años", "en": "years"}, True),
+    "http://publications.europa.eu/resource/authority/frequency/TRIDECENNIAL": ("years", "30", {"es": "años", "en": "years"}, True),
+    
+    # Special values without numerical value in the label
+    "http://publications.europa.eu/resource/authority/frequency/NEVER": ("days", "0", {"es": "nunca", "en": "never"}, False),
+    "http://publications.europa.eu/resource/authority/frequency/NOT_PLANNED": ("days", "0", {"es": "no planificado", "en": "not planned"}, False),   
+    
+    # Other - special values without numerical value
+    "http://publications.europa.eu/resource/authority/frequency/IRREG": ("days", "0", {"es": "irregular", "en": "irregular"}, False),
+    "http://publications.europa.eu/resource/authority/frequency/UNKNOWN": ("days", "0", {"es": "desconocido", "en": "unknown"}, False),
+    "http://publications.europa.eu/resource/authority/frequency/OTHER": ("days", "0", {"es": "otro", "en": "other"}, False),
+    "http://publications.europa.eu/resource/authority/frequency/OP_DATPRO": ("days", "0", {"es": "en proceso", "en": "in process"}, False),
+    "http://publications.europa.eu/resource/authority/frequency/AS_NEEDED": ("days", "0", {"es": "según necesidad", "en": "as needed"}, False),
 }

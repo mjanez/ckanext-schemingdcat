@@ -42,6 +42,7 @@ from ckanext.schemingdcat.profiles.dcat_config import (
 config = toolkit.config
 
 DISTRIBUTION_LICENSE_FALLBACK_CONFIG = "ckanext.dcat.resource.inherit.license"
+catalog_base_ref =  config.get('ckan.site_url', None).rstrip('/')
 
 log = logging.getLogger(__name__)
 
@@ -285,11 +286,18 @@ class EsNTIRISPProfile(EuDCATAPProfile):
         for old_freq in self.g.objects(dataset_ref, DCT.accrualPeriodicity):
             self.g.remove((dataset_ref, DCT.accrualPeriodicity, old_freq))
         freq_uri = dataset_dict.get('frequency')
-
         if freq_uri:
-            self._get_frequency_value(dataset_ref, freq_uri)
+            self._add_frequency_value(dataset_ref, freq_uri)
 
         # Temporal - Cobertura temporal
+        for temporal_obj in self.g.objects(dataset_ref, DCT["temporal"]):
+            # Remove temporal with URI if exists
+            self.g.remove((dataset_ref, DCT["temporal"], temporal_obj))
+            
+            # If it is a blank node, delete all of its properties
+            if isinstance(temporal_obj, BNode):
+                for p, o in self.g.predicate_objects(temporal_obj):
+                    self.g.remove((temporal_obj, p, o))
         self._temporal_graph(dataset_dict, dataset_ref)
     
         # Use fallback license if set in config
@@ -347,10 +355,15 @@ class EsNTIRISPProfile(EuDCATAPProfile):
             self._add_list_triples_from_dict(resource_dict, distribution_ref, items_lists)
 
             # Format/Mimetype - Formato de la distribución
-            # Remove format with URI if exists
-            for format_uri in self.g.objects(distribution_ref, DCT["format"]):
-                self.g.remove((distribution_ref, DCT["format"], format_uri))
-
+            for format_obj in self.g.objects(distribution_ref, DCT["format"]):
+                # Remove format with URI if exists
+                self.g.remove((distribution_ref, DCT["format"], format_obj))
+                
+                # If it is a blank node, delete all of its properties
+                if isinstance(format_obj, BNode):
+                    for p, o in self.g.predicate_objects(format_obj):
+                        self.g.remove((format_obj, p, o))
+            # Add correct format
             self._distribution_format(resource_dict, distribution_ref)
 
             # Remove language with URI if exists
@@ -491,6 +504,7 @@ class EsNTIRISPProfile(EuDCATAPProfile):
 
     def _bind_namespaces(self):
         self.g.namespace_manager.bind('schema', namespaces['schema'], replace=True)
+        self.g.namespace_manager.bind('time', namespaces['time'], replace=True)
 
     def _temporal_graph(self, dataset_dict, dataset_ref):
         """Adds the dct:temporal triple to the RDF graph for the given dataset.
@@ -508,6 +522,10 @@ class EsNTIRISPProfile(EuDCATAPProfile):
         end = self._get_dataset_value(dataset_dict, 'temporal_end')
     
         if start or end:
+            # Remove language with URI if exists
+            for old_temporal in self.g.objects(dataset_ref, DCT.temporal):
+                self.g.remove((dataset_ref, DCT.temporal, old_temporal))
+            
             uid = 1
             temporal_extent = URIRef(
                 "%s/%s-%s" % (dataset_ref, 'PeriodOfTime', uid))
@@ -544,30 +562,3 @@ class EsNTIRISPProfile(EuDCATAPProfile):
 
         if mime_type:
             self.g.add((imt, RDF.value, Literal(mime_type)))
-
-    def _get_frequency_value(self, dataset_ref, frequency_uri):
-        """
-        """
-        mapped_value = FREQUENCY_MAPPING.get(frequency_uri)
-        if not mapped_value:
-            return
-
-        time_prop, time_val, time_label = mapped_value
-
-        freq_blank = BNode()
-        dur_blank = BNode()
-
-        # dct:accrualPeriodicity [ a dct:Frequency; rdf:value [ a time:DurationDescription; ... ] ]
-        self.g.add((dataset_ref, DCT.accrualPeriodicity, freq_blank))
-        self.g.add((freq_blank, RDF.type, DCT.Frequency))
-
-        # rdf:value => Duración
-        self.g.add((freq_blank, RDF.value, dur_blank))
-        self.g.add((dur_blank, RDF.type, TIME.DurationDescription))
-
-        # time:prop -> valor
-        self.g.add((dur_blank, getattr(TIME, time_prop), Literal(time_val, datatype=XSD.decimal)))
-
-        # Etiquetas
-        self.g.add((dur_blank, RDFS.label, Literal(time_label, datatype=XSD.string)))
-        self.g.add((freq_blank, RDFS.label, Literal(f"Cada {time_val} {time_label}", datatype=XSD.string)))
