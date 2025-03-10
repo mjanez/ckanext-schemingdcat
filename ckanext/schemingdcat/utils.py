@@ -157,11 +157,21 @@ def init_config():
     sdct_config.linkeddata_links = _load_yaml('linkeddata_links.yaml')
     sdct_config.geometadata_links = _load_yaml('geometadata_links.yaml')
     sdct_config.endpoints = _load_yaml(p.toolkit.config.get('ckanext.schemingdcat.endpoints_yaml'))
+    
+    # Get publisher type and validate it has correct prefix
+    default_publisher_type = "http://purl.org/adms/publishertype/NonProfitOrganisation"
+    publisher_type = p.toolkit.config.get('ckanext.schemingdcat.dcat_ap.publisher.type')
+    
+    # Check prefix and set default if needed
+    if not (publisher_type and "http://purl.org/adms/publishertype/" in publisher_type):
+        log.warning('Publisher type does not contain the required prefix, using default: %s', default_publisher_type)
+        publisher_type = default_publisher_type
+    
     sdct_config.catalog_publisher_info = {
         'name': p.toolkit.config.get('ckanext.schemingdcat.dcat_ap.publisher.name'),
         'email': p.toolkit.config.get('ckanext.schemingdcat.dcat_ap.publisher.email'),
         'identifier': p.toolkit.config.get('ckanext.schemingdcat.dcat_ap.publisher.identifier'),
-        'type': p.toolkit.config.get('ckanext.schemingdcat.dcat_ap.publisher.type'),
+        'type': publisher_type,
         'url': p.toolkit.config.get('ckanext.schemingdcat.dcat_ap.publisher.url')
     }
     

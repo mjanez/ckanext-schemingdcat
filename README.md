@@ -108,6 +108,16 @@ To use CSW Endpoint in `ckanext-schemingdcat`:
   ckanext.dcat.base_uri = http://localhost:81/catalog
   ```
 
+To use [custom DCAT profiles](#dcat-profiles):
+
+  ```ini
+  ckanext.schemingdcat.dcat_ap.publisher.name="Organismo publicador del Catálogo"
+  ckanext.schemingdcat.dcat_ap.publisher.identifier="http://datos.gob.es/recurso/sector-publico/org/Organismo/EA0000000"
+  ckanext.schemingdcat.dcat_ap.publisher.email="organismo@example.org"
+  ckanext.schemingdcat.dcat_ap.publisher.type="http://purl.org/adms/publishertype/NonProfitOrganisation"
+  ckanext.schemingdcat.dcat_ap.publisher.url="https://organismo.example.org/"
+  ```
+
 To use custom schemas in `ckanext-scheming`:
 
   ```ini
@@ -1025,8 +1035,8 @@ This plugin also contains a custom [`ckanext-dcat` profiles](./ckanext/schemingd
 * [GeoDCAT-AP v3.0.0](https://semiceu.github.io/GeoDCAT-AP/releases/3.0.0): `eu_geodcat_ap_3`
 
 **Spanish context**:
-* Spain [NTI-RISP v1.0.0](https://datos.gob.es/es/documentacion/normativa-de-ambito-nacional): `es_dcat`
-* Spain [DCAT-AP v2.1.1](https://semiceu.github.io/DCAT-AP/releases/2.1.1): `es_dcat_ap_2`
+* Spain [NTI-RISP v.2013](https://datos.gob.es/es/documentacion/normativa-de-ambito-nacional): `es_dcat`
+* Spain [DCAT-AP-ES](https://github.com/datosgobes/DCAT-AP-ES): `es_dcat_ap_2`
 * Spain [GeoDCAT-AP v2.0.0](https://semiceu.github.io/GeoDCAT-AP/releases/2.0.0): `es_geodcat_ap_2`
 
 To define which profiles to use you can:
