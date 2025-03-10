@@ -229,6 +229,102 @@ Enables open data statistics for themes on the homepage of the portal.
 
 
 
+#### ckanext.schemingdcat.dcat_ap.publisher.name
+
+
+
+
+Default value: `Organismo publicador del Catálogo`
+
+
+A party that makes a dataset available to others.
+
+
+
+#### ckanext.schemingdcat.dcat_ap.publisher.identifier
+
+
+
+
+Default value: `http://datos.gob.es/recurso/sector-publico/org/Organismo/EA0000000`
+
+
+Unique identifier of the publisher. Spain: Unique identifier (DIR3) of the public organization ([datos.gob.es](http://datos.gob.es/es/recurso/sector-publico/org/Organismo)).
+
+
+
+#### ckanext.schemingdcat.dcat_ap.publisher.email
+
+
+
+
+Default value: `organismo@example.org`
+
+
+Email of the publisher
+
+
+
+#### ckanext.schemingdcat.dcat_ap.publisher.type
+
+
+
+
+Default value: `http://purl.org/adms/publishertype/NonProfitOrganisation`
+
+
+Type of the publisher. [Publisher Type Codelist](http://purl.org/adms/publishertype)
+
+
+
+#### ckanext.schemingdcat.dcat_ap.publisher.url
+
+
+
+
+Default value: `https://organismo.example.org/`
+
+
+Website of the publisher
+
+
+
+#### ckanext.schemingdcat.dcat_ap.datastore_dataservice.title
+
+
+
+
+Default value: `Datastore API service`
+
+
+Title of the Datastore API service.
+
+
+
+#### ckanext.schemingdcat.dcat_ap.datastore_dataservice.description
+
+
+
+
+Default value: `This API provides live access to the Datastore portion of the Open Data Portal. Serve data resources in a machine-readable format.`
+
+
+Description of the Datastore API service.
+
+
+
+#### ckanext.schemingdcat.dcat_ap.datastore_dataservice.endpoint_description
+
+
+
+
+Default value: `{ckan_site_url}/openapi/datastore/`
+
+
+URI of the Datastore OpenAPI or online documentation.
+
+
+
 
 ### Social settings
 

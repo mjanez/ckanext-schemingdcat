@@ -416,6 +416,17 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
         catalog_publisher_identifier = config.get(CATALOG_PUBLISHER_IDENTIFIER_CONFIG, None)
         catalog_publisher_type = config.get(CATALOG_PUBLISHER_TYPE_CONFIG, eu_dcat_ap_default_values["publisher_type"])
 
+        # Initialize publisher_details at the beginning to avoid "referenced before assignment" errors
+        # This will be used as fallback and potentially overridden if more specific publisher info is available
+        catalog_publisher_info = schemingdcat_get_catalog_publisher_info()
+        publisher_details = {
+            "name": catalog_publisher_info.get("name"),
+            "email": catalog_publisher_info.get("email"),
+            "url": catalog_publisher_info.get("url"),
+            "type": catalog_publisher_info.get("type"),
+            "identifier": catalog_publisher_info.get("identifier"),
+        }
+
         # Basic fields
         title_key = (
             "title_translated"
