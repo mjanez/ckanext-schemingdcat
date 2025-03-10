@@ -18,9 +18,9 @@ This plugin needs the following plugins to work properly:
   ## ckan/ckanext-scheming: https://github.com/ckan/ckanext-scheming/tags (e.g. release-3.0.0)
   pip install -e git+https://github.com/ckan/ckanext-scheming.git@release-3.0.0#egg=ckanext-scheming
 
-  ## mjanez/ckanext-dcat: https://github.com/mjanez/ckanext-dcat/tags (e.g. 1.8.0)
-  pip install -e git+https://github.com/mjanez/ckanext-dcat.git@1.8.0#egg=ckanext-dcat
-  pip install -r https://raw.githubusercontent.com/mjanez/ckanext-dcat/master/requirements.txt
+  ## ckan/ckanext-dcat: https://github.com/ckan/ckanext-dcat/tags (e.g. 1.8.0)
+  pip install -e git+https://github.com/ckan/ckanext-dcat.git@1.8.0#egg=ckanext-dcat
+  pip install -r https://raw.githubusercontent.com/ckan/ckanext-dcat/master/requirements.txt
 
   ## ckan/ckanext-spatial: https://github.com/ckan/ckanext-spatial/tags (e.g. v2.1.1)
   pip install -e git++https://github.com/ckan/ckanext-spatial.git@v2.1.1/#egg=ckanext-spatial#egg=ckanext-spatial
@@ -96,11 +96,11 @@ Add the [custom Harvesters](./feature-harvesters.md) to the list of plugins as y
   ```
 
 ### Endpoints
-You can update the [`endpoints.yaml`](https://github.com/mjanez/ckanext-schemingdcat/tree/main/ckanext/schemingdcat/codelists/endpoints.yaml) file to add your custom OGC/LOD endpoints, only has 2 types of endpoints: `lod` and `ogc`, and the `profile` avalaible in [`ckanext-dcat`](https://github.com/mjanez/ckanext-dcat) Preferably between 4 and 8.
+You can update the [`endpoints.yaml`](https://github.com/mjanez/ckanext-schemingdcat/tree/main/ckanext/schemingdcat/codelists/endpoints.yaml) file to add your custom OGC/LOD endpoints, only has 2 types of endpoints: `lod` and `ogc`, and the `profile` avalaible in [`ckanext-dcat`](https://github.com/ckan/ckanext-dcat) Preferably between 4 and 8.
 
 Examples:
 
-* LOD endpoint: A Linked Open Data endpoint is a DCAT endpoint that provides access to RDF data. More information about the catalogue endpoint, how to use the endpoint, (e.g. `https://{ckan-instance-host}/catalog.{format}?[page={page}]&[modified_since={date}]&[profiles={profile1},{profile2}]&[q={query}]&[fq={filter query}]`, and more at [`ckanext-dcat`](https://github.com/mjanez/ckanext-dcat?tab=readme-ov-file#catalog-endpoint)
+* LOD endpoint: A Linked Open Data endpoint is a DCAT endpoint that provides access to RDF data. More information about the catalogue endpoint, how to use the endpoint, (e.g. `https://{ckan-instance-host}/catalog.{format}?[page={page}]&[modified_since={date}]&[profiles={profile1},{profile2}]&[q={query}]&[fq={filter query}]`, and more at [`ckanext-dcat`](https://github.com/ckan/ckanext-dcat?tab=readme-ov-file#catalog-endpoint)
     ```yaml
     - name: eu_dcat_ap_2_rdf
       display_name: RDF DCAT-AP 2

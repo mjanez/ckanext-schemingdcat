@@ -16,7 +16,7 @@
 This CKAN extension provides functions and templates specifically designed to extend `ckanext-scheming` and `ckanext-dcat` and includes RDF profiles and Harvest enhancements to adapt CKAN Schema to multiple metadata profiles as: [GeoDCAT-AP](./ckanext/schemingdcat/schemas/geodcat_ap/es_geodcat_ap_full.yaml) or [DCAT-AP](./ckanext/schemingdcat/schemas/dcat_ap/eu_dcat_ap_full.yaml).
 
 > [!WARNING] 
-> This project requires [mjanez/ckanext-dcat](https://github.com/mjanez/ckanext-dcat) (for newer releases) or [ckan/ckanext-dcat](https://github.com/ckan/ckanext-dcat) (older), along with [ckan/ckanext-scheming](https://github.com/ckan/ckanext-scheming) and [ckan/ckanext-spatial](https://github.com/ckan/ckanext-spatial) to work properly. 
+> This project requires [ckan/ckanext-dcat](https://github.com/ckan/ckanext-dcat) (for newer releases) or [ckan/ckanext-dcat](https://github.com/ckan/ckanext-dcat) (older), along with [ckan/ckanext-scheming](https://github.com/ckan/ckanext-scheming) and [ckan/ckanext-spatial](https://github.com/ckan/ckanext-spatial) to work properly. 
 > * If you want to use custom schemas with multilingual support, you need to use `ckanext-fluent`. A fixed version is available at [mjanez/ckanext-fluent](https://github.com/mjanez/ckanext-fluent).
 > * If you want to use custom harvesters, you need to use `ckanext-harvest`, an improved, more private version is avalaibe at [mjanez/ckanext-harvest](https://github.com/mjanez/ckanext-harvest).
 
@@ -32,7 +32,7 @@ Enhancements:
 - Improve the search functionality in CKAN for custom schemas. It uses the fields defined in a scheming file to provide a set of tools to use these fields for scheming, and a way to include icons in their labels when displaying them. More info: [`ckanext-schemingdcat`](https://github.com/mjanez/ckanext-schemingdcat)
 - Add improved harvesters for custom metadata schemas integrated with `ckanext-harvest` in CKAN using [`mjanez/ckan-ogc`](https://github.com/mjanez/ckan-ogc).
 - Add an [expanded Harvester for CSW](#csw-inspire-iso-19139-endpoint) servers using XLST mapping ([ISO19139 to DCAT-AP](https://raw.githubusercontent.com/mjanez/iso-19139-to-dcat-ap/refs/heads/main/iso-19139-to-dcat-ap.xsl)) to transform the metadata to RDF ([DCAT-AP](https://semiceu.github.io/DCAT-AP/releases/3.0.0)/[GeoDCAT-AP](https://semiceu.github.io/GeoDCAT-AP/releases/3.0.0/) 3) and import it into CKAN.
-- Add Metadata downloads for Linked Open Data formats ([`mjanez/ckanext-dcat`](https://github.com/mjanez/ckanext-dcat)) and Geospatial Metadata (ISO 19139, Dublin Core, etc. with [`mjanez/ckan-pycsw`](https://github.com/mjanez/ckanext-pycsw))
+- Add Metadata downloads for Linked Open Data formats ([`ckan/ckanext-dcat`](https://github.com/ckan/ckanext-dcat)) and Geospatial Metadata (ISO 19139, Dublin Core, etc. with [`mjanez/ckan-pycsw`](https://github.com/mjanez/ckanext-pycsw))
 - Add custom i18n translations to `datasets`, `groups`, `organizations` in schemas, e.g: [GeoDCAT-AP (ES)](#geodcat-ap-es).[^1]
 - Add a set of useful helpers and templates to be used with Metadata Schemas.
 - [Update the base theme](#new-theme) of CKAN to use with the enhancements of this extension, now using Tabs instead of older `stages`.
@@ -59,9 +59,9 @@ This plugin needs the following plugins to work properly:
   ## ckan/ckanext-scheming: https://github.com/ckan/ckanext-scheming/tags (e.g. release-3.0.0)
   pip install -e git+https://github.com/ckan/ckanext-scheming.git@release-3.0.0#egg=ckanext-scheming
 
-  ## mjanez/ckanext-dcat: https://github.com/mjanez/ckanext-dcat/tags (e.g. 1.8.0)
-  pip install -e git+https://github.com/mjanez/ckanext-dcat.git@1.8.0#egg=ckanext-dcat
-  pip install -r https://raw.githubusercontent.com/mjanez/ckanext-dcat/master/requirements.txt
+  ## ckan/ckanext-dcat: https://github.com/ckan/ckanext-dcat/tags (e.g. 1.8.0)
+  pip install -e git+https://github.com/ckan/ckanext-dcat.git@1.8.0#egg=ckanext-dcat
+  pip install -r https://raw.githubusercontent.com/ckan/ckanext-dcat/master/requirements.txt
 
   ## ckan/ckanext-spatial: https://github.com/ckan/ckanext-spatial/tags (e.g. v2.1.1)
   pip install -e git++https://github.com/ckan/ckanext-spatial.git@v2.1.1/#egg=ckanext-spatial#egg=ckanext-spatial
@@ -148,11 +148,11 @@ Next add the [custom Harvesters](#harvesters) to the list of plugins as you need
   ```
 
 ### Endpoints
-You can update the [`endpoints.yaml`](./ckanext/schemingdcat/codelists/endpoints.yaml) file to add your custom OGC/LOD endpoints, only has 2 types of endpoints: `lod` and `ogc`, and the `profile` avalaible in [`ckanext-dcat`](https://github.com/mjanez/ckanext-dcat) Preferably between 4 and 8.
+You can update the [`endpoints.yaml`](./ckanext/schemingdcat/codelists/endpoints.yaml) file to add your custom OGC/LOD endpoints, only has 2 types of endpoints: `lod` and `ogc`, and the `profile` avalaible in [`ckanext-dcat`](https://github.com/ckan/ckanext-dcat) Preferably between 4 and 8.
 
 Examples:
 
-* LOD endpoint: A Linked Open Data endpoint is a DCAT endpoint that provides access to RDF data. More information about the catalogue endpoint, how to use the endpoint, (e.g. `https://{ckan-instance-host}/catalog.{format}?[page={page}]&[modified_since={date}]&[profiles={profile1},{profile2}]&[q={query}]&[fq={filter query}]`, and more at [`ckanext-dcat`](https://github.com/mjanez/ckanext-dcat?tab=readme-ov-file#catalog-endpoint)
+* LOD endpoint: A Linked Open Data endpoint is a DCAT endpoint that provides access to RDF data. More information about the catalogue endpoint, how to use the endpoint, (e.g. `https://{ckan-instance-host}/catalog.{format}?[page={page}]&[modified_since={date}]&[profiles={profile1},{profile2}]&[q={query}]&[fq={filter query}]`, and more at [`ckanext-dcat`](https://github.com/ckan/ckanext-dcat?tab=readme-ov-file#catalog-endpoint)
     ```yaml
       - name: eu_dcat_ap_2_rdf
         display_name: RDF DCAT-AP
