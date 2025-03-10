@@ -324,7 +324,9 @@ def get_geospatial_metadata():
     Returns:
         list: A list of dictionaries containing geospatial metadata for CSW formats.
     """
-    if sdct_config.debug:
+    csw_uri = schemingdcat_get_geospatial_endpoint("dataset")
+    
+    if p.toolkit.config.get("debug", False):
         geometadata_links = _load_yaml('geometadata_links.yaml')
     else:
         geometadata_links = sdct_config.geometadata_links
@@ -336,7 +338,13 @@ def get_geospatial_metadata():
             'image_display_url': item['image_display_url'],
             'description': item['description'],
             'description_url': item['description_url'],
-            'url': (sdct_config.geometadata_link_domain or '') + geometadata_links['csw_url'].format(output_format=item['output_format'], schema=item['output_schema'], id='{id}')
+            "url": csw_uri.format(
+                output_format=item["output_format"],
+                version=item["version"],
+                element_set_name=item["element_set_name"],
+                output_schema=item["output_schema"],
+                id="{id}",
+            ),
         })
 
     return data
