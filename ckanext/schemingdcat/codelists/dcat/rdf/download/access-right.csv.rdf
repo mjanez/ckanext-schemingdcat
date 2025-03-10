@@ -3,6 +3,14 @@
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
    xmlns:skos="http://www.w3.org/2004/02/skos/core#"
 >
+  <rdf:Description rdf:about="http://publications.europa.eu/resource/authority/access-right/RESTRICTED">
+    <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+    <skos:prefLabel>RESTRICTED</skos:prefLabel>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://publications.europa.eu/resource/authority/access-right/OP_DATPRO">
+    <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+    <skos:prefLabel>OP_DATPRO</skos:prefLabel>
+  </rdf:Description>
   <rdf:Description rdf:about="http://publications.europa.eu/resource/authority/access-right/SENSITIVE">
     <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
     <skos:prefLabel>SENSITIVE</skos:prefLabel>
@@ -14,14 +22,6 @@
   <rdf:Description rdf:about="http://publications.europa.eu/resource/authority/access-right/NON_PUBLIC">
     <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
     <skos:prefLabel>NON_PUBLIC</skos:prefLabel>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://publications.europa.eu/resource/authority/access-right/RESTRICTED">
-    <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
-    <skos:prefLabel>RESTRICTED</skos:prefLabel>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://publications.europa.eu/resource/authority/access-right/OP_DATPRO">
-    <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
-    <skos:prefLabel>OP_DATPRO</skos:prefLabel>
   </rdf:Description>
   <rdf:Description rdf:about="http://publications.europa.eu/resource/authority/access-right/NORMAL">
     <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
