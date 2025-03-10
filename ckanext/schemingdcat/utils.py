@@ -15,7 +15,13 @@ import yaml
 from yaml.loader import SafeLoader
 from pathlib import Path
 
-from ckanext.dcat.utils import CONTENT_TYPES, get_endpoint
+# Try to import from new location first, fall back to old location
+try:
+    from ckanext.dcat.helpers import get_endpoint
+except ImportError:
+    from ckanext.dcat.utils import get_endpoint
+
+from ckanext.dcat.utils import CONTENT_TYPES
 from ckanext.scheming.helpers import (
     scheming_dataset_schemas,
 )
