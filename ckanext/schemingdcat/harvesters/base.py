@@ -439,6 +439,96 @@ class SchemingDCATHarvester(HarvesterBase):
         df.columns = col_names
         return df
 
+    def _field_mapping_extract_default_values(self, field_mapping):
+        """
+        Extract default values from field mappings, keeping only field_value entries
+        and properly handling multilingual fields.
+        
+        Args:
+            field_mapping (dict): The field mapping dictionary
+            
+        Returns:
+            dict: Dictionary with default values extracted from field_value entries
+        """
+        if not field_mapping:
+            return {}
+            
+        defaults = {}
+        
+        for field_name, mapping in field_mapping.items():
+            if isinstance(mapping, dict):
+                # Handle multilingual fields
+                if 'languages' in mapping:
+                    translated = {}
+                    for lang, lang_mapping in mapping['languages'].items():
+                        if 'field_value' in lang_mapping:
+                            translated[lang] = lang_mapping['field_value']
+                    
+                    if translated:
+                        defaults[field_name] = translated
+                
+                # Handle regular fields with field_value
+                elif 'field_value' in mapping:
+                    defaults[field_name] = mapping['field_value']
+        
+        return defaults
+
+    def _apply_field_mapping_default_values(self, package_dict):
+        """
+        Apply default values from field_mapping configuration to package_dict.
+        These values are extracted from the 'field_value' properties in the field mapping.
+        
+        Args:
+            package_dict (dict): The package dictionary to apply default values to
+            
+        Returns:
+            dict: Updated package dictionary with field_mapping default values applied
+        """
+        if not hasattr(self, 'config_default_values') or not self.config_default_values:
+            log.debug('No field mapping default values available')
+            return package_dict
+        
+        dataset_defaults = self.config_default_values.get('dataset', {})
+        distribution_defaults = self.config_default_values.get('distribution', {})
+
+        # Apply dataset-level defaults
+        for field, default_value in dataset_defaults.items():
+            # Skip if field already has a value
+            if field in package_dict and package_dict[field] is not None and package_dict[field] != '':
+                continue
+                
+            # Handle translated fields
+            if isinstance(default_value, dict) and any(lang in default_value for lang in p.toolkit.config.get('ckan.locales_offered', '').split()):
+                if field not in package_dict:
+                    package_dict[field] = {}
+                for lang, value in default_value.items():
+                    if lang not in package_dict[field] or not package_dict[field][lang]:
+                        package_dict[field][lang] = self.substitute_ckan_site_url(value)
+            else:
+                # Regular field
+                package_dict[field] = self.substitute_ckan_site_url(default_value)
+
+        # Apply distribution-level defaults
+        if distribution_defaults and 'resources' in package_dict:
+            for resource in package_dict['resources']:
+                for field, default_value in distribution_defaults.items():
+                    # Skip if field already has a value
+                    if field in resource and resource[field] is not None and resource[field] != '':
+                        continue
+                        
+                    # Handle translated fields
+                    if isinstance(default_value, dict) and any(lang in default_value for lang in p.toolkit.config.get('ckan.locales_offered', '').split()):
+                        if field not in resource:
+                            resource[field] = {}
+                        for lang, value in default_value.items():
+                            if lang not in resource[field] or not resource[field][lang]:
+                                resource[field][lang] = self.substitute_ckan_site_url(value)
+                    else:
+                        # Regular field
+                        resource[field] = self.substitute_ckan_site_url(default_value)
+        
+        return package_dict
+
     def _standardize_field_mapping(self, field_mapping):
         """
         Standardizes the field_mapping based on the schema version.

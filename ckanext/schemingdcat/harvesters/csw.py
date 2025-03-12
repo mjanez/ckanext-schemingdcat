@@ -16,7 +16,11 @@ from ckanext.spatial.harvesters.csw import CSWHarvester
 
 from ckanext.dcat.processors import RDFParserException, RDFParser
 
-from ckanext.schemingdcat.harvesters.base import SchemingDCATHarvester
+from ckanext.schemingdcat.harvesters.base import (
+    SchemingDCATHarvester,
+    RemoteSchemaError,
+    ReadError,
+)
 from ckanext.schemingdcat.lib.csw.processor import SchemingDCATCatalogueServiceWeb
 from ckanext.schemingdcat.lib.csw.csw_metadata_extractor import CSWMetadataExtractor
 from ckanext.schemingdcat.lib.csw.csw_harvester_utils import (
@@ -35,6 +39,7 @@ from ckanext.schemingdcat.config import (
     FORMAT_STANDARDIZATION
 )
 from ckanext.schemingdcat.lib.csw_mapper.xslt_transformer import XSLTTransformer
+from ckanext.schemingdcat.lib.field_mapping import FieldMappingValidator
 from ckanext.schemingdcat.interfaces import ISchemingDCATHarvester
 from ckanext.schemingdcat.helpers import schemingdcat_get_dataset_schema_required_field_names,  schemingdcat_get_dataset_schema_field_names, schemingdcat_get_ckan_site_url
 
@@ -69,6 +74,9 @@ class SchemingDCATCSWHarvester(CSWHarvester, SchemingDCATHarvester):
 
         # Check basic validation config
         self._set_basic_validate_config(config)
+
+        # Instance field_mapping validator
+        field_mapping_validator = FieldMappingValidator()
 
         # Check SSL verification configuration
         if "ssl_verify" in config_obj:
@@ -167,6 +175,63 @@ class SchemingDCATCSWHarvester(CSWHarvester, SchemingDCATHarvester):
                     raise ValueError('Default group not found')
             config = json.dumps(config_obj)
 
+        # Check if 'field_mapping_schema_version' exists in the config
+        field_mapping_schema_version_error_message = f'Insert the schema version: "field_mapping_schema_version: <version>", one of: {", ".join(map(str, self._field_mapping_validator_versions))} . More info: https://github.com/mjanez/ckanext-schemingdcat?tab=readme-ov-file#remote-google-sheetonedrive-excel-metadata-upload-harvester'
+        if 'field_mapping_schema_version' not in config_obj and 'dataset_field_mapping' in config_obj:
+            raise ValueError(field_mapping_schema_version_error_message)
+        else:
+            # Check if is an integer and if it is in the versions
+            if not isinstance(config_obj['field_mapping_schema_version'], int) or config_obj['field_mapping_schema_version'] not in self._field_mapping_validator_versions:
+                raise ValueError(field_mapping_schema_version_error_message)
+
+        # Check for field_name/field_position in dataset and distribution mappings and show warnings
+        field_mapping_types = ['dataset_field_mapping', 'distribution_field_mapping']
+        for mapping_type in field_mapping_types:
+            if mapping_type in config_obj and isinstance(config_obj[mapping_type], dict):
+                has_field_name_or_position = False
+                
+                # Function to check for field_name/field_position in a mapping dict
+                def check_for_field_name_or_position(mapping):
+                    if isinstance(mapping, dict):
+                        if 'field_name' in mapping or 'field_position' in mapping:
+                            return True
+                        if 'languages' in mapping and isinstance(mapping['languages'], dict):
+                            for lang_config in mapping['languages'].values():
+                                if isinstance(lang_config, dict) and ('field_name' in lang_config or 'field_position' in lang_config):
+                                    return True
+                    return False
+                
+                # Check all fields in the mapping
+                for field, field_config in config_obj[mapping_type].items():
+                    if check_for_field_name_or_position(field_config):
+                        has_field_name_or_position = True
+                        break
+                
+                # Show warning if field_name or field_position are found
+                if has_field_name_or_position:
+                    raise ValueError(
+                        f"Warning: '{mapping_type}' contains 'field_name' or 'field_position' properties. "
+                        "Note that only 'field_value' properties will be used as default values in CSW harvester. "
+                        "The 'field_name' and 'field_position' properties will be ignored. More info about Field mapping structure: https://github.com/mjanez/ckanext-schemingdcat#field-mapping-structure-sheets-harvester"
+                    )
+
+        # Validate if exists a JSON contained the mapping field_names between the remote schema and the local schema        
+        for mapping_name in self._field_mapping_info.keys():
+            if mapping_name in config:
+                field_mapping = config_obj[mapping_name]
+                if not isinstance(field_mapping, dict):
+                    raise ValueError(f'{mapping_name} must be a dictionary')
+
+                schema_version = config_obj['field_mapping_schema_version']
+
+                try:
+                    # Validate field_mappings acordin schema versions
+                    field_mapping = field_mapping_validator.validate(field_mapping, schema_version)
+                except ValueError as e:
+                    raise ValueError(f"The field mapping is invalid: {e}") from e
+
+                config = json.dumps({**config_obj, mapping_name: field_mapping})
+
         if 'default_extras' in config_obj:
             if not isinstance(config_obj['default_extras'], dict):
                 raise ValueError('default_extras must be a dictionary')
@@ -194,17 +259,82 @@ class SchemingDCATCSWHarvester(CSWHarvester, SchemingDCATHarvester):
         return config
     
     def _set_config(self, config_str, harvest_source_id):
+        """
+        Set the harvester configuration and extract default values from field mappings.
+        Ensures safe default values even if errors occur during processing.
+        
+        Args:
+            config_str (str): JSON configuration string
+            harvest_source_id (str): Harvest source identifier
+            
+        Returns:
+            None
+        """
+        # Initialize empty config with safe defaults
+        self.config = {}
+        self.config['config_default_values'] = {
+            'dataset': {},
+            'distribution': {}
+        }
+    
+        # Parse config if provided
         if config_str:
-            self.config = json.loads(config_str)
-        else:
-            self.config = {}
-
-        organization_slug = \
-            get_organization_slug_for_harvest_source(
-                harvest_source_id)
-        self.config['organization'] = organization_slug
+            try:
+                self.config = json.loads(config_str)
+            except json.JSONDecodeError as e:
+                log.error('Invalid JSON configuration: %s', str(e))
+                return
+    
+        # Set organization
+        try:
+            organization_slug = get_organization_slug_for_harvest_source(harvest_source_id)
+            self.config['organization'] = organization_slug
+        except Exception as e:
+            log.error('Error getting organization: %s', str(e))
        
-        log.debug('Using config: %r' % self.config)
+        # Generate field mappings from config
+        if not any(key in self.config for key in ['dataset_field_mapping', 'distribution_field_mapping']):
+            log.debug('No field mappings found in configuration')
+            return
+            
+        try:
+            # Standardize the field_mapping           
+            field_mappings = {
+                'dataset_field_mapping': self._standardize_field_mapping(
+                    self.config.get("dataset_field_mapping", {})
+                ),
+                'distribution_field_mapping': self._standardize_field_mapping(
+                    self.config.get("distribution_field_mapping", {})
+                ),
+                'datadictionary_field_mapping': None
+            }
+            
+            # Extract default values from field mappings
+            extracted_defaults = {
+                "dataset": self._field_mapping_extract_default_values(
+                    field_mappings.get('dataset_field_mapping', {})
+                ),
+                "distribution": self._field_mapping_extract_default_values(
+                    field_mappings.get('distribution_field_mapping', {})
+                )
+            }
+            
+            # Only update if we successfully extracted values
+            if extracted_defaults['dataset'] or extracted_defaults['distribution']:
+                self.config['config_default_values'] = extracted_defaults
+                log.debug('Generated default values from field mappings: %s', 
+                         self.config['config_default_values'])
+    
+        except RemoteSchemaError as e:
+            log.error('Error standardizing field mapping: %s', str(e))
+    
+        except ReadError as e:
+            log.error('Error generating default values from field mappings: %s', str(e))
+    
+        except Exception as e:
+            log.error('Unexpected error processing field mappings: %s', str(e))
+        
+        log.debug('Using final config: %r', self.config)
     
     def modify_package_dict(self, package_dict, harvest_object):
         '''
@@ -212,10 +342,10 @@ class SchemingDCATCSWHarvester(CSWHarvester, SchemingDCATHarvester):
         creating or updating the actual package.
         '''
         log.debug('In SchemingDCATCSWHarvester modify_package_dict')
-
+    
         # Assign HVD category
         package_dict = self.normalize_inspire_hvd_category(package_dict)
-
+    
         # Standarize resources (dcat:Distribution)
         for resource in package_dict.get("resources", []):
             format_value = resource.get('format')
@@ -229,8 +359,11 @@ class SchemingDCATCSWHarvester(CSWHarvester, SchemingDCATHarvester):
                 else:
                     resource.pop('format', None)
                     resource.pop('mimetype', None)
-
-        # Apply default values if required fields are empty
+    
+        # First apply field_mapping default values (higher priority)
+        package_dict = self._apply_field_mapping_default_values(package_dict)
+        
+        # Then apply general default values for required fields that are still empty
         self._apply_default_values(package_dict)
         
         package_dict['private'] = self.config.get('private_datasets', True)
@@ -269,7 +402,7 @@ class SchemingDCATCSWHarvester(CSWHarvester, SchemingDCATHarvester):
 
         log.debug('In SchemingDCATCSWHarvester OWSLib-gather_stage with harvest source: %s and URL: %s', harvest_source_title, csw_url)
         self._set_config(harvest_job.source.config, harvest_job.source.id)
-        
+
         try:
             # Get SSL verification setting from config (default to True)
             ssl_verify = self.config.get("ssl_verify", True)
@@ -1109,7 +1242,7 @@ class SchemingDCATCSWHarvester(CSWHarvester, SchemingDCATHarvester):
             ValueError: If there is an error updating the package dictionary.
         """
         try:
-            package_dict['hvd_category'] = INSPIRE_HVD_CATEGORY
+            package_dict['hvd_category'] = [INSPIRE_HVD_CATEGORY]
             if 'applicable_legislation' not in package_dict:
                 package_dict['applicable_legislation'] = [INSPIRE_HVD_APPLICABLE_LEGISLATION]
             elif INSPIRE_HVD_APPLICABLE_LEGISLATION not in package_dict['applicable_legislation']:

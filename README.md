@@ -598,6 +598,8 @@ Remote Google Sheet/Onedrive Excel metadata upload Harvester supports the follow
 * `cql_query`: The CQL query to be used when requesting the CSW service (default: `csw:AnyText` which allows you to search for any text in the catalogue records. More info: [Common Query Language (CQL)](https://docs.eoxserver.org/en/stable/users/services/cql.html))
 * `cql_search_term`: The search term to be used with the CQL query, example: `emisiones atmosféricas` (default: `null`)
 * `cql_use_like`: Using `PropertyIsLike` query type instead default `PropertyIsEqualTo` (default: `false` (`PropertyIsEqualTo`))
+* `field_mapping_schema_version`: Schema version of the field_mapping to ensure compatibility with older schemas. The default is `2`.
+* `dataset_field_mapping/distribution_field_mapping`:  Mapping field names from local to remote instance, all info at: [Field mapping structure](#field-mapping-structure-sheets-harvester)
 * `legal_basis_url`: Legal basis link, example: `http://data.europa.eu/eli/reg/2008/1205`. (default: `null`)
 * `csw_mapping_file`: An URL (`https://raw.githubusercontent.com/SEMICeu/iso-19139-to-dcat-ap/main/iso-19139-to-dcat-ap.xsl`) or a filename (`iso-19139-to-dcat-ap.xsl`) from `ckanext-schemingdcat/ckanext/schemingdcat/lib/iso19139/xslt/mappings` with the XSLT mapping file. (default `url`: `https://raw.githubusercontent.com/mjanez/iso-19139-to-dcat-ap/refs/heads/main/iso-19139-to-dcat-ap.xsl`)
 * `override_local_datasets`: Boolean flag (`true`/`false`) to determine if this harvester should override existing datasets that are included in. Default is `false`
