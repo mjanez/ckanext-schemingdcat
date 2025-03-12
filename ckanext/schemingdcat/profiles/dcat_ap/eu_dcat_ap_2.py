@@ -426,18 +426,11 @@ class EuDCATAP2Profile(BaseEuDCATAPProfile):
             for access_service_dict in access_service_list:
                 if not self._is_valid_access_service(access_service_dict):
                     continue
-
-                access_service_uri = access_service_dict.get("uri")
-                if access_service_uri:
-                    access_service_node = CleanedURIRef(access_service_uri)
-                else:
-                    access_service_node = CleanedURIRef(f"{distribution_ref}/dataservice")
-                    # Remember the (internal) access service reference for referencing
-                    # in further profiles
-                    access_service_dict["access_service_ref"] = str(access_service_node)
-
+            
+                # Get appropriate access service URI
+                access_service_node = self._get_access_service_uri(access_service_dict, distribution_ref)
+            
                 self.g.add((distribution_ref, DCAT.accessService, access_service_node))
-
                 self.g.add((access_service_node, RDF.type, DCAT.DataService))
 
                 #  Simple values
