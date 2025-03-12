@@ -264,10 +264,10 @@ Update the base theme of CKAN to use with the enhancements of this extension.
 
 
 **Improved home statistics**:
-![image](./doc/img/schemingdcat_home.png)
+![image](./docs/v1/img/schemingdcat_home.png)
 
 **Catalog endpoints** `/endpoints`:
-![image](./doc/img/schemingdcat_endpoints.png)
+![image](./docs/v1/img/schemingdcat_endpoints.png)
 
 **Search**:
 ![screenshot 1695622478](https://github.com/mjanez/ckanext-schemingdcat/assets/96422458/bb522849-1319-49cd-ab93-5c3fa5784587)
@@ -277,7 +277,7 @@ Update the base theme of CKAN to use with the enhancements of this extension.
 ![image](https://github.com/mjanez/ckanext-schemingdcat/assets/96422458/5325df04-0ee7-48c3-a924-c8875fc8e2ad)
 
 **Dataset - Form tabs**:
-![image](./doc/img/schemingdcat_form-tabs.png)
+![image](./docs/v1/img/schemingdcat_form-tabs.png)
 
 **Organizations** `/organization/{sample-org}`:
 ![screenshot 1695622687](https://github.com/mjanez/ckanext-schemingdcat/assets/96422458/054ff4e5-56a3-4683-9492-1aa0659ee536)
