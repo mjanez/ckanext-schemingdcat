@@ -499,11 +499,7 @@ class EuDCATAP2Profile(BaseEuDCATAPProfile):
                         else getter(*args, predicate)
                     )
                     if value:
-                        self.g.add((
-                            access_service_node, 
-                            predicate, 
-                            URIRef(value)
-                        ))
+                        self._add_uri_from_value(access_service_node, predicate, value)
                 
                 # Add all DCAT.theme from dataset_ref to access_service_node
                 for theme in self.g.objects(dataset_ref, DCAT.theme):
@@ -546,7 +542,7 @@ class EuDCATAP2Profile(BaseEuDCATAPProfile):
         )
 
     def _graph_from_catalog_v2(self, catalog_dict, catalog_ref):
-        # remove publisher to avoid duplication
+        # Add DataServices to catalog
         for access_service in self.g.objects(catalog_ref, DCAT.DataService):
             self.g.add((catalog_ref, DCAT.service, access_service))
     
