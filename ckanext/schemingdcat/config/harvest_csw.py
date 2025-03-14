@@ -507,7 +507,15 @@ DCAT_SERVICE_TYPES = {
         "name_indicators": ["wms", "web map service"],
         "default_title": "Web Map Service",
         "capabilities_param": "request=GetCapabilities&service=WMS",
-        "mime_type": "application/vnd.ogc.wms_xml"
+        "mime_type": "application/vnd.ogc.wms_xml",
+        "multilingual_title": {
+            "en": "Web Map Service (WMS)",
+            "es": "Servicio Web de Mapas (WMS)"
+        },
+        "multilingual_description": {
+            "en": "OGC Web Map Service (WMS) provides a simple HTTP interface for requesting geo-registered map images from one or more distributed geospatial databases. For more specific information, please check the endpoint description.",
+            "es": "El servicio Web Map Service (WMS) definido por el Open Geospatial Consortium (OGC) permite visualizar información geográfica como mapas. Más información específica del servicio en la descripción del punto final (dcat:endpointDescription)."
+        }
     },
     "WFS": {
         "uri": "http://www.opengis.net/def/serviceType/ogc/wfs",
@@ -516,7 +524,15 @@ DCAT_SERVICE_TYPES = {
         "name_indicators": ["wfs", "web feature service"],
         "default_title": "Web Feature Service",
         "capabilities_param": "request=GetCapabilities&service=WFS",
-        "mime_type": "application/gml+xml"
+        "mime_type": "application/gml+xml",
+        "multilingual_title": {
+            "en": "Web Feature Service (WFS)",
+            "es": "Servicio Web de Entidades (WFS)"
+        },
+        "multilingual_description": {
+            "en": "OGC Web Feature Service (WFS) provides an interface allowing requests for geographical features across the web using platform-independent calls. For more specific information, please check the endpoint description.",
+            "es": "El servicio Web Feature Service (WFS) está definido por el Open Geospatial Consortium (OGC) con el objeto de proporcionar la información relativa a la entidad almacenada en una cobertura vectorial que reúnen las características formuladas en la consulta. Más información específica del servicio en la descripción del punto final (dcat:endpointDescription)."
+        }
     },
     "WCS": {
         "uri": "http://www.opengis.net/def/serviceType/ogc/wcs",
@@ -525,7 +541,15 @@ DCAT_SERVICE_TYPES = {
         "name_indicators": ["wcs", "web coverage service"],
         "default_title": "Web Coverage Service",
         "capabilities_param": "request=GetCapabilities&service=WCS",
-        "mime_type": "application/xml"
+        "mime_type": "application/xml",
+        "multilingual_title": {
+            "en": "Web Coverage Service (WCS)",
+            "es": "Servicio Web de Coberturas (WCS)"
+        },
+        "multilingual_description": {
+            "en": "OGC Web Coverage Service (WCS) provides access to coverage data in forms that are useful for client-side rendering, as input into scientific models, and for other clients. For more specific information, please check the endpoint description.",
+            "es": "El servicio Web Coverage Service (WCS) definido por el Open Geospatial Consortium (OGC) permite el acceso e intercambio de datos geoespaciales como coberturas que representan valores o propiedades de ubicaciones geográficas. Más información específica del servicio en la descripción del punto final (dcat:endpointDescription)."
+        }
     },
     "CSW": {
         "uri": "http://www.opengis.net/def/serviceType/ogc/csw",
@@ -534,7 +558,15 @@ DCAT_SERVICE_TYPES = {
         "name_indicators": ["csw", "catalog service"],
         "default_title": "Catalog Service for the Web",
         "capabilities_param": "request=GetCapabilities&service=CSW",
-        "mime_type": "application/xml"
+        "mime_type": "application/xml",
+        "multilingual_title": {
+            "en": "Catalog Service for the Web (CSW)",
+            "es": "Servicio de Catálogo para la Web (CSW)"
+        },
+        "multilingual_description": {
+            "en": "OGC Catalog Service for the Web (CSW) is a standard for exposing a catalog of geospatial records on the web. For more specific information, please check the endpoint description.",
+            "es": "El servicio Catalog Service for the Web (CSW) definido por el Open Geospatial Consortium (OGC) permite la publicación y búsqueda de metadatos geoespaciales. Más información específica del servicio en la descripción del punto final (dcat:endpointDescription)."
+        }
     },
     "WMTS": {
         "uri": "http://www.opengis.net/def/serviceType/ogc/wmts",
@@ -543,7 +575,15 @@ DCAT_SERVICE_TYPES = {
         "name_indicators": ["wmts", "web map tile"],
         "default_title": "Web Map Tile Service",
         "capabilities_param": "request=GetCapabilities&service=WMTS",
-        "mime_type": "application/vnd.ogc.wmts+xml"
+        "mime_type": "application/vnd.ogc.wmts+xml",
+        "multilingual_title": {
+            "en": "Web Map Tile Service (WMTS)",
+            "es": "Servicio Web de Teselas de Mapas (WMTS)"
+        },
+        "multilingual_description": {
+            "en": "OGC Web Map Tile Service (WMTS) provides access to cartographic map tiles of spatially referenced data. For more specific information, please check the endpoint description.",
+            "es": "El servicio Web Map Tile Service (WMTS) definido por el Open Geospatial Consortium (OGC) proporciona acceso a teselas de mapas de datos con referencia espacial. Más información específica del servicio en la descripción del punto final (dcat:endpointDescription)."
+        }
     },
     "SOS": {
         "uri": "http://www.opengis.net/def/serviceType/ogc/sos",
@@ -552,7 +592,15 @@ DCAT_SERVICE_TYPES = {
         "name_indicators": ["sos", "sensor observation"],
         "default_title": "Sensor Observation Service",
         "capabilities_param": "request=GetCapabilities&service=SOS",
-        "mime_type": "application/xml"
+        "mime_type": "application/xml",
+        "multilingual_title": {
+            "en": "Sensor Observation Service (SOS)",
+            "es": "Servicio de Observación de Sensores (SOS)"
+        },
+        "multilingual_description": {
+            "en": "OGC Sensor Observation Service (SOS) provides a standardized interface for managing and retrieving metadata and observations from heterogeneous sensor systems. For more specific information, please check the endpoint description.",
+            "es": "El servicio Sensor Observation Service (SOS) definido por el Open Geospatial Consortium (OGC) proporciona una interfaz estandarizada para gestionar y recuperar metadatos y observaciones de sistemas de sensores heterogéneos. Más información específica del servicio en la descripción del punto final (dcat:endpointDescription)."
+        }
     },
     "API": {
         "uri": "http://www.opengis.net/def/serviceType/ogc/api",
@@ -561,7 +609,15 @@ DCAT_SERVICE_TYPES = {
         "name_indicators": ["api"],
         "default_title": "OGC API",
         "capabilities_param": "",
-        "mime_type": "application/json"
+        "mime_type": "application/json",
+        "multilingual_title": {
+            "en": "OGC API",
+            "es": "API OGC"
+        },
+        "multilingual_description": {
+            "en": "OGC API provides access to geospatial data through a modern REST API. For more specific information, please check the endpoint description.",
+            "es": "La API OGC proporciona acceso a datos geoespaciales a través de una API REST moderna. Más información específica del servicio en la descripción del punto final (dcat:endpointDescription)."
+        }
     },
     "REST": {
         "uri": "http://www.opengis.net/def/serviceType/ogc/rest",
@@ -570,7 +626,15 @@ DCAT_SERVICE_TYPES = {
         "name_indicators": ["rest"],
         "default_title": "REST Service",
         "capabilities_param": "",
-        "mime_type": "application/json"
+        "mime_type": "application/json",
+        "multilingual_title": {
+            "en": "REST Service",
+            "es": "Servicio REST"
+        },
+        "multilingual_description": {
+            "en": "REST service provides access to data through RESTful API endpoints. For more specific information, please check the endpoint description.",
+            "es": "El servicio REST proporciona acceso a datos a través de puntos finales de API RESTful. Más información específica del servicio en la descripción del punto final (dcat:endpointDescription)."
+        }
     },
     "ATOM": {
         "uri": "http://www.opengis.net/def/serviceType/ogc/atom",
@@ -579,7 +643,15 @@ DCAT_SERVICE_TYPES = {
         "name_indicators": ["atom"],
         "default_title": "ATOM Feed Service",
         "capabilities_param": "",
-        "mime_type": "application/atom+xml"
+        "mime_type": "application/atom+xml",
+        "multilingual_title": {
+            "en": "ATOM Feed Service",
+            "es": "Servicio de Fuente ATOM"
+        },
+        "multilingual_description": {
+            "en": "ATOM Feed Service provides access to data through standardized ATOM feeds. For more specific information, please check the endpoint description.",
+            "es": "El servicio de Fuente ATOM proporciona acceso a datos a través de fuentes ATOM estandarizadas. Más información específica del servicio en la descripción del punto final (dcat:endpointDescription)."
+        }
     },
     "OPENSEARCH": {
         "uri": "",  # No hay URI estándar definida
@@ -588,7 +660,15 @@ DCAT_SERVICE_TYPES = {
         "name_indicators": ["opensearch"],
         "default_title": "OpenSearch Service",
         "capabilities_param": "",
-        "mime_type": "application/opensearchdescription+xml"
+        "mime_type": "application/opensearchdescription+xml",
+        "multilingual_title": {
+            "en": "OpenSearch Service",
+            "es": "Servicio OpenSearch"
+        },
+        "multilingual_description": {
+            "en": "OpenSearch Service provides a search interface that can be used to search for data resources. For more specific information, please check the endpoint description.",
+            "es": "El servicio OpenSearch proporciona una interfaz de búsqueda que puede utilizarse para buscar recursos de datos. Más información específica del servicio en la descripción del punto final (dcat:endpointDescription)."
+        }
     },
     "ESRI_REST": {
         "uri": "",  # No hay URI estándar OGC para ESRI
@@ -597,6 +677,63 @@ DCAT_SERVICE_TYPES = {
         "name_indicators": ["arcgis", "esri"],
         "default_title": "ESRI REST Service",
         "capabilities_param": "f=json",
-        "mime_type": "application/json"
+        "mime_type": "application/json",
+        "multilingual_title": {
+            "en": "ESRI REST Service",
+            "es": "Servicio REST de ESRI"
+        },
+        "multilingual_description": {
+            "en": "ESRI REST Service provides access to geospatial data through ESRI's REST API. For more specific information, please check the endpoint description.",
+            "es": "El servicio REST de ESRI proporciona acceso a datos geoespaciales a través de la API REST de ESRI. Más información específica del servicio en la descripción del punto final (dcat:endpointDescription)."
+        }
+    },
+    # Servicios adicionales que pueden ser útiles
+    "DOWNLOAD": {
+        "uri": "",  
+        "protocol_indicators": ["download", "download service"],
+        "url_indicators": ["/download", "download=", "file="],
+        "name_indicators": ["download", "descarga"],
+        "default_title": "Download Service",
+        "mime_type": "application/octet-stream",
+        "multilingual_title": {
+            "en": "Download Service",
+            "es": "Servicio de Descarga"
+        },
+        "multilingual_description": {
+            "en": "Download Service provides direct access to data file download. For more specific information, please check the endpoint description.",
+            "es": "El Servicio de Descarga proporciona acceso directo a la descarga de archivos de datos. Más información específica del servicio en la descripción del punto final (dcat:endpointDescription)."
+        }
+    },
+    "INSPIRE": {
+        "uri": "",  
+        "protocol_indicators": ["inspire"],
+        "url_indicators": ["inspire"],
+        "name_indicators": ["inspire"],
+        "default_title": "INSPIRE Service",
+        "mime_type": "application/xml",
+        "multilingual_title": {
+            "en": "INSPIRE Service",
+            "es": "Servicio INSPIRE"
+        },
+        "multilingual_description": {
+            "en": "INSPIRE Service provides access to data according to INSPIRE Directive specifications. For more specific information, please check the endpoint description.",
+            "es": "El Servicio INSPIRE proporciona acceso a datos según las especificaciones de la Directiva INSPIRE. Más información específica del servicio en la descripción del punto final (dcat:endpointDescription)."
+        }
+    },
+    "DEFAULT": {
+        "uri": "",
+        "protocol_indicators": [],
+        "url_indicators": [],
+        "name_indicators": [],
+        "default_title": "Data Service",
+        "mime_type": "application/octet-stream",
+        "multilingual_title": {
+            "en": "Data Service",
+            "es": "Servicio de datos"
+        },
+        "multilingual_description": {
+            "en": "Service providing access to the data resource. For more specific information, please check the endpoint description (dcat:endpointDescription).",
+            "es": "Servicio que proporciona acceso al recurso de datos. Para información más específica, consulte la descripción del punto final (dcat:endpointDescription)."
+        }
     }
 }
