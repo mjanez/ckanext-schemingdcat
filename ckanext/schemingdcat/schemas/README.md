@@ -33,7 +33,7 @@ This is a [**custom schema**](geodcat_ap/es_geodcat_ap_full.yaml) with specific 
   - [Distributions/Resources](#distributions)
 
 >**Warning**
-> * Custom extension, needs: [`mjanez/ckanext-dcat`](https://github.com/mjanez/ckanext-dcat)
+> * Custom extension, needs: [`ckan/ckanext-dcat`](https://github.com/ckan/ckanext-dcat)
 > * Spanish context for some codelists and metadata properties (ES-Spain [NTI-RISP profile](https://datos.gob.es/en/doc-tags/nti-risp)).
 
 ### Datasets

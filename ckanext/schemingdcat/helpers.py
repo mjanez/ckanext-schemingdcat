@@ -1069,27 +1069,28 @@ def parse_json(value, default_value=None):
             return default_value
         return value
 
-@lru_cache(maxsize=2)
 @helper
 def schemingdcat_get_ckan_site_url():
     """
-    Get the full CKAN site URL, including the root path if specified.
-
-    This function constructs the full CKAN site URL by combining the base site URL
-    with the root path if it is specified in the configuration.
-
+    Get the CKAN site URL from config. First checks for explicit ckan_url,
+    if not found constructs URL from site_url and root_path.
+    
     Returns:
-        str: The full CKAN site URL.
+        str: The site URL without trailing slash
     """
-    site_url = p.toolkit.config.get('ckan.site_url')
-    root_path = get_not_lang_root_path()
+    # Get base site URL first as fallback
+    site_url = p.toolkit.config.get('ckan.site_url', '').rstrip('/')
     
-    if root_path:
-        url = urljoin(site_url, root_path.lstrip('/'))
-    else:
-        url = site_url
+    # Try to get explicit ckan_url, use site_url if not found
+    ckan_url = p.toolkit.config.get('ckan_url', site_url)
     
-    return url
+    # If using site_url, check for root_path
+    if ckan_url == site_url:
+        root_path = get_not_lang_root_path()
+        if root_path:
+            ckan_url = f"{site_url}/{root_path.strip('/')}"
+    
+    return ckan_url.rstrip('/')
 
 @helper
 def get_not_lang_root_path():

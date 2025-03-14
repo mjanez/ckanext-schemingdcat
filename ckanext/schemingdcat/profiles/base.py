@@ -1579,3 +1579,46 @@ class SchemingDCATRDFProfile(RDFProfile):
             else:
                 # Format: "year", "never", "irregular", etc.
                 g.add((node, RDFS.label, Literal(label, lang=lang)))
+
+    def _add_uri_from_value(self, subject, predicate, value):
+        """
+        Helper to add URIRef triples from values that might be strings or lists
+        
+        Args:
+            subject: The subject of the triple
+            predicate: The predicate of the triple
+            value: The value to convert to URIRef(s) - can be string, list or JSON string
+            
+        Returns:
+            bool: True if at least one triple was added, False otherwise
+        """
+        if not value:
+            return False
+            
+        # Handle JSON string representations of lists
+        if isinstance(value, str) and value.startswith('[') and value.endswith(']'):
+            try:
+                # Try to parse as JSON array
+                values = json.loads(value.replace("'", '"'))
+                # Add each item as a separate triple
+                for item in values:
+                    if item and isinstance(item, str):
+                        self.g.add((subject, predicate, URIRef(item.strip())))
+                return True
+            except (json.JSONDecodeError, ValueError):
+                # If parsing fails, continue with original value
+                pass
+                
+        # Handle Python list objects
+        if isinstance(value, list):
+            for item in value:
+                if item and isinstance(item, str):
+                    self.g.add((subject, predicate, URIRef(item.strip())))
+            return True
+            
+        # Handle scalar value
+        if value and isinstance(value, str):
+            self.g.add((subject, predicate, URIRef(value)))
+            return True
+            
+        return False

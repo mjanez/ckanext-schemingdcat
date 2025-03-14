@@ -2,6 +2,7 @@ http://publications.europa.eu/resource/authority/file-type/7Z,7Z,false
 http://publications.europa.eu/resource/authority/file-type/AAB,AAB,false
 http://publications.europa.eu/resource/authority/file-type/AAC,AAC,false
 http://publications.europa.eu/resource/authority/file-type/AKN4EU,AKN4EU,false
+http://publications.europa.eu/resource/authority/file-type/AKN4EU_LEG,AKN4EU_LEG,false
 http://publications.europa.eu/resource/authority/file-type/AKN4EU_ZIP,AKN4EU_ZIP,false
 http://publications.europa.eu/resource/authority/file-type/APK,APK,false
 http://publications.europa.eu/resource/authority/file-type/APPX,APPX,false
@@ -92,6 +93,7 @@ http://publications.europa.eu/resource/authority/file-type/MAP_PRVW,MAP_PRVW,fal
 http://publications.europa.eu/resource/authority/file-type/MAP_SRVC,MAP_SRVC,false
 http://publications.europa.eu/resource/authority/file-type/MARKDOWN,MARKDOWN,false
 http://publications.europa.eu/resource/authority/file-type/MATHML,MATHML,false
+http://publications.europa.eu/resource/authority/file-type/MATLAB_MAT,MATLAB_MAT,false
 http://publications.europa.eu/resource/authority/file-type/MBOX,MBOX,false
 http://publications.europa.eu/resource/authority/file-type/MDB,MDB,false
 http://publications.europa.eu/resource/authority/file-type/METS,METS,false

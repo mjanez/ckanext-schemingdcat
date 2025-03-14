@@ -10,7 +10,7 @@ from shapely.geometry import mapping
 import json
 
 from ckantoolkit import config
-from ckanext.schemingdcat.helpers import schemingdcat_get_catalog_publisher_info
+from ckanext.schemingdcat.helpers import schemingdcat_get_ckan_site_url
 from ckanext.schemingdcat.config import (
     ISO19115_LANGUAGE,
     BASE_VOCABS,
@@ -945,7 +945,7 @@ class CSWMetadataExtractor:
         Returns:
             list: List of access_services dictionaries
         """
-        ckan_site_url = config.get('ckan_url')
+        ckan_site_url = schemingdcat_get_ckan_site_url()
         services = []
         
         try:        

@@ -7,17 +7,9 @@
     <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
     <skos:prefLabel>SENSITIVE</skos:prefLabel>
   </rdf:Description>
-  <rdf:Description rdf:about="http://publications.europa.eu/resource/authority/access-right/PUBLIC">
+  <rdf:Description rdf:about="http://publications.europa.eu/resource/authority/access-right/CONFIDENTIAL">
     <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
-    <skos:prefLabel>PUBLIC</skos:prefLabel>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://publications.europa.eu/resource/authority/access-right/NON_PUBLIC">
-    <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
-    <skos:prefLabel>NON_PUBLIC</skos:prefLabel>
-  </rdf:Description>
-  <rdf:Description rdf:about="http://publications.europa.eu/resource/authority/access-right/RESTRICTED">
-    <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
-    <skos:prefLabel>RESTRICTED</skos:prefLabel>
+    <skos:prefLabel>CONFIDENTIAL</skos:prefLabel>
   </rdf:Description>
   <rdf:Description rdf:about="http://publications.europa.eu/resource/authority/access-right/OP_DATPRO">
     <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
@@ -27,8 +19,16 @@
     <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
     <skos:prefLabel>NORMAL</skos:prefLabel>
   </rdf:Description>
-  <rdf:Description rdf:about="http://publications.europa.eu/resource/authority/access-right/CONFIDENTIAL">
+  <rdf:Description rdf:about="http://publications.europa.eu/resource/authority/access-right/NON_PUBLIC">
     <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
-    <skos:prefLabel>CONFIDENTIAL</skos:prefLabel>
+    <skos:prefLabel>NON_PUBLIC</skos:prefLabel>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://publications.europa.eu/resource/authority/access-right/PUBLIC">
+    <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+    <skos:prefLabel>PUBLIC</skos:prefLabel>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://publications.europa.eu/resource/authority/access-right/RESTRICTED">
+    <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+    <skos:prefLabel>RESTRICTED</skos:prefLabel>
   </rdf:Description>
 </rdf:RDF>
