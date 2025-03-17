@@ -338,28 +338,169 @@ dcat_ap_default_licenses = {
     }   
 }
 
-# NTI-RISP Literals to check default lang ("es")
-es_dcat_literals_to_check = [
+# Mapping RDF entity types to properties that must have language tags
+DCAT_ENTITY_PROPERTIES_CONFIG = {
+    "Catalog": {
+        "type": DCAT.Catalog,
+        "properties": [
             DCT.title,
-            DCT.description,
-            DCAT.keyword,     
+            DCT.description
         ]
-
-# DCAT-AP-ES Literals to check default lang ("es")
-eu_dcat_ap_literals_to_check = [
+    },
+    "Dataset": {
+        "type": DCAT.Dataset,
+        "properties": [
             DCT.title,
             DCT.description,
             DCAT.keyword,
-            # Vcards
-            VCARD.fn,
-            # Agents
-            FOAF.name,          
+            ADMS.versionNotes,
+            DCT.subject
         ]
+    },
+    "Distribution": {
+        "type": DCAT.Distribution,
+        "properties": [
+            DCT.title,
+            DCT.description
+        ]
+    },
+    "DataService": {
+        "type": DCAT.DataService,
+        "properties": [
+            DCT.title,
+            DCT.description,
+            DCAT.keyword
+        ]
+    },
+    "Agent": {
+        "type": FOAF.Agent,
+        "properties": [
+            FOAF.name
+        ]
+    },
+    "VCard": {
+        "type": VCARD.Kind,
+        "properties": [
+            VCARD.fn,
+            VCARD.organization_name
+        ]
+    },
+    "ProvenanceStatement": {
+        "type": DCT.ProvenanceStatement,
+        "properties": [
+            DCT.description
+        ]
+    },
+    "Relationship": {
+        "type": DCAT.Relationship,
+        "properties": []
+    },
+    "PeriodOfTime": {
+        "type": DCT.PeriodOfTime,
+        "properties": []
+    },
+    "Location": {
+        "type": DCT.Location,
+        "properties": []
+    },
+    "Checksum": {
+        "type": SPDX.Checksum,
+        "properties": []
+    }
+    # Add more entities as needed
+}
 
-frequency_mapping = {
-    "http://publications.europa.eu/resource/authority/frequency/ANNUAL": ("years", "1", "year"),
-    "http://publications.europa.eu/resource/authority/frequency/MONTHLY": ("months", "1", "month"),
-    "http://publications.europa.eu/resource/authority/frequency/WEEKLY": ("days", "7", "week"),
-    "http://publications.europa.eu/resource/authority/frequency/DAILY": ("days", "1", "day"),
-    # ...otros mapeos a convenir...
+# Specific profiles with their property sets
+DCAT_PROFILE_CONFIGS = {
+    "es_dcat": {
+        "entities": [
+            "Catalog",
+            "Dataset",
+            "Distribution",
+            "Agent", 
+            "VCard", 
+            "ProvenanceStatement",
+        ],
+        "default_language": "es"
+    },
+    "es_dcat_ap_2": {
+        "entities": [
+            "Catalog",
+            "Dataset", 
+            "Distribution", 
+            "DataService", 
+            "Agent", 
+            "VCard", 
+            "ProvenanceStatement",
+            "Relationship",
+            "PeriodOfTime",
+            "Location",
+            "Checksum"
+        ],
+        "default_language": "es"
+    },
+    "eu_dcat_ap_2": {
+        "entities": [
+            "Catalog",
+            "Dataset", 
+            "Distribution", 
+            "DataService", 
+            "Agent", 
+            "VCard", 
+            "ProvenanceStatement",
+            "Relationship",
+            "PeriodOfTime",
+            "Location",
+            "Checksum"
+        ],
+        "default_language": "en"
+    },
+    "eu_dcat_ap_3": {
+        "entities": [
+            "Catalog",
+            "Dataset", 
+            "Distribution", 
+            "DataService", 
+            "Agent", 
+            "VCard", 
+            "ProvenanceStatement",
+            "Relationship",
+            "PeriodOfTime",
+            "Location",
+            "Checksum"
+        ],
+        "default_language": "en"
+    },
+    "eu_geodcat_ap_2": {
+        "entities": [
+            "Catalog",
+            "Dataset", 
+            "Distribution", 
+            "DataService", 
+            "Agent", 
+            "VCard", 
+            "ProvenanceStatement",
+            "Relationship",
+            "PeriodOfTime",
+            "Location",
+            "Checksum"
+        ],
+        "default_language": "en"
+    },
+    "eu_geodcat_ap_3": {
+        "entities": [
+            "Catalog",
+            "Dataset", 
+            "Distribution", 
+            "DataService", 
+            "Agent", 
+            "VCard", 
+            "ProvenanceStatement",
+            "Relationship",
+            "PeriodOfTime",
+            "Location",
+            "Checksum"
+        ],
+        "default_language": "en"
+    }
 }

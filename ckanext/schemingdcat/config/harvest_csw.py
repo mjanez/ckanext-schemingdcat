@@ -602,7 +602,7 @@ DCAT_SERVICE_TYPES = {
             "es": "El servicio Sensor Observation Service (SOS) definido por el Open Geospatial Consortium (OGC) proporciona una interfaz estandarizada para gestionar y recuperar metadatos y observaciones de sistemas de sensores heterogéneos. Más información específica del servicio en la descripción del punto final (dcat:endpointDescription)."
         }
     },
-    "API": {
+    "OGC-API": {
         "uri": "http://www.opengis.net/def/serviceType/ogc/api",
         "protocol_indicators": ["api", "rest"],
         "url_indicators": ["api", "/api/"],

@@ -93,6 +93,7 @@ def schemingdcat_update_dcat_dataservice(sender: str, **kwargs: Any):
                 {
                     "uri": DCAT_AP_DATASTORE_DATASERVICE['uri'].format(ckan_site_url=ckan_site_url),
                     "title": p.toolkit.config.get("ckanext.schemingdcat.dcat_ap.datastore_dataservice.title", DCAT_AP_DATASTORE_DATASERVICE['title']),
+                    "description": p.toolkit.config.get("ckanext.schemingdcat.dcat_ap.datastore_dataservice.description", DCAT_AP_DATASTORE_DATASERVICE['description']),
                     "endpoint_description": endpoint_description,
                     "endpoint_url": [url.format(ckan_site_url=ckan_site_url) for url in DCAT_AP_DATASTORE_DATASERVICE['endpoint_url']],
                     "serves_dataset": [url.format(ckan_site_url=ckan_site_url, dataset_id=dataset_id) for url in DCAT_AP_DATASTORE_DATASERVICE['serves_dataset']]

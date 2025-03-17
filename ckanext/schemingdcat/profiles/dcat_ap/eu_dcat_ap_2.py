@@ -7,6 +7,9 @@ from rdflib import URIRef, BNode, Literal
 from ckanext.dcat.utils import resource_uri, catalog_uri
 from ckanext.dcat.profiles.base import URIRefOrLiteral, CleanedURIRef
 
+from ckanext.schemingdcat.config import (
+    DCAT_SERVICE_TYPES
+)
 from ckanext.schemingdcat.profiles.base import (
     # Codelists
     MD_INSPIRE_REGISTER,
@@ -433,11 +436,16 @@ class EuDCATAP2Profile(BaseEuDCATAPProfile):
                 self.g.add((distribution_ref, DCAT.accessService, access_service_node))
                 self.g.add((access_service_node, RDF.type, DCAT.DataService))
 
+                # Verificar si el nodo de servicio está basado en la URI del catálogo
+                catalog_base_uri = str(catalog_uri())
+                
+                # Add title and description for dcat:DataServices
+                self._add_service_multilingual_properties(access_service_node, access_service_dict, catalog_base_uri)
+
                 #  Simple values
                 items = [
                     ("license", DCT.license, None, URIRefOrLiteral),
                     ("access_rights", DCT.accessRights, None, URIRefOrLiteral),
-                    ("title", DCT.title, None, Literal),
                     (
                         "endpoint_description",
                         DCAT.endpointDescription,

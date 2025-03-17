@@ -1,0 +1,279 @@
+import logging
+from typing import Dict, Set, List, Optional
+
+from rdflib import Graph, URIRef, BNode, Literal
+from rdflib.namespace import RDF
+
+from ckantoolkit import config
+
+from ckanext.dcat.processors import RDFSerializer, DCAT
+from ckanext.dcat.utils import catalog_uri, dataset_uri, url_to_rdflib_format, DCAT_EXPOSE_SUBCATALOGS
+
+from ckanext.schemingdcat.profiles.dcat_config import (
+    # Entity models info
+    DCAT_ENTITY_PROPERTIES_CONFIG,
+    DCAT_PROFILE_CONFIGS,
+)
+
+log = logging.getLogger(__name__)
+
+
+class SchemingDCATRDFSerializer(RDFSerializer):
+    """
+    Extended version of the RDFSerializer that ensures that all literals are labeled in the default language. are language-tagged in the default language.
+    """
+    
+    def serialize_dataset(self, dataset_dict, _format='xml', context=None):
+        """
+        Overwrites the original method to add language tags before serialization.
+        """
+        log.info('In SchemingDCATRDFSerializer serialize_dataset')
+        
+        # Check directly if any profile name matches our configuration
+        profile_names = [p.name if hasattr(p, 'name') else str(p) for p in self._profiles]        
+        matching_profiles = [name for name in profile_names if name in DCAT_PROFILE_CONFIGS]
+        lang_filter_profile = matching_profiles[0] if matching_profiles else None
+        
+        self.graph_from_dataset(dataset_dict)
+        
+        # Only apply language processing if we have a matching profile
+        if lang_filter_profile:
+            # Ensure language literals
+            self._ensure_language_literals_by_config(self.g, profile=lang_filter_profile)
+            
+            # Remove duplicate empty literals
+            self._remove_empty_language_literals(self.g)
+        
+        if not _format:
+            _format = 'xml'
+        _format = url_to_rdflib_format(_format)
+
+        if _format == 'json-ld':
+            output = self.g.serialize(
+                format=_format,
+                auto_compact=True,
+                context=context
+            )
+        else:
+            output = self.g.serialize(format=_format)
+
+        return output
+    
+    def serialize_catalog(self, catalog_dict=None, dataset_dicts=None,
+                    _format='xml', pagination_info=None):
+        """
+        Overwrites the original method for adding language tags before serialization of the complete catalog.
+        """
+        log.info('In SchemingDCATRDFSerializer serialize_catalog')
+        
+        # Check directly if any profile name matches our configuration
+        profile_names = [p.name if hasattr(p, 'name') else str(p) for p in self._profiles]        
+        matching_profiles = [name for name in profile_names if name in DCAT_PROFILE_CONFIGS]
+        lang_filter_profile = matching_profiles[0] if matching_profiles else None
+
+        catalog_ref = self.graph_from_catalog(catalog_dict)
+        if dataset_dicts:
+            for dataset_dict in dataset_dicts:
+                dataset_ref = self.graph_from_dataset(dataset_dict)
+
+                cat_ref = self._add_source_catalog(catalog_ref, dataset_dict, dataset_ref)
+                if not cat_ref:
+                    self.g.add((catalog_ref, DCAT.dataset, dataset_ref))
+        
+        # Only apply language processing if we have a matching profile
+        if lang_filter_profile:
+            # Ensure language literals
+            self._ensure_language_literals_by_config(self.g, profile=lang_filter_profile)
+            
+            # Remove duplicate empty literals
+            self._remove_empty_language_literals(self.g)
+        
+        if pagination_info:
+            self._add_pagination_triples(pagination_info)
+
+        if not _format:
+            _format = 'xml'
+        _format = url_to_rdflib_format(_format)
+        output = self.g.serialize(format=_format)
+
+        return output
+    
+    def _ensure_language_literals_by_config(self, graph: Graph, profile: str = "eu_dcat_ap_2") -> None:
+        """
+        Ensures that all literals of the specified entity types are labelled with language tags for the configured properties.
+        
+        Args: 
+            graph (graph): The RDF graph to process.
+            profile (str): The ckanext-dcat profile to use to determine which entities to process.
+        """
+        # Get profile settings
+        profile_config = DCAT_PROFILE_CONFIGS.get(profile, DCAT_PROFILE_CONFIGS.get("eu_dcat_ap_2", {}))
+        default_lang = profile_config.get("default_language", config.get("ckan.locale_default", "en"))
+        
+        # Prepare dictionary of properties by type
+        property_by_type = {}
+        properties_all = set()
+        
+        # Collect properties for each type of entity in the profile
+        for entity_name in profile_config.get("entities", []):
+            entity_config = DCAT_ENTITY_PROPERTIES_CONFIG.get(entity_name, {})
+            entity_type = entity_config.get("type")
+            properties = set(entity_config.get("properties", []))
+            
+            if entity_type and properties:
+                property_by_type[entity_type] = properties
+                properties_all.update(properties)
+        
+        # Optimize: First identify all the nodes by type
+        nodes_by_type = {}
+        for entity_type in property_by_type.keys():
+            nodes_by_type[entity_type] = set()
+            
+            # Encontrar todos los nodos de este tipo
+            for s, p, o in graph.triples((None, RDF.type, entity_type)):
+                nodes_by_type[entity_type].add(s)
+
+        triples_to_add = []
+        triples_to_remove = []
+        
+        # Process each node type with its specific properties
+        for entity_type, nodes in nodes_by_type.items():
+            properties = property_by_type.get(entity_type, set())
+            
+            for node in nodes:
+                for prop in properties:
+                    # Check if there is any literal with the target language
+                    literals = list(graph.objects(node, prop))
+                    
+                    if not literals:
+                        continue
+                        
+                    # Check if you already have the target language
+                    has_target_lang = any(
+                        isinstance(o, Literal) and o.language == default_lang
+                        for o in literals
+                    )
+                    
+                    if has_target_lang:
+                        continue
+                    
+                    # Identify literals without language and with language
+                    no_lang_literals = [
+                        o for o in literals 
+                        if isinstance(o, Literal) and isinstance(o.value, str) and not o.language
+                    ]
+                    
+                    lang_literals = [
+                        o for o in literals 
+                        if isinstance(o, Literal) and isinstance(o.value, str) and o.language
+                    ]
+                    
+                    # Decide which literals to process
+                    literals_to_process = no_lang_literals if no_lang_literals else lang_literals
+                    
+                    for literal in literals_to_process:
+                        # Add new literal with target language
+                        triples_to_add.append((node, prop, Literal(literal.value, lang=default_lang)))
+                        
+                        # Delete original if no language
+                        if not literal.language:
+                            triples_to_remove.append((node, prop, literal))
+        
+        # Also process generic literals without associated entity type
+        for s, p, o in graph.triples((None, None, None)):
+            # If it is a relevant property and a literal without a language
+            if (p in properties_all and 
+                isinstance(o, Literal) and 
+                isinstance(o.value, str) and 
+                not o.language):
+                
+                triples_to_add.append((s, p, Literal(o.value, lang=default_lang)))
+                triples_to_remove.append((s, p, o))
+
+        for triple in triples_to_add:
+            graph.add(triple)
+            
+        for triple in triples_to_remove:
+            graph.remove(triple)
+    
+    def _remove_empty_language_literals(self, graph: Graph) -> None:
+        """
+        Manages language-tagged literals in the RDF graph by:
+        1. Removing empty language-tagged literals when there are non-empty alternatives
+        2. Removing untagged literals when there are language-tagged alternatives
+        
+        This method improves the quality of the RDF output by ensuring that:
+        - Empty values don't clutter the output when better alternatives exist
+        - Untagged literals are removed when language-tagged alternatives are available
+        - At least one value is preserved for each property
+        
+        Args:
+            graph (Graph): The RDF graph to process
+        """
+        # Step 1: Identify triples with empty language-tagged literals
+        empty_lang_literals = [
+            (s, p, o) for s, p, o in graph 
+            if (isinstance(o, Literal) and 
+                o.language and 
+                isinstance(o.value, str) and
+                not o.value.strip())
+        ]
+        
+        # Step 2: Group by subject and predicate to verify if there are
+        # non-empty literals available before removing the empty ones
+        triples_to_remove = []
+        
+        for s, p, o in empty_lang_literals:
+            # Get all literals for this subject-predicate pair
+            all_literals = list(graph.objects(s, p))
+            
+            # Find non-empty literals that can remain after removal
+            non_empty_literals = [
+                lit for lit in all_literals 
+                if not (isinstance(lit, Literal) and 
+                      isinstance(lit.value, str) and 
+                      not lit.value.strip())
+            ]
+            
+            # Only remove if there's at least one non-empty literal to preserve
+            if non_empty_literals:
+                triples_to_remove.append((s, p, o))
+        
+        # Step 3: Identify untagged literals that have language-tagged alternatives
+        for s, p, o in graph:
+            if isinstance(o, Literal) and isinstance(o.value, str) and not o.language:
+                # Check if this property should have language tags based on config
+                property_requires_tag = False
+                
+                # Find the entity type for this subject
+                entity_types = [t for _, _, t in graph.triples((s, RDF.type, None))]
+                
+                for entity_type in entity_types:
+                    # Check if this entity type is in our configuration
+                    for entity_config in DCAT_ENTITY_PROPERTIES_CONFIG.values():
+                        if entity_config["type"] == entity_type and p in entity_config["properties"]:
+                            property_requires_tag = True
+                            break
+                    
+                    if property_requires_tag:
+                        break
+                
+                if property_requires_tag:
+                    # Get all literals for this subject-predicate pair
+                    all_literals = list(graph.objects(s, p))
+                    
+                    # Find language-tagged literals
+                    tagged_literals = [
+                        lit for lit in all_literals 
+                        if isinstance(lit, Literal) and 
+                        isinstance(lit.value, str) and 
+                        lit.language
+                    ]
+                    
+                    # If there are language-tagged literals, remove the untagged one
+                    if tagged_literals:
+                        triples_to_remove.append((s, p, o))
+        
+        # Step 4: Remove all identified triples in batch
+        for triple in triples_to_remove:
+            graph.remove(triple)

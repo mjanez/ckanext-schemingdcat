@@ -651,10 +651,10 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
             
             # Create reference
             if creator_uri:
-                publisher_ref = CleanedURIRef(self._create_uri_ref(creator_uri, "creator"))
+                creator_ref = CleanedURIRef(self._create_uri_ref(creator_uri, "creator"))
             else:
                 # No publisher_uri
-                creator_uri = BNode()
+                creator_ref = BNode()
             
             # Build details with publisher fallbacks
             creator_details = {
@@ -971,9 +971,6 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
                         g.add((checksum_algo, RDF.type, SPDX.ChecksumAlgorithm))
 
                 g.add((distribution, SPDX.checksum, checksum))
-                
-        # Remove empty language literals from graph
-        self._graph_remove_empty_language_literals(g)
 
     def _graph_from_catalog_base(self, catalog_dict, catalog_ref):
 

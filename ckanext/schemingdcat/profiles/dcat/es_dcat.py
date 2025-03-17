@@ -36,7 +36,6 @@ from ckanext.schemingdcat.profiles.dcat_config import (
     default_translated_fields,
     es_dcat_default_values, 
     default_translated_fields_es_dcat,
-    es_dcat_literals_to_check,
     )
 
 config = toolkit.config
@@ -193,13 +192,11 @@ class EsNTIRISPProfile(EuDCATAPProfile):
         
         # Namespaces
         self._bind_namespaces()
-        
-        g = self.g
 
         for prefix, namespace in namespaces.items():
-            g.bind(prefix, namespace)
+            self.g.bind(prefix, namespace)
 
-        g.add((dataset_ref, RDF.type, DCAT.Dataset))
+        self.g.add((dataset_ref, RDF.type, DCAT.Dataset))
 
         # Translated fields
         items = [(
@@ -317,9 +314,9 @@ class EsNTIRISPProfile(EuDCATAPProfile):
 
             distribution_ref = CleanedURIRef(resource_uri(resource_dict))
 
-            g.add((dataset_ref, DCAT.distribution, distribution_ref))
+            self.g.add((dataset_ref, DCAT.distribution, distribution_ref))
 
-            g.add((distribution_ref, RDF.type, DCAT.Distribution))
+            self.g.add((distribution_ref, RDF.type, DCAT.Distribution))
 
             # Remove any accessURL if exists
             for access_url in self.g.objects(distribution_ref, DCAT["accessURL"]):
@@ -336,8 +333,8 @@ class EsNTIRISPProfile(EuDCATAPProfile):
                 'size': (DCT.byteSize, None),
             }
 
-            if resource_license_fallback and not (distribution_ref, DCT.license, None) in g:
-                g.add(
+            if resource_license_fallback and not (distribution_ref, DCT.license, None) in self.g:
+                self.g.add(
                     (
                         distribution_ref,
                         DCT.license,
@@ -374,12 +371,6 @@ class EsNTIRISPProfile(EuDCATAPProfile):
             for media_type in self.g.objects(distribution_ref, DCAT.mediaType):
                 self.g.remove((distribution_ref, DCAT.mediaType, media_type))
 
-        # DCAT-AP-ES. Properties to check for at least "es" lang
-        self._graph_add_default_language_literals(self.g, properties=es_dcat_literals_to_check, lang='es')
-        
-        # Remove empty language literals from graph
-        self._graph_remove_empty_language_literals(g)
-
     def _graph_from_dataset_nti_risp_only(self, dataset_dict, dataset_ref):
         """
         CKAN -> DCAT v2 specific properties (not applied to higher versions)
@@ -390,12 +381,10 @@ class EsNTIRISPProfile(EuDCATAPProfile):
         """
         NTI-RISP Catalog properties
         """
-        g = self.g
-
         for prefix, namespace in namespaces.items():
-            g.bind(prefix, namespace)
+            self.g.bind(prefix, namespace)
 
-        g.add((catalog_ref, RDF.type, DCAT.Catalog))
+        self.g.add((catalog_ref, RDF.type, DCAT.Catalog))
         
         # Basic fields
         license, access_rights, spatial_uri, language_code = [
@@ -436,7 +425,7 @@ class EsNTIRISPProfile(EuDCATAPProfile):
             key, predicate, fallback, _type = item
             value = catalog_dict.get(key, fallback) if catalog_dict else fallback
             if value:
-                g.add((catalog_ref, predicate, _type(value)))
+                self.g.add((catalog_ref, predicate, _type(value)))
 
         # Title & Description multilang
         catalog_fields = {
@@ -446,7 +435,7 @@ class EsNTIRISPProfile(EuDCATAPProfile):
         
         try:
             for field, (value, predicate) in catalog_fields.items():
-                self._add_multilingual_literal(g, catalog_ref, predicate, value, es_dcat_default_values['language_code'])
+                self._add_multilingual_literal(self.g, catalog_ref, predicate, value, es_dcat_default_values['language_code'])
         except Exception as e:
             log.error(f'Error adding catalog {field}: {str(e)}')
 
@@ -482,7 +471,7 @@ class EsNTIRISPProfile(EuDCATAPProfile):
         
         #log.debug('consistent_catalog_language_codes: %s', consistent_catalog_language_codes)
         for catalog_lang in consistent_catalog_language_codes:
-            g.add((catalog_ref, DC.language, Literal(catalog_lang)))
+            self.g.add((catalog_ref, DC.language, Literal(catalog_lang)))
 
     def _add_dataset_triples_from_dict(self, dataset_dict, dataset_ref, items):
         """Adds triples to the RDF graph for the given dataset.
