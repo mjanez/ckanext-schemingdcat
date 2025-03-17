@@ -202,7 +202,6 @@ class EuDCATAPSchemingDCATProfile(SchemingDCATRDFProfile):
                 and len(temporal)
                 and self._not_empty_dict(temporal[0])
             ):
-                log.debug('temporal: %s', temporal)
                 for item in temporal:
                     temporal_ref = BNode()
                     self.g.add((temporal_ref, RDF.type, DCT.PeriodOfTime))

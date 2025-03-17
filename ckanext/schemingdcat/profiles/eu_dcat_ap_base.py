@@ -651,10 +651,10 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
             
             # Create reference
             if creator_uri:
-                publisher_ref = CleanedURIRef(self._create_uri_ref(creator_uri, "creator"))
+                creator_ref = CleanedURIRef(self._create_uri_ref(creator_uri, "creator"))
             else:
                 # No publisher_uri
-                creator_uri = BNode()
+                creator_ref = BNode()
             
             # Build details with publisher fallbacks
             creator_details = {
@@ -971,9 +971,6 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
                         g.add((checksum_algo, RDF.type, SPDX.ChecksumAlgorithm))
 
                 g.add((distribution, SPDX.checksum, checksum))
-                
-        # Remove empty language literals from graph
-        self._graph_remove_empty_language_literals(g)
 
     def _graph_from_catalog_base(self, catalog_dict, catalog_ref):
 
@@ -1191,3 +1188,33 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
     def _is_valid_eu_authority_table(self, value: str, table: str) -> bool:
         """Validate EU Publications authority table"""
         return value and value.startswith(f'{EU_VOCAB_AUTHORITY_TABLES_BASE_URI}/{table}/')
+
+    def _get_access_service_uri(self, access_service_dict, distribution_ref):
+        """
+        Get or generate the access service URI based on catalog URI.
+        If the service URI is derived from catalog URI, use the API endpoint instead.
+        
+        Args:
+            access_service_dict (dict): The access service dictionary
+            distribution_ref (URIRef): The distribution reference
+            
+        Returns:
+            URIRef: The access service URI node
+        """
+        access_service_uri = access_service_dict.get("uri")
+        catalog_base = str(catalog_uri()).rstrip('/')
+        
+        if access_service_uri:
+            # Check if URI is derived from catalog URI
+            if access_service_uri.startswith(catalog_base):
+                # Use API endpoint instead
+                access_service_node = CleanedURIRef(f"{catalog_base}/api/3")
+            else:
+                access_service_node = CleanedURIRef(access_service_uri)
+        else:
+            # Default fallback
+            access_service_node = CleanedURIRef(f"{distribution_ref}/dataservice")
+            # Remember the reference for further profiles
+            access_service_dict["access_service_ref"] = str(access_service_node)
+        
+        return access_service_node

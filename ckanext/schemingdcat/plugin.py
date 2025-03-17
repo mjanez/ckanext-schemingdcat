@@ -9,6 +9,8 @@ from ckan.lib.plugins import DefaultTranslation
 import ckan.plugins as p
 from ckan.lib.navl.dictization_functions import unflatten
 
+from ckanext.dcat import processors
+
 from ckanext.scheming.plugins import (
     SchemingDatasetsPlugin,
     SchemingGroupsPlugin,
@@ -29,6 +31,8 @@ from ckanext.schemingdcat.utils import init_config
 from ckanext.schemingdcat.package_controller import PackageController
 from ckanext.schemingdcat import helpers, validators, blueprint, subscriptions
 import ckanext.schemingdcat.logic.auth.ckan as ckan_auth
+import ckanext.schemingdcat.logic.dcat.schemingdcat as schemingdcat_dcat
+from ckanext.schemingdcat.processors import SchemingDCATRDFSerializer
 
 try:
     config_declarations = p.toolkit.blanket.config_declarations
@@ -94,10 +98,20 @@ class SchemingDCATPlugin(
     # ISignal
     def get_signal_subscriptions(self):
         return subscriptions.get_subscriptions()
-
+    
     #IActions
     def get_actions(self):
-        return _get_logic_functions('ckanext.schemingdcat.logic.action')
+        # Obtain standard actions
+        actions = _get_logic_functions('ckanext.schemingdcat.logic.action')
+        
+        # Overwrite ckanext-dcat actions
+        log.info('Add chained_actions for: dcat_dataset_show and dcat_catalog_show')
+        actions.update({
+            'dcat_dataset_show': schemingdcat_dcat.dcat_dataset_show,
+            'dcat_catalog_show': schemingdcat_dcat.dcat_catalog_show
+        })
+        
+        return actions
 
     # Auth functions
     def get_auth_functions(self) -> typing.Dict[str, typing.Callable]:

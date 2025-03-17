@@ -4,7 +4,7 @@ from decimal import Decimal, DecimalException
 
 from rdflib import URIRef, BNode, Literal
 
-import ckantoolkit as toolkit
+from ckantoolkit import config
 
 from ckanext.dcat.utils import resource_uri
 from ckanext.dcat.profiles.base import URIRefOrLiteral, CleanedURIRef
@@ -35,13 +35,11 @@ from ckanext.schemingdcat.profiles.dcat_config import (
     SKOS,
     # Default values
     eu_dcat_ap_default_values,
-    es_dcat_ap_default_values, 
-    eu_dcat_ap_literals_to_check
+    es_dcat_ap_default_values,
     )
 
-config = toolkit.config
-
 log = logging.getLogger(__name__)
+
 
 #TODO: Implement Spanish DCAT-AP-ES (Based on DCAT-AP 2.1.1) profile
 class EsDCATAP2Profile(EuDCATAP2Profile):
@@ -70,16 +68,22 @@ class EsDCATAP2Profile(EuDCATAP2Profile):
         return dataset_dict
 
     def graph_from_dataset(self, dataset_dict, dataset_ref):
-
+        """
+        Generates the RDF network for a dataset with optimized language handling (DCAT-AP-ES req).
+        
+        This optimized version only applies the default language tags to the literals associated with the current 
+        to the literals associated with the current dataset_ref, avoiding processing the entire
+        the entire network each time.
+        """
         # Call base method for common properties
         self._graph_from_dataset_base(dataset_dict, dataset_ref)
-
+    
         # DCAT AP v2 properties also applied to higher versions
         self._graph_from_dataset_v2(dataset_dict, dataset_ref)
-
+    
         # DCAT AP v2 specific properties
         self._graph_from_dataset_v2_only(dataset_dict, dataset_ref)
-
+    
         # DCAT AP-ES v2 properties also applied to higher versions
         self._graph_from_dataset_es_dcat_ap_v2(dataset_dict, dataset_ref)
 
@@ -260,9 +264,6 @@ class EsDCATAP2Profile(EuDCATAP2Profile):
         # Resources
         for resource_dict in dataset_dict.get("resources", []):
             distribution_ref = CleanedURIRef(resource_uri(resource_dict))
-
-        # DCAT-AP-ES. Properties to check for at least "es" lang
-        self._graph_add_default_language_literals(self.g, properties=eu_dcat_ap_literals_to_check, lang='es')
 
     def _graph_from_dataset_v2_only(self, dataset_dict, dataset_ref):
         """

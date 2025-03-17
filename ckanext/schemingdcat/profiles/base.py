@@ -14,7 +14,7 @@ from ckantoolkit import config, get_action, aslist
 from ckan.lib.helpers import is_url
 
 from ckanext.dcat.validators import is_year, is_year_month, is_date
-from ckanext.dcat.utils import catalog_uri
+from ckanext.dcat.utils import catalog_uri, resource_uri
 from ckanext.dcat.profiles.base import RDFProfile, URIRefOrLiteral, CleanedURIRef, DEFAULT_SPATIAL_FORMATS, GEOJSON_IMT, InvalidGeoJSONException, wkt
 from ckanext.schemingdcat.config import (
     translate_validator_tags,
@@ -23,6 +23,9 @@ from ckanext.schemingdcat.config import (
     FREQUENCY_MAPPING
 )
 
+from ckanext.schemingdcat.config import (
+    DCAT_SERVICE_TYPES
+)
 from ckanext.schemingdcat.helpers import get_langs, schemingdcat_get_catalog_publisher_info
 from ckanext.schemingdcat.codelists import load_inspire_csv_codelists
 from ckanext.schemingdcat.profiles.dcat_config import (
@@ -1116,85 +1119,6 @@ class SchemingDCATRDFProfile(RDFProfile):
         
         return bool(re.match(pattern, value))
 
-    # Graph enhancements. Fix Graph literals
-    def _process_batch(self, graph: Graph, updates: List[Tuple]) -> None:
-        """
-        Process a batch of graph updates.
-
-        Args:
-            graph (Graph): The RDF graph to be updated.
-            updates (List[Tuple]): A list of tuples where each tuple contains:
-                - s: The subject of the triple.
-                - p: The predicate of the triple.
-                - old_o: The old object of the triple to be removed.
-                - new_o: The new object of the triple to be added.
-
-        Returns:
-            None
-        """
-        for s, p, old_o, new_o in updates:
-            graph.remove((s, p, old_o))
-            graph.add((s, p, new_o))
-    
-    def _graph_add_default_language_literals(
-            self, 
-            graph: Graph, 
-            properties: List[URIRef] = None,
-            lang: str = None
-        ) -> None:
-        """
-        Add default language tags to literals, ensuring all specified properties 
-        have literals in the default language.
-        
-        Args:
-            graph (Graph): RDF Graph
-            properties (List[URIRef]): Properties to check
-            lang (str, optional): Language code to use. If None, uses self._default_lang
-        """
-        if not properties:
-            return
-    
-        target_lang = lang or self._default_lang
-    
-        # Process each property and subject
-        for s, p, o in graph:
-            if p not in properties:
-                continue
-                
-            # Get all language variants for this subject-predicate pair
-            existing_langs = set(
-                o.language 
-                for _, _, o in graph.triples((s, p, None)) 
-                if isinstance(o, Literal) and o.language
-            )
-            
-            # If target language missing, add it
-            if target_lang not in existing_langs:
-                # Find any literal value to use (preferably without language tag)
-                value_literal = None
-                for _, _, o in graph.triples((s, p, None)):
-                    if isinstance(o, Literal):
-                        if not o.language:
-                            value_literal = o
-                            break
-                        elif not value_literal:
-                            value_literal = o
-                
-                if value_literal:
-                    graph.add((s, p, Literal(value_literal.value, lang=target_lang)))
-    
-        # Handle literals without language tags
-        no_lang_triples = [
-            (s, p, o) for s, p, o in graph
-            if p in properties 
-            and isinstance(o, Literal)
-            and isinstance(o.value, str)
-            and not o.language
-        ]
-    
-        # Remove literals without language tags after adding localized versions
-        for s, p, o in no_lang_triples:
-            graph.remove((s, p, o))
 
     def _get_graph_required_languages(
             self, 
@@ -1579,3 +1503,133 @@ class SchemingDCATRDFProfile(RDFProfile):
             else:
                 # Format: "year", "never", "irregular", etc.
                 g.add((node, RDFS.label, Literal(label, lang=lang)))
+
+    def _add_uri_from_value(self, subject, predicate, value):
+        """
+        Helper to add URIRef triples from values that might be strings or lists
+        
+        Args:
+            subject: The subject of the triple
+            predicate: The predicate of the triple
+            value: The value to convert to URIRef(s) - can be string, list or JSON string
+            
+        Returns:
+            bool: True if at least one triple was added, False otherwise
+        """
+        if not value:
+            return False
+            
+        # Handle JSON string representations of lists
+        if isinstance(value, str) and value.startswith('[') and value.endswith(']'):
+            try:
+                # Try to parse as JSON array
+                values = json.loads(value.replace("'", '"'))
+                # Add each item as a separate triple
+                for item in values:
+                    if item and isinstance(item, str):
+                        self.g.add((subject, predicate, URIRef(item.strip())))
+                return True
+            except (json.JSONDecodeError, ValueError):
+                # If parsing fails, continue with original value
+                pass
+                
+        # Handle Python list objects
+        if isinstance(value, list):
+            for item in value:
+                if item and isinstance(item, str):
+                    self.g.add((subject, predicate, URIRef(item.strip())))
+            return True
+            
+        # Handle scalar value
+        if value and isinstance(value, str):
+            self.g.add((subject, predicate, URIRef(value)))
+            return True
+            
+        return False
+
+    def _detect_service_type(self, access_service_dict):
+        """
+        Detecta el tipo de servicio basado en la URL del punto final y otros datos.
+        
+        Args:
+            access_service_dict: Diccionario con información del servicio de acceso
+            
+        Returns:
+            str: Tipo de servicio (e.g. 'WMS', 'WFS', etc.) o 'DEFAULT' si no se detecta
+        """
+        # Obtener endpoint URLs
+        endpoint_urls = access_service_dict.get('endpoint_url', [])
+        if isinstance(endpoint_urls, str):
+            endpoint_urls = [endpoint_urls]
+        
+        # Revisar la URI del servicio - podría contener información del tipo
+        service_uri = access_service_dict.get('uri', '').lower()
+        
+        # Obtener título del servicio si existe
+        service_title = access_service_dict.get('title', '').lower()
+        
+        # Comprobar cada tipo de servicio para encontrar coincidencias
+        for service_type, service_info in DCAT_SERVICE_TYPES.items():
+            if service_type == "DEFAULT":
+                continue  # Saltamos el DEFAULT para procesarlo al final
+                
+            # Comprobar indicadores en URLs
+            for url in endpoint_urls:
+                url_lower = url.lower()
+                for indicator in service_info.get('url_indicators', []):
+                    if indicator.lower() in url_lower:
+                        return service_type
+            
+            # Comprobar indicadores en el título
+            for indicator in service_info.get('name_indicators', []):
+                if indicator.lower() in service_title:
+                    return service_type
+                    
+            # Comprobar indicadores en la URI
+            for indicator in service_info.get('protocol_indicators', []):
+                if indicator.lower() in service_uri:
+                    return service_type
+        
+        # Si llegamos aquí, no pudimos determinar el tipo de servicio
+        return "DEFAULT"
+    
+    def _add_service_multilingual_properties(self, access_service_node, access_service_dict, catalog_base_uri):
+        """
+        Adds multilingual properties to an access service node.
+        
+        Args: 
+            access_service_node: The RDF node of the access service.
+            access_service_dict: Dictionary containing the service data.
+            catalog_base_uri: Catalog base URI for comparisons.
+        """
+        # Verificar si el nodo de servicio está basado en la URI del catálogo.
+        access_service_uri = str(access_service_node)
+        
+        # Solo se deben modificar las propiedades si no se trata de una derivación de la URI del catálogo.
+        if not access_service_uri.startswith(catalog_base_uri):
+            service_type = self._detect_service_type(access_service_dict)
+            default_values = DCAT_SERVICE_TYPES.get(service_type, DCAT_SERVICE_TYPES["DEFAULT"])
+            
+            properties_to_process = [
+                (DCT.title, "multilingual_title", "default_title"),
+                (DCT.description, "multilingual_description", "default_description")
+            ]
+            
+            for predicate, multilingual_key, default_key in properties_to_process:
+                for existing_value in list(self.g.objects(access_service_node, predicate)):
+                    self.g.remove((access_service_node, predicate, existing_value))
+
+                multilingual_values = default_values.get(multilingual_key, {})
+
+                for lang_code, value in multilingual_values.items():
+                    self.g.add((access_service_node, predicate, Literal(value, lang=lang_code)))
+
+                if not multilingual_values and default_values.get(default_key):
+                    self.g.add((access_service_node, predicate, Literal(default_values.get(default_key))))
+        else:
+            items = [
+                ("title", DCT.title, None, Literal),
+                ("description", DCT.description, None, Literal),
+            ]
+            
+            self._add_triples_from_dict(access_service_dict, access_service_node, items)

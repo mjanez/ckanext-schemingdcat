@@ -7,6 +7,9 @@ from rdflib import URIRef, BNode, Literal
 from ckanext.dcat.utils import resource_uri, catalog_uri
 from ckanext.dcat.profiles.base import URIRefOrLiteral, CleanedURIRef
 
+from ckanext.schemingdcat.config import (
+    DCAT_SERVICE_TYPES
+)
 from ckanext.schemingdcat.profiles.base import (
     # Codelists
     MD_INSPIRE_REGISTER,
@@ -426,25 +429,23 @@ class EuDCATAP2Profile(BaseEuDCATAPProfile):
             for access_service_dict in access_service_list:
                 if not self._is_valid_access_service(access_service_dict):
                     continue
-
-                access_service_uri = access_service_dict.get("uri")
-                if access_service_uri:
-                    access_service_node = CleanedURIRef(access_service_uri)
-                else:
-                    access_service_node = CleanedURIRef(f"{distribution_ref}/dataservice")
-                    # Remember the (internal) access service reference for referencing
-                    # in further profiles
-                    access_service_dict["access_service_ref"] = str(access_service_node)
-
+            
+                # Get appropriate access service URI
+                access_service_node = self._get_access_service_uri(access_service_dict, distribution_ref)
+            
                 self.g.add((distribution_ref, DCAT.accessService, access_service_node))
-
                 self.g.add((access_service_node, RDF.type, DCAT.DataService))
+
+                # Verificar si el nodo de servicio está basado en la URI del catálogo
+                catalog_base_uri = str(catalog_uri())
+                
+                # Add title and description for dcat:DataServices
+                self._add_service_multilingual_properties(access_service_node, access_service_dict, catalog_base_uri)
 
                 #  Simple values
                 items = [
                     ("license", DCT.license, None, URIRefOrLiteral),
                     ("access_rights", DCT.accessRights, None, URIRefOrLiteral),
-                    ("title", DCT.title, None, Literal),
                     (
                         "endpoint_description",
                         DCAT.endpointDescription,
@@ -506,11 +507,7 @@ class EuDCATAP2Profile(BaseEuDCATAPProfile):
                         else getter(*args, predicate)
                     )
                     if value:
-                        self.g.add((
-                            access_service_node, 
-                            predicate, 
-                            URIRef(value)
-                        ))
+                        self._add_uri_from_value(access_service_node, predicate, value)
                 
                 # Add all DCAT.theme from dataset_ref to access_service_node
                 for theme in self.g.objects(dataset_ref, DCAT.theme):
@@ -553,7 +550,7 @@ class EuDCATAP2Profile(BaseEuDCATAPProfile):
         )
 
     def _graph_from_catalog_v2(self, catalog_dict, catalog_ref):
-        # remove publisher to avoid duplication
+        # Add DataServices to catalog
         for access_service in self.g.objects(catalog_ref, DCAT.DataService):
             self.g.add((catalog_ref, DCAT.service, access_service))
     
