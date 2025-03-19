@@ -1,5 +1,4 @@
 from builtins import str
-from past.builtins import basestring
 import json
 import logging
 from functools import lru_cache
@@ -104,7 +103,7 @@ class SchemingDCATCKANHarvester(SchemingDCATHarvester):
         # Check if the schema is specified
         if "schema" in config_obj:
             schema = config_obj["schema"]
-            if not isinstance(schema, basestring):
+            if not isinstance(schema, str):
                 raise ValueError("schema must be a string")
 
             # Check if the specified schema is supported

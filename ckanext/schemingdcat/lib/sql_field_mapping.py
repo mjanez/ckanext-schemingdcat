@@ -1,6 +1,5 @@
 import re
 import logging
-from past.builtins import basestring
 
 log = logging.getLogger(__name__)
 
@@ -115,7 +114,7 @@ class SqlFieldMappingValidator(FieldMappingValidator):
         Raises:
             ValueError: If the value is not in the format of a database key.
         """
-        if isinstance(value, basestring):
+        if isinstance(value, str):
             value_split = value.split('.')
             if len(value_split) != 3:
                 raise ValueError('The field: "%s" should be in the format: {schema}.{table}.{field}. It currently has "%d" parts: "%s"' % (local_field, len(value_split), value))
