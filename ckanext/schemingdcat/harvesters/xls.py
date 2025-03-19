@@ -1,5 +1,4 @@
 from builtins import str
-from past.builtins import basestring
 import json
 import logging
 import re
@@ -534,7 +533,7 @@ class SchemingDCATXLSHarvester(SchemingDCATHarvester):
         # Check the storage type of the remote file
         if 'storage_type' in config:
             storage_type = config_obj['storage_type']
-            if not isinstance(storage_type, basestring):
+            if not isinstance(storage_type, str):
                 raise ValueError('storage_type must be a string')
 
             if storage_type not in supported_types:
@@ -552,7 +551,7 @@ class SchemingDCATXLSHarvester(SchemingDCATHarvester):
                                             ('distribution_id_colname', 'resource_id')]:
             if mapping_name in config:
                 mapping_value = config_obj[mapping_name]
-                if not isinstance(mapping_value, (basestring, type(None))):
+                if not isinstance(mapping_value, (str, type(None))):
                     raise ValueError(f'{mapping_name} must be a string or None')
             else:
                 if mapping_name == 'distribution_prefix_colnames':
@@ -564,7 +563,7 @@ class SchemingDCATXLSHarvester(SchemingDCATHarvester):
         # Check the name of the dataset sheet in the remote table
         if 'dataset_sheet' in config:
             dataset_sheet = config_obj['dataset_sheet']
-            if not isinstance(dataset_sheet, basestring):
+            if not isinstance(dataset_sheet, str):
                 raise ValueError('dataset_sheet must be a string')
     
             config = json.dumps({**config_obj, 'dataset_sheet': dataset_sheet.strip()})
@@ -575,14 +574,14 @@ class SchemingDCATXLSHarvester(SchemingDCATHarvester):
         # Check the name of the distribution and data dictionary (resourcedictionary) sheets in the remote table
         if 'distribution_sheet' in config:
             distribution_sheet = config_obj['distribution_sheet']
-            if not isinstance(distribution_sheet, basestring):
+            if not isinstance(distribution_sheet, str):
                 raise ValueError('distribution_sheet must be a string')
 
             config = json.dumps({**config_obj, 'distribution_sheet': distribution_sheet.strip()})
     
         if 'datadictionary_sheet' in config:
             datadictionary_sheet = config_obj['datadictionary_sheet']
-            if not isinstance(datadictionary_sheet, basestring):
+            if not isinstance(datadictionary_sheet, str):
                 raise ValueError('datadictionary_sheet must be a string')
 
             config = json.dumps({**config_obj, 'datadictionary_sheet': datadictionary_sheet.strip()})
@@ -693,7 +692,7 @@ class SchemingDCATXLSHarvester(SchemingDCATHarvester):
         # Check if dataset_id_field exists and is a string
         if 'dataset_id_field' in config_obj:
             dataset_id_field = config_obj['dataset_id_field']
-            if not isinstance(dataset_id_field, basestring):
+            if not isinstance(dataset_id_field, str):
                 raise ValueError('dataset_id_field must be a string')
 
         return config

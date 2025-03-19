@@ -1,7 +1,6 @@
 import logging
 import json
 import traceback
-from past.builtins import basestring
 import dateutil
 from urllib.parse import urlparse, urlunparse
 from abc import ABC, abstractmethod
@@ -122,7 +121,7 @@ class SchemingDCATSQLHarvester(SchemingDCATHarvester):
         if 'database_type' in config:
             database_type = config_obj['database_type']
             log.debug("database_type: %s ", database_type)
-            if not isinstance(database_type, basestring):
+            if not isinstance(database_type, str):
                 raise ValueError('database_type must be a string')
 
             if database_type not in supported_types:
