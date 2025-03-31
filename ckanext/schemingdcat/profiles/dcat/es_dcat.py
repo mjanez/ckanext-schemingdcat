@@ -245,12 +245,15 @@ class EsNTIRISPProfile(EuDCATAPProfile):
         if publisher_ref:
             self.g.add((publisher_ref, RDF.type, FOAF.Agent))
             self.g.add((dataset_ref, DCT.publisher, publisher_ref))
+            
+        # Add dataset URI as identifier
+        if dataset_ref:
+            self.g.add((dataset_ref, DCT.identifier, Literal(dataset_ref)))
 
         # NTI-RISP Core elements
         items = {
             'notes': (DCT.description, es_dcat_default_values['notes']),
             'conforms_to_es': (DCT.conformsTo, es_dcat_default_values['conformance_es']),
-            'identifier_uri': (DCT.identifier, dataset_ref),
             'license_url': (DCT.license, es_dcat_default_values['license_url']),
             'language_code': (DC.language, es_dcat_default_values['language_code'] or config.get('ckan.locale_default')),
             'spatial_uri': (DCT.spatial, es_dcat_default_values['spatial_uri']),
@@ -322,6 +325,10 @@ class EsNTIRISPProfile(EuDCATAPProfile):
             for access_url in self.g.objects(distribution_ref, DCAT["accessURL"]):
                 self.g.remove((distribution_ref, DCAT["accessURL"], access_url))
 
+            # Add distribution URI as identifier
+            if distribution_ref:
+                self.g.add((distribution_ref, DCT.identifier, Literal(distribution_ref)))
+
             # NTI-RISP Core elements
             items = {
                 'url': (DCAT.accessURL, None),
@@ -329,7 +336,6 @@ class EsNTIRISPProfile(EuDCATAPProfile):
                 'description': (DCT.description, es_dcat_default_values['description']),
                 'language_code': (DC.language, es_dcat_default_values['language_code'] or config.get('ckan.locale_default')),
                 'license': (DCT.license, es_dcat_default_values['license']),
-                'identifier_uri': (DCT.identifier, distribution_ref),
                 'size': (DCT.byteSize, None),
             }
 
