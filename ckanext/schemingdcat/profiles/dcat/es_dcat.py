@@ -232,6 +232,10 @@ class EsNTIRISPProfile(EuDCATAPProfile):
         # Remove language with URI if exists
         for language_uri in self.g.objects(dataset_ref, DCT.language):
             self.g.remove((dataset_ref, DCT.language, language_uri))
+            
+        # Remove other themes (DCAT-AP/NTI-RISP)
+        for non_theme_es in self.g.objects(dataset_ref, DCAT.theme):
+            self.g.remove((dataset_ref, DCAT.theme, non_theme_es))
 
         # NTI-RISP Mandatory. The publisher is a DIR3 identifier: https://datos.gob.es/es/recurso/sector-publico/org/Organismo
         catalog_publisher_info = schemingdcat_get_catalog_publisher_info()
@@ -407,6 +411,10 @@ class EsNTIRISPProfile(EuDCATAPProfile):
         # Remove language with URI if exists
         for language_uri in self.g.objects(catalog_ref, DCT.language):
             self.g.remove((catalog_ref, DCT.language, language_uri))
+
+        # Remove other themes (DCAT-AP/INSPIRE)
+        for non_theme_es in self.g.objects(catalog_ref, DCAT.themeTaxonomy):
+            self.g.remove((catalog_ref, DCAT.themeTaxonomy, non_theme_es))
 
         # Mandatory elements by NTI-RISP (datos.gob.es)
         items_core = [
