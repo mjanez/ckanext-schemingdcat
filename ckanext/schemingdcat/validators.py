@@ -1251,10 +1251,11 @@ def schemingdcat_contact_as_default_publisher(field, schema):
             
             fallback_value = CONTACT_PUBLISHER_FALLBACK.get(field_name, None)
             
-            if fallback_value and 'ckanext.schemingdcat' in fallback_value:
-                data[key] = config.get(fallback_value)
-            elif fallback_value:
-                data[key] = fallback_value
+            if not data.get(key):
+                if fallback_value and 'ckanext.schemingdcat' in fallback_value:
+                    data[key] = config.get(fallback_value)
+                elif fallback_value:
+                    data[key] = fallback_value
             
             if fallback_value is None:
                 data[key] = None
