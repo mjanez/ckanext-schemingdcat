@@ -11,20 +11,20 @@ class TestSchemingDCATPlugin:
         config = {}
         plugin_instance = plugin.SchemingDCATPlugin()
         plugin_instance.update_config(config)
-        assert "templates" in config
-        assert "public" in config
+        assert "plugin_template_paths" in config
+        assert "plugin_public_paths" in config
 
     def test_get_helpers(self):
         plugin_instance = plugin.SchemingDCATPlugin()
         helpers = plugin_instance.get_helpers()
         assert isinstance(helpers, dict)
-        assert "schemingdcat_get_catalog_endpoints" in helpers
+        assert "get_schemingdcat_get_catalog_endpoints" in helpers
 
     def test_get_validators(self):
         plugin_instance = plugin.SchemingDCATPlugin()
         validators = plugin_instance.get_validators()
         assert isinstance(validators, dict)
-        assert "schemingdcat_validate" in validators
+        assert "schemingdcat_valid_json_object" in validators
 
     def test_get_blueprint(self):
         plugin_instance = plugin.SchemingDCATPlugin()
