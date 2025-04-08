@@ -16,7 +16,7 @@ from ckanext.schemingdcat.profiles.base import (
 from ckanext.schemingdcat.config import (
     FREQUENCY_MAPPING
 )
-from ckanext.schemingdcat.helpers import schemingdcat_get_catalog_publisher_info
+from ckanext.schemingdcat.helpers import schemingdcat_get_catalog_publisher_info, schemingdcat_get_ckan_site_url
 from ckanext.schemingdcat.profiles.dcat_ap.eu_dcat_ap import EuDCATAPProfile
 from ckanext.schemingdcat.profiles.dcat_config import (
     # Vocabs
@@ -423,7 +423,7 @@ class EsNTIRISPProfile(EuDCATAPProfile):
             ('language_code', DC.language, language_code, Literal),
             ('spatial_uri', DCT.spatial, spatial_uri, URIRefOrLiteral),
             ('theme_taxonomy', DCAT.themeTaxonomy, es_dcat_default_values['theme_taxonomy'], URIRef),
-            ('homepage', FOAF.homepage, config.get('ckan_url'), URIRef),
+            ('homepage', FOAF.homepage, schemingdcat_get_ckan_site_url(), URIRef),
         ]
         
         # DCAT-AP extension
