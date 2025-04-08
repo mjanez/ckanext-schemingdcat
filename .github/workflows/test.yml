@@ -69,7 +69,7 @@ jobs:
     - name: Setup other extensions
       run: |
         # Install ckanext-dcat
-        git clone https://github.com/mjanez/ckanext-dcat
+        git clone https://github.com/ckan/ckanext-dcat
         pip install -e ckanext-dcat
         pip install -r ckanext-dcat/requirements.txt
 

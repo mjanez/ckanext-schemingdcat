@@ -31,8 +31,8 @@ RUN pip3  install --no-cache-dir -r ${APP_DIR}/src/ckanext-schemingdcat/requirem
 WORKDIR ${APP_DIR}
 
 # Setup other extensions
-RUN echo "mjanez/ckanext-dcat" && \
-    pip3  install --no-cache-dir -e git+https://github.com/mjanez/ckanext-dcat.git#egg=ckanext-dcat && \
+RUN echo "ckan/ckanext-dcat" && \
+    pip3  install --no-cache-dir -e git+https://github.com/ckan/ckanext-dcat.git#egg=ckanext-dcat && \
     pip3  install --no-cache-dir -r ${APP_DIR}/src/ckanext-dcat/requirements.txt && \
     echo "ckan/ckanext-harvest" && \
     pip3  install --no-cache-dir -e git+https://github.com/ckan/ckanext-harvest.git#egg=ckanext-harvest && \
