@@ -100,7 +100,9 @@ class SchemingDCATRDFSerializer(RDFSerializer):
     
     def _ensure_language_literals_by_config(self, graph: Graph, profile: str = "eu_dcat_ap_2") -> None:
         """
-        Ensures that all literals of the specified entity types are labelled with language tags for the configured properties.
+        Ensures that all literals of the specified entity types are labelled with language tags
+        for the configured properties.
+        Also removes duplicate literals with the same language tag, keeping only the first one.
         
         Args: 
             graph (graph): The RDF graph to process.
@@ -129,13 +131,14 @@ class SchemingDCATRDFSerializer(RDFSerializer):
         for entity_type in property_by_type.keys():
             nodes_by_type[entity_type] = set()
             
-            # Encontrar todos los nodos de este tipo
+            # Find all nodes of this type
             for s, p, o in graph.triples((None, RDF.type, entity_type)):
                 nodes_by_type[entity_type].add(s)
-
+    
         triples_to_add = []
         triples_to_remove = []
         
+        # FIRST PASS: Add missing language tags to literals
         # Process each node type with its specific properties
         for entity_type, nodes in nodes_by_type.items():
             properties = property_by_type.get(entity_type, set())
@@ -189,10 +192,57 @@ class SchemingDCATRDFSerializer(RDFSerializer):
                 
                 triples_to_add.append((s, p, Literal(o.value, lang=default_lang)))
                 triples_to_remove.append((s, p, o))
-
+    
+        # Apply first pass changes
         for triple in triples_to_add:
             graph.add(triple)
             
+        for triple in triples_to_remove:
+            graph.remove(triple)
+        
+        # SECOND PASS: Remove duplicate literals with the same language
+        # Process each node type with its specific properties
+        triples_to_remove = []
+        
+        # Check all subject-predicate pairs to find duplicates with same language
+        for entity_type, nodes in nodes_by_type.items():
+            properties = property_by_type.get(entity_type, set())
+            
+            for node in nodes:
+                for prop in properties:
+                    # Group literals by language
+                    literals_by_language = {}
+                    
+                    for o in graph.objects(node, prop):
+                        if isinstance(o, Literal) and isinstance(o.value, str) and o.language:
+                            lang = o.language
+                            if lang not in literals_by_language:
+                                literals_by_language[lang] = []
+                            literals_by_language[lang].append(o)
+                    
+                    # For each language, keep only the first literal
+                    for lang, lang_literals in literals_by_language.items():
+                        if len(lang_literals) > 1:
+                            # Keep the first literal and remove the rest
+                            for duplicate in lang_literals[1:]:
+                                triples_to_remove.append((node, prop, duplicate))
+    
+        # Also check generic literals without entity type
+        for s, p, o in graph:
+            if p in properties_all and isinstance(o, Literal) and o.language:
+                # Count literals for this subject-predicate-language combination
+                lang = o.language
+                same_lang_literals = [
+                    lit for lit in graph.objects(s, p)
+                    if isinstance(lit, Literal) and lit.language == lang
+                ]
+                
+                # If we have more than one literal with the same language,
+                # mark all but the first one for removal
+                if len(same_lang_literals) > 1 and o != same_lang_literals[0]:
+                    triples_to_remove.append((s, p, o))
+        
+        # Remove duplicate language literals
         for triple in triples_to_remove:
             graph.remove(triple)
     
