@@ -1154,13 +1154,14 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
     
     def _is_valid_iana_mediatype(self, value: str) -> bool:
         """
-        Validate if a string is a valid IANA media type URI or exists in MD_FORMAT media_type column.
-        
+        Validate if a string is a valid IANA media type URI or exists in MD_FORMAT media_type column
+        and matches the correct media type format (type/subtype).
+    
         Args:
             value (str): The value to validate
-            
+    
         Returns:
-            bool: True if valid IANA media type URI or exists in MD_FORMAT, False otherwise
+            bool: True if valid IANA media type URI or exists in MD_FORMAT and matches the correct format, False otherwise
         """
         if not value:
             return False
@@ -1170,20 +1171,29 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
             try:
                 from urllib.parse import urlparse
                 result = urlparse(value)
-                return all([result.scheme, result.netloc])
-            except:
+                if all([result.scheme, result.netloc]):
+                    # Extract the media type part from the URI and validate its format
+                    media_type = value[len(IANA_MEDIA_TYPES_BASE_URI) + 1:]  # Extract after base URI
+                    if '/' in media_type and len(media_type.split('/')) == 2:
+                        return True
+            except Exception as e:
+                log.warning(f"Error validating IANA URI {value}: {str(e)}")
                 return False
-                
+    
         # If not a URI, check if it exists in MD_FORMAT media_type column
         media_type_exists = self._search_value_codelist(
             MD_FORMAT,
-            value, 
-            "media_type",  # input field is media_type 
+            value,
+            "media_type",  # input field is media_type
             "media_type",  # output field also media_type
             return_value=False  # we just want to know if it exists
         )
-        
-        return media_type_exists is not None
+    
+        # Validate the format of the media type
+        if media_type_exists and '/' in value and len(value.split('/')) == 2:
+            return True
+    
+        return False
 
     def _is_valid_eu_authority_table(self, value: str, table: str) -> bool:
         """Validate EU Publications authority table"""

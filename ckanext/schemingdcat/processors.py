@@ -100,7 +100,9 @@ class SchemingDCATRDFSerializer(RDFSerializer):
     
     def _ensure_language_literals_by_config(self, graph: Graph, profile: str = "eu_dcat_ap_2") -> None:
         """
-        Ensures that all literals of the specified entity types are labelled with language tags for the configured properties.
+        Ensures that all literals of the specified entity types are labelled with language tags
+        for the configured properties.
+        Also removes duplicate literals with the same language tag, keeping only the first one.
         
         Args: 
             graph (graph): The RDF graph to process.
@@ -129,13 +131,14 @@ class SchemingDCATRDFSerializer(RDFSerializer):
         for entity_type in property_by_type.keys():
             nodes_by_type[entity_type] = set()
             
-            # Encontrar todos los nodos de este tipo
+            # Find all nodes of this type
             for s, p, o in graph.triples((None, RDF.type, entity_type)):
                 nodes_by_type[entity_type].add(s)
-
+    
         triples_to_add = []
         triples_to_remove = []
         
+        # FIRST PASS: Add missing language tags to literals
         # Process each node type with its specific properties
         for entity_type, nodes in nodes_by_type.items():
             properties = property_by_type.get(entity_type, set())
@@ -189,91 +192,123 @@ class SchemingDCATRDFSerializer(RDFSerializer):
                 
                 triples_to_add.append((s, p, Literal(o.value, lang=default_lang)))
                 triples_to_remove.append((s, p, o))
-
+    
+        # Apply first pass changes
         for triple in triples_to_add:
             graph.add(triple)
             
         for triple in triples_to_remove:
             graph.remove(triple)
+        
+        # SECOND PASS: Remove duplicate literals with the same language
+        # Process each node type with its specific properties
+        triples_to_remove = []
+        
+        # Check all subject-predicate pairs to find duplicates with same language
+        for entity_type, nodes in nodes_by_type.items():
+            properties = property_by_type.get(entity_type, set())
+            
+            for node in nodes:
+                for prop in properties:
+                    # Group literals by language
+                    literals_by_language = {}
+                    
+                    for o in graph.objects(node, prop):
+                        if isinstance(o, Literal) and isinstance(o.value, str) and o.language:
+                            lang = o.language
+                            if lang not in literals_by_language:
+                                literals_by_language[lang] = []
+                            literals_by_language[lang].append(o)
+                    
+                    # For each language, keep only the first literal
+                    for lang, lang_literals in literals_by_language.items():
+                        if len(lang_literals) > 1:
+                            # Keep the first literal and remove the rest
+                            for duplicate in lang_literals[1:]:
+                                triples_to_remove.append((node, prop, duplicate))
+    
+        # Also check generic literals without entity type
+        for s, p, o in graph:
+            if p in properties_all and isinstance(o, Literal) and o.language:
+                # Count literals for this subject-predicate-language combination
+                lang = o.language
+                same_lang_literals = [
+                    lit for lit in graph.objects(s, p)
+                    if isinstance(lit, Literal) and lit.language == lang
+                ]
+                
+                # If we have more than one literal with the same language,
+                # mark all but the first one for removal
+                if len(same_lang_literals) > 1 and o != same_lang_literals[0]:
+                    triples_to_remove.append((s, p, o))
+        
+        # Remove duplicate language literals
+        for triple in triples_to_remove:
+            graph.remove(triple)
     
     def _remove_empty_language_literals(self, graph: Graph) -> None:
         """
-        Manages language-tagged literals in the RDF graph by:
-        1. Removing empty language-tagged literals when there are non-empty alternatives
-        2. Removing untagged literals when there are language-tagged alternatives
-        
-        This method improves the quality of the RDF output by ensuring that:
-        - Empty values don't clutter the output when better alternatives exist
-        - Untagged literals are removed when language-tagged alternatives are available
-        - At least one value is preserved for each property
-        
+        Removes empty language-tagged literals and ensures at least one valid literal remains for each property.
+    
+        This method improves the quality of the RDF output by:
+        1. Removing empty language-tagged literals.
+        2. Removing untagged literals when language-tagged alternatives exist.
+        3. Ensuring at least one valid literal remains for each property.
+    
         Args:
-            graph (Graph): The RDF graph to process
+            graph (Graph): The RDF graph to process.
         """
-        # Step 1: Identify triples with empty language-tagged literals
+        # Step 1: Identify and remove empty language-tagged literals
         empty_lang_literals = [
             (s, p, o) for s, p, o in graph 
-            if (isinstance(o, Literal) and 
-                o.language and 
-                isinstance(o.value, str) and
-                not o.value.strip())
+            if isinstance(o, Literal) and o.language and isinstance(o.value, str) and not o.value.strip()
         ]
-        
-        # Step 2: Group by subject and predicate to verify if there are
-        # non-empty literals available before removing the empty ones
+        for triple in empty_lang_literals:
+            graph.remove(triple)
+    
+        # Step 2: Identify untagged literals that have language-tagged alternatives
         triples_to_remove = []
-        
-        for s, p, o in empty_lang_literals:
-            # Get all literals for this subject-predicate pair
-            all_literals = list(graph.objects(s, p))
-            
-            # Find non-empty literals that can remain after removal
-            non_empty_literals = [
-                lit for lit in all_literals 
-                if not (isinstance(lit, Literal) and 
-                      isinstance(lit.value, str) and 
-                      not lit.value.strip())
-            ]
-            
-            # Only remove if there's at least one non-empty literal to preserve
-            if non_empty_literals:
-                triples_to_remove.append((s, p, o))
-        
-        # Step 3: Identify untagged literals that have language-tagged alternatives
         for s, p, o in graph:
             if isinstance(o, Literal) and isinstance(o.value, str) and not o.language:
                 # Check if this property should have language tags based on config
                 property_requires_tag = False
-                
+    
                 # Find the entity type for this subject
                 entity_types = [t for _, _, t in graph.triples((s, RDF.type, None))]
-                
+    
                 for entity_type in entity_types:
                     # Check if this entity type is in our configuration
                     for entity_config in DCAT_ENTITY_PROPERTIES_CONFIG.values():
                         if entity_config["type"] == entity_type and p in entity_config["properties"]:
                             property_requires_tag = True
                             break
-                    
+    
                     if property_requires_tag:
                         break
-                
+    
                 if property_requires_tag:
                     # Get all literals for this subject-predicate pair
                     all_literals = list(graph.objects(s, p))
-                    
+    
                     # Find language-tagged literals
                     tagged_literals = [
                         lit for lit in all_literals 
-                        if isinstance(lit, Literal) and 
-                        isinstance(lit.value, str) and 
-                        lit.language
+                        if isinstance(lit, Literal) and isinstance(lit.value, str) and lit.language
                     ]
-                    
-                    # If there are language-tagged literals, remove the untagged one
+    
+                    # If there are language-tagged literals, mark the untagged one for removal
                     if tagged_literals:
                         triples_to_remove.append((s, p, o))
-        
-        # Step 4: Remove all identified triples in batch
+    
+        # Step 3: Remove all identified untagged literals
         for triple in triples_to_remove:
             graph.remove(triple)
+    
+        # Step 4: Ensure at least one valid literal remains for each property
+        for s, p in set((s, p) for s, p, _ in graph):
+            # Get all literals for this subject-predicate pair
+            literals = list(graph.objects(s, p))
+    
+            # If no valid literals remain, log a warning
+            if not literals:
+                log.warning(f"No valid literals remain for subject {s} and predicate {p}.")
