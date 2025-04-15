@@ -10,7 +10,7 @@ from shapely.geometry import mapping
 import json
 
 from ckantoolkit import config
-from ckanext.schemingdcat.helpers import schemingdcat_get_ckan_site_url
+from ckanext.schemingdcat.helpers import schemingdcat_get_ckan_site_url, schemingdcat_extract_base_url
 from ckanext.schemingdcat.config import (
     ISO19115_LANGUAGE,
     BASE_VOCABS,
@@ -24,6 +24,7 @@ from ckanext.schemingdcat.config import (
     PROTOCOL_MAPPING,
     SERVICE_INDICATORS,
     DCAT_SERVICE_TYPES,
+    OGC_SERVICES_LIST,
 )
 
 log = logging.getLogger(__name__)
@@ -904,7 +905,7 @@ class CSWMetadataExtractor:
                 format_value = resource_dict["format"]
                 
                 # Check if the URL is for an OGC service by format
-                is_ogc_service = format_value in ['WMS', 'WFS', 'WCS', 'CSW', 'SOS', 'WMTS']
+                is_ogc_service = format_value in OGC_SERVICES_LIST
                 
                 if is_ogc_service and url:
                     # Check if the URL already contains a request parameter
@@ -926,7 +927,8 @@ class CSWMetadataExtractor:
                             log.debug(f"Standardized OGC service URL with GetCapabilities: {resource_dict['url']}")
     
                 # ENHANCEMENT: Add access_services with dataset identifier
-                access_services = self._extract_access_services(resource_dict, dataset_identifier)
+                access_services, resource_dict = self._extract_access_services(resource_dict, dataset_identifier)
+                log.info("access_services: %s", access_services)
                 if access_services:
                     resource_dict["access_services"] = access_services
                     if self._debug:
@@ -956,6 +958,7 @@ class CSWMetadataExtractor:
     def _extract_access_services(self, resource_dict, dataset_identifier=None):
         """
         Extract access services information from resource metadata.
+        Also adds service standard URI to resource conforms_to field.
         
         Args:
             resource_dict (dict): The resource dictionary with metadata
@@ -963,6 +966,7 @@ class CSWMetadataExtractor:
             
         Returns:
             list: List of access_services dictionaries
+            resource_dict (dict): The resource dictionary with metadata
         """
         ckan_site_url = schemingdcat_get_ckan_site_url()
         services = []
@@ -976,7 +980,7 @@ class CSWMetadataExtractor:
             description = resource_dict.get("description", "")
             
             if not url:
-                return services
+                return services, resource_dict
                 
             # Initialize detection variables
             service_type = None
@@ -1029,13 +1033,11 @@ class CSWMetadataExtractor:
                     title = service_info["default_title"]
                 
                 # Get base endpoint URL by removing query parameters if present
-                base_url = url
-                if "?" in url:
-                    base_url = url.split("?")[0]
+                base_url = schemingdcat_extract_base_url(url)
                     
                 # Create the service info dictionary with base URL as the endpoint
                 access_service = {
-                    "uri": service_info["uri"],
+                    "uri": base_url,
                     "title": title,
                     "endpoint_url": [base_url],  # Base endpoint URL without parameters
                 }
@@ -1048,36 +1050,34 @@ class CSWMetadataExtractor:
                 else:
                     # For services without capabilities, use the original URL
                     access_service["endpoint_description"] = url
-                
-                # Add to services list
-                services.append(access_service)
-                
-                # Try to find a documentation URL in the description if present
-                if description:
-                    url_match = re.search(r'https?://\S+', description)
-                    if url_match and url_match.group() != url and url_match.group() != base_url:
-                        # Found a different URL in the description, add it as documentation
-                        doc_url = url_match.group()
-                        doc_service = {
-                            "uri": "",
-                            "title": "Documentation",
-                            "endpoint_url": [doc_url],
-                            "endpoint_description": doc_url,
-                        }
-                        services.append(doc_service)
-
+                                    
                 # Add serves_dataset reference if we have an identifier
                 if dataset_identifier:
                     access_service["serves_dataset"] = f"{ckan_site_url}/dataset/{dataset_identifier}"
                 else:
                     access_service["serves_dataset"] = []
-
-            return services
+                    
+                # Add to services list
+                services.append(access_service)
+                    
+                # Add service standard URI to resource conforms_to field if available
+                if "uri" in service_info and service_info["uri"]:
+                    # Initialize conforms_to list if it doesn't exist
+                    if "conforms_to" not in resource_dict:
+                        resource_dict["conforms_to"] = []
+                    
+                    # Add URI only if it's not already in the list
+                    if service_info["uri"] not in resource_dict["conforms_to"]:
+                        resource_dict["conforms_to"].append(service_info["uri"])
+                        if self._debug:
+                            log.debug(f"Added service standard URI to conforms_to: {service_info['uri']}")
+    
+            return services, resource_dict
             
         except Exception as e:
             if self._debug:
                 log.warning(f"Error extracting access services: {str(e)}")
-            return []
+            return [], resource_dict
 
     def _extract_reference_system(self, metadata):
         """
