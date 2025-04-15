@@ -737,3 +737,5 @@ DCAT_SERVICE_TYPES = {
         }
     }
 }
+
+OGC_SERVICES_LIST = ['WMS', 'WFS', 'WCS', 'CSW', 'SOS', 'WMTS']

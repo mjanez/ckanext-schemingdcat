@@ -8,7 +8,7 @@ from yaml.loader import SafeLoader
 from pathlib import Path
 from functools import lru_cache
 import datetime
-from urllib.parse import urlparse, unquote, urljoin
+from urllib.parse import urlparse, unquote, urljoin, urlunparse
 from urllib.error import URLError
 from six.moves.urllib.parse import urlencode
 import typing
@@ -2112,3 +2112,41 @@ def schemingdcat_user_is_org_member(
 @helper
 def schemingdcat_get_catalog_publisher_info():
     return sdct_config.catalog_publisher_info
+
+@helper
+def schemingdcat_extract_base_url(url):
+    """
+    Extract the base URL without query parameters or fragments.
+    Preserves the path including file extensions like .aspx, .php, etc.
+    
+    Args:
+        url (str): The full URL
+        
+    Returns:
+        str: The base URL without query parameters
+        
+    Examples:
+        >>> _extract_base_url("https://wms.mapama.es/sig/Agua/ZonasProtPotablesPoligonos/2027/wms.aspx?service=WMS")
+        'https://wms.mapama.es/sig/Agua/ZonasProtPotablesPoligonos/2027/wms.aspx'
+        
+        >>> _extract_base_url("https://www.mapa.gob.es/app/descargas/descargafichero.aspx?f=ComarcasAgrarias.rar")
+        'https://www.mapa.gob.es/app/descargas/descargafichero.aspx'
+    """
+    try:        
+        # Parse the URL
+        parsed = urlparse(url)
+        
+        # Reconstruct the URL without query parameters and fragments
+        clean_url = urlunparse((
+            parsed.scheme,
+            parsed.netloc,
+            parsed.path,
+            '',  # params
+            '',  # query
+            ''   # fragment
+        ))
+        
+        return clean_url
+        
+    except Exception as e:
+        return url

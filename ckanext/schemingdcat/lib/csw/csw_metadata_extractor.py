@@ -10,7 +10,7 @@ from shapely.geometry import mapping
 import json
 
 from ckantoolkit import config
-from ckanext.schemingdcat.helpers import schemingdcat_get_ckan_site_url
+from ckanext.schemingdcat.helpers import schemingdcat_get_ckan_site_url, schemingdcat_extract_base_url
 from ckanext.schemingdcat.config import (
     ISO19115_LANGUAGE,
     BASE_VOCABS,
@@ -24,6 +24,7 @@ from ckanext.schemingdcat.config import (
     PROTOCOL_MAPPING,
     SERVICE_INDICATORS,
     DCAT_SERVICE_TYPES,
+    OGC_SERVICES_LIST,
 )
 
 log = logging.getLogger(__name__)
@@ -769,21 +770,14 @@ class CSWMetadataExtractor:
         """
         Extract distributions from CSW metadata and map them to CKAN resources
         with improved format detection and access_services detection.
+        Also standardizes OGC service URLs by adding GetCapabilities request if missing.
         
         Args:
             metadata (MD_Metadata): The metadata object containing distributions
             dataset_identifier (str): The identifier of the dataset to associate with access services
             
         Returns:
-            list: List of dictionaries containing resource information including:
-                - name: Title of the distribution
-                - description: Description of the resource
-                - url: Access URL
-                - format: Standardized format code
-                - mimetype: MIME type based on the format
-                - protocol: Original protocol value
-                - function: Resource function if available
-                - access_services: List of services that provide access to this resource (if applicable)
+            list: List of dictionaries containing resource information
         """
         resources = []
         
@@ -792,21 +786,21 @@ class CSWMetadataExtractor:
                 if self._debug:
                     log.debug("No distributions found in metadata")
                 return resources
-
+    
             # Extract online resources
             online_resources = []
             if hasattr(metadata.distribution, 'online'):
                 online_resources.extend(metadata.distribution.online or [])
-
+    
             if not online_resources and self._debug:
                 log.debug("No online resources found in distribution")
                 return resources
-
+    
             # Process each online resource
             for resource in online_resources:
                 if not resource:
                     continue
-
+    
                 # Extract basic resource information
                 resource_dict = {
                     "name": getattr(resource, 'name', None),
@@ -816,17 +810,17 @@ class CSWMetadataExtractor:
                     "function": getattr(resource, 'function', None),
                     "availability": ISO19115_INSPIRE_DEFAULT_VALUES['availability'],
                 }
-
+    
                 # Skip resources without URL
                 if not resource_dict["url"]:
                     if self._debug:
                         log.debug(f"Skipping resource without URL: {resource_dict}")
                     continue
-
+    
                 # Default format to HTML
                 resource_dict["format"] = 'HTML'
                 format_found = False
-
+    
                 # 1. Try to determine format from protocol
                 if resource_dict["protocol"]:
                     protocol_lower = resource_dict["protocol"].lower()
@@ -850,7 +844,7 @@ class CSWMetadataExtractor:
                                 if self._debug:
                                     log.debug(f"Format determined from partial protocol match: {protocol_key} -> {format_value}")
                                 break
-
+    
                 # 2. If format not determined from protocol, try URL patterns
                 if not format_found and resource_dict["url"]:
                     url_lower = resource_dict["url"].lower()
@@ -899,24 +893,51 @@ class CSWMetadataExtractor:
                     resource_dict["format"] = PROTOCOL_MAPPING.get('default', 'HTML')
                     if self._debug:
                         log.debug(f"Using default format: {resource_dict['format']}")
-
+    
                 # Add MIME type based on format
                 resource_dict["mimetype"] = FORMAT_STANDARDIZATION['mimetype_mapping'].get(
                     resource_dict["format"], 
                     FORMAT_STANDARDIZATION['mimetype_mapping'].get('default')
                 )
-
+                
+                # Standardize OGC service URLs by adding GetCapabilities if missing
+                url = resource_dict["url"]
+                format_value = resource_dict["format"]
+                
+                # Check if the URL is for an OGC service by format
+                is_ogc_service = format_value in OGC_SERVICES_LIST
+                
+                if is_ogc_service and url:
+                    # Check if the URL already contains a request parameter
+                    has_request_param = "request=" in url.lower()
+                    
+                    if not has_request_param:
+                        # Determine the appropriate GetCapabilities parameter based on the service
+                        service_param = format_value.lower()
+                        
+                        # Add query parameters correctly whether URL already has parameters or not
+                        if "?" in url:
+                            # URL already has parameters, append the GetCapabilities request
+                            resource_dict["url"] = f"{url}&service={service_param}&request=GetCapabilities"
+                        else:
+                            # URL has no parameters, add the GetCapabilities request
+                            resource_dict["url"] = f"{url}?service={service_param}&request=GetCapabilities"
+                        
+                        if self._debug:
+                            log.debug(f"Standardized OGC service URL with GetCapabilities: {resource_dict['url']}")
+    
                 # ENHANCEMENT: Add access_services with dataset identifier
-                access_services = self._extract_access_services(resource_dict, dataset_identifier)
+                access_services, resource_dict = self._extract_access_services(resource_dict, dataset_identifier)
+                log.info("access_services: %s", access_services)
                 if access_services:
                     resource_dict["access_services"] = access_services
                     if self._debug:
                         log.debug(f"Added {len(access_services)} access services to resource")
-
+    
                 # Clean up None values and empty strings
                 resource_dict = {k: v for k, v in resource_dict.items() 
                             if v is not None and v != ''}
-
+    
                 # Use description as name if name is missing
                 if "name" not in resource_dict:
                     resource_dict["name"] = (
@@ -927,9 +948,9 @@ class CSWMetadataExtractor:
                 resources.append(resource_dict)
                 if self._debug:
                     log.debug(f"Added resource: {resource_dict}")
-
+    
             return resources
-
+    
         except Exception as e:
             log.error(f"Error extracting distributions: {str(e)}", exc_info=True)
             return []
@@ -937,6 +958,7 @@ class CSWMetadataExtractor:
     def _extract_access_services(self, resource_dict, dataset_identifier=None):
         """
         Extract access services information from resource metadata.
+        Also adds service standard URI to resource conforms_to field.
         
         Args:
             resource_dict (dict): The resource dictionary with metadata
@@ -944,6 +966,7 @@ class CSWMetadataExtractor:
             
         Returns:
             list: List of access_services dictionaries
+            resource_dict (dict): The resource dictionary with metadata
         """
         ckan_site_url = schemingdcat_get_ckan_site_url()
         services = []
@@ -957,7 +980,7 @@ class CSWMetadataExtractor:
             description = resource_dict.get("description", "")
             
             if not url:
-                return services
+                return services, resource_dict
                 
             # Initialize detection variables
             service_type = None
@@ -1010,13 +1033,11 @@ class CSWMetadataExtractor:
                     title = service_info["default_title"]
                 
                 # Get base endpoint URL by removing query parameters if present
-                base_url = url
-                if "?" in url:
-                    base_url = url.split("?")[0]
+                base_url = schemingdcat_extract_base_url(url)
                     
                 # Create the service info dictionary with base URL as the endpoint
                 access_service = {
-                    "uri": service_info["uri"],
+                    "uri": base_url,
                     "title": title,
                     "endpoint_url": [base_url],  # Base endpoint URL without parameters
                 }
@@ -1029,36 +1050,34 @@ class CSWMetadataExtractor:
                 else:
                     # For services without capabilities, use the original URL
                     access_service["endpoint_description"] = url
-                
-                # Add to services list
-                services.append(access_service)
-                
-                # Try to find a documentation URL in the description if present
-                if description:
-                    url_match = re.search(r'https?://\S+', description)
-                    if url_match and url_match.group() != url and url_match.group() != base_url:
-                        # Found a different URL in the description, add it as documentation
-                        doc_url = url_match.group()
-                        doc_service = {
-                            "uri": "",
-                            "title": "Documentation",
-                            "endpoint_url": [doc_url],
-                            "endpoint_description": doc_url,
-                        }
-                        services.append(doc_service)
-
+                                    
                 # Add serves_dataset reference if we have an identifier
                 if dataset_identifier:
                     access_service["serves_dataset"] = f"{ckan_site_url}/dataset/{dataset_identifier}"
                 else:
                     access_service["serves_dataset"] = []
-
-            return services
+                    
+                # Add to services list
+                services.append(access_service)
+                    
+                # Add service standard URI to resource conforms_to field if available
+                if "uri" in service_info and service_info["uri"]:
+                    # Initialize conforms_to list if it doesn't exist
+                    if "conforms_to" not in resource_dict:
+                        resource_dict["conforms_to"] = []
+                    
+                    # Add URI only if it's not already in the list
+                    if service_info["uri"] not in resource_dict["conforms_to"]:
+                        resource_dict["conforms_to"].append(service_info["uri"])
+                        if self._debug:
+                            log.debug(f"Added service standard URI to conforms_to: {service_info['uri']}")
+    
+            return services, resource_dict
             
         except Exception as e:
             if self._debug:
                 log.warning(f"Error extracting access services: {str(e)}")
-            return []
+            return [], resource_dict
 
     def _extract_reference_system(self, metadata):
         """
