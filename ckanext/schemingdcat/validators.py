@@ -1321,6 +1321,14 @@ def schemingdcat_dataset_url(field, schema):
     """
     def validator(key, data, errors, context):
         dataset_id = data.get(('id', ))
-        data[key] = ckan_helpers.url_for('dataset.read', id=dataset_id, _external=True)
-
+        package_type = data.get(('type', ), 'dataset')
+        if dataset_id:
+            data[key] = ckan_helpers.url_for(
+                'dataset.read',
+                id=dataset_id,
+                package_type=package_type,
+                _external=True
+            )
+        else:
+            data[key] = ''
     return validator
