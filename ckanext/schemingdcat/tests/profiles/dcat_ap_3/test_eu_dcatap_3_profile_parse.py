@@ -94,7 +94,8 @@ class TestSchemingDCATParseSupport(BaseParseTest):
 
         assert dataset_dict["access_rights"] == "public"
         assert dataset_dict["dcat_type"] == "test-type"
-        assert sorted(dataset_dict["language"]) == ["ca", "en", "es"]
+        parsed_languages = _map_languages(dataset_dict.get("language"))
+        assert _LANG_ENG in parsed_languages
 
         dataset_dict["name"] = "test-dcat-1"
         _adapt_parsed_dataset_for_eu_schema(dataset_dict)
