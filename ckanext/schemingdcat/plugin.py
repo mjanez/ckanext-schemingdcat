@@ -79,7 +79,10 @@ class SchemingDCATPlugin(
         init_config()
 
         # configure Faceted class (parent of this)
-        self.facet_load_config(config_.get("ckanext.schemingdcat.facet_list", "").split())
+        facet_list = config_.get("ckanext.schemingdcat.facet_list") or []
+        if isinstance(facet_list, str):
+            facet_list = facet_list.split()
+        self.facet_load_config(facet_list)
 
     def get_helpers(self):
         return dict(helpers.all_helpers)

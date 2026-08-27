@@ -99,6 +99,57 @@ groups:
         type: bool
         required: false
 
+      - key: ckanext.schemingdcat.facet_list
+        type: list
+        required: false
+        description: |
+          List of fields in scheming file to use to faceting. Use ckan defaults if not provided.
+        example: theme groups theme_es dcat_type owner_org res_format publisher_name publisher_type frequency tags tag_uri conforms_to spatial_uri
+
+  - annotation: Solr index settings
+    options:
+      - key: ckanext.schemingdcat.solr_multivalued_fields
+        type: list
+        required: false
+        default:
+          - tag_uri
+          - theme
+          - theme_eu
+          - theme_es
+          - language
+          - dcat_type
+          - conforms_to
+          - applicable_legislation
+          - hvd_category
+          - publisher_name
+          - publisher_type
+          - frequency
+          - endpoint_url
+          - serves_dataset
+          - reference
+          - is_referenced_by
+          - resource_relation
+          - documentation
+          - metadata_profile
+          - lineage_source
+          - lineage_process_steps
+          - dataset_scope
+          - spatial_uri
+          - spatial_geom
+        description: |
+          Dataset field names kept as Python lists in the Solr document
+          (requires multiValued=true on the published Solr schema).
+
+          MUST match ghcr.io/mjanez/ckan-solr *-spatial fragments:
+          https://github.com/mjanez/ckan-docker/tree/master/ckan-solr/solr-9/schema
+          (dcat-ap-fields.xml, dcat-ap-es-fields.xml, spatial-fields.xml).
+
+          When you add a multiValued field to those XML files, publish a new
+          image, then add the same name here (or in ckan.ini). Do not add
+          leftover repeating fields (e.g. alternate_identifier) until the
+          published image declares them; the indexer then stores them as
+          extras_{field} (text). Also unioned with ckanext.schemingdcat.facet_list.
+
   - annotation: Open Data stats settings
     options:
       - key: ckanext.schemingdcat.open_data_intro_enabled
