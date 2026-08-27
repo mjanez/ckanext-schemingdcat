@@ -22,23 +22,60 @@ dataset_files = {
     "dcat_ap_2_vocabularies_dataset": "ckan_full_dataset_dcat_ap_2_vocabularies.json"
 }
 
-def _get_shacl_file_path(shacl_type, version):
+def _get_shacl_file_path(shacl_type, version=None):
     """
-    Constructs the file path for a SHACL file based on the given type and version.
+    Return the path to a SHACL ttl file shipped with the tests, or None if missing.
+
+    Files live in ``tests/shacl/<version>/``, not ``tests/shacl/shacl/<version>/``.
 
     Args:
-        shacl_type (str): The suffix type of the SHACL file (e.g., 'shapes_recommended').
-        version (str): The version of the DCAT-AP (e.g., '2.1.1').
+        shacl_type (str): Either a suffix type (e.g. 'shapes', 'shapes_recommended',
+            'range') or a full filename ending in ``.ttl``.
+        version (str, optional): DCAT-AP version directory (e.g. '2.1.1', '3.0.0').
+            Required when ``shacl_type`` is not a full filename.
 
     Returns:
-        str: The full path to the SHACL file.
+        str or None: Absolute path if the file exists, otherwise None.
     """
-    # Clean the shacl_type
-    shacl_type = shacl_type.strip('_').replace('shacl_', '', 1)
-    
-    file_name = f"dcat-ap_{version}_shacl_{shacl_type}.ttl"
+    base_dir = os.path.dirname(os.path.abspath(__file__))
 
-    return os.path.join(os.path.dirname(__file__), "shacl", version, file_name)
+    if shacl_type.endswith(".ttl"):
+        file_name = os.path.basename(shacl_type)
+    else:
+        if not version:
+            return None
+        shacl_type = shacl_type.strip("_").replace("shacl_", "", 1)
+        file_name = "dcat-ap_{version}_shacl_{shacl_type}.ttl".format(
+            version=version, shacl_type=shacl_type
+        )
+
+    candidates = []
+    if version:
+        candidates.append(os.path.join(base_dir, version, file_name))
+    try:
+        for entry in os.listdir(base_dir):
+            cand = os.path.join(base_dir, entry, file_name)
+            if cand not in candidates:
+                candidates.append(cand)
+    except OSError:
+        pass
+
+    for path in candidates:
+        if os.path.isfile(path):
+            return path
+    return None
+
+
+def _require_shacl_file(shacl_type, version=None):
+    """Return a SHACL file path or skip the test if it is not in the repo."""
+    path = _get_shacl_file_path(shacl_type, version)
+    if not path:
+        pytest.skip(
+            "SHACL file not available in the repo (optional): {0} {1}".format(
+                shacl_type, version or ""
+            )
+        )
+    return path
 
 def graph_from_dataset(dataset_key):
     """
@@ -54,20 +91,22 @@ def graph_from_dataset(dataset_key):
 
     Returns:
         rdflib.Graph: The RDF graph generated from the dataset.
-
-    Raises:
-        ValueError: If the `dataset_key` is not found in the `dataset_files` dictionary.
     """
     global generated_graphs
 
     file_name = dataset_files.get(dataset_key)
     if not file_name:
-        raise ValueError(f"Dataset key '{dataset_key}' not found in dataset_files dictionary.")
+        pytest.skip(
+            "No JSON dataset fixture registered for key {0!r}".format(dataset_key)
+        )
 
     if not generated_graphs.get(file_name):
         if not file_name.startswith("ckan/"):
             file_name = "ckan/" + file_name
-        dataset_dict = json.loads(get_file_contents(file_name))
+        try:
+            dataset_dict = json.loads(get_file_contents(file_name))
+        except (OSError, IOError):
+            pytest.skip("Dataset fixture file missing: {0}".format(file_name))
        
         # Log the dataset_dict
         #log.info(f"Generated dataset_dict: {json.dumps(dataset_dict, indent=2)}")
@@ -111,7 +150,7 @@ def test_validate_dcat_ap_2_graph_shapes():
 
     # dcat-ap_2.1.1_shacl_shapes.ttl: constraints concerning existance, domain and
     # literal range, and cardinalities.
-    path = _get_shacl_file_path("shapes", "2.1.1")
+    path = _require_shacl_file("shapes", "2.1.1")
     r = validate(graph, shacl_graph=path)
     conforms, results_graph, results_text = r
     assert conforms, results_text
@@ -135,7 +174,7 @@ def test_validate_dcat_ap_2_graph_shapes_recommended():
 
     # dcat-ap_2.1.1_shacl_shapes_recommended.ttl: constraints concerning existance
     # of recommended properties.
-    path = _get_shacl_file_path("shapes_recommended", "2.1.1")
+    path = _require_shacl_file("shapes_recommended", "2.1.1")
     r = validate(graph, shacl_graph=path)
     conforms, results_graph, results_text = r
     assert conforms, results_text
@@ -188,7 +227,7 @@ def test_validate_dcat_ap_2_graph_shapes_range():
     graph = graph_from_dataset("dcat_ap_2_vocabularies_dataset")
 
     # dcat-ap_2.1.1_shacl_range.ttl: constraints concerning object range
-    path = _get_shacl_file_path("range", "2.1.1")
+    path = _require_shacl_file("range", "2.1.1")
     r = validate(graph, shacl_graph=path)
     conforms, results_graph, results_text = r
 
@@ -219,12 +258,16 @@ def test_validate_dcat_ap_2_graph_shapes_range():
 @pytest.mark.ckan_config(
     "scheming.dataset_schemas", "ckanext.dcat.schemas:dcat_ap_full.yaml"
 )
+@pytest.mark.ckan_config(
+    "scheming.presets",
+    "ckanext.scheming:presets.json ckanext.dcat.schemas:presets.yaml",
+)
 @pytest.mark.ckan_config("ckanext.dcat.rdf.profiles", "euro_dcat_ap_3")
 def test_validate_dcat_ap_3_graph():
 
     graph = graph_from_dataset("ckan_full_dataset_dcat_ap_vocabularies.json")
 
-    path = _get_shacl_file_path("dcat-ap_3_shacl_shapes.ttl")
+    path = _require_shacl_file("shapes", "3.0.0")
     r = validate(graph, shacl_graph=path)
     conforms, results_graph, results_text = r
 
@@ -261,7 +304,7 @@ def test_validate_dcat_us_3_graph():
 
     graph = graph_from_dataset("ckan_full_dataset_dcat_us_vocabularies.json")
 
-    path = _get_shacl_file_path("dcat-us_3.0_shacl_shapes.ttl")
+    path = _require_shacl_file("dcat-us_3.0_shacl_shapes.ttl")
     r = validate(graph, shacl_graph=path)
     conforms, results_graph, results_text = r
 

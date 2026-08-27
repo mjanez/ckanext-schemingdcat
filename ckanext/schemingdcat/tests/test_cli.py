@@ -1,19 +1,31 @@
+import pytest
 from click.testing import CliRunner
 from ckanext.schemingdcat.cli import schemingdcat
+
+# Plugins from test.ini so scheming_dataset_schema_show (and vocab actions) exist
+pytestmark = [
+    pytest.mark.usefixtures("with_plugins", "clean_db"),
+    pytest.mark.ckan_config(
+        "ckan.plugins",
+        "dcat harvest schemingdcat_datasets schemingdcat fluent",
+    ),
+]
 
 
 def test_create_inspire_tags():
     runner = CliRunner()
     result = runner.invoke(schemingdcat, ["create-inspire-tags", "-l", "en"])
     assert result.exit_code == 0
-    assert "inspire_themes created!" in result.output
+    # CLI uses SCHEMINGDCAT_INSPIRE_THEMES_VOCAB ("theme")
+    assert "theme created!" in result.output
 
 
 def test_delete_inspire_tags():
     runner = CliRunner()
     result = runner.invoke(schemingdcat, ["delete-inspire-tags"])
     assert result.exit_code == 0
-    assert "inspire_themes deleted!" in result.output
+    # CLI prints "{vocab_name} deleted!" and vocab_name is "theme"
+    assert "theme deleted!" in result.output
 
 
 def test_create_dcat_tags():

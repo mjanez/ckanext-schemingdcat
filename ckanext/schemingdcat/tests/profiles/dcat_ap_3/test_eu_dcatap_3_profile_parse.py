@@ -9,7 +9,7 @@ from ckanext.dcat.tests.utils import BaseParseTest
 @pytest.mark.usefixtures("with_plugins", "clean_db")
 @pytest.mark.ckan_config("ckan.plugins", "dcat harvest schemingdcat_datasets schemingdcat fluent")
 @pytest.mark.ckan_config(
-    "scheming.dataset_schemas", "ckanext.schemingdcat:schemas/geodcat_ap/eu_dcat_ap_full.yaml"
+    "scheming.dataset_schemas", "ckanext.schemingdcat:schemas/dcat_ap/eu_dcat_ap_full.yaml"
 )
 @pytest.mark.ckan_config(
     "scheming.presets",
