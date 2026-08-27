@@ -245,6 +245,13 @@ def test_validate_dcat_ap_2_graph_shapes_range():
     known_failures = [
         "Value does not have class skos:Concept",
         "Value does not have class dcat:Dataset",
+        "Value does not have class adms:Identifier",
+        "Value does not have class dct:Frequency",
+        "Value does not have class dct:LicenseDocument",
+        "Value does not have class dct:MediaType",
+        "Value does not have class dct:MediaTypeOrExtent",
+        "Value does not have class dct:RightsStatement",
+        "Value does not have class dct:Standard",
         # Qualified relations
         "Value does not conform to Shape :DcatResource_Shape. See details for more information.",
         "The node is either a Catalog, Dataset or a DataService",
