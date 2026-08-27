@@ -87,12 +87,9 @@ class EuDCATAP3Profile(EuDCATAP2Profile, EuDCATAPSchemingDCATProfile):
                     )
                 )
 
-        # Other identifiers
-        value = self._get_dict_value(dataset_dict, "alternate_identifier")
-        if value:
-            items = self._read_list_value(value)
-            for item in items:
-                identifier = BNode()
-                self.g.add((dataset_ref, ADMS.identifier, identifier))
-                self.g.add((identifier, RDF.type, ADMS.Identifier))
-                self.g.add((identifier, SKOS.notation, Literal(item)))
+        # Other identifiers: one adms:Identifier node per value, one skos:notation
+        self._add_adms_identifiers(
+            dataset_ref,
+            self._get_dict_value(dataset_dict, "alternate_identifier"),
+            primary_identifier=self._get_dataset_value(dataset_dict, "identifier"),
+        )

@@ -1633,3 +1633,154 @@ class SchemingDCATRDFProfile(RDFProfile):
             ]
             
             self._add_triples_from_dict(access_service_dict, access_service_node, items)
+
+
+    @staticmethod
+    def _nonempty_field(value):
+        """Return True if a schema value should be treated as provided."""
+        if value is None:
+            return False
+        if isinstance(value, str):
+            return bool(value.strip())
+        if isinstance(value, (list, tuple, dict)):
+            return bool(value)
+        return True
+
+    def _adms_identifier_notations(self, subject_ref):
+        """
+        Return skos:notation literals for adms:Identifier nodes on ``subject_ref``.
+
+        Falls back to the object itself when the identifier was serialized as a
+        URIRef/Literal without a notation (legacy ``_class=ADMS.Identifier``).
+        Only the first notation of each Identifier node is used.
+        """
+        values = []
+        seen = set()
+        for ident in self.g.objects(subject_ref, ADMS.identifier):
+            notations = list(self.g.objects(ident, SKOS.notation))
+            if notations:
+                raw = str(notations[0])
+            elif isinstance(ident, Literal):
+                raw = str(ident)
+            elif isinstance(ident, URIRef):
+                raw = str(ident)
+            else:
+                continue
+            if raw and raw not in seen:
+                seen.add(raw)
+                values.append(raw)
+        return values
+
+    def _add_adms_identifiers(self, subject_ref, identifier_values, primary_identifier=None):
+        """
+        Emit one ``adms:Identifier`` blank node per identifier, each with a
+        single ``skos:notation``. Does not add ``dct:identifier`` triples.
+
+        DCAT-AP-ES / ADMS pattern::
+
+            <subject> adms:identifier [
+                a adms:Identifier ;
+                skos:notation "alt-id-1"
+            ] .
+
+        ``dct:identifier`` on the subject stays the primary identifier only;
+        notations that were wrongly copied there are removed.
+        """
+        items = self._read_list_value(identifier_values) if identifier_values else []
+        existing = set(self._adms_identifier_notations(subject_ref))
+        for item in items:
+            if item is None:
+                continue
+            value = item.strip() if isinstance(item, str) else str(item)
+            if not value or value in existing:
+                continue
+            identifier = BNode()
+            self.g.add((subject_ref, ADMS.identifier, identifier))
+            self.g.add((identifier, RDF.type, ADMS.Identifier))
+            self.g.add((identifier, SKOS.notation, Literal(value)))
+            existing.add(value)
+
+        primary = None
+        if primary_identifier:
+            primary = (
+                primary_identifier.strip()
+                if isinstance(primary_identifier, str)
+                else str(primary_identifier)
+            )
+        notations = set(self._adms_identifier_notations(subject_ref))
+        for obj in list(self.g.objects(subject_ref, DCT.identifier)):
+            val = str(obj)
+            if val in notations and val != primary:
+                self.g.remove((subject_ref, DCT.identifier, obj))
+
+    def _add_dataservice_contact_point(self, access_service_node, access_service_dict, dataset_ref):
+        """
+        Attach ``dcat:contactPoint`` on a DataService.
+
+        If the access_services item has any flat contact field (contact_name,
+        contact_email, contact_url), emit a dedicated vcard:Kind. Otherwise
+        reuse the dataset-level contactPoint node(s).
+        """
+        has_own = any(
+            self._nonempty_field(access_service_dict.get(key))
+            for key in ("contact_name", "contact_email", "contact_url")
+        )
+        if has_own:
+            contact_ref = BNode()
+            self.g.add((contact_ref, RDF.type, VCARD.Kind))
+            self.g.add((access_service_node, DCAT.contactPoint, contact_ref))
+            self._add_triple_from_dict(
+                access_service_dict, contact_ref, VCARD.fn, "contact_name"
+            )
+            self._add_triple_from_dict(
+                access_service_dict,
+                contact_ref,
+                VCARD.hasEmail,
+                "contact_email",
+                _type=URIRef,
+                value_modifier=self._add_mailto,
+            )
+            self._add_triple_from_dict(
+                access_service_dict,
+                contact_ref,
+                VCARD.hasURL,
+                "contact_url",
+                _type=URIRef,
+            )
+            return
+
+        for contact_point in self.g.objects(dataset_ref, DCAT.contactPoint):
+            self.g.add((access_service_node, DCAT.contactPoint, contact_point))
+
+    def _parse_access_service_extra_fields(
+        self, access_service, access_service_dict, dataset_ref=None
+    ):
+        """Parse flat vCard contact and adms:Identifier from a DataService node."""
+        dataset_contacts = set()
+        if dataset_ref is not None:
+            dataset_contacts = set(self.g.objects(dataset_ref, DCAT.contactPoint))
+
+        own_contacts = [
+            contact
+            for contact in self.g.objects(access_service, DCAT.contactPoint)
+            if contact not in dataset_contacts
+        ]
+        if own_contacts:
+            contact = own_contacts[0]
+            name = self._get_vcard_property_value(contact, VCARD.hasFN, VCARD.fn)
+            email = self._without_mailto(
+                self._get_vcard_property_value(contact, VCARD.hasEmail)
+            )
+            url = self._get_vcard_property_value(contact, VCARD.hasURL)
+            if name:
+                access_service_dict["contact_name"] = name
+            if email:
+                access_service_dict["contact_email"] = email
+            if url:
+                access_service_dict["contact_url"] = url
+
+        notations = self._adms_identifier_notations(access_service)
+        if len(notations) == 1:
+            access_service_dict["identifier"] = notations[0]
+        elif notations:
+            access_service_dict["identifier"] = notations
