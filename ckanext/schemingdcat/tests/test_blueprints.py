@@ -15,6 +15,7 @@ _REQUIRED_DCAT_FIELDS = {
     "theme_es": [
         "http://datos.gob.es/kos/sector-publico/sector/ciencia-tecnologia"
     ],
+    "private": False,
 }
 
 
@@ -51,24 +52,24 @@ class TestSchemingDCATBlueprints:
 
     def test_linked_data(self, app):
         dataset = _dcat_dataset()
-        url = _build_url(app, 'schemingdcat.index', id=dataset['id'])
-        response = app.get(url)
+        response = app.get('/dataset/linked_data/{}'.format(dataset['name']))
         assert response.status_code == 200
         assert 'Custom Data' in response.body
 
     def test_geospatial_metadata(self, app):
         dataset = _dcat_dataset()
-        url = _build_url(app, 'schemingdcat.geospatial_metadata', id=dataset['id'])
-        response = app.get(url)
+        response = app.get(
+            '/dataset/geospatial_metadata/{}'.format(dataset['name'])
+        )
         assert response.status_code == 200
         assert 'Custom Data' in response.body
 
     def test_linked_data_not_found(self, app):
-        url = _build_url(app, 'schemingdcat.index', id='nonexistent-id')
-        response = app.get(url, status=404)
+        response = app.get('/dataset/linked_data/nonexistent-id', status=404)
         assert response.status_code == 404
 
     def test_geospatial_metadata_not_found(self, app):
-        url = _build_url(app, 'schemingdcat.geospatial_metadata', id='nonexistent-id')
-        response = app.get(url, status=404)
+        response = app.get(
+            '/dataset/geospatial_metadata/nonexistent-id', status=404
+        )
         assert response.status_code == 404
