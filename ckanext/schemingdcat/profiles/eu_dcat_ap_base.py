@@ -28,6 +28,7 @@ from ckanext.schemingdcat.profiles.base import (
     # Namespaces
     namespaces
 )
+from ckanext.schemingdcat.config import ACCENT_MAP, INVALID_CHARS
 from ckanext.schemingdcat.helpers import schemingdcat_get_catalog_publisher_info
 from ckanext.schemingdcat.profiles.dcat_config import (
     # Vocabs
@@ -1113,7 +1114,13 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
                 # Add processed value to tag_string if it doesn't already exist
                 if tag_value not in dataset_dict['tag_string']:
                     dataset_dict['tag_string'].append(self._clean_name(tag_value))
-            
+
+    def _clean_name(self, name):
+        name = name.lower()
+        name = name.translate(ACCENT_MAP)
+        name = INVALID_CHARS.sub("-", name.strip())
+        return name[:40]
+
     def _get_access_rights_uri(self, value=None):
         """
         Determine access rights URI using codelist lookup.

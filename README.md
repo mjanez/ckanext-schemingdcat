@@ -1119,9 +1119,6 @@ To test against the CKAN version you want to use, proceed as follows
    docker compose up
    ```
 
-
-[^1]: An improvement to [`ckanext-fluent`] (https://github.com/ckan/ckanext-fluent) to allow more versatility in multilingual schema creation and metadata validation.
-
 ## Development
 ### Update Internationalization (i18n) Files
 To compile a `.po` file to a `.mo` file in the terminal, you can use the `msgfmt` tool, which is part of the `gettext` package. Here are the steps to do it:
@@ -1175,3 +1172,5 @@ Let's assume your `.po` file is located in the `i18n/en/LC_MESSAGES/` directory 
 ### Verification
 
 1. **Verify that the `.mo` file has been generated in the browser.
+
+[^1]: An improvement to [`ckanext-fluent`] (https://github.com/ckan/ckanext-fluent) to allow more versatility in multilingual schema creation and metadata validation.

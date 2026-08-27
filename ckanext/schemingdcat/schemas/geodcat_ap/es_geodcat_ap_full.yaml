@@ -2253,6 +2253,7 @@ dataset_fields:
     en: Other identifier
     es: Identificador alternativo
   display_property: adms:identifier
+  preset: multiple_text
   form_placeholder: doi:10.1234/example-dataset
   help_text:
     en: 'An alternate identifier in a particular context, can express other locally minted identifiers or external identifiers, like DOI, ELI, arΧiv for creative works and ORCID, VIAF, ISNI for actors such as authors and publishers, as long as the identifiers are globally unique and stable.'

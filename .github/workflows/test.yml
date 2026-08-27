@@ -85,10 +85,19 @@ jobs:
         # Install ckanext-fluent
         git clone https://github.com/mjanez/ckanext-fluent
         pip install -e ckanext-fluent
-        
+    - name: Pin PyLD for Python 3.9
+      if: ${{ matrix.ckan-version == '2.9' }}
+      run: |
+        # ckanext-dcat requires pyld>=2.0.4; PyLD 3.x uses PEP 604 unions (3.10+)
+        pip install 'pyld>=2.0.4,<3'
     - name: Setup extension
       run: |
         ckan -c test.ini db init
         ckan -c test.ini db pending-migrations --apply
+      if: ${{ matrix.ckan-version != '2.9' }}
+    - name: Setup extension (2.9)
+      if: ${{ matrix.ckan-version == '2.9' }}
+      run: |
+        ckan -c test.ini db init
     - name: Run tests
       run: pytest --log-cli-level=INFO --ckan-ini=test.ini --cov=ckanext.schemingdcat --cov-report=term-missing --cov-append --disable-warnings ckanext/schemingdcat/tests

@@ -18,6 +18,16 @@ _ = toolkit._
 
 schemingdcat = Blueprint(u'schemingdcat', __name__)
 
+
+def _package_view_context():
+    return {
+        u'model': model,
+        u'session': model.Session,
+        u'user': getattr(toolkit.g, u'user', None) or u'',
+        u'for_view': True,
+        u'auth_user_obj': getattr(toolkit.g, u'userobj', None),
+    }
+
 def endpoints():
     return toolkit.render('schemingdcat/endpoints/index.html',extra_vars={
             u'endpoints': sdct_helpers.get_schemingdcat_get_catalog_endpoints(),
@@ -34,25 +44,21 @@ schemingdcat.add_url_rule("/metadata-templates/", view_func=metadata_templates, 
 @schemingdcat.route(u'/dataset/linked_data/<id>')
 @deprecated
 def index(id):
-    context = {
-        u'model': model,
-        u'session': model.Session,
-        u'user': toolkit.g.user,
-        u'for_view': True,
-        u'auth_user_obj': toolkit.g.userobj
-    }
-    data_dict = {u'id': id, u'include_tracking': True}
+    context = _package_view_context()
+    data_dict = {u'id': id}
 
     # check if package exists
     try:
         pkg_dict = get_action(u'package_show')(context, data_dict)
-        pkg = context[u'package']
-        schema = get_action(u'package_show')(context, data_dict)
     except (logic.NotFound, logic.NotAuthorized):
         return base.abort(404, _(u'Dataset {dataset} not found').format(dataset=id))
 
-    return toolkit.render('schemingdcat/custom_data/index.html',extra_vars={
+    return toolkit.render('schemingdcat/custom_data/index.html', extra_vars={
             u'pkg_dict': pkg_dict,
+            u'pkg': pkg_dict,
+            u'dataset_type': pkg_dict.get(u'type', u'dataset'),
+            u'id': id,
+            u'is_activity_archive': False,
             u'endpoint': 'dcat.read_dataset',
             u'data_list': sdct_utils.get_linked_data(id),
         })
@@ -60,24 +66,20 @@ def index(id):
 @schemingdcat.route(u'/dataset/geospatial_metadata/<id>')
 @deprecated
 def geospatial_metadata(id):
-    context = {
-        u'model': model,
-        u'session': model.Session,
-        u'user': toolkit.g.user,
-        u'for_view': True,
-        u'auth_user_obj': toolkit.g.userobj
-    }
-    data_dict = {u'id': id, u'include_tracking': True}
+    context = _package_view_context()
+    data_dict = {u'id': id}
 
     # check if package exists
     try:
         pkg_dict = get_action(u'package_show')(context, data_dict)
-        pkg = context[u'package']
     except (logic.NotFound, logic.NotAuthorized):
         return base.abort(404, _(u'Dataset {dataset} not found').format(dataset=id))
 
     return toolkit.render('schemingdcat/custom_data/index.html', extra_vars={
         u'pkg_dict': pkg_dict,
+        u'pkg': pkg_dict,
+        u'dataset_type': pkg_dict.get(u'type', u'dataset'),
         u'id': id,
+        u'is_activity_archive': False,
         u'data_list': sdct_utils.get_geospatial_metadata(),
     })

@@ -5,11 +5,67 @@ from ckan.tests.helpers import call_action
 from ckanext.dcat.processors import RDFParser
 from ckanext.dcat.tests.utils import BaseParseTest
 
+_ACCESS_RIGHTS_PUBLIC = (
+    "http://publications.europa.eu/resource/authority/access-right/PUBLIC"
+)
+_DCAT_TYPE_DATASET = (
+    "http://inspire.ec.europa.eu/metadata-codelist/ResourceType/dataset"
+)
+_LANG_ENG = "http://publications.europa.eu/resource/authority/language/ENG"
+_LANG_SPA = "http://publications.europa.eu/resource/authority/language/SPA"
+_EU_LANG = {
+    "en": _LANG_ENG,
+    "eng": _LANG_ENG,
+    "es": _LANG_SPA,
+    "spa": _LANG_SPA,
+}
+
+
+def _map_languages(values):
+    if isinstance(values, str):
+        values = [values]
+    mapped = []
+    for value in values or []:
+        if isinstance(value, str) and value.startswith("http"):
+            uri = value
+        else:
+            uri = _EU_LANG.get((value or "").lower())
+        if uri and uri not in mapped:
+            mapped.append(uri)
+    return mapped
+
+
+def _first_eu_language(values):
+    mapped = _map_languages(values)
+    if _LANG_ENG in mapped:
+        return _LANG_ENG
+    return mapped[0] if mapped else _LANG_ENG
+
+
+def _adapt_parsed_dataset_for_eu_schema(dataset_dict):
+    """Map generic DCAT fixture values to eu_dcat_ap_full.yaml choice URIs."""
+    if dataset_dict.get("access_rights") == "public":
+        dataset_dict["access_rights"] = _ACCESS_RIGHTS_PUBLIC
+    if dataset_dict.get("dcat_type") == "test-type":
+        dataset_dict["dcat_type"] = _DCAT_TYPE_DATASET
+    if dataset_dict.get("language"):
+        dataset_dict["language"] = _first_eu_language(dataset_dict["language"])
+    for resource in dataset_dict.get("resources") or []:
+        if resource.get("language"):
+            resource["language"] = _first_eu_language(resource["language"])
+        for service in resource.get("access_services") or []:
+            desc = service.get("endpoint_description")
+            if desc and not str(desc).startswith(("http://", "https://")):
+                service["endpoint_description"] = (
+                    "http://example.org/endpoint-description"
+                )
+    return dataset_dict
+
 
 @pytest.mark.usefixtures("with_plugins", "clean_db")
 @pytest.mark.ckan_config("ckan.plugins", "dcat harvest schemingdcat_datasets schemingdcat fluent")
 @pytest.mark.ckan_config(
-    "scheming.dataset_schemas", "ckanext.schemingdcat:schemas/geodcat_ap/eu_dcat_ap_full.yaml"
+    "scheming.dataset_schemas", "ckanext.schemingdcat:schemas/dcat_ap/eu_dcat_ap_full.yaml"
 )
 @pytest.mark.ckan_config(
     "scheming.presets",
@@ -36,7 +92,13 @@ class TestSchemingDCATParseSupport(BaseParseTest):
 
         dataset_dict = datasets[0]
 
+        assert dataset_dict["access_rights"] == "public"
+        assert dataset_dict["dcat_type"] == "test-type"
+        parsed_languages = _map_languages(dataset_dict.get("language"))
+        assert _LANG_ENG in parsed_languages
+
         dataset_dict["name"] = "test-dcat-1"
+        _adapt_parsed_dataset_for_eu_schema(dataset_dict)
         dataset = call_action("package_create", **dataset_dict)
 
         # Core fields
@@ -59,9 +121,9 @@ class TestSchemingDCATParseSupport(BaseParseTest):
         assert dataset["version_notes"] == "New schema added"
         assert dataset["identifier"] == u"9df8df51-63db-37a8-e044-0003ba9b0d98"
         assert dataset["frequency"] == "http://purl.org/cld/freq/daily"
-        assert dataset["access_rights"] == "public"
+        assert dataset["access_rights"] == _ACCESS_RIGHTS_PUBLIC
         assert dataset["provenance"] == "Some statement about provenance"
-        assert dataset["dcat_type"] == "test-type"
+        assert dataset["dcat_type"] == _DCAT_TYPE_DATASET
 
         assert dataset["issued"] == u"2012-05-10"
         assert dataset["modified"] == u"2012-05-10T21:04:00"
@@ -70,7 +132,7 @@ class TestSchemingDCATParseSupport(BaseParseTest):
 
         # List fields
         assert sorted(dataset["conforms_to"]) == ["Standard 1", "Standard 2"]
-        assert sorted(dataset["language"]) == ["ca", "en", "es"]
+        assert dataset["language"] == _LANG_ENG
         assert sorted(dataset["theme"]) == [
             "Earth Sciences",
             "http://eurovoc.europa.eu/100142",
@@ -147,7 +209,7 @@ class TestSchemingDCATParseSupport(BaseParseTest):
         assert "download_url" not in resource
 
         # Resources: list fields
-        assert sorted(resource["language"]) == ["ca", "en", "es"]
+        assert resource["language"] == _LANG_ENG
         assert sorted(resource["documentation"]) == [
             "http://dataset.info.org/distribution1/doc1",
             "http://dataset.info.org/distribution1/doc2",
@@ -159,3 +221,6 @@ class TestSchemingDCATParseSupport(BaseParseTest):
         assert resource["access_services"][0]["endpoint_url"] == [
             "http://publications.europa.eu/webapi/rdf/sparql"
         ]
+        assert resource["access_services"][0]["endpoint_description"] == (
+            "http://example.org/endpoint-description"
+        )

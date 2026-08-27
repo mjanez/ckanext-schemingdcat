@@ -18,6 +18,46 @@ FACET_SORT_PARAM_NAME = '_%s_sort'
 
 log = logging.getLogger(__name__)
 
+# Core CKAN schema.xml: these names/prefixes are multiValued. Do not copy
+# dcat-ap-fields.xml here — that list is ckanext.schemingdcat.solr_multivalued_fields
+# (config_declaration.yml) and MUST match the published Solr image.
+_CORE_SOLR_MULTIVALUED_FIELDS = frozenset((
+    'tags', 'groups', 'permission_labels', 'text', 'urls',
+    'depends_on', 'dependency_of', 'derives_from', 'has_derivation',
+    'links_to', 'linked_from', 'child_of', 'parent_of',
+))
+_CORE_SOLR_MULTIVALUED_PREFIXES = ('res_', 'vocab_')
+
+# Fallback when config_declaration is not loaded (CKAN 2.9). Keep identical to
+# ckanext.schemingdcat.solr_multivalued_fields in config_declaration.yml and to
+# ghcr.io/mjanez/ckan-solr *-spatial fragments:
+#   ckan-solr/solr-9/schema/dcat-ap-fields.xml
+#   ckan-solr/solr-9/schema/dcat-ap-es-fields.xml
+#   ckan-solr/solr-9/schema/spatial-fields.xml
+# Workflow: add multiValued field in those XML files → publish GHCR image →
+# add the same name to solr_multivalued_fields (and here). Until the image is
+# out, leftover lists are indexed as extras_{field} (text), never as a list on
+# Solr catch-all "*". Do not add alternate_identifier until GHCR includes it.
+_DEFAULT_SOLR_MULTIVALUED_DATASET_FIELDS = frozenset((
+    'tag_uri', 'theme', 'theme_eu', 'theme_es', 'language', 'dcat_type',
+    'conforms_to', 'applicable_legislation', 'hvd_category',
+    'publisher_name', 'publisher_type', 'frequency', 'endpoint_url',
+    'serves_dataset', 'reference', 'is_referenced_by', 'resource_relation',
+    'documentation', 'metadata_profile', 'lineage_source',
+    'lineage_process_steps', 'dataset_scope', 'spatial_uri', 'spatial_geom',
+))
+
+
+def _config_field_names(key):
+    value = p.toolkit.config.get(key)
+    if not value:
+        return []
+    if isinstance(value, str):
+        return value.split()
+    if isinstance(value, (list, tuple)):
+        return [str(item) for item in value if item]
+    return []
+
 
 class PackageController():
 
@@ -135,14 +175,17 @@ class PackageController():
         return self.before_dataset_index(data_dict)
     
     def before_dataset_index(self, data_dict):
-        """
-        Processes the data dictionary before dataset indexing.
-    
+        """Prepare the Solr document only (not the persisted package).
+
+        Lists that Solr declares multiValued stay as lists (see
+        ``ckanext.schemingdcat.solr_multivalued_fields`` / ckan-solr
+        ``dcat-ap-fields.xml``). Other repeating lists become extras_{field}.
+
         Args:
             data_dict (dict): The data dictionary to be processed.
-    
+
         Returns:
-            dict: The processed data dictionary.
+            dict: The processed data dictionary with list fields joined.
         """
         # Remove empty extras keys
         data_dict = self.remove_empty_extras_keys(data_dict)
@@ -155,6 +198,8 @@ class PackageController():
 
         # Convert dict fields to JSON strings to avoid errors in Solr 9
         data_dict = self._before_index_dump_dicts(data_dict)
+
+        data_dict = self.index_leftover_list_fields(data_dict)
 
         return data_dict
 
@@ -208,41 +253,38 @@ class PackageController():
     def update_facet_titles(self, facet_titles):
         return facet_titles
 
+    def _solr_keep_as_list_fields(self):
+        names = set(_CORE_SOLR_MULTIVALUED_FIELDS)
+        names.update(_DEFAULT_SOLR_MULTIVALUED_DATASET_FIELDS)
+        names.update(_config_field_names(
+            'ckanext.schemingdcat.solr_multivalued_fields'
+        ))
+        names.update(_config_field_names('ckanext.schemingdcat.facet_list'))
+        names.update(_config_field_names('schemingdcat.facet_list'))
+        return names
+
+    def _parse_stringified_list(self, value):
+        if not (isinstance(value, str) and value.startswith('[') and value.endswith(']')):
+            return value
+        try:
+            parsed = ast.literal_eval(value)
+        except (ValueError, SyntaxError):
+            return value
+        if isinstance(parsed, (list, tuple)):
+            return parsed
+        return value
+
     # Additional methods
     def convert_stringified_lists(self, data_dict):
-        """
-        Converts stringified lists in the data dictionary to actual lists.
-    
-        Args:
-            data_dict (dict): The data dictionary to be processed.
-    
-        Returns:
-            dict: The processed data dictionary with actual lists.
-    
-        This function iterates over the items in the data dictionary and converts
-        any stringified lists (strings that start with '[' and end with ']') into
-        actual lists. Keys that start with 'extras_', 'res_', or are 'validated_data_dict'
-        are excluded from this conversion.
-        """
-        # Excluded items
-        excluded_keys = [
-            key for key in data_dict 
-            if key.startswith('extras_') or key.startswith('res_') or key == 'validated_data_dict'
-        ]
-    
-        # Filter data dictionary
-        filter_data_dict = {
-            key: value for key, value in data_dict.items()
-            if key not in excluded_keys
-        }
-    
-        for key, value in filter_data_dict.items():
-            if isinstance(value, str) and value.startswith('[') and value.endswith(']'):
-                try:
-                    data_dict[key] = ast.literal_eval(value)
-                except (ValueError, SyntaxError) as e:
-                    log.error("Error converting stringified list for key '%s': %s", key, e)
-    
+        keep = self._solr_keep_as_list_fields()
+        for key, value in list(data_dict.items()):
+            if key not in keep:
+                continue
+            if key.startswith('extras_') or key.startswith('res_'):
+                continue
+            parsed = self._parse_stringified_list(value)
+            if parsed is not value:
+                data_dict[key] = parsed
         return data_dict
     
     def remove_empty_extras_keys(self, data_dict):
@@ -312,6 +354,29 @@ class PackageController():
                 data_dict.update(flattened_values)
                 data_dict.pop(field['field_name'], None)
     
+        return data_dict
+
+    def index_leftover_list_fields(self, data_dict):
+        keep = self._solr_keep_as_list_fields()
+        for key, value in list(data_dict.items()):
+            if key in keep or key.startswith(_CORE_SOLR_MULTIVALUED_PREFIXES):
+                continue
+            if key.startswith('extras_') or key in (
+                'validated_data_dict', 'data_dict',
+            ):
+                continue
+            value = self._parse_stringified_list(value)
+            if not isinstance(value, (list, tuple)):
+                continue
+            extras_key = 'extras_{0}'.format(key)
+            if any(isinstance(item, (dict, list, tuple)) for item in value):
+                data_dict[extras_key] = json.dumps(value)
+            else:
+                data_dict[extras_key] = ' '.join(
+                    str(item) for item in value
+                    if item is not None and item != ''
+                )
+            data_dict.pop(key, None)
         return data_dict
 
     def _before_index_dump_dicts(self, data_dict):

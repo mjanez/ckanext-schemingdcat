@@ -41,7 +41,8 @@ class TestSchemingDCATPlugin:
     def test_get_signal_subscriptions(self):
         plugin_instance = plugin.SchemingDCATPlugin()
         subscriptions = plugin_instance.get_signal_subscriptions()
-        assert isinstance(subscriptions, list)
+        # CKAN ISignal.get_signal_subscriptions returns a dict of signal -> receivers
+        assert isinstance(subscriptions, dict)
         assert len(subscriptions) > 0
 
 
@@ -52,13 +53,16 @@ class TestSchemingDCATDatasetsPlugin:
         plugin_instance = plugin.SchemingDCATDatasetsPlugin()
         actions = plugin_instance.get_actions()
         assert isinstance(actions, dict)
-        assert "schemingdcat_dataset_schema_name" in actions
+        # Inherited from ckanext-scheming; there is no schemingdcat_dataset_schema_name action
+        assert "scheming_dataset_schema_list" in actions
+        assert "scheming_dataset_schema_show" in actions
 
     def test_validate(self):
         plugin_instance = plugin.SchemingDCATDatasetsPlugin()
         context = {}
         data_dict = {"type": "dataset"}
-        schema = {}
+        # validate() writes into schema["resources"]; an empty schema KeyErrors
+        schema = {"resources": {}}
         action = "package_create"
         result, errors = plugin_instance.validate(context, data_dict, schema, action)
         assert isinstance(result, dict)
