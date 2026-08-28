@@ -223,6 +223,10 @@ class EuDCATAP2Profile(BaseEuDCATAPProfile):
                         # properties
                         access_service_dict["access_service_ref"] = str(access_service)
 
+                        self._parse_access_service_extra_fields(
+                            access_service, access_service_dict, dataset_ref
+                        )
+
                         access_service_list.append(access_service_dict)
 
                     if access_service_list:
@@ -513,10 +517,17 @@ class EuDCATAP2Profile(BaseEuDCATAPProfile):
                 for theme in self.g.objects(dataset_ref, DCAT.theme):
                     self.g.add((access_service_node, DCAT.theme, theme))
                     
-                # Add DCAT.contactPoint from dataset_ref to access_service_node
-                contact_point = self.g.value(dataset_ref, DCAT.contactPoint)
-                if contact_point:
-                    self.g.add((access_service_node, DCAT.contactPoint, contact_point))
+                # DataService vCard: per-service flat fields, else inherit dataset contactPoint
+                self._add_dataservice_contact_point(
+                    access_service_node, access_service_dict, dataset_ref
+                )
+
+                # adms:Identifier (one node / one skos:notation); never dump into dct:identifier
+                service_identifiers = access_service_dict.get(
+                    "identifier"
+                ) or access_service_dict.get("alternate_identifier")
+                if service_identifiers:
+                    self._add_adms_identifiers(access_service_node, service_identifiers)
 
                 # Add DCAT.publisher from dataset_ref to access_service_node   
                 self._add_catalog_publisher_to_service(access_service_node)
@@ -537,16 +548,11 @@ class EuDCATAP2Profile(BaseEuDCATAPProfile):
         CKAN -> DCAT v2 specific properties (not applied to higher versions)
         """
 
-        # Other identifiers (these are handled differently in the
-        # DCAT-AP v3 profile)
-        self._add_triple_from_dict(
-            dataset_dict,
+        # Other identifiers: one adms:Identifier node per value, one skos:notation
+        self._add_adms_identifiers(
             dataset_ref,
-            ADMS.identifier,
-            "alternate_identifier",
-            list_value=True,
-            _type=URIRefOrLiteral,
-            _class=ADMS.Identifier,
+            self._get_dict_value(dataset_dict, "alternate_identifier"),
+            primary_identifier=self._get_dataset_value(dataset_dict, "identifier"),
         )
 
     def _graph_from_catalog_v2(self, catalog_dict, catalog_ref):

@@ -166,7 +166,10 @@ class BaseEuDCATAPProfile(SchemingDCATRDFProfile):
             ("source", DCT.source),
             ("sample", ADMS.sample),
         ):
-            values = self._object_value_list(dataset_ref, predicate)
+            if predicate == ADMS.identifier:
+                values = self._adms_identifier_notations(dataset_ref)
+            else:
+                values = self._object_value_list(dataset_ref, predicate)
             if values:
                 dataset_dict["extras"].append({"key": key, "value": json.dumps(values)})
 

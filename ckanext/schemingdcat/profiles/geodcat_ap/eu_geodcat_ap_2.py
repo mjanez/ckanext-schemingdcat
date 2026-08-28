@@ -184,14 +184,10 @@ class EuGeoDCATAP2Profile(EuDCATAP2Profile):
         ]
         self._add_triples_from_dict(dataset_dict, dataset_ref, basic_items)
 
-        self._add_triple_from_dict(
-            dataset_dict,
+        self._add_adms_identifiers(
             dataset_ref,
-            ADMS.identifier,
-            "inspire_id",
-            list_value=True,
-            _type=URIRefOrLiteral,
-            _class=ADMS.Identifier,
+            self._get_dict_value(dataset_dict, "inspire_id"),
+            primary_identifier=self._get_dataset_value(dataset_dict, "identifier"),
         )
 
     def _graph_from_catalog_geodcat_ap_v2(self, catalog_dict, catalog_ref):

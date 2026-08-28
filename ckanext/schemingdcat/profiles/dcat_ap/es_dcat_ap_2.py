@@ -235,6 +235,10 @@ class EsDCATAP2Profile(EuDCATAP2Profile):
                         # properties
                         access_service_dict["access_service_ref"] = str(access_service)
 
+                        self._parse_access_service_extra_fields(
+                            access_service, access_service_dict, dataset_ref
+                        )
+
                         access_service_list.append(access_service_dict)
 
                     if access_service_list:
@@ -270,16 +274,12 @@ class EsDCATAP2Profile(EuDCATAP2Profile):
         CKAN -> DCAT v2 specific properties (not applied to higher versions)
         """
 
-        # Other identifiers (these are handled differently in the
-        # DCAT-AP v3 profile)
-        alternate_identifier = self._get_dict_value(dataset_dict, "alternate_identifier")
-        if alternate_identifier:
-            items = self._read_list_value(alternate_identifier)
-            for item in items:
-                identifier = BNode()
-                self.g.add((dataset_ref, ADMS.identifier, identifier))
-                self.g.add((identifier, RDF.type, ADMS.Identifier))
-                self.g.add((identifier, SKOS.notation, Literal(item)))
+        # Other identifiers: one adms:Identifier node per value, one skos:notation
+        self._add_adms_identifiers(
+            dataset_ref,
+            self._get_dict_value(dataset_dict, "alternate_identifier"),
+            primary_identifier=self._get_dataset_value(dataset_dict, "identifier"),
+        )
 
         # DCAT-AP-ES Mandatory. The publisher is a DIR3 identifier: https://datos.gob.es/es/recurso/sector-publico/org/Organismo
         catalog_publisher_info = schemingdcat_get_catalog_publisher_info()

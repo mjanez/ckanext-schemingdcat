@@ -3050,6 +3050,36 @@ resource_fields:
         en: Serves dataset
         es: Sirve los conjuntos de datos
       preset: multiple_text_links
+    - field_name: contact_name
+      label:
+        en: Contact point name
+        es: Nombre del punto de contacto
+      display_property: vcard:fn
+      form_placeholder: José Blanco
+      help_text:
+        en: 'Name of the DataService contact point (vcard:fn). If empty, the RDF serializer reuses the dataset contact point.'
+        es: 'Nombre del punto de contacto del DataService (vcard:fn). Si está vacío, el serializador RDF reutiliza el punto de contacto del conjunto de datos.'
+    - field_name: contact_email
+      label:
+        en: Contact point email
+        es: Email del punto de contacto
+      validators: ignore_missing schemingdcat_valid_email
+      display_property: vcard:hasEmail
+      display_snippet: email.html
+      form_placeholder: joseblanco@example.com
+      help_text:
+        en: 'Email of the DataService contact point (vcard:hasEmail). If empty, the RDF serializer reuses the dataset contact point.'
+        es: 'Email del punto de contacto del DataService (vcard:hasEmail). Si está vacío, el serializador RDF reutiliza el punto de contacto del conjunto de datos.'
+    - field_name: contact_url
+      label:
+        en: Contact point URL
+        es: URL del punto de contacto
+      preset: valid_url
+      display_property: vcard:hasURL
+      form_placeholder: http://www.example.com
+      help_text:
+        en: 'URL of the DataService contact point (vcard:hasURL), e.g. a contact form. If empty, the RDF serializer reuses the dataset contact point.'
+        es: 'URL del punto de contacto del DataService (vcard:hasURL), p. ej. un formulario de contacto. Si está vacía, el serializador RDF reutiliza el punto de contacto del conjunto de datos.'
   help_text:
     en: 'A data service that gives access to the resource.'
     es: 'Un servicio de datos que da acceso al recurso.'

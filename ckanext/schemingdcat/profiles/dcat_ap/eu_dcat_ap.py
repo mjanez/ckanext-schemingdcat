@@ -44,14 +44,9 @@ class EuDCATAPProfile(BaseEuDCATAPProfile):
         CKAN -> DCAT v1 specific properties (not applied to higher versions)
         """
 
-        # Other identifiers (these are handled differently in the
-        # DCAT-AP v3 profile)
-        self._add_triple_from_dict(
-            dataset_dict,
+        # Other identifiers: one adms:Identifier node per value, one skos:notation
+        self._add_adms_identifiers(
             dataset_ref,
-            ADMS.identifier,
-            "alternate_identifier",
-            list_value=True,
-            _type=URIRefOrLiteral,
-            _class=ADMS.Identifier,
+            self._get_dict_value(dataset_dict, "alternate_identifier"),
+            primary_identifier=self._get_dataset_value(dataset_dict, "identifier"),
         )
